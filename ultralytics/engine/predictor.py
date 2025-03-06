@@ -302,6 +302,11 @@ class BasePredictor:
                         "inference": profilers[1].dt * 1e3 / n,
                         "postprocess": profilers[2].dt * 1e3 / n,
                     }
+                    self.results2[i].speed = {
+                        "preprocess": profilers[0].dt * 1e3 / n,
+                        "inference": profilers[1].dt * 1e3 / n,
+                        "postprocess": profilers[2].dt * 1e3 / n,
+                    }
                     if self.args.verbose or self.args.save or self.args.save_txt or self.args.show:
                         s[i] += self.write_results_vi(i, Path(paths[i]), im, s)
                         s2[i] += self.write_results_ir(i, Path(paths2[i]), im2, s2)
@@ -382,9 +387,9 @@ class BasePredictor:
         if self.args.save_crop:
             result.save_crop(save_dir=self.save_dir / "crops", file_name=self.txt_path.stem)
         if self.args.show:
-            self.show(str(p))
+            self.show(str(p), datatype='rgb')
         if self.args.save:
-            self.save_predicted_images(str(self.save_dir / f"visible_{p.name}"), frame)
+            self.save_predicted_images(str(self.save_dir / f"visible_{p.name}"), frame, 'rgb')
 
         return string
     
@@ -400,15 +405,15 @@ class BasePredictor:
             match = re.search(r"frame (\d+)/", s[i])
             frame = int(match[1]) if match else None  # 0 if frame undetermined
 
-        self.txt_path = self.save_dir / "labels_ir" / (p.stem + ("" if self.dataset[0].mode == "image" else f"_{frame}")) # TODO：dataset存在两个图像
+        self.txt_path = self.save_dir / "labels_ir" / (p.stem + ("" if self.dataset[1].mode == "image" else f"_{frame}")) # TODO：dataset存在两个图像
         string += "{:g}x{:g} ".format(*im.shape[2:])
-        result = self.results[i]
+        result = self.results2[i]
         result.save_dir = self.save_dir.__str__()  # used in other locations
         string += f"{result.verbose()}{result.speed['inference']:.1f}ms"
 
         # Add predictions to image
         if self.args.save or self.args.show:
-            self.plotted_img = result.plot(
+            self.plotted_img2 = result.plot(
                 line_width=self.args.line_width,
                 boxes=self.args.show_boxes,
                 conf=self.args.show_conf,
@@ -422,16 +427,18 @@ class BasePredictor:
         if self.args.save_crop:
             result.save_crop(save_dir=self.save_dir / "crops", file_name=self.txt_path.stem)
         if self.args.show:
-            self.show(str(p))
+            self.show(str(p), datatype='ir')
         if self.args.save:
-            self.save_predicted_images(str(self.save_dir /  f"infrared_{p.name}"), frame)
+            self.save_predicted_images(str(self.save_dir /  f"infrared_{p.name}"), frame, 'ir')
 
         return string
 
-    def save_predicted_images(self, save_path="", frame=0):
+    def save_predicted_images(self, save_path="", frame=0, datatype='rgb'):
         """Save video predictions as mp4 at specified path."""
-        im = self.plotted_img
-        im2 = self.plotted_img2
+        if datatype == 'rgb':
+            im = self.plotted_img
+        elif datatype == 'ir':
+            im = self.plotted_img2
 
         # Save videos and streams
         if self.dataset[0].mode in {"stream", "video"} and self.dataset[1].mode in {"stream", "video"}:
@@ -457,7 +464,7 @@ class BasePredictor:
         else:
             cv2.imwrite(str(Path(save_path).with_suffix(".jpg")), im)  # save to JPG for best support
 
-    def show(self, p=""):
+    def show(self, p="", datatype='rgb'):
         """Display an image in a window using the OpenCV imshow function."""
         im = self.plotted_img
         if platform.system() == "Linux" and p not in self.windows:

@@ -746,6 +746,7 @@ class FusionDetectionModel(BaseModel):
         """初始化 FusionDetectionModel 的损失函数."""
         return E2EDetectLoss(self) if getattr(self, "end2end", False) else v8DetectionLoss(self)
 
+
 class OBBModel(DetectionModel):
     """YOLOv8 Oriented Bounding Box (OBB) model."""
 
