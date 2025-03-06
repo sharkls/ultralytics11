@@ -22,6 +22,7 @@ __all__ = (
     "DeformableTransformerDecoderLayer",
     "MSDeformAttn",
     "MLP",
+    "MultiModalTransformer"
 )
 
 
@@ -425,3 +426,85 @@ class DeformableTransformerDecoder(nn.Module):
             refer_bbox = refined_bbox.detach() if self.training else refined_bbox
 
         return torch.stack(dec_bboxes), torch.stack(dec_cls)
+
+
+# TODO: 多模态transformer
+class MultiModalTransformer(nn.Module):
+    """
+    多模态Transformer模块，用于处理可见光和红外图像的特征融合。
+    """
+    """基于注意力机制的双模态特征融合"""
+
+    def __init__(self, in_channels_vis, in_channels_therm, fusion_channels):
+        super(MultiModalTransformer, self).__init__()
+        self.fusion = nn.Sequential(
+            nn.Conv2d(in_channels_vis + in_channels_therm, fusion_channels, kernel_size=1),
+            nn.BatchNorm2d(fusion_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(fusion_channels, fusion_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(fusion_channels),
+            nn.ReLU(inplace=True)
+        )
+        self.attention_vis = nn.Sequential(
+            nn.AdaptiveAvgPool2d(1),
+            nn.Conv2d(in_channels_vis, fusion_channels, kernel_size=1),
+            nn.Sigmoid()
+        )
+        self.attention_therm = nn.Sequential(
+            nn.AdaptiveAvgPool2d(1),
+            nn.Conv2d(in_channels_therm, fusion_channels, kernel_size=1),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x_vis, x_therm):
+        """
+        前向传播过程。
+        
+        Args:
+            x_vis (torch.Tensor): 可见光特征图，形状 [batch, C_vis, H, W]。
+            x_therm (torch.Tensor): 红外特征图，形状 [batch, C_therm, H, W]。
+        
+        Returns:
+            torch.Tensor: 融合后的特征图。
+        """
+        batch_size, C_therm, H, W = x_therm.size()
+        
+        # 将单应性矩阵转换为仿射变换矩阵
+        affine_matrix = self.get_affine_transform_matrix(self.H, x_therm.device)  # shape: [1, 2, 3]
+
+        # 生成采样网格
+        grid = F.affine_grid(affine_matrix, x_therm.size(), align_corners=True)  # shape: [batch, H, W, 2]
+
+        # 应用空间变换
+        x_therm_transformed = F.grid_sample(x_therm, grid, mode='bilinear', padding_mode='zeros', align_corners=True)
+
+        # 将变换后的红外特征与可见光特征拼接
+        fused = torch.cat((x_vis, x_therm_transformed), dim=1)  # shape: [batch, C_vis + C_therm, H, W]
+
+        # 特征融合
+        fused = self.fusion(fused)
+
+        # 计算注意力权重
+        att_vis = self.attention_vis(x_vis)
+        att_therm = self.attention_therm(x_therm_transformed)
+
+        # 应用注意力权重
+        out = fused * (att_vis + att_therm)
+        return out
+
+    def get_affine_transform_matrix(self, H, device):
+        """
+        将单应性矩阵转换为适用于torch.nn.functional.affine_grid的仿射变换矩阵。
+        
+        Args:
+            H (numpy.ndarray): 3x3 单应性矩阵。
+            device (torch.device): 指定设备。
+        
+        Returns:
+            torch.Tensor: 2x3 仿射变换矩阵。
+        """
+        # 提取仿射变换部分（忽略最后一行）
+        affine_matrix = H[:2, :]  # shape: [2, 3]
+        affine_matrix = torch.from_numpy(affine_matrix).float().to(device)  # 转换为Tensor
+        affine_matrix = affine_matrix.unsqueeze(0).repeat(batch_size, 1, 1)  # shape: [batch, 2, 3]
+        return affine_matrix

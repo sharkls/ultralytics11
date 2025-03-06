@@ -9,6 +9,7 @@ from pathlib import Path
 
 import torch
 import torch.nn as nn
+import numpy as np
 
 from ultralytics.nn.modules import (
     AIFI,
@@ -63,6 +64,11 @@ from ultralytics.nn.modules import (
     TorchVision,
     WorldDetect,
     v10Detect,
+    MultiModalTransformer,
+    DEA,
+    # DEPA,
+    # DECA,
+    FMDEA,
 )
 from ultralytics.utils import DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS, LOGGER, colorstr, emojis, yaml_load
 from ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
@@ -390,6 +396,355 @@ class DetectionModel(BaseModel):
         """Initialize the loss criterion for the DetectionModel."""
         return E2EDetectLoss(self) if getattr(self, "end2end", False) else v8DetectionLoss(self)
 
+# TODO:多模态目标检测
+class FusionDetectionModel(BaseModel):
+    """YOLOv11 多模态融合检测模型."""
+
+    def __init__(self, cfg="yolo11-fusion.yaml", ch=3, ch2=3, nc=None, verbose=True):
+        """
+        初始化 YOLOv11 多模态融合检测模型。
+
+        Args:
+            cfg (str | dict): 模型配置文件路径或配置字典。
+            ch (tuple): 输入通道数，格式为 (可见光通道数, 红外通道数)。
+            nc (int, optional): 类别数量。如果提供，将覆盖配置文件中的类别数。
+            verbose (bool): 是否输出详细信息。
+        """
+        super().__init__()
+        self.yaml = cfg if isinstance(cfg, dict) else yaml_model_load(cfg)  # 载入配置
+        if self.yaml["backbone"][0][2] == "Silence":
+            LOGGER.warning(
+                "WARNING ⚠️ YOLOv9 `Silence` 模块已弃用，使用 nn.Identity 代替。"
+                "请删除本地 *.pt 文件并重新下载最新的模型权重。"
+            )
+            self.yaml["backbone"][0][2] = "nn.Identity"
+
+        # 定义模型
+        # ch = self.yaml['ch'] = self.yaml.get('ch', ch)  # input channels
+        # ch2 = self.yaml['ch'] = self.yaml.get('ch2', ch2)  # input channels
+        self.ch_visible, self.ch_thermal = ch, ch2  # 可见光和红外输入通道
+        self.yaml["ch_visible"] = self.ch_visible
+        self.yaml["ch_thermal"] = self.ch_thermal
+        if nc and nc != self.yaml.get("nc", None):
+            LOGGER.info(f"覆盖 model.yaml 中的 nc={self.yaml.get('nc', '未定义')} 为 nc={nc}")
+            self.yaml["nc"] = nc  # 覆盖类别数
+
+        # # TODO：加载空间映射相关配置
+        # spatial_mapping = self.yaml.get('spatial_mapping', {})
+        # homography_matrix_path = spatial_mapping.get('homography_matrix_path', None)
+        # if homography_matrix_path:
+        #     H = np.load(homography_matrix_path)
+        #     LOGGER.info(f"加载单应性矩阵来自 {homography_matrix_path}")
+        # else:
+        #     H = np.eye(3)
+        #     LOGGER.warning("未提供单应性矩阵路径，使用单位矩阵。")
+
+        # 解析模型
+        self.model, self.save = parse_model_fusion(deepcopy(self.yaml), ch=self.ch_visible, ch2=self.ch_thermal, verbose=verbose)  # 解析模型
+        
+        # # TODO：新增：初始化 MultiModalTransformer
+        # self.transformer = MultiModalTransformer(
+        #     in_channels_vis=1024,  # 根据具体模型调整
+        #     in_channels_therm=1024,  # 根据具体模型调整
+        #     fusion_channels=1024,  # 根据具体模型调整
+        #     H=H  # 传入单应性矩阵
+        # )
+        
+        self.names = {i: f"{i}" for i in range(self.yaml["nc"])}  # 类别名称字典
+        self.inplace = self.yaml.get("inplace", True)
+        self.end2end = getattr(self.model[-1], "end2end", False)
+
+        # 构建步幅
+        m = self.model[-1]  # Detect()
+        if isinstance(m, Detect):  # 包含所有 Detect 子类如 Segment, Pose, OBB, WorldDetect
+            s = 256  # 2x 最小步幅
+            m.inplace = self.inplace
+
+            def _forward(x_vis, x_therm):
+                """通过模型前向传播，处理不同的 Detect 子类类型。"""
+                if self.end2end:
+                    return self.forward(x_vis, x_therm)["one2many"]
+                return self.forward(x_vis, x_therm)[0] if isinstance(m, (Segment, Pose, OBB)) else self.forward(x_vis, x_therm)
+
+            m.stride = torch.tensor([s / x.shape[-2] for x in _forward(torch.zeros(1, self.ch_visible, s, s), 
+                                                                        torch.zeros(1, self.ch_thermal, s, s))])  # 前向传播
+            self.stride = m.stride
+            m.bias_init()  # 仅运行一次
+        else:
+            self.stride = torch.Tensor([32])  # 默认步幅，例如 RTDETR
+
+        # 初始化权重与偏置
+        initialize_weights(self)
+        if verbose:
+            self.info()
+            LOGGER.info("")
+
+    def forward(self, x_vis, x_therm, *args, **kwargs):
+        """
+        执行模型的前向传播。
+
+        Args:
+            x_vis (torch.Tensor): 可见光输入图像张量。
+            x_therm (torch.Tensor): 红外输入图像张量。
+            *args: 额外的位置参数。
+            **kwargs: 额外的关键字参数。
+
+        Returns:
+            torch.Tensor: 模型的输出。
+        """
+        if isinstance(x_vis, dict) and isinstance(x_therm, dict):
+            return self.loss(x_vis, x_therm, *args, **kwargs)
+        return self.predict(x_vis, x_therm, *args, **kwargs)
+    
+    def forward_multimodal(self, x_vis, x_therm, *args, **kwargs):
+        """
+        执行模型的前向传播。
+
+        Args:
+            x_vis (torch.Tensor): 可见光输入图像张量。
+            x_therm (torch.Tensor): 红外输入图像张量。
+            *args: 额外的位置参数。
+            **kwargs: 额外的关键字参数。
+
+        Returns:
+            torch.Tensor: 模型的输出。
+        """
+        if isinstance(x_vis, dict) and isinstance(x_therm, dict):
+            return self.loss(x_vis, x_therm, *args, **kwargs)
+        return self.predict(x_vis, x_therm, *args, **kwargs)
+
+    def loss(self, x_vis, x_therm, *args, **kwargs):
+        """
+        计算损失。
+
+        Args:
+            x_vis (torch.Tensor): 可见光输入图像张量。
+            x_therm (torch.Tensor): 红外输入图像张量。
+            *args: 额外的位置参数。
+            **kwargs: 额外的关键字参数。
+
+        Returns:
+            torch.Tensor: 计算得到的损失。
+        """
+        if getattr(self, "criterion", None) is None:
+            self.criterion = self.init_criterion()
+        # print(x_vis.keys(), ", ", x_therm.keys())
+        preds = self.forward(x_vis["img"], x_therm["img2"])  # 前向传播
+        return self.criterion(preds, x_vis)
+
+    def predict(self, x_vis, x_therm, profile=False, visualize=False, augment=False, embed=None):
+        """
+        执行模型的预测。
+
+        Args:
+            x_vis (torch.Tensor): 可见光输入图像张量。
+            x_therm (torch.Tensor): 红外输入图像张量。
+            profile (bool): 是否打印每层的计算时间。
+            visualize (bool): 是否保存特征图用于可视化。
+            augment (bool): 是否进行数据增强预测。
+            embed (list, optional): 要返回的特征向量列表。
+
+        Returns:
+            torch.Tensor: 模型的预测输出。
+        """
+        if augment:
+            return self._predict_augment(x_vis, x_therm)
+        return self._predict_once(x_vis, x_therm, profile, visualize, embed)
+
+    def _predict_once_v1(self, x_vis, x_therm, profile=False, visualize=False, embed=None):
+        """
+        执行一次前向传播进行预测。
+
+        Args:
+            x_vis (torch.Tensor): 可见光输入图像张量。
+            x_therm (torch.Tensor): 红外输入图像张量。
+            profile (bool): 是否打印每层的计算时间。
+            visualize (bool): 是否保存特征图用于可视化。
+            embed (list, optional): 要返回的特征向量列表。
+
+        Returns:
+            torch.Tensor: 模型的预测输出。
+        """
+        y, dt, embeddings = [], [], []  # 输出
+        # print("self.model: ", self.model)
+        for m in self.model:
+            print("m.i: ", m.i, "self.yaml['backbone']: ", len(self.yaml['backbone']))
+            print("x_vis.shape: ", x_vis.shape, "x_therm.shape: ", x_therm.shape)
+            if m.i < len(self.yaml['backbone']):
+                x_vis = m(x_vis)
+                x_therm = x_therm
+                y.append(x_vis if m.i in self.save else None)
+            else:
+                if m.f != -1:  # 如果不是来自上一层
+                    x_therm = y[m.f] if isinstance(m.f, int) else [x_therm if j == -1 else y[j] for j in m.f]
+                if profile:
+                    self._profile_one_layer(m, x_therm, dt)
+                # print("model: ", m, "x_therm.shape: ", x_therm.shape)
+                x_therm = m(x_therm)  # 运行
+                x_vis = x_vis
+                y.append(x_therm if m.i in self.save else None)  # 保存输出
+                
+            if visualize:
+                feature_visualization(x_therm, m.type, m.i, save_dir=visualize)
+            if embed and m.i in embed:
+                embeddings.append(nn.functional.adaptive_avg_pool2d(x_therm, (1, 1)).squeeze(-1).squeeze(-1))  # 展平
+                if m.i == max(embed):
+                    return torch.unbind(torch.cat(embeddings, 1), dim=0)
+        return x_therm
+
+    def _predict_once(self, x_vis, x_therm, profile=False, visualize=False, embed=None):
+        """
+        执行一次前向传播进行预测。
+
+        Args:
+            x_vis (torch.Tensor): 可见光输入图像张量。
+            x_therm (torch.Tensor): 红外输入图像张量。
+            profile (bool): 是否打印每层的计算时间。
+            visualize (bool): 是否保存特征图用于可视化。
+            embed (list, optional): 要返回的特征向量列表。
+
+        Returns:
+            torch.Tensor: 模型的预测输出。
+        """
+
+        y_main = [x_vis]   # 可见光分支各层输出，y_main[0]为初始输入
+        y_aux = [x_therm]  # 红外分支各层输出，y_aux[0]为初始输入
+        y_head = []        # 头部各层输出
+        dt = []            # 性能分析时间记录
+        embeddings = []    # 嵌入特征
+
+        backbone_len = len(self.yaml['backbone'])
+        backbone2_len = len(self.yaml['backbone2'])
+
+        for m in self.model:
+            # 处理Backbone（可见光分支）
+            if m.i < backbone_len:
+                f = m.f
+                # 获取输入特征
+                if isinstance(f, int):
+                    x = y_main[f] if f != -1 else y_main[-1]
+                elif isinstance(f, list):
+                    x = [y_main[i] for i in f]
+                else:
+                    x = y_main[-1]
+                # 执行模块
+                if profile:
+                    self._profile_one_layer(m, x, dt)
+                x = m(x)
+                y_main.append(x)  # 保存输出到可见光分支
+
+            # 处理Backbone2（红外分支）
+            elif m.i < backbone_len + backbone2_len:
+                f = m.f
+                # 转换为backbone2内部的索引
+                if isinstance(f, int):
+                    f_internal = f if f != -1 else len(y_aux) - 1
+                    x = y_aux[f_internal]
+                elif isinstance(f, list):
+                    x = [y_aux[i] for i in f]
+                else:
+                    x = y_aux[-1]
+                # 执行模块
+                if profile:
+                    self._profile_one_layer(m, x, dt)
+                x = m(x)
+                y_aux.append(x)  # 保存输出到红外分支
+
+            # 处理Head（融合及检测头）
+            else:
+                f = m.f
+                inputs = []
+                # 遍历输入来源索引
+                for src_idx in (f if isinstance(f, list) else [f]):
+                    if src_idx == -1:
+                        inputs.append(y_head[src_idx])
+                    elif src_idx < backbone_len:  # 来自可见光分支
+                        inputs.append(y_main[src_idx + 1])  # y_main[0]为输入，层0输出在y_main[1]
+                    elif src_idx < backbone_len + backbone2_len:  # 来自红外分支
+                        layer_idx = src_idx - backbone_len
+                        inputs.append(y_aux[layer_idx + 1])  # y_aux[0]为输入，层0输出在y_aux[1]
+                    else:  # 来自头部之前的层
+                        head_idx = src_idx - (backbone_len + backbone2_len)
+                        inputs.append(y_head[head_idx])
+                # 处理多输入情况（如Concat或DEA）
+                x = inputs if len(inputs) > 1 else inputs[0] if inputs else None
+                # 执行模块
+                if profile:
+                    self._profile_one_layer(m, x, dt)
+                x = m(x)
+                y_head.append(x)  # 保存头部输出
+
+                # 可视化与特征嵌入
+                if visualize:
+                    feature_visualization(x, m.__class__.__name__, m.i, save_dir=visualize)
+                if embed and m.i in embed:
+                    embeddings.append(nn.functional.adaptive_avg_pool2d(x, (1, 1)).squeeze(-1).squeeze(-1))
+                    if m.i == max(embed):
+                        return torch.unbind(torch.cat(embeddings, 1), 0)
+
+        # 最终输出为头部的最后一层
+        return y_head[-1] if y_head else None
+
+    def _predict_augment(self, x_vis, x_therm):
+        """对输入的可见光和红外图像进行数据增强预测，并返回增强后的推理结果。"""
+        if getattr(self, "end2end", False) or self.__class__.__name__ != "FusionDetectionModel":
+            LOGGER.warning("WARNING ⚠️ 模型不支持 'augment=True'，恢复为单尺度预测。")
+            return self._predict_once(x_vis, x_therm)
+        
+        img_size = x_vis.shape[-2:]  # 高度, 宽度
+        scales = [1, 0.83, 0.67]  # 缩放比例
+        flips = [None, 3, None]  # 翻转方式（None, 水平翻转, None）
+        augmented_preds = []
+
+        for scale, flip in zip(scales, flips):
+            # 对可见光图像进行翻转和缩放
+            if flip:
+                x_vis_aug = scale_img(x_vis.flip(flip), scale, gs=int(self.stride.max()))
+                x_therm_aug = scale_img(x_therm.flip(flip), scale, gs=int(self.stride.max()))
+            else:
+                x_vis_aug = scale_img(x_vis, scale, gs=int(self.stride.max()))
+                x_therm_aug = scale_img(x_therm, scale, gs=int(self.stride.max()))
+            
+            # 前向推理
+            preds = super().predict(x_vis_aug, x_therm_aug)[0]
+            # 反转换预测结果
+            preds = self._descale_pred(preds, flip, scale, img_size)
+            augmented_preds.append(preds)
+        
+        # 裁剪增强后的预测结果
+        augmented_preds = self._clip_augmented(augmented_preds)
+        return torch.cat(augmented_preds, -1), None  # 增强后的推理结果和训练输出
+
+    @staticmethod
+    def _descale_pred(p, flip, scale, img_size, dim=1):
+        """将增强后的预测结果反转换回原始图像的尺度和方向。"""
+        p[:, :4] /= scale  # 反缩放
+        x, y, wh, cls = p.split((1, 1, 2, p.shape[dim] - 4), dim)
+        
+        if flip == 2:
+            y = img_size[0] - y  # 反向垂直翻转
+        elif flip == 3:
+            x = img_size[1] - x  # 反向水平翻转
+        
+        return torch.cat((x, y, wh, cls), dim)
+
+    def _clip_augmented(self, preds):
+        """裁剪增强后的推理结果，移除冗余部分。"""
+        nl = self.model[-1].nl  # 检测层数量（P3-P5）
+        g = sum(4**x for x in range(nl))  # 网格点数
+        e = 1  # 排除层数
+        clipped_preds = []
+        
+        for pred in preds:
+            i = (pred.shape[-1] // g) * sum(4**x for x in range(e))
+            pred = pred[..., :-i]  # 裁剪大尺度
+            clipped_preds.append(pred)
+        
+        return clipped_preds
+
+    def init_criterion(self):
+        """初始化 FusionDetectionModel 的损失函数."""
+        return E2EDetectLoss(self) if getattr(self, "end2end", False) else v8DetectionLoss(self)
 
 class OBBModel(DetectionModel):
     """YOLOv8 Oriented Bounding Box (OBB) model."""
@@ -965,41 +1320,9 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
                 with contextlib.suppress(ValueError):
                     args[j] = locals()[a] if a in locals() else ast.literal_eval(a)
         n = n_ = max(round(n * depth), 1) if n > 1 else n  # depth gain
-        if m in {
-            Classify,
-            Conv,
-            ConvTranspose,
-            GhostConv,
-            Bottleneck,
-            GhostBottleneck,
-            SPP,
-            SPPF,
-            C2fPSA,
-            C2PSA,
-            DWConv,
-            Focus,
-            BottleneckCSP,
-            C1,
-            C2,
-            C2f,
-            C3k2,
-            RepNCSPELAN4,
-            ELAN1,
-            ADown,
-            AConv,
-            SPPELAN,
-            C2fAttn,
-            C3,
-            C3TR,
-            C3Ghost,
-            nn.ConvTranspose2d,
-            DWConvTranspose2d,
-            C3x,
-            RepC3,
-            PSA,
-            SCDown,
-            C2fCIB,
-        }:
+        if m in {Classify,Conv,ConvTranspose,GhostConv,Bottleneck,GhostBottleneck,SPP,SPPF,C2fPSA,C2PSA,DWConv,
+                 Focus,BottleneckCSP,C1,C2,C2f,C3k2,RepNCSPELAN4,ELAN1,ADown,AConv,SPPELAN,C2fAttn,C3,C3TR,
+                 C3Ghost,nn.ConvTranspose2d,DWConvTranspose2d,C3x,RepC3,PSA,SCDown,C2fCIB,}:
             c1, c2 = ch[f], args[0]
             if c2 != nc:  # if c2 not equal to number of classes (i.e. for Classify() output)
                 c2 = make_divisible(min(c2, max_channels) * width, 8)
@@ -1010,22 +1333,7 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
                 )  # num heads
 
             args = [c1, c2, *args[1:]]
-            if m in {
-                BottleneckCSP,
-                C1,
-                C2,
-                C2f,
-                C3k2,
-                C2fAttn,
-                C3,
-                C3TR,
-                C3Ghost,
-                C3x,
-                RepC3,
-                C2fPSA,
-                C2fCIB,
-                C2PSA,
-            }:
+            if m in {BottleneckCSP,C1,C2,C2f,C3k2,C2fAttn,C3,C3TR,C3Ghost,}:
                 args.insert(2, n)  # number of repeats
                 n = 1
             if m is C3k2:  # for M/L/X sizes
@@ -1075,6 +1383,187 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
             ch = []
         ch.append(c2)
     return nn.Sequential(*layers), sorted(save)
+
+def parse_model_fusion(d, ch, ch2, verbose=True):  # model_dict, input_channels(3)
+    """Parse a YOLO model.yaml dictionary into a PyTorch model."""
+    import ast
+
+    # Initial parameters
+    nc, act, scales = (d.get(x) for x in ("nc", "activation", "scales"))
+    depth, width, max_channels = (d.get(x, 1.0) for x in ("depth_multiple", "width_multiple", "max_channels"))
+    if scales:
+        scale = d.get("scale", list(scales.keys())[0])
+        depth, width, max_channels = scales[scale]
+
+    if act:
+        Conv.default_act = eval(act)
+
+    if verbose:
+        LOGGER.info(f"\n{'':>3}{'from':>20}{'n':>3}{'params':>10}  {'module':<45}{'arguments':<30}")
+
+    # Separate layers for backbone, backbone2, and head
+    backbone_layers = d["backbone"]
+    backbone2_layers = d["backbone2"]
+    head_layers = d["head"]
+    backbone_len = len(backbone_layers)
+    backbone2_len = len(backbone2_layers)
+
+    # Initialize channel lists for each branch
+    ch_main = [ch]   # Visible branch channels
+    ch_aux = [ch2]   # Infrared branch channels
+    ch_head = []
+    layers = []
+    save = []
+
+    # Process backbone (visible branch)
+    for i, (f, n, m, args) in enumerate(backbone_layers):
+        m = getattr(torch.nn, m[3:]) if "nn." in m else globals()[m]
+        for j, a in enumerate(args):
+            if isinstance(a, str):
+                with contextlib.suppress(ValueError):
+                    args[j] = locals()[a] if a in locals() else ast.literal_eval(a)
+        n = n_ = max(round(n * depth), 1) if n > 1 else n  # depth gain
+
+        # Get input and output channels
+        if m in [Conv, C3k2, SPPF, C2PSA]:
+            c1 = ch_main[f] if isinstance(f, int) else [ch_main[x] for x in f]
+            c2 = args[0]
+            if c2 != nc:
+                c2 = make_divisible(min(c2, max_channels) * width, 8)
+            args = [c1, c2, *args[1:]]
+            if m is C3k2:
+                args.insert(2, n)
+                n = 1
+            if m is C3k2:
+                legacy = False
+                if scale in "mlx":
+                    args[3] = True
+
+        # Build module
+        m_ = nn.Sequential(*(m(*args) for _ in range(n))) if n > 1 else m(*args)
+        t = str(m)[8:-2].replace("__main__.", "")  # module type
+        m_.np = sum(x.numel() for x in m_.parameters())  # number params
+        m_.i, m_.f, m_.type = i, f, t
+        layers.append(m_)
+        ch_main.append(c2)
+        if verbose:
+            LOGGER.info(f"{i:>3}{str(f):>20}{n_:>3}{m_.np:10.0f}  {t:<45}{str(args):<30}")  # print
+
+    # Process backbone2 (infrared branch)
+    for i, (f, n, m, args) in enumerate(backbone2_layers):
+        m = getattr(torch.nn, m[3:]) if "nn." in m else globals()[m]
+        for j, a in enumerate(args):
+            if isinstance(a, str):
+                with contextlib.suppress(ValueError):
+                    args[j] = locals()[a] if a in locals() else ast.literal_eval(a)
+        n = n_ = max(round(n * depth), 1) if n > 1 else n  # depth gain
+
+        # Get input and output channels
+        if m in [Conv, C3k2, SPPF, C2PSA]:
+            c1 = ch_aux[f] if isinstance(f, int) else [ch_aux[x] for x in f]
+            c2 = args[0]
+            if c2 != nc:
+                c2 = make_divisible(min(c2, max_channels) * width, 8)
+            args = [c1, c2, *args[1:]]
+            if m is C3k2:
+                args.insert(2, n)
+                n = 1
+            if m is C3k2:
+                legacy = False
+                if scale in "mlx":
+                    args[3] = True
+
+        # Build module
+        m_ = nn.Sequential(*(m(*args) for _ in range(n))) if n > 1 else m(*args)
+        t = str(m)[8:-2].replace("__main__.", "")  # module type
+        m_.np = sum(x.numel() for x in m_.parameters())  # number params
+        m_.i, m_.f, m_.type = i + backbone_len, f, t  # Offset index for backbone2
+        layers.append(m_)
+        ch_aux.append(c2)
+        if verbose:
+            LOGGER.info(f"{i + backbone_len:>3}{str(f):>20}{n_:>3}{m_.np:10.0f}  {t:<45}{str(args):<30}")  # print
+
+    # Process head (fusion and detection)
+    for i, (f, n, m, args) in enumerate(head_layers):
+        m = getattr(torch.nn, m[3:]) if "nn." in m else globals()[m]
+        for j, a in enumerate(args):
+            if isinstance(a, str):
+                with contextlib.suppress(ValueError):
+                    args[j] = locals()[a] if a in locals() else ast.literal_eval(a)
+        n = n_ = max(round(n * depth), 1) if n > 1 else n  # depth gain
+
+        if m in {Classify,Conv,ConvTranspose,GhostConv,Bottleneck,GhostBottleneck,SPP,SPPF,C2fPSA,C2PSA,DWConv,
+                 Focus,BottleneckCSP,C1,C2,C2f,C3k2,RepNCSPELAN4,ELAN1,ADown,AConv,SPPELAN,C2fAttn,C3,C3TR,
+                 C3Ghost,nn.ConvTranspose2d,DWConvTranspose2d,C3x,RepC3,PSA,SCDown,C2fCIB,}:
+            c1, c2 = ch_head[f], args[0]
+            if c2 != nc:  # if c2 not equal to number of classes (i.e. for Classify() output)
+                c2 = make_divisible(min(c2, max_channels) * width, 8)
+            if m is C2fAttn:
+                args[1] = make_divisible(min(args[1], max_channels // 2) * width, 8)  # embed channels
+                args[2] = int(
+                    max(round(min(args[2], max_channels // 2 // 32)) * width, 1) if args[2] > 1 else args[2]
+                )  # num heads
+
+            args = [c1, c2, *args[1:]]
+            if m in {BottleneckCSP,C1,C2,C2f,C3k2,C2fAttn,C3,C3TR,C3Ghost,}:
+                args.insert(2, n)  # number of repeats
+                n = 1
+            if m is C3k2:  # for M/L/X sizes
+                legacy = False
+                if scale in "mlx":
+                    args[3] = True
+        elif m is DEA:
+            c1 = []
+            for x in (f if isinstance(f, list) else [f]):
+                if x < backbone_len:  # From visible branch
+                    c1.append(ch_main[x + 1])
+                else:  # From infrared branch (adjust index)
+                    c1.append(ch_aux[x - backbone_len + 1])
+                
+            c2 = args[0]
+            if c2 != nc:
+                c2 = make_divisible(min(c2, max_channels) * width, 8)
+            args = [c1, *args[1:]]  # Pass both features to DEA
+        elif m is FMDEA:
+            c1 = []
+            for x in (f if isinstance(f, list) else [f]):
+                if x < backbone_len:  # From visible branch
+                    c1.append(ch_main[x + 1])
+                else:  # From infrared branch (adjust index)
+                    c1.append(ch_aux[x - backbone_len + 1])
+            mapping_matrix = d["mapping_matrix"]
+            c2 = args[0]
+            if c2 != nc:
+                c2 = make_divisible(min(c2, max_channels) * width, 8)
+            args = [mapping_matrix, c1, *args[1:]]  # Pass both features to DEA
+        elif m is Concat:
+            c1 = []
+            for x in (f if isinstance(f, list) else [f]):
+                if x >= len(ch_main) + len(ch_aux) - 2:
+                    c1.append(ch_head[x - len(ch_main) - len(ch_aux) + 2])
+            c2 = sum(c1)
+        elif m in {Detect, WorldDetect, Segment, Pose, OBB, ImagePoolingAttn, v10Detect}:
+            args.append([ch_head[x - len(ch_main) - len(ch_aux) + 2] for x in f])
+            if m is Segment:
+                args[2] = make_divisible(min(args[2], max_channels) * width, 8)
+            if m in {Detect, Segment, Pose, OBB}:
+                m.legacy = legacy
+        else:
+            # c2 = args[0]
+            c2 = ch_head[f]
+
+        # Build module
+        m_ = nn.Sequential(*(m(*args) for _ in range(n))) if n > 1 else m(*args)
+        t = str(m)[8:-2].replace("__main__.", "")  # module type
+        m_.np = sum(x.numel() for x in m_.parameters())  # number params
+        m_.i, m_.f, m_.type = i + backbone_len + backbone2_len, f, t
+        layers.append(m_)
+        ch_head.append(c2)
+        if verbose:
+            LOGGER.info(f"{i + backbone_len + backbone2_len:>3}{str(f):>20}{n_:>3}{m_.np:10.0f}  {t:<45}{str(args):<30}")  # print
+
+    return nn.Sequential(*layers), sorted(save)
+
 
 
 def yaml_model_load(path):

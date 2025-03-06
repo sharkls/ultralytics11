@@ -38,6 +38,7 @@ def _log_tensorboard_graph(trainer):
     imgsz = (imgsz, imgsz) if isinstance(imgsz, int) else imgsz
     p = next(trainer.model.parameters())  # for device, type
     im = torch.zeros((1, 3, *imgsz), device=p.device, dtype=p.dtype)  # input image (must be zeros, not empty)
+    im2 = torch.zeros((1, 3, *imgsz), device=p.device, dtype=p.dtype)  # input image (must be zeros, not empty) # TODO: 添加多模态
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=UserWarning)  # suppress jit trace warning
@@ -46,7 +47,11 @@ def _log_tensorboard_graph(trainer):
         # Try simple method first (YOLO)
         try:
             trainer.model.eval()  # place in .eval() mode to avoid BatchNorm statistics changes
-            WRITER.add_graph(torch.jit.trace(de_parallel(trainer.model), im, strict=False), [])
+            if len(trainer.args.model.split("DEYOLO")) > 1:
+            # if trainer.args.data == "multimodal.yaml":
+                WRITER.add_graph(torch.jit.trace(de_parallel(trainer.model), im, im2, strict=False), [])
+            else:
+                WRITER.add_graph(torch.jit.trace(de_parallel(trainer.model), im, strict=False), [])
             LOGGER.info(f"{PREFIX}model graph visualization added ✅")
             return
 
@@ -60,8 +65,8 @@ def _log_tensorboard_graph(trainer):
                     if hasattr(m, "export"):  # Detect, RTDETRDecoder (Segment and Pose use Detect base class)
                         m.export = True
                         m.format = "torchscript"
-                model(im)  # dry run
-                WRITER.add_graph(torch.jit.trace(model, im, strict=False), [])
+                model(im, im2)  # dry run
+                WRITER.add_graph(torch.jit.trace(model, im, im2, strict=False), [])
                 LOGGER.info(f"{PREFIX}model graph visualization added ✅")
             except Exception as e:
                 LOGGER.warning(f"{PREFIX}WARNING ⚠️ TensorBoard graph visualization failure {e}")

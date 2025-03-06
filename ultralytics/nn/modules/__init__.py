@@ -86,7 +86,12 @@ from .transformer import (
     TransformerBlock,
     TransformerEncoderLayer,
     TransformerLayer,
+    MultiModalTransformer,  # 多模态transformer
 )
+
+# TODO:增加DEYOLO模块
+from .DEA import DEA
+from .FMDEA import FMDEA
 
 __all__ = (
     "Conv",
@@ -160,4 +165,7 @@ __all__ = (
     "PSA",
     "TorchVision",
     "Index",
+    "MultiModalTransformer",    # 多模态transformer
+    "DEA",
+    "FMDEA",
 )

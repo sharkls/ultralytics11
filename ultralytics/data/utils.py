@@ -164,7 +164,93 @@ def verify_image_label(args):
         msg = f"{prefix}WARNING ⚠️ {im_file}: ignoring corrupt image/label: {e}"
         return [None, None, None, None, None, nm, nf, ne, nc, msg]
 
+def verify_image_label_multimodal(args):
+    """Verify one image-label pair."""
+    im_file,im_file2, lb_file, prefix, prefix2, keypoint, num_cls, nkpt, ndim = args
+    # Number (missing, found, empty, corrupt), message, segments, keypoints
+    nm, nf, ne, nc, msg, msg2, segments, keypoints = 0, 0, 0, 0, "", "", [], None
+    try:
+        # Verify images
+        im = Image.open(im_file)
+        im.verify()  # PIL verify
+        shape = exif_size(im)  # image size
+        shape = (shape[1], shape[0])  # hw
+        assert (shape[0] > 9) & (shape[1] > 9), f"image size {shape} <10 pixels"
+        assert im.format.lower() in IMG_FORMATS, f"invalid image format {im.format}. {FORMATS_HELP_MSG}"
+        if im.format.lower() in {"jpg", "jpeg"}:
+            with open(im_file, "rb") as f:
+                f.seek(-2, 2)
+                if f.read() != b"\xff\xd9":  # corrupt JPEG
+                    ImageOps.exif_transpose(Image.open(im_file)).save(im_file, "JPEG", subsampling=0, quality=100)
+                    msg = f"{prefix}WARNING ⚠️ {im_file}: corrupt JPEG restored and saved"
 
+
+        # Verify images2
+        im2 = Image.open(im_file2)
+        im2.verify()  # PIL verify
+        shape2 = exif_size(im2)  # image size
+        shape2 = (shape2[1], shape2[0])  # hw
+        assert (shape2[0] > 9) & (shape2[1] > 9), f"image size {shape2} <10 pixels"
+        assert im2.format.lower() in IMG_FORMATS, f"invalid image format {im2.format}. {FORMATS_HELP_MSG}"
+        if im2.format.lower() in {"jpg", "jpeg"}:
+            with open(im_file2, "rb") as f:
+                f.seek(-2, 2)
+                if f.read() != b"\xff\xd9":  # corrupt JPEG
+                    ImageOps.exif_transpose(Image.open(im_file2)).save(im_file2, "JPEG", subsampling=0, quality=100)
+                    msg2 = f"{prefix2}WARNING ⚠️ {im_file2}: corrupt JPEG restored and saved"
+        
+        # Verify labels
+        if os.path.isfile(lb_file):
+            nf = 1  # label found
+            with open(lb_file) as f:
+                lb = [x.split() for x in f.read().strip().splitlines() if len(x)]
+                if any(len(x) > 6 for x in lb) and (not keypoint):  # is segment
+                    classes = np.array([x[0] for x in lb], dtype=np.float32)
+                    segments = [np.array(x[1:], dtype=np.float32).reshape(-1, 2) for x in lb]  # (cls, xy1...)
+                    lb = np.concatenate((classes.reshape(-1, 1), segments2boxes(segments)), 1)  # (cls, xywh)
+                lb = np.array(lb, dtype=np.float32)
+            if nl := len(lb):
+                if keypoint:
+                    assert lb.shape[1] == (5 + nkpt * ndim), f"labels require {(5 + nkpt * ndim)} columns each"
+                    points = lb[:, 5:].reshape(-1, ndim)[:, :2]
+                else:
+                    assert lb.shape[1] == 5, f"labels require 5 columns, {lb.shape[1]} columns detected"
+                    points = lb[:, 1:]
+                assert points.max() <= 1, f"non-normalized or out of bounds coordinates {points[points > 1]}"
+                assert lb.min() >= 0, f"negative label values {lb[lb < 0]}"
+
+                # All labels
+                max_cls = lb[:, 0].max()  # max label count
+                assert max_cls <= num_cls, (
+                    f"Label class {int(max_cls)} exceeds dataset class count {num_cls}. "
+                    f"Possible class labels are 0-{num_cls - 1}"
+                )
+                _, i = np.unique(lb, axis=0, return_index=True)
+                if len(i) < nl:  # duplicate row check
+                    lb = lb[i]  # remove duplicates
+                    if segments:
+                        segments = [segments[x] for x in i]
+                    msg = f"{prefix}WARNING ⚠️ {im_file}: {nl - len(i)} duplicate labels removed"
+                    msg2 = f"{prefix2}WARNING ⚠️ {im_file2}: {nl - len(i)} duplicate labels removed"
+            else:
+                ne = 1  # label empty
+                lb = np.zeros((0, (5 + nkpt * ndim) if keypoint else 5), dtype=np.float32)
+        else:
+            nm = 1  # label missing
+            lb = np.zeros((0, (5 + nkpt * ndim) if keypoints else 5), dtype=np.float32)
+        if keypoint:
+            keypoints = lb[:, 5:].reshape(-1, nkpt, ndim)
+            if ndim == 2:
+                kpt_mask = np.where((keypoints[..., 0] < 0) | (keypoints[..., 1] < 0), 0.0, 1.0).astype(np.float32)
+                keypoints = np.concatenate([keypoints, kpt_mask[..., None]], axis=-1)  # (nl, nkpt, 3)
+        lb = lb[:, :5]
+        return im_file, im_file2, lb, shape, segments, keypoints, nm, nf, ne, nc, msg, msg2
+    except Exception as e:
+        nc = 1
+        msg = f"{prefix}WARNING ⚠️ {im_file}: ignoring corrupt image/label: {e}"
+        msg2 = f"{prefix2}WARNING ⚠️ {im_file2}: ignoring corrupt image/label: {e}"
+        return [None, None, None, None, None, None, nm, nf, ne, nc, msg, msg2]
+    
 def visualize_image_annotations(image_path, txt_path, label_map):
     """
     Visualizes YOLO annotations (bounding boxes and class labels) on an image.
@@ -369,6 +455,120 @@ def check_det_dataset(dataset, autodownload=True):
         if not all(x.exists() for x in val):
             name = clean_url(dataset)  # dataset name with URL auth stripped
             m = f"\nDataset '{name}' images not found ⚠️, missing path '{[x for x in val if not x.exists()][0]}'"
+            if s and autodownload:
+                LOGGER.warning(m)
+            else:
+                m += f"\nNote dataset download directory is '{DATASETS_DIR}'. You can update this in '{SETTINGS_FILE}'"
+                raise FileNotFoundError(m)
+            t = time.time()
+            r = None  # success
+            if s.startswith("http") and s.endswith(".zip"):  # URL
+                safe_download(url=s, dir=DATASETS_DIR, delete=True)
+            elif s.startswith("bash "):  # bash script
+                LOGGER.info(f"Running {s} ...")
+                r = os.system(s)
+            else:  # python script
+                exec(s, {"yaml": data})
+            dt = f"({round(time.time() - t, 1)}s)"
+            s = f"success ✅ {dt}, saved to {colorstr('bold', DATASETS_DIR)}" if r in {0, None} else f"failure {dt} ❌"
+            LOGGER.info(f"Dataset download {s}\n")
+    check_font("Arial.ttf" if is_ascii(data["names"]) else "Arial.Unicode.ttf")  # download fonts
+
+    return data  # dictionary
+
+def check_det_dataset_multimodal(dataset, autodownload=True):
+    """
+    Download, verify, and/or unzip a dataset if not found locally.
+
+    This function checks the availability of a specified dataset, and if not found, it has the option to download and
+    unzip the dataset. It then reads and parses the accompanying YAML data, ensuring key requirements are met and also
+    resolves paths related to the dataset.
+
+    Args:
+        dataset (str): Path to the dataset or dataset descriptor (like a YAML file).
+        autodownload (bool, optional): Whether to automatically download the dataset if not found. Defaults to True.
+
+    Returns:
+        (dict): Parsed dataset information and paths.
+    """
+    file = check_file(dataset)
+
+    # Download (optional)
+    extract_dir = ""
+    if zipfile.is_zipfile(file) or is_tarfile(file):
+        new_dir = safe_download(file, dir=DATASETS_DIR, unzip=True, delete=False)
+        file = find_dataset_yaml(DATASETS_DIR / new_dir)
+        extract_dir, autodownload = file.parent, False
+
+    # Read YAML
+    data = yaml_load(file, append_filename=True)  # dictionary
+
+    # Checks
+    for k in "train", "train2", "val", "val2":
+        if k not in data:
+            if k != "val" or "validation" not in data:
+                raise SyntaxError(
+                    emojis(f"{dataset} '{k}:' key missing ❌.\n'train' and 'val' are required in all data YAMLs.")
+                )
+            LOGGER.info("WARNING ⚠️ renaming data YAML 'validation' key to 'val' to match YOLO format.")
+            data["val"] = data.pop("validation")  # replace 'validation' key with 'val' key
+    if "names" not in data and "nc" not in data:
+        raise SyntaxError(emojis(f"{dataset} key missing ❌.\n either 'names' or 'nc' are required in all data YAMLs."))
+    if "names" in data and "nc" in data and len(data["names"]) != data["nc"]:
+        raise SyntaxError(emojis(f"{dataset} 'names' length {len(data['names'])} and 'nc: {data['nc']}' must match."))
+    if "names" not in data:
+        data["names"] = [f"class_{i}" for i in range(data["nc"])]
+    else:
+        data["nc"] = len(data["names"])
+
+    data["names"] = check_class_names(data["names"])
+
+    # Resolve paths
+    path = Path(extract_dir or data.get("path") or Path(data.get("yaml_file", "")).parent)  # dataset root
+    if not path.is_absolute():
+        path = (DATASETS_DIR / path).resolve()
+
+    # Set paths
+    data["path"] = path  # download scripts
+    for k in "train", "train2", "val", "val2", "test", "minival":
+        if data.get(k):  # prepend path
+            if isinstance(data[k], str):
+                x = (path / data[k]).resolve()
+                if not x.exists() and data[k].startswith("../"):
+                    x = (path / data[k][3:]).resolve()
+                data[k] = str(x)
+            else:
+                data[k] = [str((path / x).resolve()) for x in data[k]]
+
+    # Parse YAML
+    train, train2, val, val2, test, s = (data.get(x) for x in ("train", "train2", "val", "val2", "test", "download"))
+    if val:
+        val = [Path(x).resolve() for x in (val if isinstance(val, list) else [val])]  # val path
+        if not all(x.exists() for x in val):
+            name = clean_url(dataset)  # dataset name with URL auth stripped
+            m = f"\nDataset '{name}' images not found ⚠️, missing path '{[x for x in val if not x.exists()][0]}'"
+            if s and autodownload:
+                LOGGER.warning(m)
+            else:
+                m += f"\nNote dataset download directory is '{DATASETS_DIR}'. You can update this in '{SETTINGS_FILE}'"
+                raise FileNotFoundError(m)
+            t = time.time()
+            r = None  # success
+            if s.startswith("http") and s.endswith(".zip"):  # URL
+                safe_download(url=s, dir=DATASETS_DIR, delete=True)
+            elif s.startswith("bash "):  # bash script
+                LOGGER.info(f"Running {s} ...")
+                r = os.system(s)
+            else:  # python script
+                exec(s, {"yaml": data})
+            dt = f"({round(time.time() - t, 1)}s)"
+            s = f"success ✅ {dt}, saved to {colorstr('bold', DATASETS_DIR)}" if r in {0, None} else f"failure {dt} ❌"
+            LOGGER.info(f"Dataset download {s}\n")
+    if val2:
+        val2 = [Path(x).resolve() for x in (val2 if isinstance(val2, list) else [val2])]  # val path
+        if not all(x.exists() for x in val2):
+            name = clean_url(dataset)  # dataset name with URL auth stripped
+            m = f"\nDataset '{name}' images not found ⚠️, missing path '{[x for x in val2 if not x.exists()][0]}'"
             if s and autodownload:
                 LOGGER.warning(m)
             else:
@@ -719,3 +919,17 @@ def save_dataset_cache_file(prefix, path, x, version):
         LOGGER.info(f"{prefix}New cache created: {path}")
     else:
         LOGGER.warning(f"{prefix}WARNING ⚠️ Cache directory {path.parent} is not writeable, cache not saved.")
+
+def save_dataset_cache_file_multimodal(prefix, prefix2, path, x, version):
+    """Save an Ultralytics dataset *.cache dictionary x to path."""
+    x["version"] = version  # add cache version
+    if is_dir_writeable(path.parent):
+        if path.exists():
+            path.unlink()  # remove *.cache file if exists
+        np.save(str(path), x)  # save cache for next time
+        path.with_suffix(".cache.npy").rename(path)  # remove .npy suffix
+        LOGGER.info(f"{prefix}New cache created: {path}")
+        LOGGER.info(f"{prefix2}New cache created: {path}")
+    else:
+        LOGGER.warning(f"{prefix}WARNING ⚠️ Cache directory {path.parent} is not writeable, cache not saved.")
+        LOGGER.warning(f"{prefix2}WARNING ⚠️ Cache directory {path.parent} is not writeable, cache not saved.")

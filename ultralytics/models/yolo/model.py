@@ -4,7 +4,7 @@ from pathlib import Path
 
 from ultralytics.engine.model import Model
 from ultralytics.models import yolo
-from ultralytics.nn.tasks import ClassificationModel, DetectionModel, OBBModel, PoseModel, SegmentationModel, WorldModel
+from ultralytics.nn.tasks import ClassificationModel, DetectionModel, OBBModel, PoseModel, SegmentationModel, WorldModel, FusionDetectionModel
 from ultralytics.utils import ROOT, yaml_load
 
 
@@ -109,3 +109,31 @@ class YOLOWorld(Model):
         # self.predictor = None  # reset predictor otherwise old names remain
         if self.predictor:
             self.predictor.model.names = classes
+
+
+class YOLOFusion(Model):
+    """YOLO (You Only Look Once) object detection model."""
+
+    def __init__(self, model="yolo11n.pt", task=None, verbose=False):
+        """Initialize YOLO model, switching to YOLOWorld if model filename contains '-world'."""
+        path = Path(model)
+        if "-world" in path.stem and path.suffix in {".pt", ".yaml", ".yml"}:  # if YOLOWorld PyTorch model
+            new_instance = YOLOWorld(path, verbose=verbose)
+            self.__class__ = type(new_instance)
+            self.__dict__ = new_instance.__dict__
+        else:
+            # Continue with default YOLO initialization
+            print("task: ", task)
+            super().__init__(model=model, task=task, verbose=verbose)
+
+    @property
+    def task_map(self):
+        """Map head to model, trainer, validator, and predictor classes."""
+        return {
+            "detect": {
+                "model": FusionDetectionModel,
+                "trainer": yolo.fusion.FusionDetectionTrainer,
+                "validator": yolo.fusion.FusionDetectionValidator,
+                "predictor": yolo.fusion.FusionDetectionPredictor,
+            },
+        }

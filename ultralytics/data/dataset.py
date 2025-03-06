@@ -16,6 +16,10 @@ from ultralytics.utils import LOCAL_RANK, NUM_THREADS, TQDM, colorstr
 from ultralytics.utils.ops import resample_segments
 from ultralytics.utils.torch_utils import TORCHVISION_0_18
 
+# 多模态数据转换
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+
 from .augment import (
     Compose,
     Format,
@@ -26,7 +30,7 @@ from .augment import (
     classify_transforms,
     v8_transforms,
 )
-from .base import BaseDataset
+from .base import BaseDataset, BaseMultiModalDataset
 from .utils import (
     HELP_URL,
     LOGGER,
@@ -34,8 +38,10 @@ from .utils import (
     img2label_paths,
     load_dataset_cache_file,
     save_dataset_cache_file,
+    save_dataset_cache_file_multimodal,
     verify_image,
     verify_image_label,
+    verify_image_label_multimodal,  # TODO: 多模态数据集
 )
 
 # Ultralytics dataset *.cache version, >= 1.0.0 for YOLOv8
@@ -519,3 +525,354 @@ class ClassificationDataset:
             x["msgs"] = msgs  # warnings
             save_dataset_cache_file(self.prefix, path, x, DATASET_CACHE_VERSION)
             return samples
+
+# 多模态数据增强
+class MultiModalTransform:
+    """
+    自定义的多模态转换类，使用 albumentations 同步转换可见光图像、红外图像和标签。
+    """
+    def __init__(self, transforms):
+        self.transforms = transforms
+
+    def __call__(self, img_vis, img_therm, label):
+        # 将 PIL 图像转换为 numpy 数组
+        img_vis_np = np.array(img_vis)
+        img_therm_np = np.array(img_therm)
+        
+        # 应用转换
+        transformed = self.transforms(
+            image=img_vis_np,
+            image_therm=img_therm_np,
+            bbox=label['boxes'] if 'boxes' in label else None,
+            category_id=label['labels'] if 'labels' in label else None
+        )
+        
+        # 获取转换后的图像和标签
+        img_vis_transformed = transformed['image']
+        img_therm_transformed = transformed['image_therm']
+        label_transformed = {
+            'boxes': transformed.get('bbox', label.get('boxes')),
+            'labels': transformed.get('category_id', label.get('labels'))
+        }
+        
+        return img_vis_transformed, img_therm_transformed, label_transformed
+
+# TODO:多模态目标检测
+class YOLOFusionDataset(BaseMultiModalDataset):
+    """
+    支持双模态（可见光与红外）数据加载的 YOLO 数据集类。
+    
+    Args:
+        data (dict, optional): 数据集配置的 YAML 字典。默认为 None。
+        task (str): 当前任务类型，默认为 'detect'。
+    
+    Returns:
+        torch.utils.data.Dataset: 可用于训练目标检测模型的 PyTorch 数据集对象。
+    """
+    def __init__(self, *args, data=None, task="detect", **kwargs):
+        """Initializes the YOLODataset with optional configurations for segments and keypoints."""
+        self.use_segments = task == "segment"
+        self.use_keypoints = task == "pose"
+        self.use_obb = task == "obb"
+        self.data = data
+        assert not (self.use_segments and self.use_keypoints), "Can not use both segments and keypoints."
+        super().__init__(*args, **kwargs)
+
+    def cache_labels(self, path=Path("./labels.cache")):
+        """
+        Cache dataset labels, check images and read shapes.
+
+        Args:
+            path (Path): Path where to save the cache file. Default is Path("./labels.cache").
+
+        Returns:
+            (dict): labels.
+        """
+        x = {"labels": []}
+        nm, nf, ne, nc, msgs = 0, 0, 0, 0, []  # number missing, found, empty, corrupt, messages
+        desc = f"{self.prefix}Scanning {path.parent / path.stem}..."
+        desc2 = f"{self.prefix2}Scanning {path.parent / path.stem}..."
+        total = len(self.im_files)
+        nkpt, ndim = self.data.get("kpt_shape", (0, 0))
+        if self.use_keypoints and (nkpt <= 0 or ndim not in {2, 3}):
+            raise ValueError(
+                "'kpt_shape' in data.yaml missing or incorrect. Should be a list with [number of "
+                "keypoints, number of dims (2 for x,y or 3 for x,y,visible)], i.e. 'kpt_shape: [17, 3]'"
+            )
+        with ThreadPool(NUM_THREADS) as pool:
+            results = pool.imap(
+                func=verify_image_label_multimodal,  # TODO: 多模态数据集
+                iterable=zip(
+                    self.im_files,
+                    self.im_files2,
+                    self.label_files,
+                    repeat(self.prefix),
+                    repeat(self.prefix2),
+                    repeat(self.use_keypoints),
+                    repeat(len(self.data["names"])),
+                    repeat(nkpt),
+                    repeat(ndim),
+                ),
+            )
+            pbar = TQDM(results, desc=desc, total=total)
+            for im_file, im_file2,lb, shape, segments, keypoint, nm_f, nf_f, ne_f, nc_f, msg, msg2 in pbar:
+                nm += nm_f
+                nf += nf_f
+                ne += ne_f
+                nc += nc_f
+                if im_file and im_file2:
+                    x["labels"].append(
+                        {
+                            "im_file": im_file,
+                            "im_file2": im_file2,
+                            "shape": shape,
+                            "cls": lb[:, 0:1],  # n, 1
+                            "bboxes": lb[:, 1:],  # n, 4
+                            "segments": segments,
+                            "keypoints": keypoint,
+                            "normalized": True,
+                            "bbox_format": "xywh",
+                        }
+                    )
+                if msg:
+                    msgs.append(msg)
+                if msg2:
+                    msgs.append(msg2)
+                pbar.desc = f"{desc} {nf} images, {nm + ne} backgrounds, {nc} corrupt"
+                pbar.desc2 = f"{desc2} {nf} images, {nm + ne} backgrounds, {nc} corrupt"
+            pbar.close()
+
+        if msgs:
+            LOGGER.info("\n".join(msgs))
+        if nf == 0:
+            LOGGER.warning(f"{self.prefix}WARNING ⚠️ No labels found in {path}. {HELP_URL}")
+            LOGGER.warning(f"{self.prefix2}WARNING ⚠️ No labels found in {path}. {HELP_URL}")
+        x["hash"] = get_hash(self.label_files + self.im_files)
+        x["results"] = nf, nm, ne, nc, len(self.im_files)
+        x["msgs"] = msgs  # warnings
+        save_dataset_cache_file_multimodal(self.prefix, self.prefix2, path, x, DATASET_CACHE_VERSION)
+        return x
+    
+
+    def get_labels(self):
+        """Returns dictionary of labels for YOLO training."""
+        self.label_files = img2label_paths(self.im_files)
+        cache_path = Path(self.label_files[0]).parent.with_suffix(".cache")
+        try:
+            cache, exists = load_dataset_cache_file(cache_path), True  # attempt to load a *.cache file
+            assert cache["version"] == DATASET_CACHE_VERSION  # matches current version
+            assert cache["hash"] == get_hash(self.label_files + self.im_files)  # identical hash
+        except (FileNotFoundError, AssertionError, AttributeError):
+            cache, exists = self.cache_labels(cache_path), False  # run cache ops
+
+        # Display cache
+        nf, nm, ne, nc, n = cache.pop("results")  # found, missing, empty, corrupt, total
+        if exists and LOCAL_RANK in {-1, 0}:
+            d = f"Scanning {cache_path}... {nf} images, {nm + ne} backgrounds, {nc} corrupt"
+            TQDM(None, desc=self.prefix + d, total=n, initial=n)  # display results
+            if cache["msgs"]:
+                LOGGER.info("\n".join(cache["msgs"]))  # display warnings
+
+        # Read cache
+        [cache.pop(k) for k in ("hash", "version", "msgs")]  # remove items
+        labels = cache["labels"]
+        if not labels:
+            LOGGER.warning(f"WARNING ⚠️ No images found in {cache_path}, training may not work correctly. {HELP_URL}")
+        self.im_files = [lb["im_file"] for lb in labels]  # update im_files
+        self.im_files2 = [lb["im_file2"] for lb in labels]  # update im_files2
+
+        # Check if the dataset is all boxes or all segments
+        lengths = ((len(lb["cls"]), len(lb["bboxes"]), len(lb["segments"])) for lb in labels)
+        len_cls, len_boxes, len_segments = (sum(x) for x in zip(*lengths))
+        if len_segments and len_boxes != len_segments:
+            LOGGER.warning(
+                f"WARNING ⚠️ Box and segment counts should be equal, but got len(segments) = {len_segments}, "
+                f"len(boxes) = {len_boxes}. To resolve this only boxes will be used and all segments will be removed. "
+                "To avoid this please supply either a detect or segment dataset, not a detect-segment mixed dataset."
+            )
+            for lb in labels:
+                lb["segments"] = []
+        if len_cls == 0:
+            LOGGER.warning(f"WARNING ⚠️ No labels found in {cache_path}, training may not work correctly. {HELP_URL}")
+        return labels
+
+    def build_transforms(self, hyp=None):
+        """Builds and appends transforms to the list."""
+        if self.augment:
+            hyp.mosaic = hyp.mosaic if self.augment and not self.rect else 0.0
+            hyp.mixup = hyp.mixup if self.augment and not self.rect else 0.0
+            transforms = v8_transforms(self, self.imgsz, hyp)
+        else:
+            transforms = Compose([LetterBox(new_shape=(self.imgsz, self.imgsz), scaleup=False)])
+        transforms.append(
+            Format(
+                bbox_format="xywh",
+                normalize=True,
+                return_mask=self.use_segments,
+                return_keypoint=self.use_keypoints,
+                return_obb=self.use_obb,
+                batch_idx=True,
+                mask_ratio=hyp.mask_ratio,
+                mask_overlap=hyp.overlap_mask,
+                bgr=hyp.bgr if self.augment else 0.0,  # only affect training.
+            )
+        )
+        return transforms
+
+    def close_mosaic(self, hyp):
+        """Sets mosaic, copy_paste and mixup options to 0.0 and builds transformations."""
+        hyp.mosaic = 0.0  # set mosaic ratio=0.0
+        hyp.copy_paste = 0.0  # keep the same behavior as previous v8 close-mosaic
+        hyp.mixup = 0.0  # keep the same behavior as previous v8 close-mosaic
+        self.transforms = self.build_transforms(hyp)
+
+    def update_labels_info(self, label):
+        """
+        Custom your label format here.
+
+        Note:
+            cls is not with bboxes now, classification and semantic segmentation need an independent cls label
+            Can also support classification and semantic segmentation by adding or removing dict keys there.
+        """
+        bboxes = label.pop("bboxes")
+        segments = label.pop("segments", [])
+        keypoints = label.pop("keypoints", None)
+        bbox_format = label.pop("bbox_format")
+        normalized = label.pop("normalized")
+
+        # NOTE: do NOT resample oriented boxes
+        segment_resamples = 100 if self.use_obb else 1000
+        if len(segments) > 0:
+            # make sure segments interpolate correctly if original length is greater than segment_resamples
+            max_len = max(len(s) for s in segments)
+            segment_resamples = (max_len + 1) if segment_resamples < max_len else segment_resamples
+            # list[np.array(segment_resamples, 2)] * num_samples
+            segments = np.stack(resample_segments(segments, n=segment_resamples), axis=0)
+        else:
+            segments = np.zeros((0, segment_resamples, 2), dtype=np.float32)
+        label["instances"] = Instances(bboxes, segments, keypoints, bbox_format=bbox_format, normalized=normalized)
+        return label
+
+    @staticmethod
+    def collate_fn(batch):
+        """Collates data samples into batches."""
+        new_batch = {}
+        keys = batch[0].keys()
+        values = list(zip(*[list(b.values()) for b in batch]))
+        for i, k in enumerate(keys):
+            value = values[i]
+            if k == "img":
+                value = torch.stack(value, 0)
+            if k == "img2":
+                value = torch.stack(value, 0)
+            if k in {"masks", "keypoints", "bboxes", "cls", "segments", "obb"}:
+                value = torch.cat(value, 0)
+            new_batch[k] = value
+        new_batch["batch_idx"] = list(new_batch["batch_idx"])
+        for i in range(len(new_batch["batch_idx"])):
+            new_batch["batch_idx"][i] += i  # add target image index for build_targets()
+        new_batch["batch_idx"] = torch.cat(new_batch["batch_idx"], 0)
+        return new_batch
+
+
+    # def __init__(self, *args, data=None, task="detect", **kwargs):
+    #     """初始化用于目标检测任务的数据集对象，支持双模态输入。"""
+    #     super().__init__(*args, data=data, task=task, **kwargs)
+    #     self.mode = self.data.get("mode", "fusion")  # 新增属性，默认为 'fusion'
+
+    #     # 设置可见光与红外图像文件夹路径
+    #     self.visible_dir = Path(self.data["visible_dir"])
+    #     self.infrared_dir = Path(self.data["infrared_dir"])
+        
+    #     # 获取红外图像通道数
+    #     self.infrared_channels = self.data.get("infrared_channels", 1)
+    #     assert self.infrared_channels in [1, 3], "infrared_channels 必须为 1 或 3。"
+        
+    #     # 获取可见光与红外图像文件列表
+    #     self.visible_images = sorted(self.visible_dir.glob("*.[pjPJ][pnPN]*"))  # 支持 jpg, jpeg, png 等格式
+    #     self.infrared_images = sorted(self.infrared_dir.glob("*.[pjPJ][pnPN]*"))
+        
+    #     assert len(self.visible_images) == len(self.infrared_images), "可见光与红外图像数量不匹配。"
+
+    #     # 定义多模态转换
+    #     self.transforms = MultiModalTransform(self.build_transforms())
+    
+    # def __getitem__(self, idx):
+    #     """获取指定索引的数据样本，包括可见光与红外图像及标签。"""
+    #     # 加载可见光图像
+    #     img_vis_path = self.visible_images[idx]
+    #     img_vis = Image.open(img_vis_path).convert('RGB')
+        
+    #     # 加载红外图像
+    #     img_therm_path = self.infrared_images[idx]
+    #     if self.infrared_channels == 1:
+    #         img_therm = Image.open(img_therm_path).convert('L')  # 单通道
+    #     else:
+    #         img_therm = Image.open(img_therm_path).convert('RGB')  # 三通道
+        
+    #     # 获取标签
+    #     label = self.labels[idx]
+        
+    #     # 更新标签信息（如需要）
+    #     label = self.update_labels_info(label)
+        
+    #     # 应用数据增强与预处理
+    #     if self.transforms:
+    #         # transforms 现在支持同时处理可见光与红外图像
+    #         img_vis, img_therm, label = self.transforms(img_vis, img_therm, label)
+        
+    #     # 转换图像为张量并归一化
+    #     img_vis = torch.from_numpy(img_vis).permute(2, 0, 1).float() / 255.0  # [C, H, W]
+    #     if self.infrared_channels == 1:
+    #         img_therm = torch.from_numpy(img_therm).unsqueeze(0).float() / 255.0  # [1, H, W]
+    #     else:
+    #         img_therm = torch.from_numpy(img_therm).permute(2, 0, 1).float() / 255.0  # [3, H, W]
+
+    #     return {
+    #         "img_vis": img_vis,                                  # [3, H, W]
+    #         "img_therm": img_therm,                              # [1, H, W] 或 [3, H, W]
+    #         "labels": label,
+    #         "filename": img_vis_path.name,
+    #         "img_path": str(img_vis_path),
+    #         "img_therm_path": str(img_therm_path)
+    #     }
+    
+    # def build_transforms(self, hyp=None):
+    #     """构建并添加双模态数据的转换，使用 albumentations 进行同步转换。"""
+    #     if self.augment:
+    #         transform_list = [
+    #             A.Resize(height=self.imgsz, width=self.imgsz),
+    #             A.HorizontalFlip(p=0.5),
+    #             A.RandomBrightnessContrast(p=0.2),
+    #             # 添加更多需要的增强
+    #         ]
+    #     else:
+    #         transform_list = [
+    #             A.Resize(height=self.imgsz, width=self.imgsz)
+    #         ]
+
+    #     # 添加格式化转换
+    #     transform_list.extend([
+    #         A.Normalize(mean=(0.0, 0.0, 0.0), std=(1.0, 1.0, 1.0), max_pixel_value=255.0, p=1.0),
+    #         ToTensorV2()
+    #     ])
+        
+    #     # 定义 albumentations 的 Compose
+    #     transforms = A.Compose(transform_list, bbox_params=A.BboxParams(format='xywh', label_fields=['category_id']))
+        
+    #     # 如果需要额外的随机文本加载，可以在此处添加
+    #     # 注意：albumentations 主要用于图像和标签的转换，不直接支持文本加载
+
+    #     return transforms
+
+    # def collate_fn(self, batch):
+    #     """将数据样本合并成批次。"""
+    #     new_batch = {
+    #         "img_vis": torch.stack([item["img_vis"] for item in batch], dim=0),
+    #         "img_therm": torch.stack([item["img_therm"] for item in batch], dim=0),
+    #         "labels": [item["labels"] for item in batch],
+    #         "filename": [item["filename"] for item in batch],
+    #         "img_path": [item["img_path"] for item in batch],
+    #         "img_therm_path": [item["img_therm_path"] for item in batch]
+    #     }
+    #     return new_batch

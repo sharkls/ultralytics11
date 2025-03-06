@@ -9,7 +9,7 @@ import torch
 from PIL import Image
 from torch.utils.data import dataloader, distributed
 
-from ultralytics.data.dataset import GroundingDataset, YOLODataset, YOLOMultiModalDataset
+from ultralytics.data.dataset import GroundingDataset, YOLODataset, YOLOMultiModalDataset, YOLOFusionDataset
 from ultralytics.data.loaders import (
     LOADERS,
     LoadImagesAndVideos,
@@ -102,6 +102,28 @@ def build_yolo_dataset(cfg, img_path, batch, data, mode="train", rect=False, str
         fraction=cfg.fraction if mode == "train" else 1.0,
     )
 
+# TODO:多模态数据集
+def build_fusion_dataset(cfg, img_path, img_path2, batch, data, mode="train", rect=False, stride=32):
+    """Build YOLO Dataset."""
+    return YOLOFusionDataset(
+        img_path=img_path,
+        img_path2=img_path2,
+        imgsz=cfg.imgsz,
+        batch_size=batch,
+        augment=mode == "train",  # augmentation
+        hyp=cfg,  # TODO: probably add a get_hyps_from_cfg function
+        rect=cfg.rect or rect,  # rectangular batches
+        cache=cfg.cache or None,
+        single_cls=cfg.single_cls or False,
+        stride=int(stride),
+        pad=0.0 if mode == "train" else 0.5,
+        prefix=colorstr(f"{mode}: "),
+        prefix2=colorstr(f"{mode}2: "),
+        task=cfg.task,
+        classes=cfg.classes,
+        data=data,
+        fraction=cfg.fraction if mode == "train" else 1.0,
+    )
 
 def build_grounding(cfg, img_path, json_file, batch, mode="train", rect=False, stride=32):
     """Build YOLO Dataset."""
@@ -184,24 +206,31 @@ def load_inference_source(source=None, batch=1, vid_stride=1, buffer=False):
     Returns:
         dataset (Dataset): A dataset object for the specified input source.
     """
-    source, stream, screenshot, from_img, in_memory, tensor = check_source(source)
-    source_type = source.source_type if in_memory else SourceTypes(stream, screenshot, from_img, tensor)
+
+    source0, stream0, screenshot0, from_img0, in_memory0, tensor0 = check_source([item[0] for item in source])
+    source1, stream1, screenshot1, from_img1, in_memory1, tensor1 = check_source([item[1] for item in source])
+
+    if not (stream0, screenshot0, from_img0, in_memory0, tensor0) == (stream1, screenshot1, from_img1, in_memory1, tensor1):
+        raise TypeError("The source type of RGB and IR must be the same")
+    
+    source_type = source0.source_type if in_memory0 else SourceTypes(stream0, screenshot0, from_img0, tensor0)
 
     # Dataloader
-    if tensor:
-        dataset = LoadTensor(source)
-    elif in_memory:
-        dataset = source
-    elif stream:
-        dataset = LoadStreams(source, vid_stride=vid_stride, buffer=buffer)
-    elif screenshot:
-        dataset = LoadScreenshots(source)
-    elif from_img:
-        dataset = LoadPilAndNumpy(source)
+    if tensor0:
+        dataset = LoadTensor(source0), LoadTensor(source1)
+    elif in_memory0:
+        dataset = source0, source1
+    elif stream0:
+        dataset = LoadStreams(source0, vid_stride=vid_stride, buffer=buffer), LoadStreams(source1, vid_stride=vid_stride, buffer=buffer)
+    elif screenshot0:
+        dataset = LoadScreenshots(source0), LoadScreenshots(source1)
+    elif from_img0:
+        dataset = LoadPilAndNumpy(source0), LoadPilAndNumpy(source1)
     else:
-        dataset = LoadImagesAndVideos(source, batch=batch, vid_stride=vid_stride)
+        dataset = LoadImagesAndVideos(source0, batch=batch, vid_stride=vid_stride), LoadImagesAndVideos(source1, batch=batch, vid_stride=vid_stride)
 
     # Attach source types to the dataset
-    setattr(dataset, "source_type", source_type)
+    setattr(dataset[0], "source_type", source_type)
+    setattr(dataset[1], "source_type", source_type)
 
     return dataset

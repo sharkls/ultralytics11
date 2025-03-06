@@ -686,11 +686,18 @@ class Mosaic(BaseMixTransform):
             labels_patch = labels if i == 0 else labels["mix_labels"][i - 1]
             # Load image
             img = labels_patch["img"]
+            if "img2" in labels_patch:
+                use_multimodal = True
+                img2 = labels_patch["img2"]
+            else:
+                use_multimodal = False
             h, w = labels_patch.pop("resized_shape")
 
             # Place img in img4
             if i == 0:  # top left
                 img4 = np.full((s * 2, s * 2, img.shape[2]), 114, dtype=np.uint8)  # base image with 4 tiles
+                if use_multimodal:
+                    img42 = np.full((s * 2, s * 2, img2.shape[2]), 114, dtype=np.uint8)  # base image with 4 tiles
                 x1a, y1a, x2a, y2a = max(xc - w, 0), max(yc - h, 0), xc, yc  # xmin, ymin, xmax, ymax (large image)
                 x1b, y1b, x2b, y2b = w - (x2a - x1a), h - (y2a - y1a), w, h  # xmin, ymin, xmax, ymax (small image)
             elif i == 1:  # top right
@@ -704,6 +711,8 @@ class Mosaic(BaseMixTransform):
                 x1b, y1b, x2b, y2b = 0, 0, min(w, x2a - x1a), min(y2a - y1a, h)
 
             img4[y1a:y2a, x1a:x2a] = img[y1b:y2b, x1b:x2b]  # img4[ymin:ymax, xmin:xmax]
+            if use_multimodal:
+                img42[y1a:y2a, x1a:x2a] = img2[y1b:y2b, x1b:x2b]  # img4[ymin:ymax, xmin:xmax]
             padw = x1a - x1b
             padh = y1a - y1b
 
@@ -711,6 +720,8 @@ class Mosaic(BaseMixTransform):
             mosaic_labels.append(labels_patch)
         final_labels = self._cat_labels(mosaic_labels)
         final_labels["img"] = img4
+        if use_multimodal:
+            final_labels["img2"] = img42
         return final_labels
 
     def _mosaic9(self, labels):
@@ -746,11 +757,18 @@ class Mosaic(BaseMixTransform):
             labels_patch = labels if i == 0 else labels["mix_labels"][i - 1]
             # Load image
             img = labels_patch["img"]
+            if "img2" in labels_patch:
+                use_multimodal = True
+                img2 = labels_patch["img2"]
+            else:
+                use_multimodal = False
             h, w = labels_patch.pop("resized_shape")
 
             # Place img in img9
             if i == 0:  # center
                 img9 = np.full((s * 3, s * 3, img.shape[2]), 114, dtype=np.uint8)  # base image with 4 tiles
+                if use_multimodal:
+                    img92 = np.full((s * 3, s * 3, img2.shape[2]), 114, dtype=np.uint8)  # base image with 4 tiles
                 h0, w0 = h, w
                 c = s, s, s + w, s + h  # xmin, ymin, xmax, ymax (base) coordinates
             elif i == 1:  # top
@@ -775,6 +793,8 @@ class Mosaic(BaseMixTransform):
 
             # Image
             img9[y1:y2, x1:x2] = img[y1 - padh :, x1 - padw :]  # img9[ymin:ymax, xmin:xmax]
+            if use_multimodal:
+                img92[y1:y2, x1:x2] = img2[y1 - padh :, x1 - padw :]  # img9[ymin:ymax, xmin:xmax]
             hp, wp = h, w  # height, width previous for next iteration
 
             # Labels assuming imgsz*2 mosaic size
@@ -783,6 +803,8 @@ class Mosaic(BaseMixTransform):
         final_labels = self._cat_labels(mosaic_labels)
 
         final_labels["img"] = img9[-self.border[0] : self.border[0], -self.border[1] : self.border[1]]
+        if use_multimodal:
+            final_labels["img2"] = img92[-self.border[0] : self.border[0], -self.border[1] : self.border[1]]
         return final_labels
 
     @staticmethod
@@ -850,8 +872,11 @@ class Mosaic(BaseMixTransform):
         # Final labels
         final_labels = {
             "im_file": mosaic_labels[0]["im_file"],
+            "im_file2": mosaic_labels[0]["im_file2"],
             "ori_shape": mosaic_labels[0]["ori_shape"],
+            "ori_shape2": mosaic_labels[0]["ori_shape2"],
             "resized_shape": (imgsz, imgsz),
+            "resized_shape2": (imgsz, imgsz),
             "cls": np.concatenate(cls, 0),
             "instances": Instances.concatenate(instances, axis=0),
             "mosaic_border": self.border,
@@ -944,6 +969,8 @@ class MixUp(BaseMixTransform):
         r = np.random.beta(32.0, 32.0)  # mixup ratio, alpha=beta=32.0
         labels2 = labels["mix_labels"][0]
         labels["img"] = (labels["img"] * r + labels2["img"] * (1 - r)).astype(np.uint8)
+        if "img2" in labels2:
+            labels["img2"] = (labels["img2"] * r + labels2["img2"] * (1 - r)).astype(np.uint8)
         labels["instances"] = Instances.concatenate([labels["instances"], labels2["instances"]], axis=0)
         labels["cls"] = np.concatenate([labels["cls"], labels2["cls"]], 0)
         return labels
@@ -1041,8 +1068,12 @@ class RandomPerspective:
         # Center
         C = np.eye(3, dtype=np.float32)
 
-        C[0, 2] = -img.shape[1] / 2  # x translation (pixels)
-        C[1, 2] = -img.shape[0] / 2  # y translation (pixels)
+        if len(img) > 1:
+            C[0, 2] = -img[0].shape[1] / 2  # x translation (pixels)
+            C[1, 2] = -img[0].shape[0] / 2  # y translation (pixels)
+        else:
+            C[0, 2] = -img.shape[1] / 2  # x translation (pixels)
+            C[1, 2] = -img.shape[0] / 2  # y translation (pixels)
 
         # Perspective
         P = np.eye(3, dtype=np.float32)
@@ -1072,9 +1103,17 @@ class RandomPerspective:
         # Affine image
         if (border[0] != 0) or (border[1] != 0) or (M != np.eye(3)).any():  # image changed
             if self.perspective:
-                img = cv2.warpPerspective(img, M, dsize=self.size, borderValue=(114, 114, 114))
+                if len(img) > 1:
+                    img[0] = cv2.warpPerspective(img[0], M, dsize=self.size, borderValue=(114, 114, 114))
+                    img[1] = cv2.warpPerspective(img[1], M, dsize=self.size, borderValue=(114, 114, 114))
+                else:
+                    img = cv2.warpPerspective(img, M, dsize=self.size, borderValue=(114, 114, 114))
             else:  # affine
-                img = cv2.warpAffine(img, M[:2], dsize=self.size, borderValue=(114, 114, 114))
+                if len(img) > 1:
+                    img[0] = cv2.warpAffine(img[0], M[:2], dsize=self.size, borderValue=(114, 114, 114))
+                    img[1] = cv2.warpAffine(img[1], M[:2], dsize=self.size, borderValue=(114, 114, 114))
+                else:
+                    img = cv2.warpAffine(img, M[:2], dsize=self.size, borderValue=(114, 114, 114))
         return img, M, s
 
     def apply_bboxes(self, bboxes, M):
@@ -1222,6 +1261,11 @@ class RandomPerspective:
         labels.pop("ratio_pad", None)  # do not need ratio pad
 
         img = labels["img"]
+        if "img2" in labels:
+            use_multimodal = True
+            img2 = labels["img2"]
+        else:
+            use_multimodal = False
         cls = labels["cls"]
         instances = labels.pop("instances")
         # Make sure the coord formats are right
@@ -1232,7 +1276,10 @@ class RandomPerspective:
         self.size = img.shape[1] + border[1] * 2, img.shape[0] + border[0] * 2  # w, h
         # M is affine matrix
         # Scale for func:`box_candidates`
+        if use_multimodal:
+            img = [img, img2]
         img, M, scale = self.affine_transform(img, border)
+        # img2, _, _ = self.affine_transform(img2, border)
 
         bboxes = self.apply_bboxes(instances.bboxes, M)
 
@@ -1256,8 +1303,15 @@ class RandomPerspective:
         )
         labels["instances"] = new_instances[i]
         labels["cls"] = cls[i]
-        labels["img"] = img
-        labels["resized_shape"] = img.shape[:2]
+        
+        if use_multimodal:
+            labels["img"] = img[0]
+            labels["img2"] = img[1]
+            labels["resized_shape"] = img[0].shape[:2]
+            labels["resized_shape2"] = img[1].shape[:2]
+        else:
+            labels["img"] = img
+            labels["resized_shape"] = img.shape[:2]
         return labels
 
     @staticmethod
@@ -1365,9 +1419,16 @@ class RandomHSV:
             >>> augmented_img = labels["img"]
         """
         img = labels["img"]
+        if "img2" in labels:
+            img2 = labels["img2"]
+            use_multimodal = True
+        else:
+            use_multimodal = False
         if self.hgain or self.sgain or self.vgain:
             r = np.random.uniform(-1, 1, 3) * [self.hgain, self.sgain, self.vgain] + 1  # random gains
             hue, sat, val = cv2.split(cv2.cvtColor(img, cv2.COLOR_BGR2HSV))
+            if use_multimodal:
+                hue2, sat2, val2 = cv2.split(cv2.cvtColor(img2, cv2.COLOR_BGR2HSV))
             dtype = img.dtype  # uint8
 
             x = np.arange(0, 256, dtype=r.dtype)
@@ -1377,6 +1438,9 @@ class RandomHSV:
 
             im_hsv = cv2.merge((cv2.LUT(hue, lut_hue), cv2.LUT(sat, lut_sat), cv2.LUT(val, lut_val)))
             cv2.cvtColor(im_hsv, cv2.COLOR_HSV2BGR, dst=img)  # no return needed
+            if use_multimodal:
+                im_hsv2 = cv2.merge((cv2.LUT(hue2, lut_hue), cv2.LUT(sat2, lut_sat), cv2.LUT(val2, lut_val)))
+                cv2.cvtColor(im_hsv2, cv2.COLOR_HSV2BGR, dst=img2)  # no return needed
         return labels
 
 
@@ -1453,6 +1517,11 @@ class RandomFlip:
             >>> flipped_labels = random_flip(labels)
         """
         img = labels["img"]
+        if "img2" in labels:
+            img2 = labels["img2"]
+            use_multimodal = True
+        else:
+            use_multimodal = False
         instances = labels.pop("instances")
         instances.convert_bbox(format="xywh")
         h, w = img.shape[:2]
@@ -1462,15 +1531,21 @@ class RandomFlip:
         # Flip up-down
         if self.direction == "vertical" and random.random() < self.p:
             img = np.flipud(img)
+            if use_multimodal:
+                img2 = np.flipud(img2)
             instances.flipud(h)
         if self.direction == "horizontal" and random.random() < self.p:
             img = np.fliplr(img)
             instances.fliplr(w)
+            if use_multimodal:
+                img2 = np.fliplr(img2)
             # For keypoints
             if self.flip_idx is not None and instances.keypoints is not None:
                 instances.keypoints = np.ascontiguousarray(instances.keypoints[:, self.flip_idx, :])
         labels["img"] = np.ascontiguousarray(img)
         labels["instances"] = instances
+        if use_multimodal:
+            labels["img2"] = np.ascontiguousarray(img2)
         return labels
 
 
@@ -1532,7 +1607,7 @@ class LetterBox:
         self.stride = stride
         self.center = center  # Put the image in the middle or top-left
 
-    def __call__(self, labels=None, image=None):
+    def __call__(self, labels=None, image=None, image2=None):
         """
         Resizes and pads an image for object detection, instance segmentation, or pose estimation tasks.
 
@@ -1557,6 +1632,11 @@ class LetterBox:
         if labels is None:
             labels = {}
         img = labels.get("img") if image is None else image
+        if "img2" in labels:
+            img2 = labels.get("img2") if image2 is None else image2
+            use_multimodal = True
+        else:
+            use_multimodal = False
         shape = img.shape[:2]  # current shape [height, width]
         new_shape = labels.pop("rect_shape", self.new_shape)
         if isinstance(new_shape, int):
@@ -1584,20 +1664,33 @@ class LetterBox:
 
         if shape[::-1] != new_unpad:  # resize
             img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
+            if use_multimodal:
+                img2 = cv2.resize(img2, new_unpad, interpolation=cv2.INTER_LINEAR)
         top, bottom = int(round(dh - 0.1)) if self.center else 0, int(round(dh + 0.1))
         left, right = int(round(dw - 0.1)) if self.center else 0, int(round(dw + 0.1))
         img = cv2.copyMakeBorder(
             img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(114, 114, 114)
         )  # add border
+        if use_multimodal:
+            img2 = cv2.copyMakeBorder(
+                img2, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(114, 114, 114)
+            )  # add border
         if labels.get("ratio_pad"):
             labels["ratio_pad"] = (labels["ratio_pad"], (left, top))  # for evaluation
+        if labels.get("ratio_pad2"):
+            labels["ratio_pad2"] = (labels["ratio_pad2"], (left, top))  # for evaluation
 
         if len(labels):
             labels = self._update_labels(labels, ratio, left, top)
             labels["img"] = img
             labels["resized_shape"] = new_shape
+            if use_multimodal:
+                labels["img2"] = img2
+                labels["resized_shape2"] = new_shape
             return labels
         else:
+            if use_multimodal:
+                return img, img2
             return img
 
     @staticmethod
@@ -1701,6 +1794,11 @@ class CopyPaste(BaseMixTransform):
     def _transform(self, labels1, labels2={}):
         """Applies Copy-Paste augmentation to combine objects from another image into the current image."""
         im = labels1["img"]
+        if "img2" in labels1:
+            im2 = labels1["img2"]
+            use_multimodal = True
+        else:
+            use_multimodal = False
         cls = labels1["cls"]
         h, w = im.shape[:2]
         instances = labels1.pop("instances")
@@ -1708,6 +1806,8 @@ class CopyPaste(BaseMixTransform):
         instances.denormalize(w, h)
 
         im_new = np.zeros(im.shape, np.uint8)
+        if use_multimodal:
+            im_new2 = np.zeros(im2.shape, np.uint8)
         instances2 = labels2.pop("instances", None)
         if instances2 is None:
             instances2 = deepcopy(instances)
@@ -1721,11 +1821,17 @@ class CopyPaste(BaseMixTransform):
             cls = np.concatenate((cls, labels2.get("cls", cls)[[j]]), axis=0)
             instances = Instances.concatenate((instances, instances2[[j]]), axis=0)
             cv2.drawContours(im_new, instances2.segments[[j]].astype(np.int32), -1, (1, 1, 1), cv2.FILLED)
+            if use_multimodal:
+                cv2.drawContours(im_new2, instances2.segments[[j]].astype(np.int32), -1, (1, 1, 1), cv2.FILLED)
 
         result = labels2.get("img", cv2.flip(im, 1))  # augment segments
         i = im_new.astype(bool)
         im[i] = result[i]
-
+        if use_multimodal:
+            result2 = labels2.get("img2", cv2.flip(im2, 1))  # augment segments
+            i2 = im_new2.astype(bool)
+            im2[i2] = result2[i2]
+            labels1["img2"] = im2
         labels1["img"] = im
         labels1["cls"] = cls
         labels1["instances"] = instances
@@ -1900,22 +2006,36 @@ class Albumentations:
         if self.transform is None or random.random() > self.p:
             return labels
 
+        if "img2" in labels:
+            use_multimodal = True
+        else:
+            use_multimodal = False
+
         if self.contains_spatial:
             cls = labels["cls"]
             if len(cls):
                 im = labels["img"]
+                if use_multimodal:
+                    im2 = labels["img2"]
                 labels["instances"].convert_bbox("xywh")
                 labels["instances"].normalize(*im.shape[:2][::-1])
                 bboxes = labels["instances"].bboxes
                 # TODO: add supports of segments and keypoints
                 new = self.transform(image=im, bboxes=bboxes, class_labels=cls)  # transformed
+                if use_multimodal:
+                    new2 = self.transform(image=im2, bboxes=bboxes, class_labels=cls)  # transformed
+                    labels["img2"] = new2["image"]
                 if len(new["class_labels"]) > 0:  # skip update if no bbox in new im
                     labels["img"] = new["image"]
+                    if use_multimodal:
+                        labels["img2"] = new2["image"]
                     labels["cls"] = np.array(new["class_labels"])
                     bboxes = np.array(new["bboxes"], dtype=np.float32)
                 labels["instances"].update(bboxes=bboxes)
         else:
             labels["img"] = self.transform(image=labels["img"])["image"]  # transformed
+            if use_multimodal:
+                labels["img2"] = self.transform(image=labels["img2"])["image"]  # transformed
 
         return labels
 
@@ -2035,6 +2155,11 @@ class Format:
             >>> print(formatted_labels.keys())
         """
         img = labels.pop("img")
+        if "img2" in labels:
+            img2 = labels.pop("img2")
+            use_multimodal = True
+        else:
+            use_multimodal = False
         h, w = img.shape[:2]
         cls = labels.pop("cls")
         instances = labels.pop("instances")
@@ -2052,6 +2177,8 @@ class Format:
                 )
             labels["masks"] = masks
         labels["img"] = self._format_img(img)
+        if use_multimodal:
+            labels["img2"] = self._format_img(img2)
         labels["cls"] = torch.from_numpy(cls) if nl else torch.zeros(nl)
         labels["bboxes"] = torch.from_numpy(instances.bboxes) if nl else torch.zeros((nl, 4))
         if self.return_keypoint:

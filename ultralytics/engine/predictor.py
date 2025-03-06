@@ -29,7 +29,7 @@ Usage - formats:
                               yolov8n.mnn                # MNN
                               yolov8n_ncnn_model         # NCNN
 """
-
+import copy
 import platform
 import re
 import threading
@@ -102,46 +102,66 @@ class BasePredictor:
         self.dataset = None
         self.vid_writer = {}  # dict of {save_path: video_writer, ...}
         self.plotted_img = None
+        self.plotted_img2 = None
         self.source_type = None
         self.seen = 0
         self.windows = []
         self.batch = None
         self.results = None
+        self.results2 = None
         self.transforms = None
         self.callbacks = _callbacks or callbacks.get_default_callbacks()
         self.txt_path = None
         self._lock = threading.Lock()  # for automatic thread-safe inference
         callbacks.add_integration_callbacks(self)
 
-    def preprocess(self, im):
+    def preprocess(self, im, im2):
         """
         Prepares input image before inference.
 
         Args:
             im (torch.Tensor | List(np.ndarray)): BCHW for tensor, [(HWC) x B] for list.
         """
-        not_tensor = not isinstance(im, torch.Tensor)
-        if not_tensor:
+        not_tensor, not_tensor2 = not isinstance(im, torch.Tensor), not isinstance(im2, torch.Tensor)
+        if not_tensor or not_tensor2:
             im = np.stack(self.pre_transform(im))
             im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
             im = np.ascontiguousarray(im)  # contiguous
             im = torch.from_numpy(im)
+            im2 = np.stack(self.pre_transform(im2))
+            im2 = im2[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
+            im2 = np.ascontiguousarray(im2)  # contiguous
+            im2 = torch.from_numpy(im2)
+
+            # p = self.pre_transform(im, im2)
+            # im, im2 = np.stack([item[0] for item in p]), np.stack([item[1] for item in p])
+            # im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
+            # im = np.ascontiguousarray(im)  # contiguous
+            # im = torch.from_numpy(im)
+            # im2 = im2[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
+            # im2 = np.ascontiguousarray(im2)  # contiguous
+            # im2 = torch.from_numpy(im2)
 
         im = im.to(self.device)
         im = im.half() if self.model.fp16 else im.float()  # uint8 to fp16/32
         if not_tensor:
             im /= 255  # 0 - 255 to 0.0 - 1.0
-        return im
+        im2 = im2.to(self.device)
+        im2 = im2.half() if self.model.fp16 else im2.float()  # uint8 to fp16/32
+        if not_tensor2:
+            im2 /= 255  # 0 - 255 to 0.0 - 1.0
+        return im, im2
 
-    def inference(self, im, *args, **kwargs):
+    def inference(self, im, im2, *args, **kwargs):
         """Runs inference on a given image using the specified model and arguments."""
         visualize = (
             increment_path(self.save_dir / Path(self.batch[0][0]).stem, mkdir=True)
             if self.args.visualize and (not self.source_type.tensor)
             else False
         )
-        return self.model(im, augment=self.args.augment, visualize=visualize, embed=self.args.embed, *args, **kwargs)
+        return self.model.forward_multimodal(im, im2, augment=self.args.augment, visualize=visualize, embed=self.args.embed, *args, **kwargs)
 
+    # def pre_transform(self, im, im2):
     def pre_transform(self, im):
         """
         Pre-transform input image before inference.
@@ -158,6 +178,7 @@ class BasePredictor:
             auto=same_shapes and (self.model.pt or (getattr(self.model, "dynamic", False) and not self.model.imx)),
             stride=self.model.stride,
         )
+        # return [letterbox(image=x, image2=y) for x,y in zip(im, im2)]
         return [letterbox(image=x) for x in im]
 
     def postprocess(self, preds, img, orig_imgs):
@@ -206,12 +227,12 @@ class BasePredictor:
             vid_stride=self.args.vid_stride,
             buffer=self.args.stream_buffer,
         )
-        self.source_type = self.dataset.source_type
+        self.source_type = self.dataset[0].source_type
         if not getattr(self, "stream", True) and (
             self.source_type.stream
             or self.source_type.screenshot
-            or len(self.dataset) > 1000  # many images
-            or any(getattr(self.dataset, "video_flag", [False]))
+            or len(self.dataset[0]) > 1000  # many images
+            or any(getattr(self.dataset[0], "video_flag", [False]))
         ):  # videos
             LOGGER.warning(STREAM_WARNING)
         self.vid_writer = {}
@@ -236,7 +257,8 @@ class BasePredictor:
 
             # Warmup model
             if not self.done_warmup:
-                self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
+                # self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset[0].bs, 3, *self.imgsz))
+                self.model.warmup_multimodal(imgsz=(1 if self.model.pt or self.model.triton else self.dataset[0].bs, 3, *self.imgsz))
                 self.done_warmup = True
 
             self.seen, self.windows, self.batch = 0, [], None
@@ -246,24 +268,29 @@ class BasePredictor:
                 ops.Profile(device=self.device),
             )
             self.run_callbacks("on_predict_start")
-            for self.batch in self.dataset:
+            # for self.batch in self.dataset:
+            for batch1, batch2 in zip(self.dataset[0], self.dataset[1]):
                 self.run_callbacks("on_predict_batch_start")
-                paths, im0s, s = self.batch
+                self.batch = batch1, batch2
+                paths, im0s, s = batch1
+                paths2, im0s2, s2 = batch2
 
                 # Preprocess
                 with profilers[0]:
-                    im = self.preprocess(im0s)
+                    im, im2 = self.preprocess(im0s, im0s2)
 
                 # Inference
                 with profilers[1]:
-                    preds = self.inference(im, *args, **kwargs)
+                    preds = self.inference(im, im2, *args, **kwargs)
                     if self.args.embed:
                         yield from [preds] if isinstance(preds, torch.Tensor) else preds  # yield embedding tensors
                         continue
 
                 # Postprocess
                 with profilers[2]:
-                    self.results = self.postprocess(preds, im, im0s)
+                    preds2 = copy.deepcopy(preds)
+                    self.results = self.postprocess(preds, im, im0s, 0)
+                    self.results2 = self.postprocess(preds2, im2, im0s2, 1)
                 self.run_callbacks("on_predict_postprocess_end")
 
                 # Visualize, save, write results
@@ -276,15 +303,16 @@ class BasePredictor:
                         "postprocess": profilers[2].dt * 1e3 / n,
                     }
                     if self.args.verbose or self.args.save or self.args.save_txt or self.args.show:
-                        s[i] += self.write_results(i, Path(paths[i]), im, s)
-
+                        s[i] += self.write_results_vi(i, Path(paths[i]), im, s)
+                        s2[i] += self.write_results_ir(i, Path(paths2[i]), im2, s2)
                 # Print batch results
                 if self.args.verbose:
                     LOGGER.info("\n".join(s))
+                    LOGGER.info("\n".join(s2))
 
                 self.run_callbacks("on_predict_batch_end")
                 yield from self.results
-
+                yield from self.results2
         # Release assets
         for v in self.vid_writer.values():
             if isinstance(v, cv2.VideoWriter):
@@ -320,7 +348,7 @@ class BasePredictor:
         self.args.half = self.model.fp16  # update half
         self.model.eval()
 
-    def write_results(self, i, p, im, s):
+    def write_results_vi(self, i, p, im, s):
         """Write inference results to a file or directory."""
         string = ""  # print string
         if len(im.shape) == 3:
@@ -332,7 +360,7 @@ class BasePredictor:
             match = re.search(r"frame (\d+)/", s[i])
             frame = int(match[1]) if match else None  # 0 if frame undetermined
 
-        self.txt_path = self.save_dir / "labels" / (p.stem + ("" if self.dataset.mode == "image" else f"_{frame}"))
+        self.txt_path = self.save_dir / "labels_vi" / (p.stem + ("" if self.dataset[0].mode == "image" else f"_{frame}"))       # TODO：dataset存在两个图像
         string += "{:g}x{:g} ".format(*im.shape[2:])
         result = self.results[i]
         result.save_dir = self.save_dir.__str__()  # used in other locations
@@ -356,17 +384,58 @@ class BasePredictor:
         if self.args.show:
             self.show(str(p))
         if self.args.save:
-            self.save_predicted_images(str(self.save_dir / p.name), frame)
+            self.save_predicted_images(str(self.save_dir / f"visible_{p.name}"), frame)
+
+        return string
+    
+    def write_results_ir(self, i, p, im, s):
+        """Write inference results to a file or directory."""
+        string = ""  # print string
+        if len(im.shape) == 3:
+            im = im[None]  # expand for batch dim
+        if self.source_type.stream or self.source_type.from_img or self.source_type.tensor:  # batch_size >= 1
+            string += f"{i}: "
+            frame = self.dataset.count
+        else:
+            match = re.search(r"frame (\d+)/", s[i])
+            frame = int(match[1]) if match else None  # 0 if frame undetermined
+
+        self.txt_path = self.save_dir / "labels_ir" / (p.stem + ("" if self.dataset[0].mode == "image" else f"_{frame}")) # TODO：dataset存在两个图像
+        string += "{:g}x{:g} ".format(*im.shape[2:])
+        result = self.results[i]
+        result.save_dir = self.save_dir.__str__()  # used in other locations
+        string += f"{result.verbose()}{result.speed['inference']:.1f}ms"
+
+        # Add predictions to image
+        if self.args.save or self.args.show:
+            self.plotted_img = result.plot(
+                line_width=self.args.line_width,
+                boxes=self.args.show_boxes,
+                conf=self.args.show_conf,
+                labels=self.args.show_labels,
+                im_gpu=None if self.args.retina_masks else im[i],
+            )
+
+        # Save results
+        if self.args.save_txt:
+            result.save_txt(f"{self.txt_path}.txt", save_conf=self.args.save_conf)
+        if self.args.save_crop:
+            result.save_crop(save_dir=self.save_dir / "crops", file_name=self.txt_path.stem)
+        if self.args.show:
+            self.show(str(p))
+        if self.args.save:
+            self.save_predicted_images(str(self.save_dir /  f"infrared_{p.name}"), frame)
 
         return string
 
     def save_predicted_images(self, save_path="", frame=0):
         """Save video predictions as mp4 at specified path."""
         im = self.plotted_img
+        im2 = self.plotted_img2
 
         # Save videos and streams
-        if self.dataset.mode in {"stream", "video"}:
-            fps = self.dataset.fps if self.dataset.mode == "video" else 30
+        if self.dataset[0].mode in {"stream", "video"} and self.dataset[1].mode in {"stream", "video"}:
+            fps = self.dataset[0].fps if self.dataset[0].mode == "video" else 30
             frames_path = f"{save_path.split('.', 1)[0]}_frames/"
             if save_path not in self.vid_writer:  # new video
                 if self.args.save_frames:
