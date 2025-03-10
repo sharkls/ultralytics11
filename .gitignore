@@ -171,3 +171,6 @@ pnnx*
 
 # calibration image
 calibration_*.npy
+
+# test dataset
+data/
