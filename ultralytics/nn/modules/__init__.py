@@ -92,6 +92,7 @@ from .transformer import (
 # TODO:增加DEYOLO模块
 from .DEA import DEA
 from .FMDEA import FMDEA
+from .EnhancedFMDEA import EnhancedFMDEA
 
 __all__ = (
     "Conv",
@@ -168,4 +169,5 @@ __all__ = (
     "MultiModalTransformer",    # 多模态transformer
     "DEA",
     "FMDEA",
+    "EnhancedFMDEA",
 )

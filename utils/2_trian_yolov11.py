@@ -23,14 +23,18 @@ import argparse
 #     results = model.train(data=args.data, batch=args.batch, epochs=args.epochs, imgsz=args.imgsz, device=args.device)
 
 
-# # 训练单模态数据
-model = YOLO("yolo11s.yaml", task="detect") # build a new model from YAML
-results = model.train(data="LLVIP.yaml", batch=2, epochs=2, imgsz=640, device=0)
+# # # 训练单模态数据
+# model = YOLO("yolo11s.yaml", task="detect") # build a new model from YAML
+# results = model.train(data="LLVIP.yaml", batch=2, epochs=2, imgsz=640, device=0)
 
-# # 训练多模态（DEYOLO）
+# 训练多模态（DEYOLO）
 # model = YOLOMultimodal("yolo11n-DEYOLO.yaml", task="multimodal") # build a new model from YAML
 # results = model.train(data="multimodal.yaml", batch=2, epochs=2, imgsz=640, device=0)
 
 # # 训练多模态（FMDEA）
 # model = YOLOMultimodal("yolo11n-FMDEA.yaml", task="multimodal") # build a new model from YAML
 # results = model.train(data="multimodal.yaml", batch=2, epochs=2, imgsz=640, device=0)
+
+# 训练多模态（EnhancedFMDEA）
+model = YOLOMultimodal("yolo11n-EnhancedFMDEA.yaml", task="multimodal") # build a new model from YAML
+results = model.train(data="multimodal.yaml", batch=1, epochs=2, imgsz=640, device=0)

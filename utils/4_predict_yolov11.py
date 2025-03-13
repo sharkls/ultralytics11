@@ -20,7 +20,7 @@
 from ultralytics import YOLOMultimodal
 
 # Load a model
-model = YOLOMultimodal("yolo11n-DEYOLO.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train25/weights/last.pt')  # pretrained YOLO11n model
+model = YOLOMultimodal("yolo11n-DEYOLO.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train/weights/last.pt')  # pretrained YOLO11n model
 
 # Perform object detection on RGB and IR image
 model.predict([["/ultralytics/data/LLVIP/images/visible/test/190001.jpg", "/ultralytics/data/LLVIP/images/infrared/test/190001.jpg"], # corresponding image pair

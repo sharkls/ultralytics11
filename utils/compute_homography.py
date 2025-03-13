@@ -51,5 +51,6 @@ if __name__ == "__main__":
     image_vis = '/ultralytics/data/LLVIP/images/infrared/train/010001.jpg'
     image_therm = '/ultralytics/data/LLVIP/images/visible/train/010001.jpg'
     H = compute_homography(image_vis, image_therm)
-    np.save('homography_matrix.npy', H)
+    # np.save('homography_matrix.npy', H)
+    print(f'单应性矩阵 H: {H}')
     print("单应性矩阵已保存为 homography_matrix.npy")

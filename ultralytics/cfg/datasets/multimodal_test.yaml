@@ -3,8 +3,8 @@
 # Example usage: yolo train data=LLVIP.yaml
 
 # Train/val/test sets as dir: path/to/imgs
-path: /ultralytics/data/LLVIP  # dataset root dir
-# path: /ultralytics/data/Test  # dataset root dir
+# path: /ultralytics/data/LLVIP  # dataset root dir
+path: /ultralytics/data/Test  # dataset root dir
 
 train: images/visible/train  # train visible images (relative to 'path')
 train2: images/infrared/train  # train infrared images (relative to 'path')

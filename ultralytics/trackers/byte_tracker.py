@@ -280,13 +280,13 @@ class BYTETracker:
             >>> args = Namespace(track_buffer=30)
             >>> tracker = BYTETracker(args, frame_rate=30)
         """
-        self.tracked_stracks = []  # type: list[STrack]
+        self.tracked_stracks = []  # type: list[STrack] 
         self.lost_stracks = []  # type: list[STrack]
         self.removed_stracks = []  # type: list[STrack]
 
         self.frame_id = 0
         self.args = args
-        self.max_time_lost = int(frame_rate / 30.0 * args.track_buffer)
+        self.max_time_lost = int(frame_rate / 30.0 * args.track_buffer) # 最大丢失时间，超过则删除
         self.kalman_filter = self.get_kalmanfilter()
         self.reset_id()
 
@@ -298,16 +298,19 @@ class BYTETracker:
         lost_stracks = []
         removed_stracks = []
 
+        # 1. 处理检测结果
         scores = results.conf
         bboxes = results.xywhr if hasattr(results, "xywhr") else results.xywh
         # Add index
         bboxes = np.concatenate([bboxes, np.arange(len(bboxes)).reshape(-1, 1)], axis=-1)
         cls = results.cls
 
+        # 2. 根据置信度阈值分类检测框
         remain_inds = scores >= self.args.track_high_thresh
         inds_low = scores > self.args.track_low_thresh
         inds_high = scores < self.args.track_high_thresh
 
+        # 3. 根据阈值筛选检测结果
         inds_second = inds_low & inds_high
         dets_second = bboxes[inds_second]
         dets = bboxes[remain_inds]
@@ -334,6 +337,7 @@ class BYTETracker:
             STrack.multi_gmc(strack_pool, warp)
             STrack.multi_gmc(unconfirmed, warp)
 
+        # 3. 第一阶段关联：将高置信度检测框与现有轨迹关联
         dists = self.get_dists(strack_pool, detections)
         matches, u_track, u_detection = matching.linear_assignment(dists, thresh=self.args.match_thresh)
 
@@ -350,6 +354,8 @@ class BYTETracker:
         detections_second = self.init_track(dets_second, scores_second, cls_second, img)
         r_tracked_stracks = [strack_pool[i] for i in u_track if strack_pool[i].state == TrackState.Tracked]
         # TODO
+        
+        # 4. 第二阶段关联：处理低置信度检测框
         dists = matching.iou_distance(r_tracked_stracks, detections_second)
         matches, u_track, u_detection_second = matching.linear_assignment(dists, thresh=0.5)
         for itracked, idet in matches:

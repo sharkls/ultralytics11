@@ -66,9 +66,8 @@ from ultralytics.nn.modules import (
     v10Detect,
     MultiModalTransformer,
     DEA,
-    # DEPA,
-    # DECA,
     FMDEA,
+    EnhancedFMDEA
 )
 from ultralytics.utils import DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS, LOGGER, colorstr, emojis, yaml_load
 from ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
@@ -467,7 +466,8 @@ class MultiModalDetectionModel(BaseModel):
                 return self.forward(x_vis, x_therm)[0] if isinstance(m, (Segment, Pose, OBB)) else self.forward(x_vis, x_therm)
 
             m.stride = torch.tensor([s / x.shape[-2] for x in _forward(torch.zeros(1, self.ch_visible, s, s), 
-                                                                        torch.zeros(1, self.ch_thermal, s, s))])  # 前向传播
+                                                                       torch.zeros(1, self.ch_thermal, s, s))])  # 前向传播
+
             self.stride = m.stride
             m.bias_init()  # 仅运行一次
         else:
@@ -1525,7 +1525,7 @@ def parse_model_fusion(d, ch, ch2, verbose=True):  # model_dict, input_channels(
             if c2 != nc:
                 c2 = make_divisible(min(c2, max_channels) * width, 8)
             args = [c1, *args[1:]]  # Pass both features to DEA
-        elif m is FMDEA:
+        elif m in {FMDEA, EnhancedFMDEA}:
             c1 = []
             for x in (f if isinstance(f, list) else [f]):
                 if x < backbone_len:  # From visible branch
@@ -1550,6 +1550,7 @@ def parse_model_fusion(d, ch, ch2, verbose=True):  # model_dict, input_channels(
             if m in {Detect, Segment, Pose, OBB}:
                 m.legacy = legacy
         else:
+            # print(f'm:{m}')
             # c2 = args[0]
             c2 = ch_head[f]
 
