@@ -37,4 +37,4 @@ import argparse
 
 # 训练多模态（EnhancedFMDEA）
 model = YOLOMultimodal("yolo11n-EnhancedFMDEA.yaml", task="multimodal") # build a new model from YAML
-results = model.train(data="multimodal.yaml", batch=1, epochs=2, imgsz=640, device=0)
+results = model.train(data="multimodal_test.yaml", batch=2, epochs=2, imgsz=640, device=0)

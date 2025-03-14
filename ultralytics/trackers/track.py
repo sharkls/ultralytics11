@@ -41,13 +41,22 @@ def on_predict_start(predictor: object, persist: bool = False) -> None:
         raise AssertionError(f"Only 'bytetrack' and 'botsort' are supported for now, but got '{cfg.tracker_type}'")
 
     trackers = []
-    for _ in range(predictor.dataset.bs):
-        tracker = TRACKER_MAP[cfg.tracker_type](args=cfg, frame_rate=30)
-        trackers.append(tracker)
-        if predictor.dataset.mode != "stream":  # only need one tracker for other modes.
-            break
+    if predictor.args.task == "multimodal":
+        for _ in range(predictor.dataset[0].bs):
+            tracker = TRACKER_MAP[cfg.tracker_type](args=cfg, frame_rate=30)
+            trackers.append(tracker)
+            if predictor.dataset[0].mode != "stream":  # only need one tracker for other modes.
+                break
+        predictor.vid_path = [None] * predictor.dataset[0].bs  # for determining when to reset tracker on new video
+    else:
+        for _ in range(predictor.dataset.bs):
+            tracker = TRACKER_MAP[cfg.tracker_type](args=cfg, frame_rate=30)
+            trackers.append(tracker)
+            if predictor.dataset.mode != "stream":  # only need one tracker for other modes.
+                break
+        predictor.vid_path = [None] * predictor.dataset.bs  # for determining when to reset tracker on new video
     predictor.trackers = trackers
-    predictor.vid_path = [None] * predictor.dataset.bs  # for determining when to reset tracker on new video
+    
 
 
 def on_predict_postprocess_end(predictor: object, persist: bool = False) -> None:
@@ -63,28 +72,53 @@ def on_predict_postprocess_end(predictor: object, persist: bool = False) -> None
         >>> predictor = YourPredictorClass()
         >>> on_predict_postprocess_end(predictor, persist=True)
     """
-    path, im0s = predictor.batch[:2]
+    if predictor.args.task == "multimodal":
+        path1, im0s1 = predictor.batch[0][:2]
+        path2, im0s2 = predictor.batch[1][:2]
 
-    is_obb = predictor.args.task == "obb"
-    is_stream = predictor.dataset.mode == "stream"
-    for i in range(len(im0s)):
-        tracker = predictor.trackers[i if is_stream else 0]
-        vid_path = predictor.save_dir / Path(path[i]).name
-        if not persist and predictor.vid_path[i if is_stream else 0] != vid_path:
-            tracker.reset()
-            predictor.vid_path[i if is_stream else 0] = vid_path
+        is_obb = predictor.args.task == "obb"
+        is_stream = predictor.dataset[0].mode == "stream"
+        for i in range(len(im0s1)):
+            tracker = predictor.trackers[i if is_stream else 0]
+            vid_path = predictor.save_dir / Path(path1[i]).name
+            if not persist and predictor.vid_path[i if is_stream else 0] != vid_path:
+                tracker.reset()
+                predictor.vid_path[i if is_stream else 0] = vid_path
 
-        det = (predictor.results[i].obb if is_obb else predictor.results[i].boxes).cpu().numpy()
-        if len(det) == 0:
-            continue
-        tracks = tracker.update(det, im0s[i])
-        if len(tracks) == 0:
-            continue
-        idx = tracks[:, -1].astype(int)
-        predictor.results[i] = predictor.results[i][idx]
+            det = (predictor.results[i].obb if is_obb else predictor.results[i].boxes).cpu().numpy()
+            if len(det) == 0:
+                continue
+            tracks = tracker.update(det, im0s1[i])
+            if len(tracks) == 0:
+                continue
+            idx = tracks[:, -1].astype(int)
+            predictor.results[i] = predictor.results[i][idx]
 
-        update_args = {"obb" if is_obb else "boxes": torch.as_tensor(tracks[:, :-1])}
-        predictor.results[i].update(**update_args)
+            update_args = {"obb" if is_obb else "boxes": torch.as_tensor(tracks[:, :-1])}
+            predictor.results[i].update(**update_args)
+    else:
+        path, im0s = predictor.batch[:2]
+
+        is_obb = predictor.args.task == "obb"
+        is_stream = predictor.dataset.mode == "stream"
+        for i in range(len(im0s)):
+            tracker = predictor.trackers[i if is_stream else 0]
+            vid_path = predictor.save_dir / Path(path[i]).name
+            if not persist and predictor.vid_path[i if is_stream else 0] != vid_path:
+                tracker.reset()
+                predictor.vid_path[i if is_stream else 0] = vid_path
+
+            det = (predictor.results[i].obb if is_obb else predictor.results[i].boxes).cpu().numpy()
+            if len(det) == 0:
+                continue
+            tracks = tracker.update(det, im0s[i])
+            if len(tracks) == 0:
+                continue
+            idx = tracks[:, -1].astype(int)
+            predictor.results[i] = predictor.results[i][idx]
+
+            update_args = {"obb" if is_obb else "boxes": torch.as_tensor(tracks[:, :-1])}
+            predictor.results[i].update(**update_args)
 
 
 def register_tracker(model: object, persist: bool) -> None:

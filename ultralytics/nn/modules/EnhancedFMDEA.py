@@ -41,7 +41,12 @@ class EfficientFeatureAlignment(nn.Module):
     def forward(self, rgb_feat, ir_feat, homography):
         b, c, h, w = rgb_feat.shape
         current_ir = ir_feat
-        current_H = homography.unsqueeze(0).repeat(b, 1, 1) if len(homography.shape) == 2 else homography
+
+        # 确保homography与特征图具有相同的数据类型
+        current_H = homography.to(dtype=rgb_feat.dtype, device=rgb_feat.device)
+        if len(current_H.shape) == 2:
+            current_H = current_H.unsqueeze(0).repeat(b, 1, 1)
+        # current_H = homography.unsqueeze(0).repeat(b, 1, 1) if len(homography.shape) == 2 else homography
         
         for i in range(self.refinement_steps):
             # 1. 应用当前变换
@@ -59,8 +64,11 @@ class EfficientFeatureAlignment(nn.Module):
             offset = self.similarity(concat_feat)
             
             # 3. 更新变换矩阵
+            # delta_H = self.offset_to_H(offset, h, w)
+            # current_H = torch.bmm(current_H, delta_H)
+            # 更新变换矩阵时确保数据类型一致
             delta_H = self.offset_to_H(offset, h, w)
-            current_H = torch.bmm(current_H, delta_H)
+            current_H = torch.bmm(current_H.to(delta_H.dtype), delta_H)
             
             # 4. 注意力增强
             # 通道注意力
@@ -85,21 +93,24 @@ class EfficientFeatureAlignment(nn.Module):
 
     def get_grid(self, H, height, width, device):
         """生成采样网格"""
-        # 1. 生成网格点
+        # 获取H的数据类型
+        dtype = H.dtype
+        
+        # 1. 生成网格点并确保数据类型匹配
         y, x = torch.meshgrid(
-            torch.linspace(-1, 1, height, device=device),
-            torch.linspace(-1, 1, width, device=device),
+            torch.linspace(-1, 1, height, device=device, dtype=dtype),
+            torch.linspace(-1, 1, width, device=device, dtype=dtype),
             indexing='ij'
         )
         
-        # 2. 重塑为齐次坐标 (x,y,1)
-        points = torch.stack([x, y, torch.ones_like(x)], dim=0)  # [3, height, width]
-        points = points.reshape(3, -1)  # [3, height*width]
+        # 2. 重塑为齐次坐标 (x,y,1)，保持数据类型一致
+        points = torch.stack([x, y, torch.ones_like(x, dtype=dtype)], dim=0)
+        points = points.reshape(3, -1)
         
         # 3. 扩展points到batch维度并应用变换
         batch_size = H.size(0)
-        points = points.unsqueeze(0).expand(batch_size, -1, -1)  # [B, 3, height*width]
-        transformed = torch.bmm(H, points)  # [B, 3, height*width]
+        points = points.unsqueeze(0).expand(batch_size, -1, -1)
+        transformed = torch.bmm(H, points)  # 现在两个输入的数据类型一致
         
         # 4. 归一化齐次坐标
         transformed = transformed / (transformed[:, 2:3, :] + 1e-8)
@@ -115,7 +126,9 @@ class EfficientFeatureAlignment(nn.Module):
         dx = offset[:, 0].mean() / width
         dy = offset[:, 1].mean() / height
         
-        H = torch.eye(3, device=offset.device).unsqueeze(0).repeat(b, 1, 1)
+        # 使用与offset相同的数据类型和设备
+        H = torch.eye(3, device=offset.device, dtype=offset.dtype)
+        H = H.unsqueeze(0).repeat(b, 1, 1)
         H[:, 0, 2] = dx
         H[:, 1, 2] = dy
         

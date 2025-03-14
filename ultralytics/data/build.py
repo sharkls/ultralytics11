@@ -181,8 +181,15 @@ def check_source(source):
     elif isinstance(source, LOADERS):
         in_memory = True
     elif isinstance(source, (list, tuple)):
-        source = autocast_list(source)  # convert all list elements to PIL or np arrays
-        from_img = True
+        if Path(source[0]).suffix[1:] in (VID_FORMATS):
+            source = str(source[0])
+            is_file = Path(source).suffix[1:] in (IMG_FORMATS | VID_FORMATS)
+            is_url = source.lower().startswith(("https://", "http://", "rtsp://", "rtmp://", "tcp://"))
+            webcam = source.isnumeric() or source.endswith(".streams") or (is_url and not is_file)
+            screenshot = source.lower() == "screen"
+        else:
+            source = autocast_list(source)  # convert all list elements to PIL or np arrays
+            from_img = True
     elif isinstance(source, (Image.Image, np.ndarray)):
         from_img = True
     elif isinstance(source, torch.Tensor):

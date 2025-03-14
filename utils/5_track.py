@@ -13,9 +13,9 @@ from ultralytics import YOLO, YOLOMultimodal
 # )  # Tracking with ByteTrack tracker
 
 # 常规检测+跟踪
-model = YOLO("yolo11n.pt")  # Load an official Detect model
-results = model.track(source='data/LLVIP/01.mp4', show=True, tracker="bytetrack.yaml")
+# model = YOLO("yolo11n.pt")  # Load an official Detect model
+# results = model.track(source='data/LLVIP/visible_01.mp4', show=True, tracker="bytetrack.yaml")
 
 # 多模态检测+跟踪
-model = YOLOMultimodal("yolo11n-DEYOLO.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train/weights/last.pt')  # pretrained YOLO11n model
-results = model.track(source=['data/LLVIP/01.mp4', 'data/LLVIP/01.mp4'], show=True, tracker="bytetrack.yaml")
+model = YOLOMultimodal("yolo11n-EnhancedFMDEA.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train8/weights/last.pt')  # pretrained YOLO11n model
+results = model.track(source=[['data/LLVIP/visible_01.mp4', 'data/LLVIP/infrared_01.mp4']], show=True, tracker="bytetrack.yaml")
