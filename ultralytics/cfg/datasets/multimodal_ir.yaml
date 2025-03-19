@@ -1,0 +1,19 @@
+# Ultralytics YOLO , AGPL-3.0 license
+# LLVIP dataset
+# Example usage: yolo train data=LLVIP.yaml
+
+# Train/val/test sets as dir: path/to/imgs
+path: /ultralytics/data/LLVIP  # dataset root dir
+# path: /ultralytics/data/Test  # dataset root dir
+
+train: images/infrared/train  # train infrared images (relative to 'path')
+val: images/infrared/val  # val infrared images (relative to 'path')
+# val : images/infrared/test
+
+#image_weights: True
+nc: 1
+
+
+# Classes
+names:
+  0: Person

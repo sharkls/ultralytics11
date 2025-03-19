@@ -25,7 +25,7 @@ import argparse
 
 # # # 训练单模态数据
 # model = YOLO("yolo11s.yaml", task="detect") # build a new model from YAML
-# results = model.train(data="LLVIP.yaml", batch=2, epochs=2, imgsz=640, device=0)
+# results = model.train(data="multimodal_ir.yaml", batch=2, epochs=2, imgsz=640, device=0)
 
 # 训练多模态（DEYOLO）
 # model = YOLOMultimodal("yolo11n-DEYOLO.yaml", task="multimodal") # build a new model from YAML
@@ -35,6 +35,19 @@ import argparse
 # model = YOLOMultimodal("yolo11n-FMDEA.yaml", task="multimodal") # build a new model from YAML
 # results = model.train(data="multimodal.yaml", batch=2, epochs=2, imgsz=640, device=0)
 
-# 训练多模态（EnhancedFMDEA）
-model = YOLOMultimodal("yolo11n-EnhancedFMDEA.yaml", task="multimodal") # build a new model from YAML
-results = model.train(data="multimodal_test.yaml", batch=2, epochs=2, imgsz=640, device=0)
+# # 训练多模态（EnhancedFMDEA）
+# model = YOLOMultimodal("yolo11n-EnhancedFMDEA.yaml", task="multimodal") # build a new model from YAML
+# results = model.train(data="multimodal_test.yaml", batch=2, epochs=2, imgsz=640, device=0)
+
+# 断点续训
+# 2. 断点续训 - 从最后一个检查点继续训练
+# 假设上次训练到第86个epoch中断
+model = YOLOMultimodal('runs/multimodal/multimodal0317/last.pt')  # 加载最后保存的权重
+results = model.train(
+    data="multimodal.yaml",
+    batch=2,
+    epochs=4,
+    imgsz=640,
+    device=0,
+    resume=True  # 关键参数：启用续训
+)

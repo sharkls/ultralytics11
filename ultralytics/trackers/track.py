@@ -96,6 +96,25 @@ def on_predict_postprocess_end(predictor: object, persist: bool = False) -> None
 
             update_args = {"obb" if is_obb else "boxes": torch.as_tensor(tracks[:, :-1])}
             predictor.results[i].update(**update_args)
+
+        for i in range(len(im0s2)):
+            tracker2 = predictor.trackers[i if is_stream else 0]
+            vid_path2 = predictor.save_dir / Path(path2[i]).name
+            if not persist and predictor.vid_path[i if is_stream else 0] != vid_path2:
+                tracker2.reset()
+                predictor.vid_path[i if is_stream else 0] = vid_path2
+
+            det = (predictor.results2[i].obb if is_obb else predictor.results2[i].boxes).cpu().numpy()
+            if len(det) == 0:
+                continue
+            tracks2 = tracker2.update(det, im0s2[i])
+            if len(tracks2) == 0:
+                continue
+            idx = tracks2[:, -1].astype(int)
+            predictor.results2[i] = predictor.results2[i][idx]
+
+            update_args = {"obb" if is_obb else "boxes": torch.as_tensor(tracks2[:, :-1])}
+            predictor.results2[i].update(**update_args)
     else:
         path, im0s = predictor.batch[:2]
 

@@ -20,9 +20,13 @@
 from ultralytics import YOLOMultimodal
 
 # Load a model
-model = YOLOMultimodal("yolo11n-DEYOLO.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train/weights/last.pt')  # pretrained YOLO11n model
+# model = YOLOMultimodal("yolo11s-DEYOLO.yaml", task="multimodal").load('/ultralytics/runs/multimodal/multimodal0317/best.pt')  # pretrained YOLO11n model
+# model.predict([["/ultralytics/data/LLVIP/images/visible/test/190001.jpg", "/ultralytics/data/LLVIP/images/infrared/test/190001.jpg"], # corresponding image pair
+#               ["/ultralytics/data/LLVIP/images/visible/test/190002.jpg", "/ultralytics/data/LLVIP/images/infrared/test/190002.jpg"]], 
+#               save=True, imgsz=640, conf=0.5, device=0)
 
-# Perform object detection on RGB and IR image
-model.predict([["/ultralytics/data/LLVIP/images/visible/test/190001.jpg", "/ultralytics/data/LLVIP/images/infrared/test/190001.jpg"], # corresponding image pair
-              ["/ultralytics/data/LLVIP/images/visible/test/190002.jpg", "/ultralytics/data/LLVIP/images/infrared/test/190002.jpg"]], 
-              save=True, imgsz=640, conf=0.5)
+
+# 测试 EnhancedMultimodal
+model = YOLOMultimodal("yolo11s-EnhancedFMDEA.yaml", task="multimodal").load('runs/multimodal/multimodal0317/0319/last.pt')  # pretrained YOLO11n model
+# model.predict(source=[['data/LLVIP/visible_01.mp4', 'data/LLVIP/infrared_01.mp4']], save=True, imgsz=640, conf=0.5, device=0) # corresponding image pair
+model.predict(source=[['runs/extract_frame/visible_frame10.jpg', 'runs/extract_frame/infrared_frame10.jpg']], save=True, imgsz=640, conf=0.5, device=0) # corresponding image pair
