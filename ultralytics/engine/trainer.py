@@ -389,7 +389,8 @@ class BaseTrainer:
                 with autocast(self.amp):
                     batch = self.preprocess_batch(batch)
                     if self.args.task == "multimodal":  # TODO: 多模态数据集
-                        self.loss, self.loss_items = self.model(batch, batch)
+                        mapping_matrix = torch.stack(batch.get("mapping_matrix"), dim=0)
+                        self.loss, self.loss_items = self.model(batch, batch, mapping_matrix)
                     else:
                         self.loss, self.loss_items = self.model(batch)
                     if RANK != -1:

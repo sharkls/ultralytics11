@@ -14,7 +14,7 @@ import numpy as np
 import psutil
 from torch.utils.data import Dataset
 
-from ultralytics.data.utils import FORMATS_HELP_MSG, HELP_URL, IMG_FORMATS
+from ultralytics.data.utils import FORMATS_HELP_MSG, HELP_URL, IMG_FORMATS, img2extrinsics_paths
 from ultralytics.utils import DEFAULT_CFG, LOCAL_RANK, LOGGER, NUM_THREADS, TQDM
 from typing import Dict, List, Optional, Tuple, Union, Callable
 
@@ -421,6 +421,8 @@ class BaseMultiModalDataset(Dataset):
         # 获取图像文件
         self.im_files = self.get_img_files(self.img_path)
         self.im_files2 = self.get_img_files(self.img_path2)
+        self.matrices = self.get_extrinsics()
+        # self.extrinsics_files = self.get_extrinsics_files(self.extrinsics_path)
 
         # 获取标签
         self.labels = self.get_labels()
@@ -675,6 +677,7 @@ class BaseMultiModalDataset(Dataset):
     def get_image_and_label(self, index):
         """Get and return label information from the dataset."""
         label = deepcopy(self.labels[index])  # requires deepcopy() https://github.com/ultralytics/ultralytics/pull/1948
+        label['mapping_matrix'] = self.matrices[index]['matrix']
         label.pop('shape', None)  # shape is for rect, remove it
         label['img'], label['ori_shape'], label['resized_shape'] = self.load_image(index)
         label['img2'], label['ori_shape2'], label['resized_shape2'] = self.load_image2(index)

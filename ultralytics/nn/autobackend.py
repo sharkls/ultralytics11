@@ -705,7 +705,7 @@ class AutoBackend(nn.Module):
         else:
             return self.from_numpy(y)
 
-    def forward_multimodal(self, im, im2, augment=False, visualize=False, embed=None):
+    def forward_multimodal(self, im, im2, extrinsics=None, augment=False, visualize=False, embed=None):
         """
         Runs inference on the YOLOv8 MultiBackend model.
 
@@ -728,7 +728,7 @@ class AutoBackend(nn.Module):
 
         # PyTorch
         if self.pt or self.nn_module:
-            y = self.model(im, im2, augment=augment, visualize=visualize, embed=embed)
+            y = self.model(im, im2, extrinsics, augment=augment, visualize=visualize, embed=embed) # 调用forward方法 
 
 
         # TorchScript
@@ -956,8 +956,10 @@ class AutoBackend(nn.Module):
         if any(warmup_types) and (self.device.type != "cpu" or self.triton):
             im = torch.empty(*imgsz, dtype=torch.half if self.fp16 else torch.float, device=self.device)  # input
             im2 = torch.empty(*imgsz, dtype=torch.half if self.fp16 else torch.float, device=self.device)  # input
+            # extrinsics = torch.empty(*imgsz, dtype=torch.half if self.fp16 else torch.float, device=self.device)  # input
+            extrinsics = torch.eye(3, dtype=torch.half if self.fp16 else torch.float, device=self.device).expand(imgsz[0], 3, 3)
             for _ in range(2 if self.jit else 1):
-                self.forward_multimodal(im, im2)  # warmup
+                self.forward_multimodal(im, im2, extrinsics)  # warmup
 
     @staticmethod
     def _model_type(p="path/to/model.pt"):

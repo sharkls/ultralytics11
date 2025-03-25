@@ -251,6 +251,8 @@ def load_inference_source_multimodal(source=None, batch=1, vid_stride=1, buffer=
 
     source0, stream0, screenshot0, from_img0, in_memory0, tensor0 = check_source([item[0] for item in source])
     source1, stream1, screenshot1, from_img1, in_memory1, tensor1 = check_source([item[1] for item in source])
+    extrinsincs = [torch.stack([item[2] for item in source], axis=0)]
+    # extrinsincs = [item[2] for item in source]
 
     if not (stream0, screenshot0, from_img0, in_memory0, tensor0) == (stream1, screenshot1, from_img1, in_memory1, tensor1):
         raise TypeError("The source type of RGB and IR must be the same")
@@ -261,15 +263,15 @@ def load_inference_source_multimodal(source=None, batch=1, vid_stride=1, buffer=
     if tensor0:
         dataset = LoadTensor(source0), LoadTensor(source1)
     elif in_memory0:
-        dataset = source0, source1
+        dataset = source0, source1, extrinsincs
     elif stream0:
-        dataset = LoadStreams(source0, vid_stride=vid_stride, buffer=buffer), LoadStreams(source1, vid_stride=vid_stride, buffer=buffer)
+        dataset = LoadStreams(source0, vid_stride=vid_stride, buffer=buffer), LoadStreams(source1, vid_stride=vid_stride, buffer=buffer), extrinsincs
     elif screenshot0:
-        dataset = LoadScreenshots(source0), LoadScreenshots(source1)
+        dataset = LoadScreenshots(source0), LoadScreenshots(source1), extrinsincs
     elif from_img0:
-        dataset = LoadPilAndNumpy(source0), LoadPilAndNumpy(source1)
+        dataset = LoadPilAndNumpy(source0), LoadPilAndNumpy(source1), extrinsincs
     else:
-        dataset = LoadImagesAndVideos(source0, batch=batch, vid_stride=vid_stride), LoadImagesAndVideos(source1, batch=batch, vid_stride=vid_stride)
+        dataset = LoadImagesAndVideos(source0, batch=batch, vid_stride=vid_stride), LoadImagesAndVideos(source1, batch=batch, vid_stride=vid_stride), extrinsincs
 
     # Attach source types to the dataset
     setattr(dataset[0], "source_type", source_type)

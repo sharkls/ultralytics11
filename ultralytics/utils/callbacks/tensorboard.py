@@ -40,6 +40,7 @@ def _log_tensorboard_graph(trainer):
     im = torch.zeros((1, 3, *imgsz), device=p.device, dtype=p.dtype)  # input image (must be zeros, not empty)
     if trainer.args.task == 'multimodal':
         im2 = torch.zeros((1, 3, *imgsz), device=p.device, dtype=p.dtype)  # input image (must be zeros, not empty) # TODO: 添加多模态
+        extrinsics = torch.eye(3, device=p.device, dtype=p.dtype).expand(1, 3, 3)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=UserWarning)  # suppress jit trace warning
@@ -49,7 +50,7 @@ def _log_tensorboard_graph(trainer):
         try:
             trainer.model.eval()  # place in .eval() mode to avoid BatchNorm statistics changes
             if trainer.args.task == 'multimodal':
-                WRITER.add_graph(torch.jit.trace(de_parallel(trainer.model), (im, im2), strict=False), [])
+                WRITER.add_graph(torch.jit.trace(de_parallel(trainer.model), (im, im2, extrinsics), strict=False), [])
             else:
                 WRITER.add_graph(torch.jit.trace(de_parallel(trainer.model), im, strict=False), [])
             LOGGER.info(f"{PREFIX}model graph visualization added ✅")
@@ -66,8 +67,8 @@ def _log_tensorboard_graph(trainer):
                         m.export = True
                         m.format = "torchscript"
                 if trainer.args.task == 'multimodal':
-                    model(im, im2)  # dry run
-                    WRITER.add_graph(torch.jit.trace(model, (im, im2), strict=False), [])
+                    model(im, im2, extrinsics)  # dry run
+                    WRITER.add_graph(torch.jit.trace(model, (im, im2, extrinsics), strict=False), [])
                 else:
                     model(im)  # dry run
                     WRITER.add_graph(torch.jit.trace(model, im, strict=False), [])

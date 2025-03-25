@@ -46,6 +46,48 @@ def img2label_paths(img_paths):
     sa, sb = f"{os.sep}images{os.sep}", f"{os.sep}labels{os.sep}"  # /images/, /labels/ substrings
     return [sb.join(x.rsplit(sa, 1)).rsplit(".", 1)[0] + ".txt" for x in img_paths]
 
+def img2extrinsics_paths(img_paths):
+    """
+    根据图像路径生成对应的单应性矩阵文件路径。
+    
+    Args:
+        img_paths (list): 图像文件路径列表，如：
+            '/ultralytics/data/Test/images/visible/train/010001.jpg'
+            
+    Returns:
+        list: 单应性矩阵文件路径列表，如：
+            '/ultralytics/data/Test/extrinsics/train/010001.txt'
+    """
+    def convert_path(img_path):
+        p = Path(img_path)
+        # 查找 images 目录的位置
+        try:
+            # 将路径分割成部分
+            parts = p.parts
+            # 找到 'images' 的索引
+            img_idx = parts.index('images')
+            # 找到 visible/infrared 的索引
+            modality_idx = parts.index('visible' if 'visible' in parts else 'infrared')
+            
+            # 构建新路径:
+            # 1. 保留 images 之前的路径
+            # 2. 替换 'images' 为 'extrinsics'
+            # 3. 跳过 visible/infrared 目录
+            # 4. 保留剩余路径
+            new_parts = (
+                parts[:img_idx] +  # images 之前的路径
+                ('extrinsics',) +  # 替换 images
+                parts[modality_idx + 1:-1] +  # 跳过 visible/infrared，保留中间目录
+                (p.stem + '.txt',)  # 修改文件扩展名
+            )
+            
+            return str(Path(*new_parts))
+        except ValueError:
+            # 如果找不到必要的目录，返回原始路径但改为txt后缀
+            return str(p.with_suffix('.txt'))
+    
+    return [convert_path(img_path) for img_path in img_paths]
+
 
 def get_hash(paths):
     """Returns a single hash value of a list of paths (files or dirs)."""

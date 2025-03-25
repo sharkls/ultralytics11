@@ -12,7 +12,7 @@ val: images/visible/val  # val visible images (relative to 'path')
 val2: images/infrared/val  # val infrared images (relative to 'path')
 # val: images/visible/test  # test images (optional)
 # val2 : images/infrared/test
-
+extrinsics_dir: /ultralytics/data/Test/extrinsics  # 添加这一行
 #image_weights: True
 nc: 1
 

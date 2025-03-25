@@ -399,7 +399,7 @@ class DetectionModel(BaseModel):
 class MultiModalDetectionModel(BaseModel):
     """YOLOv11 多模态融合检测模型."""
 
-    def __init__(self, cfg="yolo11-fusion.yaml", ch=3, ch2=3, nc=None, verbose=True):
+    def __init__(self, cfg="yolo11n-EnhancedFMDEA.yaml", ch=3, ch2=3, nc=None, verbose=True):
         """
         初始化 YOLOv11 多模态融合检测模型。
 
@@ -419,8 +419,6 @@ class MultiModalDetectionModel(BaseModel):
             self.yaml["backbone"][0][2] = "nn.Identity"
 
         # 定义模型
-        # ch = self.yaml['ch'] = self.yaml.get('ch', ch)  # input channels
-        # ch2 = self.yaml['ch'] = self.yaml.get('ch2', ch2)  # input channels
         self.ch_visible, self.ch_thermal = ch, ch2  # 可见光和红外输入通道
         self.yaml["ch_visible"] = self.ch_visible
         self.yaml["ch_thermal"] = self.ch_thermal
@@ -428,27 +426,8 @@ class MultiModalDetectionModel(BaseModel):
             LOGGER.info(f"覆盖 model.yaml 中的 nc={self.yaml.get('nc', '未定义')} 为 nc={nc}")
             self.yaml["nc"] = nc  # 覆盖类别数
 
-        # # TODO：加载空间映射相关配置
-        # spatial_mapping = self.yaml.get('spatial_mapping', {})
-        # homography_matrix_path = spatial_mapping.get('homography_matrix_path', None)
-        # if homography_matrix_path:
-        #     H = np.load(homography_matrix_path)
-        #     LOGGER.info(f"加载单应性矩阵来自 {homography_matrix_path}")
-        # else:
-        #     H = np.eye(3)
-        #     LOGGER.warning("未提供单应性矩阵路径，使用单位矩阵。")
-
         # 解析模型
         self.model, self.save = parse_model_fusion(deepcopy(self.yaml), ch=self.ch_visible, ch2=self.ch_thermal, verbose=verbose)  # 解析模型
-        
-        # # TODO：新增：初始化 MultiModalTransformer
-        # self.transformer = MultiModalTransformer(
-        #     in_channels_vis=1024,  # 根据具体模型调整
-        #     in_channels_therm=1024,  # 根据具体模型调整
-        #     fusion_channels=1024,  # 根据具体模型调整
-        #     H=H  # 传入单应性矩阵
-        # )
-        
         self.names = {i: f"{i}" for i in range(self.yaml["nc"])}  # 类别名称字典
         self.inplace = self.yaml.get("inplace", True)
         self.end2end = getattr(self.model[-1], "end2end", False)
@@ -459,14 +438,15 @@ class MultiModalDetectionModel(BaseModel):
             s = 256  # 2x 最小步幅
             m.inplace = self.inplace
 
-            def _forward(x_vis, x_therm):
+            def _forward(x_vis, x_therm, extrinsics):
                 """通过模型前向传播，处理不同的 Detect 子类类型。"""
                 if self.end2end:
-                    return self.forward(x_vis, x_therm)["one2many"]
-                return self.forward(x_vis, x_therm)[0] if isinstance(m, (Segment, Pose, OBB)) else self.forward(x_vis, x_therm)
+                    return self.forward(x_vis, x_therm, extrinsics)["one2many"]
+                return self.forward(x_vis, x_therm, extrinsics)[0] if isinstance(m, (Segment, Pose, OBB)) else self.forward(x_vis, x_therm, extrinsics)
 
             m.stride = torch.tensor([s / x.shape[-2] for x in _forward(torch.zeros(1, self.ch_visible, s, s), 
-                                                                       torch.zeros(1, self.ch_thermal, s, s))])  # 前向传播
+                                                                       torch.zeros(1, self.ch_thermal, s, s),
+                                                                       torch.eye(3).expand(1, 3, 3))])  # 前向传播
 
             self.stride = m.stride
             m.bias_init()  # 仅运行一次
@@ -479,13 +459,14 @@ class MultiModalDetectionModel(BaseModel):
             self.info()
             LOGGER.info("")
 
-    def forward(self, x_vis, x_therm, *args, **kwargs):
+    def forward(self, x_vis, x_therm, extrinsics=None, *args, **kwargs):
         """
         执行模型的前向传播。
 
         Args:
             x_vis (torch.Tensor): 可见光输入图像张量。
             x_therm (torch.Tensor): 红外输入图像张量。
+            extrinsics (torch.Tensor): 外参矩阵。
             *args: 额外的位置参数。
             **kwargs: 额外的关键字参数。
 
@@ -493,16 +474,17 @@ class MultiModalDetectionModel(BaseModel):
             torch.Tensor: 模型的输出。
         """
         if isinstance(x_vis, dict) and isinstance(x_therm, dict):
-            return self.loss(x_vis, x_therm, *args, **kwargs)
-        return self.predict(x_vis, x_therm, *args, **kwargs)
+            return self.loss(x_vis, x_therm, extrinsics, *args, **kwargs)
+        return self.predict(x_vis, x_therm, extrinsics, *args, **kwargs)
     
-    def forward_multimodal(self, x_vis, x_therm, *args, **kwargs):
+    def forward_multimodal(self, x_vis, x_therm, extrinsics=None, *args, **kwargs):
         """
         执行模型的前向传播。
 
         Args:
             x_vis (torch.Tensor): 可见光输入图像张量。
             x_therm (torch.Tensor): 红外输入图像张量。
+            extrinsics (torch.Tensor): 外参矩阵。
             *args: 额外的位置参数。
             **kwargs: 额外的关键字参数。
 
@@ -510,10 +492,10 @@ class MultiModalDetectionModel(BaseModel):
             torch.Tensor: 模型的输出。
         """
         if isinstance(x_vis, dict) and isinstance(x_therm, dict):
-            return self.loss(x_vis, x_therm, *args, **kwargs)
-        return self.predict(x_vis, x_therm, *args, **kwargs)
+            return self.loss(x_vis, x_therm, extrinsics,*args, **kwargs)
+        return self.predict(x_vis, x_therm, extrinsics, *args, **kwargs)
 
-    def loss(self, x_vis, x_therm, *args, **kwargs):
+    def loss(self, x_vis, x_therm, extrinsics=None, *args, **kwargs):
         """
         计算损失。
 
@@ -529,16 +511,17 @@ class MultiModalDetectionModel(BaseModel):
         if getattr(self, "criterion", None) is None:
             self.criterion = self.init_criterion()
         # print(x_vis.keys(), ", ", x_therm.keys())
-        preds = self.forward(x_vis["img"], x_therm["img2"])  # 前向传播
+        preds = self.forward(x_vis["img"], x_therm["img2"], extrinsics)  # 前向传播
         return self.criterion(preds, x_vis)
 
-    def predict(self, x_vis, x_therm, profile=False, visualize=False, augment=False, embed=None):
+    def predict(self, x_vis, x_therm, extrinsics=None, profile=False, visualize=False, augment=False, embed=None):
         """
         执行模型的预测。
 
         Args:
             x_vis (torch.Tensor): 可见光输入图像张量。
             x_therm (torch.Tensor): 红外输入图像张量。
+            extrinsics (torch.Tensor): 外参矩阵。
             profile (bool): 是否打印每层的计算时间。
             visualize (bool): 是否保存特征图用于可视化。
             augment (bool): 是否进行数据增强预测。
@@ -548,8 +531,8 @@ class MultiModalDetectionModel(BaseModel):
             torch.Tensor: 模型的预测输出。
         """
         if augment:
-            return self._predict_augment(x_vis, x_therm)
-        return self._predict_once(x_vis, x_therm, profile, visualize, embed)
+            return self._predict_augment(x_vis, x_therm, extrinsics)
+        return self._predict_once(x_vis, x_therm, extrinsics, profile, visualize, embed)
 
     def _predict_once_v1(self, x_vis, x_therm, profile=False, visualize=False, embed=None):
         """
@@ -592,13 +575,14 @@ class MultiModalDetectionModel(BaseModel):
                     return torch.unbind(torch.cat(embeddings, 1), dim=0)
         return x_therm
 
-    def _predict_once(self, x_vis, x_therm, profile=False, visualize=False, embed=None):
+    def _predict_once(self, x_vis, x_therm, extrinsics=None, profile=False, visualize=False, embed=None):
         """
         执行一次前向传播进行预测。
 
         Args:
             x_vis (torch.Tensor): 可见光输入图像张量。
             x_therm (torch.Tensor): 红外输入图像张量。
+            extrinsics (torch.Tensor): 外参矩阵。
             profile (bool): 是否打印每层的计算时间。
             visualize (bool): 是否保存特征图用于可视化。
             embed (list, optional): 要返回的特征向量列表。
@@ -606,6 +590,14 @@ class MultiModalDetectionModel(BaseModel):
         Returns:
             torch.Tensor: 模型的预测输出。
         """
+        # 同时获取多批次图像尺寸大小用来传入EnhancedFMDEA
+        B = x_vis.size(0)
+        original_sizes = torch.zeros(B, 2, 2, device=x_vis.device, dtype=x_vis.dtype)
+        
+        # 存储每个样本的RGB和IR图像尺寸
+        for b in range(B):
+            original_sizes[b, 0] = torch.tensor([x_vis[b].shape[-2], x_vis[b].shape[-1]])  # RGB: (H, W)
+            original_sizes[b, 1] = torch.tensor([x_therm[b].shape[-2], x_therm[b].shape[-1]])  # IR: (H, W)
 
         y_main = [x_vis]   # 可见光分支各层输出，y_main[0]为初始输入
         y_aux = [x_therm]  # 红外分支各层输出，y_aux[0]为初始输入
@@ -667,6 +659,9 @@ class MultiModalDetectionModel(BaseModel):
                         head_idx = src_idx - (backbone_len + backbone2_len)
                         inputs.append(y_head[head_idx])
                 # 处理多输入情况（如Concat或DEA）
+                if isinstance(m, EnhancedFMDEA):
+                    inputs.append(extrinsics)
+                    inputs.append(original_sizes)
                 x = inputs if len(inputs) > 1 else inputs[0] if inputs else None
                 # 执行模块
                 if profile:
@@ -685,7 +680,7 @@ class MultiModalDetectionModel(BaseModel):
         # 最终输出为头部的最后一层
         return y_head[-1] if y_head else None
 
-    def _predict_augment(self, x_vis, x_therm):
+    def _predict_augment_origin(self, x_vis, x_therm, extrinsics=None):
         """对输入的可见光和红外图像进行数据增强预测，并返回增强后的推理结果。"""
         if getattr(self, "end2end", False) or self.__class__.__name__ != "FusionDetectionModel":
             LOGGER.warning("WARNING ⚠️ 模型不支持 'augment=True'，恢复为单尺度预测。")
@@ -715,32 +710,173 @@ class MultiModalDetectionModel(BaseModel):
         augmented_preds = self._clip_augmented(augmented_preds)
         return torch.cat(augmented_preds, -1), None  # 增强后的推理结果和训练输出
 
-    @staticmethod
-    def _descale_pred(p, flip, scale, img_size, dim=1):
-        """将增强后的预测结果反转换回原始图像的尺度和方向。"""
-        p[:, :4] /= scale  # 反缩放
-        x, y, wh, cls = p.split((1, 1, 2, p.shape[dim] - 4), dim)
+    def _predict_augment(self, x_vis, x_therm, extrinsics=None):
+        """
+        对输入的可见光和红外图像进行数据增强预测，并同步更新对应的单应性矩阵。
         
-        if flip == 2:
-            y = img_size[0] - y  # 反向垂直翻转
-        elif flip == 3:
-            x = img_size[1] - x  # 反向水平翻转
+        Args:
+            x_vis (torch.Tensor): 可见光图像张量
+            x_therm (torch.Tensor): 红外图像张量
+            extrinsics (torch.Tensor): 原始单应性矩阵, shape为(B, 3, 3)
+        """
+        if getattr(self, "end2end", False) or self.__class__.__name__ != "MultiModalDetectionModel":
+            LOGGER.warning("WARNING ⚠️ 模型不支持 'augment=True'，恢复为单尺度预测。")
+            return self._predict_once(x_vis, x_therm)
         
-        return torch.cat((x, y, wh, cls), dim)
+        img_size = x_vis.shape[-2:]  # 高度, 宽度
+        scales = [1, 0.83, 0.67]  # 缩放比例
+        flips = [None, 3, None]  # 翻转方式（None, 水平翻转, None）
+        augmented_preds = []
+        augmented_matrices = []
 
-    def _clip_augmented(self, preds):
-        """裁剪增强后的推理结果，移除冗余部分。"""
-        nl = self.model[-1].nl  # 检测层数量（P3-P5）
-        g = sum(4**x for x in range(nl))  # 网格点数
-        e = 1  # 排除层数
-        clipped_preds = []
+        if extrinsics is None:
+            extrinsics = torch.eye(3, device=x_vis.device).expand(x_vis.shape[0], -1, -1)
+
+        for scale, flip in zip(scales, flips):
+            # 1. 记录原始关键点
+            original_points = self.get_keypoints(x_vis)
+            original_mapped_points = self.transform_points(original_points, extrinsics)
+
+            # 2. 进行数据增强
+            if flip:
+                x_vis_aug = scale_img(x_vis.flip(flip), scale, gs=int(self.stride.max()))
+                x_therm_aug = scale_img(x_therm.flip(flip), scale, gs=int(self.stride.max()))
+                # 更新单应性矩阵以反映水平翻转
+                flip_matrix = torch.eye(3, device=extrinsics.device)
+                if flip == 3:  # 水平翻转
+                    flip_matrix[0, 0] = -1
+                    flip_matrix[0, 2] = img_size[1]
+            else:
+                x_vis_aug = scale_img(x_vis, scale, gs=int(self.stride.max()))
+                x_therm_aug = scale_img(x_therm, scale, gs=int(self.stride.max()))
+                matrix_aug = extrinsics.clone()
+
+            # 3. 更新缩放变换
+            scale_matrix = torch.eye(3, device=matrix_aug.device)
+            scale_matrix[0, 0] = scale_matrix[1, 1] = scale
+            matrix_aug = matrix_aug @ scale_matrix
+
+            # 4. 检查变换一致性
+            if not self.check_transformation_consistency(
+                x_vis_aug, x_therm_aug, matrix_aug,
+                original_points, original_mapped_points,
+                scale, flip, img_size
+            ):
+                LOGGER.warning(f"变换一致性检查失败: scale={scale}, flip={flip}")
+                continue
+
+            # 5. 前向推理
+            preds = super().predict(x_vis_aug, x_therm_aug)[0]
+            
+            # 6. 反变换
+            preds = self._descale_pred(preds, flip, scale, img_size)
+            matrix_aug = self._descale_matrix(matrix_aug, flip, scale, img_size)
+            
+            # 7. 再次检查反变换后的一致性
+            if not self.check_transformation_consistency(
+                x_vis, x_therm, matrix_aug,
+                original_points, original_mapped_points,
+                1.0, None, img_size
+            ):
+                LOGGER.warning("反变换后的一致性检查失败")
+                continue
+            
+            augmented_preds.append(preds)
+            augmented_matrices.append(matrix_aug)
         
-        for pred in preds:
-            i = (pred.shape[-1] // g) * sum(4**x for x in range(e))
-            pred = pred[..., :-i]  # 裁剪大尺度
-            clipped_preds.append(pred)
+        # 8. 最终检查所有变换结果
+        if len(augmented_matrices) > 0:
+            final_consistency = all(
+                torch.allclose(
+                    self.transform_points(original_points, aug_matrix),
+                    original_mapped_points,
+                    rtol=1e-3
+                )
+                for aug_matrix in augmented_matrices
+            )
+            if not final_consistency:
+                LOGGER.warning("最终变换一致性检查失败")
         
-        return clipped_preds
+        # 裁剪增强后的预测结果
+        augmented_preds = self._clip_augmented(augmented_preds)
+        
+        return torch.cat(augmented_preds, -1), torch.stack(augmented_matrices, 1)
+
+    def check_transformation_consistency(self, x_vis, x_therm, H, 
+                                      original_points, original_mapped_points,
+                                      scale, flip, img_size, rtol=1e-3):
+        """
+        检查变换前后的映射关系是否保持一致
+        
+        Args:
+            x_vis: 变换后的可见光图像
+            x_therm: 变换后的红外图像
+            H: 变换后的单应性矩阵
+            original_points: 原始图像中的关键点
+            original_mapped_points: 原始关键点经过原始单应性矩阵映射后的点
+            scale: 缩放比例
+            flip: 翻转类型
+            img_size: 原始图像尺寸
+            rtol: 相对误差容限
+        """
+        # 1. 获取变换后图像中的关键点
+        transformed_points = self.transform_points(original_points, H)
+        
+        # 2. 检查关键点映射关系
+        if not torch.allclose(transformed_points, original_mapped_points, rtol=rtol):
+            return False
+        
+        # 3. 检查图像尺寸一致性
+        if x_vis.shape[-2:] != x_therm.shape[-2:]:
+            return False
+        
+        # 4. 检查变换矩阵的有效性
+        if not self.validate_homography(H):
+            return False
+        
+        return True
+
+    def validate_homography(self, H, eps=1e-6):
+        """
+        验证单应性矩阵的有效性
+        """
+        # 检查数值是否有效
+        if not torch.isfinite(H).all():
+            return False
+            
+        # 检查行列式是否接近于0
+        if torch.abs(torch.det(H)) < eps:
+            return False
+            
+        # 检查最后一行是否接近 [0,0,1]
+        if not torch.allclose(H[2], torch.tensor([0., 0., 1.], device=H.device), rtol=1e-3):
+            return False
+            
+        return True
+
+    def get_keypoints(self, image, n_points=4):
+        """
+        获取图像中的关键点（例如角点）
+        """
+        h, w = image.shape[-2:]
+        points = torch.tensor([
+            [0, 0, 1],
+            [w, 0, 1],
+            [0, h, 1],
+            [w, h, 1]
+        ], device=image.device, dtype=torch.float32)
+        return points
+
+    def transform_points(self, points, H):
+        """
+        使用单应性矩阵变换点坐标
+        """
+        # points: (N, 3)
+        # H: (3, 3)
+        transformed = (H @ points.T).T
+        # 归一化齐次坐标
+        transformed = transformed / transformed[:, 2:3]
+        return transformed
 
     def init_criterion(self):
         """初始化 FusionDetectionModel 的损失函数."""
@@ -1532,11 +1668,12 @@ def parse_model_fusion(d, ch, ch2, verbose=True):  # model_dict, input_channels(
                     c1.append(ch_main[x + 1])
                 else:  # From infrared branch (adjust index)
                     c1.append(ch_aux[x - backbone_len + 1])
-            mapping_matrix = d["mapping_matrix"]
+            # mapping_matrix = d["mapping_matrix"]
+            # print(f'mapping_matrix:{mapping_matrix}')
             c2 = args[0]
             if c2 != nc:
                 c2 = make_divisible(min(c2, max_channels) * width, 8)
-            args = [mapping_matrix, c1, *args[1:]]  # Pass both features to DEA
+            args = [c1, *args[1:]]  # Pass both features to DEA
         elif m is Concat:
             c1 = []
             for x in (f if isinstance(f, list) else [f]):
@@ -1674,3 +1811,16 @@ def guess_model_task(model):
         "Explicitly define task for your model, i.e. 'task=detect', 'segment', 'classify','pose' or 'obb'."
     )
     return "detect"  # assume detect
+
+def check_transformation_consistency(x_vis, x_therm, H, transformed_x_vis, transformed_x_therm, transformed_H):
+    """检查变换前后的一致性"""
+    # 选择关键点进行验证
+    points_vis = torch.tensor([[0, 0, 1], [x_vis.shape[2], x_vis.shape[3], 1]], device=x_vis.device)
+    points_therm = (H @ points_vis.T).T
+    
+    # 变换后的点
+    transformed_points_vis = torch.tensor([[0, 0, 1], [transformed_x_vis.shape[2], transformed_x_vis.shape[3], 1]], device=x_vis.device)
+    transformed_points_therm = (transformed_H @ transformed_points_vis.T).T
+    
+    # 检查映射关系是否保持
+    return torch.allclose(points_therm, transformed_points_therm, rtol=1e-3)

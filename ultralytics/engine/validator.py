@@ -186,7 +186,8 @@ class BaseValidator:
             # Inference
             with dt[1]:
                 if self.args.task == 'multimodal':
-                    preds = model.forward_multimodal(batch["img"], batch["img2"], augment=augment)
+                    mapping_matrix = torch.stack(batch.get("mapping_matrix"), dim=0)
+                    preds = model.forward_multimodal(batch["img"], batch["img2"], mapping_matrix, augment=augment)
                 else:
                     preds = model(batch["img"], augment=augment)      # TODO: Original
 
@@ -195,7 +196,7 @@ class BaseValidator:
             with dt[2]:
                 if self.training:
                     if self.args.task == 'multimodal':
-                        self.loss += model.loss(batch, batch, preds)[1]
+                        self.loss += model.loss(batch, batch, mapping_matrix, preds)[1]
                     else:
                         self.loss += model.loss(batch, preds)[1]      # TODO: Original
 

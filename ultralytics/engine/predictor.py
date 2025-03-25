@@ -136,7 +136,7 @@ class BasePredictor:
             im /= 255  # 0 - 255 to 0.0 - 1.0
         return im
     
-    def preprocess_multimodal(self, im, im2):
+    def preprocess_multimodal_v1(self, im, im2, extrinsics):
         """
         Preprocesses multimodal input images before inference.
 
@@ -146,25 +146,225 @@ class BasePredictor:
         """
         not_tensor, not_tensor2 = not isinstance(im, torch.Tensor), not isinstance(im2, torch.Tensor)
         if not_tensor or not_tensor2:
+            # 保存原始尺寸用于后处理
+            self.orig_shape = {'rgb': im[0].shape[:2], 'ir': im2[0].shape[:2]}
+
+            # 计算缩放比例
+            self.scale_factors = {
+                'rgb': (self.imgsz[0] / im[0].shape[0], self.imgsz[1] / im[0].shape[1]),
+                'ir': (self.imgsz[0] / im2[0].shape[0], self.imgsz[1] / im2[0].shape[1])
+            }
+
+            # 使用letterbox进行预处理
             im = np.stack(self.pre_transform(im))
-            im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
-            im = np.ascontiguousarray(im)  # contiguous
-            im = torch.from_numpy(im)
             im2 = np.stack(self.pre_transform(im2))
-            im2 = im2[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
-            im2 = np.ascontiguousarray(im2)  # contiguous
+            
+            # BGR to RGB, BHWC to BCHW
+            im = im[..., ::-1].transpose((0, 3, 1, 2))
+            im2 = im2[..., ::-1].transpose((0, 3, 1, 2))
+            
+            im = np.ascontiguousarray(im)
+            im2 = np.ascontiguousarray(im2)
+            
+            im = torch.from_numpy(im)
             im2 = torch.from_numpy(im2)
             
         im = im.to(self.device)
-        im = im.half() if self.model.fp16 else im.float()  # uint8 to fp16/32
-        if not_tensor:
-            im /= 255  # 0 - 255 to 0.0 - 1.0
         im2 = im2.to(self.device)
-        im2 = im2.half() if self.model.fp16 else im2.float()  # uint8 to fp16/32
+        
+        im = im.half() if self.model.fp16 else im.float()
+        im2 = im2.half() if self.model.fp16 else im2.float()
+        
+        if not_tensor:
+            im /= 255
         if not_tensor2:
-            im2 /= 255  # 0 - 255 to 0.0 - 1.0
+            im2 /= 255
+
         return im, im2
     
+    def preprocess_multimodal(self, im, im2, extrinsics=None):
+        """
+        预处理多模态输入图像和对应的单应性矩阵。
+        
+        Args:
+            im (torch.Tensor | np.ndarray): RGB图像 [B, H, W, C]
+            im2 (torch.Tensor | np.ndarray): 红外图像 [B, H, W, C]
+            extrinsics (torch.Tensor | np.ndarray, optional): 单应性矩阵 [B, 3, 3]
+        
+        Returns:
+            tuple: (处理后的RGB图像, 处理后的红外图像, 更新后的单应性矩阵)
+        """
+        not_tensor = not isinstance(im, torch.Tensor)
+        not_tensor2 = not isinstance(im2, torch.Tensor)
+        
+        if not_tensor or not_tensor2:
+            batch_size = len(im)
+            
+            # 首先将extrinsics转换为torch.Tensor并移动到正确的设备
+            if extrinsics is not None:
+                if not isinstance(extrinsics, torch.Tensor):
+                    extrinsics = torch.from_numpy(extrinsics)
+                extrinsics = extrinsics.to(self.device)
+                dtype = extrinsics.dtype
+            else:
+                dtype = torch.float32
+
+            # 1. 保存原始尺寸
+            self.orig_shapes = {
+                'rgb': [im[i].shape[:2] for i in range(batch_size)],
+                'ir': [im2[i].shape[:2] for i in range(batch_size)]
+            }
+
+            # 2. 计算缩放变换矩阵
+            resize_matrices = []
+            for i in range(batch_size):
+                # RGB图像缩放矩阵
+                rgb_h, rgb_w = self.orig_shapes['rgb'][i]
+                scale_rgb_h = self.imgsz[0] / rgb_h
+                scale_rgb_w = self.imgsz[1] / rgb_w
+                
+                # IR图像缩放矩阵
+                ir_h, ir_w = self.orig_shapes['ir'][i]
+                scale_ir_h = self.imgsz[0] / ir_h
+                scale_ir_w = self.imgsz[1] / ir_w
+                
+                # 构建缩放变换矩阵
+                S_rgb = torch.eye(3, device=self.device, dtype=dtype)
+                S_rgb[0, 0] = scale_rgb_w  # x方向缩放
+                S_rgb[1, 1] = scale_rgb_h  # y方向缩放
+                
+                S_ir = torch.eye(3, device=self.device, dtype=dtype)
+                S_ir[0, 0] = scale_ir_w    # x方向缩放
+                S_ir[1, 1] = scale_ir_h    # y方向缩放
+                
+                resize_matrices.append((S_rgb, S_ir))
+
+            # 3. letterbox处理和padding变换矩阵计算
+            padding_matrices = []
+            for i in range(batch_size):
+                # RGB图像letterbox
+                rgb_img = im[i]
+                rgb_h, rgb_w = rgb_img.shape[:2]
+                r_rgb = min(self.imgsz[0]/rgb_h, self.imgsz[1]/rgb_w)
+                new_unpad_rgb = int(round(rgb_w * r_rgb)), int(round(rgb_h * r_rgb))
+                dw_rgb, dh_rgb = self.imgsz[1] - new_unpad_rgb[0], self.imgsz[0] - new_unpad_rgb[1]
+                dw_rgb /= 2
+                dh_rgb /= 2
+                
+                # IR图像letterbox
+                ir_img = im2[i]
+                ir_h, ir_w = ir_img.shape[:2]
+                r_ir = min(self.imgsz[0]/ir_h, self.imgsz[1]/ir_w)
+                new_unpad_ir = int(round(ir_w * r_ir)), int(round(ir_h * r_ir))
+                dw_ir, dh_ir = self.imgsz[1] - new_unpad_ir[0], self.imgsz[0] - new_unpad_ir[1]
+                dw_ir /= 2
+                dh_ir /= 2
+                
+                # 构建padding变换矩阵
+                P_rgb = torch.eye(3, device=self.device, dtype=dtype)
+                P_rgb[0, 2] = dw_rgb  # x方向平移
+                P_rgb[1, 2] = dh_rgb  # y方向平移
+                
+                P_ir = torch.eye(3, device=self.device, dtype=dtype)
+                P_ir[0, 2] = dw_ir  # x方向平移
+                P_ir[1, 2] = dh_ir  # y方向平移
+                
+                padding_matrices.append((P_rgb, P_ir))
+
+            # 4. 应用所有变换
+            if extrinsics is not None:
+                if not isinstance(extrinsics, torch.Tensor):
+                    extrinsics = torch.from_numpy(extrinsics).to(self.device)
+                
+                # 为每个样本更新映射矩阵
+                transformed_H = []
+                for i in range(batch_size):
+                    S_rgb, S_ir = resize_matrices[i]
+                    P_rgb, P_ir = padding_matrices[i]
+                    
+                    # 计算新的映射矩阵
+                    # 新IR -> 原始RGB的变换顺序：
+                    # 1. 移除IR的padding: P_ir^(-1)
+                    # 2. 移除IR的缩放: S_ir^(-1)
+                    # 3. 应用原始映射: H
+                    # 4. 应用RGB缩放: S_rgb
+                    # 5. 应用RGB padding: P_rgb
+                    
+                    P_ir_inv = torch.inverse(P_ir)
+                    S_ir_inv = torch.inverse(S_ir)
+                    
+                    current_H = extrinsics[i]  # 原始映射
+                    current_H = torch.mm(P_rgb, torch.mm(S_rgb, torch.mm(current_H, 
+                                       torch.mm(S_ir_inv, P_ir_inv))))
+                    
+                    transformed_H.append(current_H)
+                
+                extrinsics = torch.stack(transformed_H)
+
+            # 5. 应用letterbox变换到图像
+            letterbox = LetterBox(
+                self.imgsz,
+                auto=False,  # 关闭自动模式以确保一致的处理
+                stride=self.model.stride
+            )
+            im = np.stack([letterbox(image=x) for x in im])
+            im2 = np.stack([letterbox(image=x) for x in im2])
+
+            # 6. 图像格式转换
+            im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
+            im2 = im2[..., ::-1].transpose((0, 3, 1, 2))
+            
+            im = np.ascontiguousarray(im)
+            im2 = np.ascontiguousarray(im2)
+            
+            # 转换为tensor并移动到正确的设备
+            im = torch.from_numpy(im)
+            im2 = torch.from_numpy(im2)
+
+        # 确保所有张量都在正确的设备上
+        im = im.to(self.device)
+        im2 = im2.to(self.device)
+        if extrinsics is not None:
+            extrinsics = extrinsics.to(self.device)
+
+        # 数据类型转换
+        im = im.half() if self.model.fp16 else im.float()
+        im2 = im2.half() if self.model.fp16 else im2.float()
+        if extrinsics is not None:
+            extrinsics = extrinsics.half() if self.model.fp16 else extrinsics.float()
+        
+        # 归一化
+        if not_tensor:
+            im /= 255
+        if not_tensor2:
+            im2 /= 255
+
+        return im, im2, extrinsics
+
+    def letterbox(self, im, stride=32):
+        """
+        对图像进行letterbox处理，返回处理后的图像和相关参数
+        """
+        shape = im.shape[:2]  # current shape [height, width]
+        new_shape = self.imgsz
+        
+        # Scale ratio (new / old)
+        r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
+        
+        # Compute padding
+        new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
+        dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]  # wh padding
+        
+        dw /= 2  # divide padding into 2 sides
+        dh /= 2
+        
+        if shape[::-1] != new_unpad:  # resize
+            im = cv2.resize(im, new_unpad, interpolation=cv2.INTER_LINEAR)
+        top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+        left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+        im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT)
+        
+        return im, {'pad': (left, top), 'ratio': r}
 
     def inference(self, im, *args, **kwargs):
         """Runs inference on a given image using the specified model and arguments."""
@@ -175,14 +375,14 @@ class BasePredictor:
         )
         return self.model(im, augment=self.args.augment, visualize=visualize, embed=self.args.embed, *args, **kwargs)
 
-    def inference_multimodal(self, im, im2, *args, **kwargs):
+    def inference_multimodal(self, im, im2, extrinsics, *args, **kwargs):
         """Runs inference on multimodal input images using the specified model and arguments."""
         visualize = (
             increment_path(self.save_dir / Path(self.batch[0][0]).stem, mkdir=True)
             if self.args.visualize and (not self.source_type.tensor)
             else False
         )
-        return self.model.forward_multimodal(im, im2, augment=self.args.augment, visualize=self.args.visualize, embed=self.args.embed, *args, **kwargs)
+        return self.model.forward_multimodal(im, im2, extrinsics, augment=self.args.augment, visualize=self.args.visualize, embed=self.args.embed, *args, **kwargs)
 
     def pre_transform(self, im):
         """
@@ -201,6 +401,84 @@ class BasePredictor:
             stride=self.model.stride,
         )
         return [letterbox(image=x) for x in im]
+    
+    def letterbox_and_update_extrinsics(self, im, im2, extrinsics=None):
+        """
+        对图像进行letterbox操作并更新单应性矩阵
+        
+        Args:
+            im (np.ndarray): RGB图像 [B, H, W, C]
+            im2 (np.ndarray): IR图像 [B, H, W, C]
+            extrinsics (torch.Tensor, optional): 单应性矩阵 [B, 3, 3]
+        """
+        # 1. 创建letterbox对象
+        same_shapes = len({x.shape for x in im}) == 1
+        letterbox = LetterBox(
+            self.imgsz,
+            auto=same_shapes and (self.model.pt or (getattr(self.model, "dynamic", False) and not self.model.imx)),
+            stride=self.model.stride,
+        )
+        
+        # 2. 获取批次大小
+        batch_size = len(im)
+        
+        # 3. 为每个样本计算padding值
+        pad_values = []
+        for i in range(batch_size):
+            # 获取当前样本的原始尺寸
+            shape = im[i].shape[:2]    # RGB图像尺寸
+            shape2 = im2[i].shape[:2]  # IR图像尺寸
+            
+            # 计算缩放比例
+            r = min(self.imgsz[0] / shape[0], self.imgsz[1] / shape[1])
+            r2 = min(self.imgsz[0] / shape2[0], self.imgsz[1] / shape2[1])
+            
+            # 计算新的未填充尺寸
+            new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
+            new_unpad2 = int(round(shape2[1] * r2)), int(round(shape2[0] * r2))
+            
+            # 计算padding
+            dw, dh = self.imgsz[1] - new_unpad[0], self.imgsz[0] - new_unpad[1]
+            dw2, dh2 = self.imgsz[1] - new_unpad2[0], self.imgsz[0] - new_unpad2[1]
+            
+            # 存储当前样本的padding值
+            pad_values.append({
+                'rgb': (dw // 2, dh // 2),
+                'ir': (dw2 // 2, dh2 // 2)
+            })
+        
+        # 4. 进行letterbox处理
+        im = np.stack([letterbox(image=x) for x in im])
+        im2 = np.stack([letterbox(image=x) for x in im2])
+
+        # 5. 更新单应性矩阵以反映padding
+        if extrinsics is not None:
+            if not isinstance(extrinsics, torch.Tensor):
+                extrinsics = torch.from_numpy(extrinsics)
+                
+            # 为每个样本创建padding变换矩阵 [B, 3, 3]
+            H_pad_rgb = torch.eye(3).unsqueeze(0).repeat(batch_size, 1, 1).to(extrinsics.device)
+            H_pad_ir = torch.eye(3).unsqueeze(0).repeat(batch_size, 1, 1).to(extrinsics.device)
+            
+            # 为每个样本设置padding值
+            for i in range(batch_size):
+                pad_rgb_x, pad_rgb_y = pad_values[i]['rgb']
+                pad_ir_x, pad_ir_y = pad_values[i]['ir']
+                
+                # RGB图像的padding变换矩阵的逆矩阵
+                H_pad_rgb[i, 0, 2] = -pad_rgb_x  # x方向反向平移
+                H_pad_rgb[i, 1, 2] = -pad_rgb_y  # y方向反向平移
+                
+                # IR图像的padding变换矩阵
+                H_pad_ir[i, 0, 2] = pad_ir_x  # x方向平移
+                H_pad_ir[i, 1, 2] = pad_ir_y  # y方向平移
+            
+            # 更新映射关系：新的IR -> 原始IR -> 原始RGB -> 新的RGB
+            # 使用torch.bmm进行批次矩阵乘法
+            extrinsics = torch.bmm(H_pad_rgb, extrinsics)  # [B, 3, 3]
+            extrinsics = torch.bmm(extrinsics, H_pad_ir)   # [B, 3, 3]
+        
+        return im, im2, extrinsics
 
     def postprocess(self, preds, img, orig_imgs):
         """Post-processes predictions for an image and returns them."""
@@ -402,19 +680,24 @@ class BasePredictor:
                 ops.Profile(device=self.device),
             )
             self.run_callbacks("on_predict_start")
-            for batch1, batch2 in zip(self.dataset[0], self.dataset[1]):
+            for batch1, batch2, extrinsics in zip(self.dataset[0], self.dataset[1], self.dataset[2]):
                 self.run_callbacks("on_predict_batch_start")
-                self.batch = batch1, batch2
+                self.batch = batch1, batch2, extrinsics
                 paths, im0s, s = batch1
                 paths2, im0s2, s2 = batch2
 
+                # if extrinsincs is not None:
+                #     extrinsics = batch1.extrinsics
+                # else:
+                #     extrinsics = None
+
                 # Preprocess
                 with profilers[0]:
-                    im, im2 = self.preprocess_multimodal(im0s, im0s2)
+                    im, im2, extrinsics = self.preprocess_multimodal(im0s, im0s2, extrinsics)
 
                 # Inference
                 with profilers[1]:
-                    preds = self.inference_multimodal(im, im2, *args, **kwargs)
+                    preds = self.inference_multimodal(im, im2, extrinsics, *args, **kwargs)
                     if self.args.embed:
                         yield from [preds] if isinstance(preds, torch.Tensor) else preds  # yield embedding tensors
                         continue
@@ -562,8 +845,12 @@ class BasePredictor:
             }
             
             if img_type == 'rgb':
+                orig_shape = self.orig_shapes['rgb'][i]
+                result.orig_shape = orig_shape  # 设置原始尺寸
                 self.plotted_img = result.plot(**plot_args)
             else:
+                orig_shape = self.orig_shapes['ir'][i]
+                result.orig_shape = orig_shape  # 设置原始尺寸
                 self.plotted_img2 = result.plot(**plot_args)
 
         # Save results

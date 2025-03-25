@@ -18,6 +18,7 @@
 
 
 from ultralytics import YOLOMultimodal
+import torch
 
 # Load a model
 # model = YOLOMultimodal("yolo11s-DEYOLO.yaml", task="multimodal").load('/ultralytics/runs/multimodal/multimodal0317/best.pt')  # pretrained YOLO11n model
@@ -27,6 +28,8 @@ from ultralytics import YOLOMultimodal
 
 
 # 测试 EnhancedMultimodal
+mapping_matrix = torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0.873, 1]])
 model = YOLOMultimodal("yolo11s-EnhancedFMDEA.yaml", task="multimodal").load('runs/multimodal/multimodal0317/0319/last.pt')  # pretrained YOLO11n model
 # model.predict(source=[['data/LLVIP/visible_01.mp4', 'data/LLVIP/infrared_01.mp4']], save=True, imgsz=640, conf=0.5, device=0) # corresponding image pair
-model.predict(source=[['runs/extract_frame/visible_frame10.jpg', 'runs/extract_frame/infrared_frame10.jpg']], save=True, imgsz=640, conf=0.5, device=0) # corresponding image pair
+# model.predict(source=[['runs/extract_frame/visible_frame10.jpg', 'runs/extract_frame/infrared_frame10.jpg']], save=True, imgsz=640, conf=0.5, device=0) # corresponding image pair
+model.predict(source=[['data/LLVIP/images/visible/test/190001.jpg', 'data/LLVIP/images/infrared/test/190001.jpg', mapping_matrix]], save=True, imgsz=640, conf=0.5, device=0) # corresponding image pair

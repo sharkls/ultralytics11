@@ -876,6 +876,7 @@ class Mosaic(BaseMixTransform):
                 "im_file2": mosaic_labels[0]["im_file2"],
                 "ori_shape": mosaic_labels[0]["ori_shape"],
                 "ori_shape2": mosaic_labels[0]["ori_shape2"],
+                "mapping_matrix": mosaic_labels[0]["mapping_matrix"],
                 "resized_shape": (imgsz, imgsz),
                 "resized_shape2": (imgsz, imgsz),
                 "cls": np.concatenate(cls, 0),
@@ -2437,7 +2438,7 @@ def v8_transforms(dataset, imgsz, hyp, stretch=False):
         >>> augmented_data = transforms(dataset[0])
     """
     mosaic = Mosaic(dataset, imgsz=imgsz, p=hyp.mosaic)
-    affine = RandomPerspective(
+    affine = RandomPerspective( # 仿射变换
         degrees=hyp.degrees,
         translate=hyp.translate,
         scale=hyp.scale,

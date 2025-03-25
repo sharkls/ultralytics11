@@ -36,6 +36,7 @@ from .utils import (
     LOGGER,
     get_hash,
     img2label_paths,
+    img2extrinsics_paths,               # TODO: 加载外参矩阵
     load_dataset_cache_file,
     save_dataset_cache_file,
     save_dataset_cache_file_multimodal,
@@ -577,6 +578,8 @@ class YOLOMultiModalFusionDataset(BaseMultiModalDataset):
         self.data = data
         assert not (self.use_segments and self.use_keypoints), "Can not use both segments and keypoints."
         super().__init__(*args, **kwargs)
+        # 在父类初始化后加载单应性矩阵
+        
 
     def cache_labels(self, path=Path("./labels.cache")):
         """
@@ -773,3 +776,126 @@ class YOLOMultiModalFusionDataset(BaseMultiModalDataset):
             new_batch["batch_idx"][i] += i  # add target image index for build_targets()
         new_batch["batch_idx"] = torch.cat(new_batch["batch_idx"], 0)
         return new_batch
+    
+    # def get_image_and_label(self, index):
+    #     """获取图像和标签"""
+    #     label = super().get_image_and_label(index)
+    #     # 正确获取矩阵数据
+    #     label['mapping_matrix'] = self.matrices[index]['matrix']
+    #     return label
+    
+    def get_extrinsics(self):
+        """加载并缓存单应性矩阵数据"""
+        # 首先检查 extrinsics_path 是否在配置中指定
+        self.extrinsics_path = Path(self.data.get('extrinsics_dir', ''))
+        if not self.extrinsics_path.exists():
+            LOGGER.warning(f"单应性矩阵路径不存在: {self.extrinsics_path}，将使用单位矩阵")
+            return [{"matrix": np.eye(3), "file": str(f)} for f in self.im_files]
+
+        # 获取单应性矩阵文件路径
+        self.extrinsics_files = [Path(f) for f in img2extrinsics_paths(self.im_files)]
+        
+        # 设置缓存文件路径
+        cache_path = Path(self.extrinsics_path) / "extrinsics.cache"
+        
+        try:
+            # 尝试加载缓存文件
+            cache, exists = load_dataset_cache_file(cache_path), True
+            assert cache["version"] == DATASET_CACHE_VERSION
+            assert cache["hash"] == get_hash([str(f) for f in self.extrinsics_files] + self.im_files)
+        except (FileNotFoundError, AssertionError, AttributeError):
+            cache, exists = self.cache_extrinsics(cache_path), False
+
+        # 显示缓存信息
+        nf, nm, nc, n = cache.pop("results")
+        if exists and LOCAL_RANK in {-1, 0}:
+            d = f"扫描单应性矩阵文件 {cache_path}... {nf} 找到, {nm} 缺失 (使用单位矩阵), {nc} 损坏"
+            TQDM(None, desc=self.prefix + d, total=n, initial=n)
+            if cache["msgs"]:
+                LOGGER.info("\n".join(cache["msgs"]))
+
+        # 读取缓存
+        matrices = cache.get("matrices", [])
+        
+        if not matrices:
+            LOGGER.warning(f"警告 ⚠️ 在 {self.extrinsics_path} 中未找到单应性矩阵文件，将使用单位矩阵")
+            matrices = [{"matrix": np.eye(3), "file": str(f)} for f in self.extrinsics_files]
+            
+        # 验证矩阵数量与图像数量是否匹配
+        if len(matrices) != len(self.im_files):
+            LOGGER.warning(f"单应性矩阵数量({len(matrices)})与图像数量({len(self.im_files)})不匹配")
+            if len(matrices) < len(self.im_files):
+                matrices.extend([{"matrix": np.eye(3), "file": str(f)} 
+                               for f in self.im_files[len(matrices):]])
+            else:
+                matrices = matrices[:len(self.im_files)]
+        
+        return matrices
+
+    def cache_extrinsics(self, path):
+        """缓存单应性矩阵数据"""
+        # 确保目录存在
+        path.parent.mkdir(parents=True, exist_ok=True)
+        
+        x = {"matrices": [], "msgs": [], "version": DATASET_CACHE_VERSION}
+        nf, nm, nc = 0, 0, 0
+        desc = f"{self.prefix}扫描单应性矩阵文件..."
+        
+        with ThreadPool(NUM_THREADS) as pool:
+            results = pool.imap(self._load_matrix, self.extrinsics_files)
+            pbar = TQDM(results, desc=desc, total=len(self.extrinsics_files))
+            
+            for matrix_file, matrix, msg in pbar:
+                if matrix is not None and msg == "":
+                    x["matrices"].append({"file": str(matrix_file), "matrix": matrix})
+                    nf += 1
+                elif matrix is not None and msg:
+                    x["matrices"].append({"file": str(matrix_file), "matrix": matrix})
+                    nc += 1
+                    if msg:
+                        x["msgs"].append(msg)
+                else:
+                    x["matrices"].append({"file": str(matrix_file), "matrix": np.eye(3)})
+                    nm += 1
+                    if msg:
+                        x["msgs"].append(msg)
+                        
+                pbar.desc = f"{desc} {nf} 找到, {nm} 缺失, {nc} 损坏"
+            pbar.close()
+        
+        x["hash"] = get_hash([str(f) for f in self.extrinsics_files] + self.im_files)
+        x["results"] = nf, nm, nc, len(self.extrinsics_files)
+        save_dataset_cache_file(self.prefix, path, x, DATASET_CACHE_VERSION)
+        return x
+
+    def _load_matrix(self, matrix_file):
+        """
+        加载单个单应性矩阵文件并转换为tensor
+        
+        Args:
+            matrix_file: 矩阵文件路径
+        
+        Returns:
+            tuple: (matrix_file, tensor_matrix, error_message)
+        """
+        try:
+            # 确保 matrix_file 是 Path 对象
+            matrix_file = Path(matrix_file)
+            if matrix_file.exists():
+                # 加载矩阵
+                matrix = np.loadtxt(str(matrix_file))
+                if matrix.shape == (3, 3):
+                    # 检查矩阵的有效性
+                    if np.isfinite(matrix).all() and not np.isclose(np.linalg.det(matrix), 0):
+                        # 转换为tensor
+                        tensor_matrix = torch.from_numpy(matrix).float()  # 使用float类型
+                        return matrix_file, tensor_matrix, ""
+                    else:
+                        # 无效矩阵使用单位矩阵
+                        return matrix_file, torch.eye(3), f"无效的单应性矩阵 {matrix_file}"
+                else:
+                    return matrix_file, torch.eye(3), f"矩阵形状错误 {matrix_file}: 期望 (3, 3), 得到 {matrix.shape}"
+            else:
+                return matrix_file, torch.eye(3), f"文件不存在 {matrix_file}"
+        except Exception as e:
+            return matrix_file, torch.eye(3), f"加载矩阵文件出错 {matrix_file}: {e}"

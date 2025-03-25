@@ -689,7 +689,7 @@ def check_amp(model):
     def amp_allclose(m, im):
         """All close FP32 vs AMP results."""
         if model.args.task == 'multimodal':
-            batch = [[im, im]] * 8
+            batch = [[im, im, torch.eye(3)]] * 8
         else:
             batch = [im] * 8
         imgsz = max(256, int(model.stride.max() * 4))  # max stride P5-32 and P6-64
@@ -705,7 +705,7 @@ def check_amp(model):
     try:
         if model.args.task == 'multimodal':
             from ultralytics import YOLOMultimodal
-            assert amp_allclose(YOLOMultimodal("yolo11n-multimodal.yaml", task="multimodal"), im)
+            assert amp_allclose(YOLOMultimodal("yolo11n-EnhancedFMDEA.yaml", task="multimodal"), im)
         else:
             from ultralytics import YOLO
             assert amp_allclose(YOLO("yolo11n.pt"), im)
