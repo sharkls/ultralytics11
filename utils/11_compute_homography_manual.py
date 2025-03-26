@@ -19,24 +19,26 @@ def select_points(event, x, y, flags, param):
         cv2.imshow(param[2], image)
 
 def verify_homography(img_vis, img_therm, H, points_vis, points_therm):
-    """
-    验证单应性矩阵的正确性
-    """
+    """验证单应性矩阵的正确性"""
     # 使用单应性矩阵变换可见光图像中的点
     points_vis_homo = np.hstack((points_vis, np.ones((points_vis.shape[0], 1))))
     transformed_points = np.dot(H, points_vis_homo.T).T
     transformed_points = transformed_points / transformed_points[:, 2:]
     transformed_points = transformed_points[:, :2]
     
-    # 计算变换后的点与红外图像中实际点的平均误差
-    error = np.mean(np.sqrt(np.sum((transformed_points - points_therm) ** 2, axis=1)))
-    print(f"平均投影误差: {error:.2f}像素")
+    # 计算每对点的误差
+    errors = np.sqrt(np.sum((transformed_points - points_therm) ** 2, axis=1))
+    mean_error = np.mean(errors)
     
-    # 如果误差过大，可能需要交换源和目标
-    if error > 50:  # 设置一个阈值
-        print("警告：投影误差过大，尝试交换源图像和目标图像")
-        H_inv = np.linalg.inv(H)
-        return H_inv
+    print(f"平均投影误差: {mean_error:.2f}像素")
+    for i, err in enumerate(errors):
+        print(f"点对 {i+1} 误差: {err:.2f}像素")
+    
+    # 如果误差过大，重新计算单应性矩阵
+    if mean_error > 20:
+        print("警告：投影误差过大，重新计算单应性矩阵")
+        H_new, _ = cv2.findHomography(points_therm, points_vis, cv2.RANSAC, 3.0)
+        return H_new
     return H
 
 def manual_compute_homography(image_vis_path, image_therm_path, save_path):
@@ -135,38 +137,21 @@ def manual_compute_homography(image_vis_path, image_therm_path, save_path):
     points_therm = np.float32(points_therm)
     
     # 计算单应性矩阵
-    # H, _ = cv2.findHomography(points_therm, points_vis, cv2.RANSAC, 5.0)
-    ## 修改为
     H, mask = cv2.findHomography(points_vis, points_therm, cv2.RANSAC, 5.0)
     
-    # 可视化匹配结果
-    height = max(img_vis.shape[0], img_therm.shape[0])
-    width = img_vis.shape[1] + img_therm.shape[1]
-    matched_img = np.zeros((height, width, 3), dtype=np.uint8)
-    
-    # 将两张图片放在同一张图上
-    matched_img[:img_vis.shape[0], :img_vis.shape[1]] = img_vis
-    matched_img[:img_therm.shape[0], img_vis.shape[1]:] = img_therm
-    
-    # 绘制匹配线
-    for pt_vis, pt_therm in zip(points_vis, points_therm):
-        pt_vis = tuple(map(int, pt_vis))
-        pt_therm = tuple(map(int, [pt_therm[0] + img_vis.shape[1], pt_therm[1]]))
-        cv2.line(matched_img, pt_vis, pt_therm, (0, 255, 0), 1)
-        cv2.circle(matched_img, pt_vis, 3, (0, 0, 255), -1)
-        cv2.circle(matched_img, pt_therm, 3, (0, 0, 255), -1)
-    
-    # 修改保存匹配结果的路径
-    matching_path = os.path.join(save_path, 'manual_matching_points.jpg')
-    cv2.imwrite(matching_path, matched_img)
-    print(f"手动匹配点可视化结果已保存为 {matching_path}")
-    
     if H is not None:
-        # 验证并可能调整单应性矩阵
+        # 验证单应性矩阵
         H = verify_homography(img_vis, img_therm, H, points_vis, points_therm)
+        
+        # 测试变换结果
+        test_points = np.float32([[0,0], [img_vis.shape[1],0], 
+                                [0,img_vis.shape[0]], [img_vis.shape[1],img_vis.shape[0]]])
+        test_transformed = cv2.perspectiveTransform(test_points.reshape(-1,1,2), H)
+        print("图像四角变换结果：")
+        print(test_transformed.reshape(-1,2))
+        
         return H
-    return np.eye(3)
-    # return H
+    return None
 
 def warp_thermal_to_visible(image_vis_path, image_therm_path, H, save_path):
     """
@@ -184,6 +169,11 @@ def warp_thermal_to_visible(image_vis_path, image_therm_path, H, save_path):
     # 读取图像
     img_vis = cv2.imread(image_vis_path)
     img_therm = cv2.imread(image_therm_path)
+    
+    # 打印变换前后的图像尺寸
+    print(f"可见光图像尺寸: {img_vis.shape}")
+    print(f"红外图像原始尺寸: {img_therm.shape}")
+    print(f"变换后的目标尺寸: {(img_vis.shape[1], img_vis.shape[0])}")
     
     # 使用单应性矩阵进行投影变换
     warped_therm = cv2.warpPerspective(
@@ -239,6 +229,8 @@ if __name__ == "__main__":
     # image_therm = '/ultralytics/data/LLVIP/images/infrared/train/010001.jpg'
     image_vis = 'runs/extract_frame/visible_frame10.jpg'
     image_therm = 'runs/extract_frame/infrared_frame10.jpg'
+    # image_vis = 'data/homography/visible_010001.jpg'
+    # image_therm = 'data/homography/infrared_010001.jpg'
     save_path = 'runs/mapping_matrix'
     
     # 确保保存路径存在
@@ -246,10 +238,11 @@ if __name__ == "__main__":
     
     # 检查是否存在已保存的单应性矩阵
     matrix_path = os.path.join(save_path, 'manual_homography_matrix.npy')
-    if os.path.exists(matrix_path):
-        H = np.load(matrix_path)
-    else:
-        H = manual_compute_homography(image_vis, image_therm, save_path)
+    # if os.path.exists(matrix_path):
+    #     H = np.load(matrix_path)
+    # else:
+    #     H = manual_compute_homography(image_vis, image_therm, save_path)
+    H = manual_compute_homography(image_vis, image_therm, save_path)
     
     if H is not None:
         print(f'手动选择点计算的单应性矩阵 H:\n{H}')
