@@ -136,12 +136,15 @@ def manual_compute_homography(image_vis_path, image_therm_path, save_path):
     points_vis = np.float32(points_vis)
     points_therm = np.float32(points_therm)
     
-    # 计算单应性矩阵
-    H, mask = cv2.findHomography(points_vis, points_therm, cv2.RANSAC, 5.0)
+    # 计算单应性矩阵 - 从红外到可见光的变换
+    H, mask = cv2.findHomography(points_therm, points_vis, cv2.RANSAC, 3.0)
     
     if H is not None:
+        print("\n计算得到的单应性矩阵：")
+        print(H)
+        
         # 验证单应性矩阵
-        H = verify_homography(img_vis, img_therm, H, points_vis, points_therm)
+        H = verify_homography(img_therm, img_vis, H, points_therm, points_vis)  # 注意参数顺序改变
         
         # 测试变换结果
         test_points = np.float32([[0,0], [img_vis.shape[1],0], 
@@ -175,11 +178,11 @@ def warp_thermal_to_visible(image_vis_path, image_therm_path, H, save_path):
     print(f"红外图像原始尺寸: {img_therm.shape}")
     print(f"变换后的目标尺寸: {(img_vis.shape[1], img_vis.shape[0])}")
     
-    # 使用单应性矩阵进行投影变换
+    # 使用单应性矩阵进行投影变换 - 不需要反向映射标志
     warped_therm = cv2.warpPerspective(
         img_therm, 
         H, 
-        (img_vis.shape[1], img_vis.shape[0])  # 使用可见光图像的尺寸
+        (img_vis.shape[1], img_vis.shape[0])
     )
     
     # 创建融合显示
@@ -238,11 +241,11 @@ if __name__ == "__main__":
     
     # 检查是否存在已保存的单应性矩阵
     matrix_path = os.path.join(save_path, 'manual_homography_matrix.npy')
-    # if os.path.exists(matrix_path):
-    #     H = np.load(matrix_path)
-    # else:
-    #     H = manual_compute_homography(image_vis, image_therm, save_path)
-    H = manual_compute_homography(image_vis, image_therm, save_path)
+    if os.path.exists(matrix_path):
+        H = np.load(matrix_path)
+    else:
+        H = manual_compute_homography(image_vis, image_therm, save_path)
+    # H = manual_compute_homography(image_vis, image_therm, save_path)
     
     if H is not None:
         print(f'手动选择点计算的单应性矩阵 H:\n{H}')

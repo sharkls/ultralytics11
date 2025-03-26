@@ -182,7 +182,7 @@ class BasePredictor:
 
         return im, im2
     
-    def preprocess_multimodal(self, im, im2, extrinsics=None):
+    def preprocess_multimodal_v2(self, im, im2, extrinsics=None):
         """
         预处理多模态输入图像和对应的单应性矩阵。
         
@@ -199,6 +199,26 @@ class BasePredictor:
         
         if not_tensor or not_tensor2:
             batch_size = len(im)
+            
+            # 在进行任何预处理之前先验证原始图像的配准效果
+            if extrinsics is not None:
+                LOGGER.info("\n--- Visualizing raw image registration before preprocessing ---")
+                for i in range(batch_size):
+                    # 获取原始图像
+                    rgb_img = im[i]
+                    ir_img = im2[i]
+                    H = extrinsics[i] if isinstance(extrinsics, (list, tuple, torch.Tensor)) else extrinsics
+                    
+                    # 使用现有的visualize_registration方法进行原始图像的可视化
+                    self.visualize_registration(
+                        rgb_img=rgb_img,
+                        ir_img=ir_img,
+                        H=H,
+                        batch_idx=i,
+                        save_prefix='raw',  # 使用'raw'前缀区分预处理前的结果
+                        is_normalized=False
+                    )
+                LOGGER.info("--- Raw registration visualization completed ---\n")
             
             # 首先将extrinsics转换为torch.Tensor并移动到正确的设备
             if extrinsics is not None:
@@ -333,13 +353,175 @@ class BasePredictor:
         if extrinsics is not None:
             extrinsics = extrinsics.half() if self.model.fp16 else extrinsics.float()
         
-        # 归一化
-        if not_tensor:
-            im /= 255
-        if not_tensor2:
-            im2 /= 255
+        # 在预处理完成后再次可视化（原有的代码）
+        if extrinsics is not None:
+            for i in range(batch_size):
+                self.visualize_registration(
+                    rgb_img=im[i],
+                    ir_img=im2[i],
+                    H=extrinsics[i],
+                    batch_idx=i,
+                    save_prefix='preprocessed',  # 使用'preprocessed'前缀区分预处理后的结果
+                    is_normalized=False
+                )
 
         return im, im2, extrinsics
+    
+    def preprocess_multimodal(self, im, im2, extrinsics=None):
+        """预处理多模态输入图像和对应的单应性矩阵"""
+        not_tensor = not isinstance(im, torch.Tensor)
+        not_tensor2 = not isinstance(im2, torch.Tensor)
+        
+        if not_tensor or not_tensor2:
+            batch_size = len(im)
+            
+            # 1. 验证原始配准效果（未经预处理）
+            if extrinsics is not None:
+                LOGGER.info("\n--- Visualizing raw image registration before preprocessing ---")
+                for i in range(batch_size):
+                    self.visualize_registration(
+                        rgb_img=im[i],
+                        ir_img=im2[i],
+                        H=extrinsics[i] if isinstance(extrinsics, (list, tuple, torch.Tensor)) else extrinsics,
+                        batch_idx=i,
+                        save_prefix='raw',
+                        is_normalized=False
+                    )
+            
+            # 首先将extrinsics转换为torch.Tensor并移动到正确的设备
+            if extrinsics is not None:
+                if not isinstance(extrinsics, torch.Tensor):
+                    extrinsics = torch.from_numpy(extrinsics)
+                extrinsics = extrinsics.to(self.device)
+                dtype = extrinsics.dtype
+            else:
+                dtype = torch.float32
+
+            # 保存原始尺寸
+            self.orig_shapes = {
+                'rgb': [im[i].shape[:2] for i in range(batch_size)],
+                'ir': [im2[i].shape[:2] for i in range(batch_size)]
+            }
+
+            # 创建letterbox对象
+            letterbox = LetterBox(
+                self.imgsz,
+                auto=False,  # 关闭自动模式以确保一致的处理
+                stride=self.model.stride
+            )
+
+            # 为每个图像计算letterbox变换参数
+            transformed_H = []
+            processed_rgb = []
+            processed_ir = []
+
+            for i in range(batch_size):
+                rgb_img = im[i]
+                ir_img = im2[i]
+                current_H = extrinsics[i] if isinstance(extrinsics, (list, tuple, torch.Tensor)) else extrinsics
+
+                # 计算RGB图像的letterbox参数
+                rgb_h, rgb_w = rgb_img.shape[:2]
+                r_rgb = min(self.imgsz[0]/rgb_h, self.imgsz[1]/rgb_w)
+                new_unpad_rgb = int(round(rgb_w * r_rgb)), int(round(rgb_h * r_rgb))
+                dw_rgb, dh_rgb = self.imgsz[1] - new_unpad_rgb[0], self.imgsz[0] - new_unpad_rgb[1]
+                dw_rgb /= 2
+                dh_rgb /= 2
+
+                # 计算IR图像的letterbox参数
+                ir_h, ir_w = ir_img.shape[:2]
+                r_ir = min(self.imgsz[0]/ir_h, self.imgsz[1]/ir_w)
+                new_unpad_ir = int(round(ir_w * r_ir)), int(round(ir_h * r_ir))
+                dw_ir, dh_ir = self.imgsz[1] - new_unpad_ir[0], self.imgsz[0] - new_unpad_ir[1]
+                dw_ir /= 2
+                dh_ir /= 2
+
+                # 构建变换矩阵
+                S_rgb = torch.eye(3, device=self.device, dtype=dtype)
+                S_rgb[0, 0] = r_rgb  # x方向缩放
+                S_rgb[1, 1] = r_rgb  # y方向缩放
+
+                S_ir = torch.eye(3, device=self.device, dtype=dtype)
+                S_ir[0, 0] = r_ir   # x方向缩放
+                S_ir[1, 1] = r_ir   # y方向缩放
+
+                T_rgb = torch.eye(3, device=self.device, dtype=dtype)
+                T_rgb[0, 2] = dw_rgb  # x方向平移
+                T_rgb[1, 2] = dh_rgb  # y方向平移
+
+                T_ir = torch.eye(3, device=self.device, dtype=dtype)
+                T_ir[0, 2] = dw_ir  # x方向平移
+                T_ir[1, 2] = dh_ir  # y方向平移
+
+                # 更新单应性矩阵：新IR -> 原始IR -> 原始RGB -> 新RGB
+                # H_new = T_rgb @ S_rgb @ H @ S_ir^(-1) @ T_ir^(-1)
+                updated_H = torch.mm(T_rgb, torch.mm(S_rgb, torch.mm(current_H, 
+                                   torch.mm(torch.inverse(S_ir), torch.inverse(T_ir)))))
+                transformed_H.append(updated_H)
+
+                # 应用letterbox变换
+                processed_rgb.append(letterbox(image=rgb_img))
+                processed_ir.append(letterbox(image=ir_img))
+
+            # 堆叠处理后的图像
+            im = np.stack(processed_rgb)
+            im2 = np.stack(processed_ir)
+            
+            # 更新单应性矩阵
+            if extrinsics is not None:
+                extrinsics = torch.stack(transformed_H)
+
+            # 在letterbox处理后但归一化之前进行可视化
+            if extrinsics is not None:
+                LOGGER.info("\n--- Visualizing registration after letterbox but before normalization ---")
+                for i in range(batch_size):
+                    # 转换图像格式用于可视化
+                    vis_rgb = im[i]
+                    vis_ir = im2[i]
+                    self.visualize_registration(
+                        rgb_img=vis_rgb,
+                        ir_img=vis_ir,
+                        H=extrinsics[i],
+                        batch_idx=i,
+                        save_prefix='before_norm',
+                        is_normalized=False
+                    )
+
+            # 图像格式转换
+            im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
+            im2 = im2[..., ::-1].transpose((0, 3, 1, 2))
+            
+            im = np.ascontiguousarray(im)
+            im2 = np.ascontiguousarray(im2)
+            
+            # 转换为tensor并移动到正确的设备
+            im = torch.from_numpy(im).to(self.device)
+            im2 = torch.from_numpy(im2).to(self.device)
+
+            # 数据类型转换
+            im = im.half() if self.model.fp16 else im.float()
+            im2 = im2.half() if self.model.fp16 else im2.float()
+            
+            # 归一化
+            if not_tensor:
+                im /= 255
+            if not_tensor2:
+                im2 /= 255
+
+            # 在完成所有预处理后进行可视化
+            if extrinsics is not None:
+                LOGGER.info("\n--- Visualizing registration after all preprocessing ---")
+                for i in range(batch_size):
+                    self.visualize_registration(
+                        rgb_img=im[i],
+                        ir_img=im2[i],
+                        H=extrinsics[i],
+                        batch_idx=i,
+                        save_prefix='final',
+                        is_normalized=True
+                    )
+            
+            return im, im2, extrinsics
 
     def letterbox(self, im, stride=32):
         """
@@ -849,8 +1031,94 @@ class BasePredictor:
                 result.orig_shape = orig_shape  # 设置原始尺寸
                 self.plotted_img = result.plot(**plot_args)
             else:
+                # 红外图像需要转换坐标
                 orig_shape = self.orig_shapes['ir'][i]
-                result.orig_shape = orig_shape  # 设置原始尺寸
+                result = self.results[i]  # 使用可见光的检测结果
+                
+                # 获取当前batch的单应性矩阵并计算其逆矩阵
+                H = self.batch[2][i] if isinstance(self.batch[2], (list, tuple, torch.Tensor)) else self.batch[2]
+                
+                # 计算逆矩阵，因为我们需要从可见光映射到红外
+                try:
+                    H_inv = torch.inverse(H.to(torch.float32))  # 使用float32确保数值稳定性
+                    if self.args.verbose:
+                        LOGGER.info(f"Original homography matrix H:\n{H}")
+                        LOGGER.info(f"Inverse homography matrix H_inv:\n{H_inv}")
+                except torch.linalg.LinAlgError:
+                    LOGGER.error("Failed to compute inverse of homography matrix")
+                    return string
+                
+                # 转换检测框坐标
+                if result.boxes is not None and len(result.boxes):
+                    # 获取检测框坐标
+                    boxes = result.boxes.xyxy  # (n, 4) - [x1, y1, x2, y2]
+                    
+                    # 转换为齐次坐标（四个角点）
+                    corners = []
+                    for box in boxes:
+                        x1, y1, x2, y2 = box
+                        box_corners = torch.tensor([
+                            [x1, y1, 1],  # 左上
+                            [x2, y1, 1],  # 右上
+                            [x2, y2, 1],  # 右下
+                            [x1, y2, 1]   # 左下
+                        ], device=box.device)
+                        corners.append(box_corners)
+                    corners = torch.cat(corners, dim=0)  # (4n, 3)
+                    
+                    if self.args.verbose:
+                        LOGGER.info(f"Original corners in visible light:\n{corners[:4]}")  # 打印第一个框的角点
+                    
+                    # 应用逆单应性变换
+                    transformed_corners = torch.matmul(H_inv.to(corners.device), corners.T).T  # (4n, 3)
+                    
+                    # 归一化齐次坐标
+                    transformed_corners = transformed_corners / transformed_corners[:, 2:3]  # 使用广播机制
+                    transformed_corners = transformed_corners[:, :2]  # 取回 x, y 坐标
+                    
+                    if self.args.verbose:
+                        LOGGER.info(f"Transformed corners in IR:\n{transformed_corners[:4]}")  # 打印第一个框的转换后角点
+                    
+                    # 重组为检测框格式
+                    n_boxes = len(boxes)
+                    transformed_boxes = []
+                    valid_conf = []
+                    valid_cls = []
+                    min_size = 5  # 最小边界框尺寸
+                    
+                    for j in range(n_boxes):
+                        box_corners = transformed_corners[j*4:(j+1)*4]  # (4, 2)
+                        
+                        # 计算边界框坐标
+                        x1 = torch.clamp(box_corners[:, 0].min(), 0, orig_shape[1])
+                        y1 = torch.clamp(box_corners[:, 1].min(), 0, orig_shape[0])
+                        x2 = torch.clamp(box_corners[:, 0].max(), 0, orig_shape[1])
+                        y2 = torch.clamp(box_corners[:, 1].max(), 0, orig_shape[0])
+                        
+                        # 检查边界框是否有效
+                        w = x2 - x1
+                        h = y2 - y1
+                        if w >= min_size and h >= min_size:
+                            transformed_boxes.append(torch.tensor([x1, y1, x2, y2], device=boxes.device))
+                            valid_conf.append(result.boxes.conf[j])
+                            valid_cls.append(result.boxes.cls[j])
+                    
+                    # 更新检测结果
+                    if transformed_boxes:
+                        result.boxes.xyxy = torch.stack(transformed_boxes)
+                        result.boxes.conf = torch.tensor(valid_conf, device=boxes.device)
+                        result.boxes.cls = torch.tensor(valid_cls, device=boxes.device)
+                        
+                        if self.args.verbose:
+                            LOGGER.info(f"Transformed boxes in IR:\n{result.boxes.xyxy}")
+                    else:
+                        # 如果没有有效的框，清空结果
+                        result.boxes.xyxy = torch.empty((0, 4), device=boxes.device)
+                        result.boxes.conf = torch.empty(0, device=boxes.device)
+                        result.boxes.cls = torch.empty(0, device=boxes.device)
+                
+                # 设置原始尺寸并绘制
+                result.orig_shape = orig_shape
                 self.plotted_img2 = result.plot(**plot_args)
 
         # Save results
@@ -956,3 +1224,120 @@ class BasePredictor:
     def add_callback(self, event: str, func):
         """Add callback."""
         self.callbacks[event].append(func)
+
+    def visualize_registration(self, rgb_img, ir_img, H, batch_idx=0, save_prefix='preprocessing', is_normalized=False):
+        """
+        可视化配准结果，显示RGB图像、变换后的红外图像及其融合效果。
+
+        Args:
+            rgb_img (np.ndarray | torch.Tensor): RGB图像
+            ir_img (np.ndarray | torch.Tensor): 红外图像
+            H (np.ndarray | torch.Tensor): 单应性矩阵
+            batch_idx (int): 批次索引，用于保存和显示
+            save_prefix (str): 保存文件的前缀名
+            is_normalized (bool): 图像是否已经归一化(0-1)
+        """
+        # 将tensor转换为numpy数组
+        if isinstance(rgb_img, torch.Tensor):
+            rgb_img = rgb_img.detach().cpu().numpy()
+            if rgb_img.shape[0] == 3:  # CHW -> HWC
+                rgb_img = rgb_img.transpose(1, 2, 0)
+        
+        if isinstance(ir_img, torch.Tensor):
+            ir_img = ir_img.detach().cpu().numpy()
+            if ir_img.shape[0] == 3:  # CHW -> HWC
+                ir_img = ir_img.transpose(1, 2, 0)
+        
+        if isinstance(H, torch.Tensor):
+            H = H.detach().cpu().numpy()
+
+        # 处理图像值范围
+        if is_normalized:
+            rgb_img = (rgb_img * 255).clip(0, 255).astype(np.uint8)
+            ir_img = (ir_img * 255).clip(0, 255).astype(np.uint8)
+        else:
+            # 如果图像值范围在[0,1]之间但未标记为normalized
+            if rgb_img.max() <= 1.0:
+                rgb_img = (rgb_img * 255).clip(0, 255).astype(np.uint8)
+            if ir_img.max() <= 1.0:
+                ir_img = (ir_img * 255).clip(0, 255).astype(np.uint8)
+        
+            # 确保图像是uint8类型
+            if rgb_img.dtype != np.uint8:
+                rgb_img = rgb_img.clip(0, 255).astype(np.uint8)
+            if ir_img.dtype != np.uint8:
+                ir_img = ir_img.clip(0, 255).astype(np.uint8)
+
+        # 打印调试信息
+        if self.args.verbose:
+            LOGGER.info(f"RGB image shape: {rgb_img.shape}, dtype: {rgb_img.dtype}, range: [{rgb_img.min()}, {rgb_img.max()}]")
+            LOGGER.info(f"IR image shape: {ir_img.shape}, dtype: {ir_img.dtype}, range: [{ir_img.min()}, {ir_img.max()}]")
+            LOGGER.info(f"Homography matrix:\n{H}")
+
+        # 使用单应性矩阵进行透视变换
+        warped_ir = cv2.warpPerspective(ir_img, H, (rgb_img.shape[1], rgb_img.shape[0]))
+        
+        # 创建融合图像
+        alpha = 0.5
+        fused_img = cv2.addWeighted(rgb_img, alpha, warped_ir, 1-alpha, 0)
+        
+        # 创建对比图像
+        comparison = np.hstack([
+            cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR),
+            cv2.cvtColor(warped_ir, cv2.COLOR_RGB2BGR),
+            cv2.cvtColor(fused_img, cv2.COLOR_RGB2BGR)
+        ])
+        
+        # 添加标题和分隔线
+        h, w = comparison.shape[:2]
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = min(w / 1920, h / 1080)  # 根据图像大小调整字体大小
+        
+        # 添加标题
+        title_color = (0, 255, 0)  # 绿色
+        cv2.putText(comparison, f'{save_prefix} RGB', (w//6-80, 30), font, font_scale, title_color, 2)
+        cv2.putText(comparison, f'{save_prefix} Warped IR', (w//2-100, 30), font, font_scale, title_color, 2)
+        cv2.putText(comparison, f'{save_prefix} Fused', (5*w//6-80, 30), font, font_scale, title_color, 2)
+        
+        # 添加分隔线
+        cv2.line(comparison, (w//3, 0), (w//3, h), title_color, 2)
+        cv2.line(comparison, (2*w//3, 0), (2*w//3, h), title_color, 2)
+        
+        # 显示验证结果
+        if self.args.show:
+            window_name = f'Registration Result ({save_prefix}) - Batch {batch_idx}'
+            cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+            cv2.imshow(window_name, comparison)
+            cv2.waitKey(1)
+        
+        # 保存验证结果
+        if self.args.save:
+            save_dir = Path(self.save_dir) / 'registration_results'
+            save_dir.mkdir(parents=True, exist_ok=True)
+            
+            # 保存对比图
+            cv2.imwrite(str(save_dir / f'{save_prefix}_comparison_batch_{batch_idx}.jpg'), comparison)
+            
+            # 分别保存各个图像
+            cv2.imwrite(str(save_dir / f'{save_prefix}_rgb_batch_{batch_idx}.jpg'), 
+                       cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR))
+            cv2.imwrite(str(save_dir / f'{save_prefix}_warped_ir_batch_{batch_idx}.jpg'), 
+                       cv2.cvtColor(warped_ir, cv2.COLOR_RGB2BGR))
+            cv2.imwrite(str(save_dir / f'{save_prefix}_fused_batch_{batch_idx}.jpg'), 
+                       cv2.cvtColor(fused_img, cv2.COLOR_RGB2BGR))
+        
+        # 记录验证信息到日志
+        if self.args.verbose:
+            LOGGER.info(f"Batch {batch_idx}: {save_prefix} registration visualization completed")
+            
+            # 计算结构相似性指数(SSIM)
+            try:
+                from skimage.metrics import structural_similarity as ssim
+                gray_rgb = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
+                gray_ir = cv2.cvtColor(warped_ir, cv2.COLOR_RGB2GRAY)
+                similarity = ssim(gray_rgb, gray_ir)
+                LOGGER.info(f"Batch {batch_idx}: SSIM between RGB and warped IR: {similarity:.4f}")
+            except ImportError:
+                LOGGER.info("skimage not installed, skipping SSIM calculation")
+        
+        return comparison
