@@ -539,7 +539,7 @@ class BaseMixTransform:
             return False
 
     @staticmethod
-    def visualize_registration(labels, title="registration", stage="before"):
+    def visualize_registration(labels, title="registration", stage="before", use_single_matrix=False):
         """可视化配准结果的通用方法
         
         Args:
@@ -547,15 +547,10 @@ class BaseMixTransform:
                 - 'img': RGB图像
                 - 'img2': 红外图像
                 - 'mapping_matrix': 映射矩阵
-                - 'patches_info': 可选，包含子图信息的列表，每个元素是字典：
-                    {
-                        'img': RGB图像,
-                        'img2': 红外图像,
-                        'mapping_matrix': 映射矩阵,
-                        'pos': [x1, y1, x2, y2]  # 在mosaic中的位置
-                    }
+                - 'patches_info': 可选，包含子图信息的列表
             title (str): 可视化标题
             stage (str): 处理阶段，用于文件命名
+            use_single_matrix (bool): 是否使用单一映射矩阵进行可视化
         """
         try:
             save_dir = 'runs/debug/registration'
@@ -566,30 +561,44 @@ class BaseMixTransform:
             ir_img = labels.get('img2')
             H = labels.get('mapping_matrix')
             
-            # 获取目标尺寸（使用RGB图像的尺寸）
+            # 获取目标尺寸（只保留一行高度）
             h, w = rgb_img.shape[:2]
-            canvas_height = h
+            canvas_height = h  # 移除 * 2
             canvas_width = w * 3  # RGB + IR + Fusion
-            
-            # 如果存在子图信息，扩展画布高度
-            patches_info = labels.get('patches_info', [])
-            if patches_info:
-                canvas_height = h * 2  # 上面是主图，下面是子图
             
             canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
             
             # 处理主图像
-            if ir_img is not None and H is not None:
-                # 确保H是numpy数组
-                if isinstance(H, torch.Tensor):
-                    H = H.cpu().numpy()
-                
+            if ir_img is not None:
                 # 确保红外图像是3通道
                 if len(ir_img.shape) == 2:
                     ir_img = cv2.cvtColor(ir_img, cv2.COLOR_GRAY2BGR)
                 
-                # 将红外图像映射到可见光图像平面
-                warped_ir = cv2.warpPerspective(ir_img, H, (w, h))
+                if stage == 'after' and not use_single_matrix and labels.get('patches_info'):
+                    # 使用多个映射矩阵进行分区域变换
+                    warped_ir = np.zeros_like(ir_img)
+                    for patch in labels['patches_info']:
+                        if not all(key in patch for key in ['pos', 'mapping_matrix']):
+                            continue
+                        
+                        x1, y1, x2, y2 = patch['pos']
+                        patch_H = patch['mapping_matrix']
+                        
+                        if isinstance(patch_H, torch.Tensor):
+                            patch_H = patch_H.cpu().numpy()
+                        
+                        # 提取并变换该区域的图像
+                        region_ir = ir_img[y1:y2, x1:x2]
+                        warped_region = cv2.warpPerspective(region_ir, patch_H, (x2-x1, y2-y1))
+                        warped_ir[y1:y2, x1:x2] = warped_region
+                else:
+                    # 使用单一映射矩阵
+                    if H is not None:
+                        if isinstance(H, torch.Tensor):
+                            H = H.cpu().numpy()
+                        warped_ir = cv2.warpPerspective(ir_img, H, (w, h))
+                    else:
+                        warped_ir = ir_img
                 
                 # 放置主图像
                 canvas[:h, :w] = rgb_img
@@ -602,71 +611,10 @@ class BaseMixTransform:
                 cv2.putText(canvas, 'Warped IR', (w+w//2-80, 30), font, 1, (255,255,255), 2)
                 cv2.putText(canvas, 'Fusion', (2*w+w//2-60, 30), font, 1, (255,255,255), 2)
             
-            # 处理子图
-            if patches_info:
-                patch_h = h // 2
-                patch_w = w // 2
-                for idx, patch in enumerate(patches_info):
-                    if patch.get('img2') is None or patch.get('mapping_matrix') is None:
-                        continue
-                        
-                    # 获取子图位置和图像
-                    x1, y1, x2, y2 = patch['pos']
-                    patch_rgb = patch['img']
-                    patch_ir = patch['img2']
-                    patch_H = patch['mapping_matrix']
-                    
-                    # 确保目标尺寸有效
-                    target_w = max(1, abs(x2 - x1))
-                    target_h = max(1, abs(y2 - y1))
-                    
-                    # 记录调试信息
-                    LOGGER.debug(f"Patch {idx}: source shape={patch_rgb.shape}, target size=({target_w}, {target_h})")
-                    
-                    if isinstance(patch_H, torch.Tensor):
-                        patch_H = patch_H.cpu().numpy()
-                    
-                    # 确保红外图像是3通道
-                    if len(patch_ir.shape) == 2:
-                        patch_ir = cv2.cvtColor(patch_ir, cv2.COLOR_GRAY2BGR)
-                    
-                    try:
-                        # 调整图像尺寸
-                        patch_rgb_resized = cv2.resize(patch_rgb, (target_w, target_h))
-                        patch_ir_resized = cv2.resize(patch_ir, (target_w, target_h))
-                        
-                        # 更新单应性矩阵以适应新尺寸
-                        scale_x = target_w / patch_ir.shape[1]
-                        scale_y = target_h / patch_ir.shape[0]
-                        scale_matrix = np.array([[scale_x, 0, 0],
-                                               [0, scale_y, 0],
-                                               [0, 0, 1]], dtype=np.float32)
-                        patch_H = patch_H @ scale_matrix
-                        
-                        # 映射红外图像
-                        warped_patch_ir = cv2.warpPerspective(patch_ir_resized, patch_H, (target_w, target_h))
-                        
-                        # 计算画布中的实际位置
-                        canvas_y = h + min(y1, y2)
-                        canvas_x = min(x1, x2)
-                        
-                        # 确保不超出画布边界
-                        if (canvas_y + target_h <= canvas_height and 
-                            canvas_x + target_w <= w):
-                            # 放置子图
-                            canvas[canvas_y:canvas_y+target_h, canvas_x:canvas_x+target_w] = patch_rgb_resized
-                            canvas[canvas_y:canvas_y+target_h, w+canvas_x:w+canvas_x+target_w] = warped_patch_ir
-                            canvas[canvas_y:canvas_y+target_h, 2*w+canvas_x:2*w+canvas_x+target_w] = \
-                                cv2.addWeighted(patch_rgb_resized, 0.5, warped_patch_ir, 0.5, 0)
-                        
-                    except Exception as e:
-                        LOGGER.warning(f"Error processing patch {idx}: {str(e)}")
-                        continue
-            
             # 保存结果
-            save_path = os.path.join(save_dir, f'{title}_{stage}.jpg')
+            matrix_type = 'single' if use_single_matrix else 'multi'
+            save_path = os.path.join(save_dir, f'{title}_{stage}_{matrix_type}.jpg')
             cv2.imwrite(save_path, canvas)
-            # LOGGER.info(f'Saved registration visualization to {save_path}')
             
         except Exception as e:
             LOGGER.warning(f"Registration visualization failed: {str(e)}")
@@ -1011,7 +959,8 @@ class Mosaic(BaseMixTransform):
                 'patches_info': patches_info_before
             },
             title='mosaic4',
-            stage='after'
+            stage='after',
+            use_single_matrix=False
         )
 
         return final_labels
