@@ -230,8 +230,8 @@ if __name__ == "__main__":
     # 设置路径
     # image_vis = '/ultralytics/data/LLVIP/images/visible/train/010001.jpg'
     # image_therm = '/ultralytics/data/LLVIP/images/infrared/train/010001.jpg'
-    image_vis = 'runs/extract_frame/visible_frame10.jpg'
-    image_therm = 'runs/extract_frame/infrared_frame10.jpg'
+    image_vis = 'data/Test/images/visible/train/frame009.jpg'
+    image_therm = 'data/Test/images/infrared/train/frame009.jpg'
     # image_vis = 'data/homography/visible_010001.jpg'
     # image_therm = 'data/homography/infrared_010001.jpg'
     save_path = 'runs/mapping_matrix'

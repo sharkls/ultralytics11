@@ -47,7 +47,7 @@ results = model.train(data="multimodal_test.yaml", batch=2, epochs=2, imgsz=640,
 #     data="multimodal.yaml",
 #     batch=2,
 #     epochs=4,
-#     imgsz=640,a
+#     imgsz=640,
 #     device=0,
 #     resume=True  # 关键参数：启用续训
 # )

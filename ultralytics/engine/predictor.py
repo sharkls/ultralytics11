@@ -1237,107 +1237,96 @@ class BasePredictor:
             save_prefix (str): 保存文件的前缀名
             is_normalized (bool): 图像是否已经归一化(0-1)
         """
-        # 将tensor转换为numpy数组
-        if isinstance(rgb_img, torch.Tensor):
-            rgb_img = rgb_img.detach().cpu().numpy()
-            if rgb_img.shape[0] == 3:  # CHW -> HWC
-                rgb_img = rgb_img.transpose(1, 2, 0)
-        
-        if isinstance(ir_img, torch.Tensor):
-            ir_img = ir_img.detach().cpu().numpy()
-            if ir_img.shape[0] == 3:  # CHW -> HWC
-                ir_img = ir_img.transpose(1, 2, 0)
-        
-        if isinstance(H, torch.Tensor):
-            H = H.detach().cpu().numpy()
+        try:
+            # 将tensor转换为numpy数组
+            if isinstance(rgb_img, torch.Tensor):
+                rgb_img = rgb_img.detach().cpu().numpy()
+                if rgb_img.shape[0] == 3:  # CHW -> HWC
+                    rgb_img = rgb_img.transpose(1, 2, 0)
+            
+            if isinstance(ir_img, torch.Tensor):
+                ir_img = ir_img.detach().cpu().numpy()
+                if ir_img.shape[0] == 3:  # CHW -> HWC
+                    ir_img = ir_img.transpose(1, 2, 0)
+            
+            # 处理单应性矩阵
+            if H is None:
+                LOGGER.warning("No homography matrix provided, using identity matrix")
+                H = np.eye(3, dtype=np.float32)
+            elif isinstance(H, torch.Tensor):
+                H = H.detach().cpu().numpy()
+            
+            # 确保H是正确的数据类型和形状
+            if not isinstance(H, np.ndarray):
+                H = np.array(H, dtype=np.float32)
+            
+            if H.shape != (3, 3):
+                LOGGER.error(f"Invalid homography matrix shape: {H.shape}, expected (3, 3)")
+                return None
+            
+            # 确保H是float32类型
+            H = H.astype(np.float32)
 
-        # 处理图像值范围
-        if is_normalized:
-            rgb_img = (rgb_img * 255).clip(0, 255).astype(np.uint8)
-            ir_img = (ir_img * 255).clip(0, 255).astype(np.uint8)
-        else:
-            # 如果图像值范围在[0,1]之间但未标记为normalized
-            if rgb_img.max() <= 1.0:
+            # 处理图像值范围
+            if is_normalized:
                 rgb_img = (rgb_img * 255).clip(0, 255).astype(np.uint8)
-            if ir_img.max() <= 1.0:
                 ir_img = (ir_img * 255).clip(0, 255).astype(np.uint8)
-        
+            else:
+                # 如果图像值范围在[0,1]之间但未标记为normalized
+                if rgb_img.max() <= 1.0:
+                    rgb_img = (rgb_img * 255).clip(0, 255).astype(np.uint8)
+                if ir_img.max() <= 1.0:
+                    ir_img = (ir_img * 255).clip(0, 255).astype(np.uint8)
+            
             # 确保图像是uint8类型
             if rgb_img.dtype != np.uint8:
                 rgb_img = rgb_img.clip(0, 255).astype(np.uint8)
             if ir_img.dtype != np.uint8:
                 ir_img = ir_img.clip(0, 255).astype(np.uint8)
 
-        # 打印调试信息
-        if self.args.verbose:
-            LOGGER.info(f"RGB image shape: {rgb_img.shape}, dtype: {rgb_img.dtype}, range: [{rgb_img.min()}, {rgb_img.max()}]")
-            LOGGER.info(f"IR image shape: {ir_img.shape}, dtype: {ir_img.dtype}, range: [{ir_img.min()}, {ir_img.max()}]")
-            LOGGER.info(f"Homography matrix:\n{H}")
+            # 确保图像具有正确的通道数
+            if len(rgb_img.shape) == 2:
+                rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_GRAY2BGR)
+            if len(ir_img.shape) == 2:
+                ir_img = cv2.cvtColor(ir_img, cv2.COLOR_GRAY2BGR)
 
-        # 使用单应性矩阵进行透视变换
-        warped_ir = cv2.warpPerspective(ir_img, H, (rgb_img.shape[1], rgb_img.shape[0]))
-        
-        # 创建融合图像
-        alpha = 0.5
-        fused_img = cv2.addWeighted(rgb_img, alpha, warped_ir, 1-alpha, 0)
-        
-        # 创建对比图像
-        comparison = np.hstack([
-            cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR),
-            cv2.cvtColor(warped_ir, cv2.COLOR_RGB2BGR),
-            cv2.cvtColor(fused_img, cv2.COLOR_RGB2BGR)
-        ])
-        
-        # 添加标题和分隔线
-        h, w = comparison.shape[:2]
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = min(w / 1920, h / 1080)  # 根据图像大小调整字体大小
-        
-        # 添加标题
-        title_color = (0, 255, 0)  # 绿色
-        cv2.putText(comparison, f'{save_prefix} RGB', (w//6-80, 30), font, font_scale, title_color, 2)
-        cv2.putText(comparison, f'{save_prefix} Warped IR', (w//2-100, 30), font, font_scale, title_color, 2)
-        cv2.putText(comparison, f'{save_prefix} Fused', (5*w//6-80, 30), font, font_scale, title_color, 2)
-        
-        # 添加分隔线
-        cv2.line(comparison, (w//3, 0), (w//3, h), title_color, 2)
-        cv2.line(comparison, (2*w//3, 0), (2*w//3, h), title_color, 2)
-        
-        # 显示验证结果
-        if self.args.show:
-            window_name = f'Registration Result ({save_prefix}) - Batch {batch_idx}'
-            cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-            cv2.imshow(window_name, comparison)
-            cv2.waitKey(1)
-        
-        # 保存验证结果
-        if self.args.save:
-            save_dir = Path(self.save_dir) / 'registration_results'
-            save_dir.mkdir(parents=True, exist_ok=True)
+            # 打印调试信息
+            if self.args.verbose:
+                LOGGER.info(f"RGB image shape: {rgb_img.shape}, dtype: {rgb_img.dtype}, range: [{rgb_img.min()}, {rgb_img.max()}]")
+                LOGGER.info(f"IR image shape: {ir_img.shape}, dtype: {ir_img.dtype}, range: [{ir_img.min()}, {ir_img.max()}]")
+                LOGGER.info(f"Homography matrix:\n{H}")
+                LOGGER.info(f"Homography matrix dtype: {H.dtype}")
+
+            # 使用单应性矩阵进行透视变换
+            warped_ir = cv2.warpPerspective(ir_img, H, (rgb_img.shape[1], rgb_img.shape[0]))
             
-            # 保存对比图
-            cv2.imwrite(str(save_dir / f'{save_prefix}_comparison_batch_{batch_idx}.jpg'), comparison)
+            # 创建融合图像
+            alpha = 0.5
+            fused_img = cv2.addWeighted(rgb_img, alpha, warped_ir, 1-alpha, 0)
             
-            # 分别保存各个图像
-            cv2.imwrite(str(save_dir / f'{save_prefix}_rgb_batch_{batch_idx}.jpg'), 
-                       cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR))
-            cv2.imwrite(str(save_dir / f'{save_prefix}_warped_ir_batch_{batch_idx}.jpg'), 
-                       cv2.cvtColor(warped_ir, cv2.COLOR_RGB2BGR))
-            cv2.imwrite(str(save_dir / f'{save_prefix}_fused_batch_{batch_idx}.jpg'), 
-                       cv2.cvtColor(fused_img, cv2.COLOR_RGB2BGR))
-        
-        # 记录验证信息到日志
-        if self.args.verbose:
-            LOGGER.info(f"Batch {batch_idx}: {save_prefix} registration visualization completed")
+            # 创建对比图像
+            comparison = np.hstack([rgb_img, warped_ir, fused_img])
             
-            # 计算结构相似性指数(SSIM)
-            try:
-                from skimage.metrics import structural_similarity as ssim
-                gray_rgb = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
-                gray_ir = cv2.cvtColor(warped_ir, cv2.COLOR_RGB2GRAY)
-                similarity = ssim(gray_rgb, gray_ir)
-                LOGGER.info(f"Batch {batch_idx}: SSIM between RGB and warped IR: {similarity:.4f}")
-            except ImportError:
-                LOGGER.info("skimage not installed, skipping SSIM calculation")
-        
-        return comparison
+            # 添加标题和分隔线
+            h, w = comparison.shape[:2]
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            font_scale = min(w / 1920, h / 1080)
+            
+            # 添加标题
+            title_color = (0, 255, 0)
+            cv2.putText(comparison, f'{save_prefix} RGB', (w//6-80, 30), font, font_scale, title_color, 2)
+            cv2.putText(comparison, f'{save_prefix} Warped IR', (w//2-100, 30), font, font_scale, title_color, 2)
+            cv2.putText(comparison, f'{save_prefix} Fused', (5*w//6-80, 30), font, font_scale, title_color, 2)
+            
+            # 添加分隔线
+            cv2.line(comparison, (w//3, 0), (w//3, h), title_color, 2)
+            cv2.line(comparison, (2*w//3, 0), (2*w//3, h), title_color, 2)
+
+            return comparison
+
+        except Exception as e:
+            LOGGER.error(f"Error in visualize_registration: {str(e)}")
+            if self.args.verbose:
+                import traceback
+                LOGGER.error(traceback.format_exc())
+            return None

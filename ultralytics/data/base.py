@@ -9,6 +9,7 @@ from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from typing import Optional
 
+import torch
 import cv2
 import numpy as np
 import psutil
@@ -677,16 +678,51 @@ class BaseMultiModalDataset(Dataset):
     def get_image_and_label(self, index):
         """Get and return label information from the dataset."""
         label = deepcopy(self.labels[index])  # requires deepcopy() https://github.com/ultralytics/ultralytics/pull/1948
-        label['mapping_matrix'] = self.matrices[index]['matrix']
+
+        # 获取原始单应性矩阵
+        H = self.matrices[index]['matrix']
+        if not isinstance(H, torch.Tensor):
+            H = torch.tensor(H, dtype=torch.float32)
+        
+        # label['mapping_matrix'] = self.matrices[index]['matrix']
         label.pop('shape', None)  # shape is for rect, remove it
         label['img'], label['ori_shape'], label['resized_shape'] = self.load_image(index)
         label['img2'], label['ori_shape2'], label['resized_shape2'] = self.load_image2(index)
+
+        # 计算缩放比例
+        rgb_scale = label['resized_shape'][0] / label['ori_shape'][0]
+        ir_scale = label['resized_shape2'][0] / label['ori_shape2'][0]
+        
+        # 构建缩放变换矩阵
+        rgb_scale_matrix = torch.tensor([
+            [rgb_scale, 0, 0],
+            [0, rgb_scale, 0],
+            [0, 0, 1]
+        ], dtype=torch.float32)
+        
+        ir_scale_matrix = torch.tensor([
+            [ir_scale, 0, 0],
+            [0, ir_scale, 0],
+            [0, 0, 1]
+        ], dtype=torch.float32)
+        
+        # 更新单应性矩阵：H_new = S_rgb * H * S_ir^(-1)
+        try:
+            ir_scale_matrix_inv = torch.inverse(ir_scale_matrix)
+            H_new = torch.mm(rgb_scale_matrix, torch.mm(H, ir_scale_matrix_inv))
+            label['mapping_matrix'] = H_new
+        except Exception as e:
+            LOGGER.warning(f"Error updating homography matrix: {e}")
+            label['mapping_matrix'] = H  # 保持原始矩阵不变
+
+        # 记录缩放信息用于评估
         label['ratio_pad'] = (label['resized_shape'][0] / label['ori_shape'][0],
                               label['resized_shape'][1] / label['ori_shape'][1])  # for evaluation
         label['ratio_pad2'] = (label['resized_shape2'][0] / label['ori_shape2'][0],
                                label['resized_shape2'][1] / label['ori_shape2'][1])  # for evaluation
         if self.rect:
             label['rect_shape'] = self.batch_shapes[self.batch[index]]
+
         return self.update_labels_info(label)
 
     def __len__(self):
