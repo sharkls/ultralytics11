@@ -561,10 +561,10 @@ class BaseMixTransform:
             ir_img = labels.get('img2')
             H = labels.get('mapping_matrix')
             
-            # 获取目标尺寸（只保留一行高度）
+            # 获取目标尺寸
             h, w = rgb_img.shape[:2]
-            canvas_height = h  # 移除 * 2
-            canvas_width = w * 3  # RGB + IR + Fusion
+            canvas_width = w * 4 if (stage == 'after' and not use_single_matrix) else w * 3  # 多矩阵模式时增加一列显示原始红外图像
+            canvas_height = h
             
             canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
             
@@ -591,6 +591,19 @@ class BaseMixTransform:
                         region_ir = ir_img[y1:y2, x1:x2]
                         warped_region = cv2.warpPerspective(region_ir, patch_H, (x2-x1, y2-y1))
                         warped_ir[y1:y2, x1:x2] = warped_region
+                    
+                    # 放置图像：RGB -> 原始IR -> 变换后IR -> Fusion
+                    canvas[:h, :w] = rgb_img
+                    canvas[:h, w:2*w] = ir_img  # 显示原始红外图像
+                    canvas[:h, 2*w:3*w] = warped_ir
+                    canvas[:h, 3*w:] = cv2.addWeighted(rgb_img, 0.5, warped_ir, 0.5, 0)
+                    
+                    # 添加标题
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    cv2.putText(canvas, 'RGB', (w//2-50, 30), font, 1, (255,255,255), 2)
+                    cv2.putText(canvas, 'Original IR', (w+w//2-80, 30), font, 1, (255,255,255), 2)
+                    cv2.putText(canvas, 'Warped IR', (2*w+w//2-80, 30), font, 1, (255,255,255), 2)
+                    cv2.putText(canvas, 'Fusion', (3*w+w//2-60, 30), font, 1, (255,255,255), 2)
                 else:
                     # 使用单一映射矩阵
                     if H is not None:
@@ -599,17 +612,17 @@ class BaseMixTransform:
                         warped_ir = cv2.warpPerspective(ir_img, H, (w, h))
                     else:
                         warped_ir = ir_img
-                
-                # 放置主图像
-                canvas[:h, :w] = rgb_img
-                canvas[:h, w:2*w] = warped_ir
-                canvas[:h, 2*w:] = cv2.addWeighted(rgb_img, 0.5, warped_ir, 0.5, 0)
-                
-                # 添加主图标题
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                cv2.putText(canvas, 'RGB', (w//2-50, 30), font, 1, (255,255,255), 2)
-                cv2.putText(canvas, 'Warped IR', (w+w//2-80, 30), font, 1, (255,255,255), 2)
-                cv2.putText(canvas, 'Fusion', (2*w+w//2-60, 30), font, 1, (255,255,255), 2)
+                    
+                    # 放置图像：RGB -> Warped IR -> Fusion
+                    canvas[:h, :w] = rgb_img
+                    canvas[:h, w:2*w] = warped_ir
+                    canvas[:h, 2*w:] = cv2.addWeighted(rgb_img, 0.5, warped_ir, 0.5, 0)
+                    
+                    # 添加标题
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    cv2.putText(canvas, 'RGB', (w//2-50, 30), font, 1, (255,255,255), 2)
+                    cv2.putText(canvas, 'Warped IR', (w+w//2-80, 30), font, 1, (255,255,255), 2)
+                    cv2.putText(canvas, 'Fusion', (2*w+w//2-60, 30), font, 1, (255,255,255), 2)
             
             # 保存结果
             matrix_type = 'single' if use_single_matrix else 'multi'
