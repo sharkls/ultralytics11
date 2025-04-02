@@ -708,7 +708,7 @@ class Mosaic(BaseMixTransform):
         final_labels["img"] = img3[-self.border[0] : self.border[0], -self.border[1] : self.border[1]]
         return final_labels
 
-    def _mosaic4(self, labels):
+    def _mosaic41(self, labels):
         """
         Creates a 2x2 image mosaic from four input images.
 
@@ -873,6 +873,205 @@ class Mosaic(BaseMixTransform):
                 patches_info[i]['pos'] = patch['target_coords']
                 patches_info[i]['source_coords'] = patch['source_coords']
                 patches_info[i]['position'] = patch['position']
+
+            # 将patches_info保存到final_labels中
+            final_labels["patches_info"] = patches_info
+        
+        # 可视化处理后的状态
+        visualize_registration(
+            {
+                'img': img4,  # mosaic后的完整图像
+                'img2': img42 if use_multimodal else None,
+                'mapping_matrix': final_labels.get("mosaic_mapping", {}).get("patches", [{}])[0].get("final_matrix"),
+                'patches_info': final_labels.get("patches_info", [])
+            },
+            title='mosaic4',
+            stage='after',
+            use_single_matrix=False
+        )
+
+        return final_labels # （1280， 1280）
+
+    def _mosaic4(self, labels):
+        """
+        Creates a 2x2 image mosaic from four input images.
+
+        This method combines four images into a single mosaic image by placing them in a 2x2 grid. It also
+        updates the corresponding labels for each image in the mosaic.
+
+        Args:
+            labels (Dict): A dictionary containing image data and labels for the base image (index 0) and three
+                additional images (indices 1-3) in the 'mix_labels' key.
+
+        Returns:
+            (Dict): A dictionary containing the mosaic image and updated labels. The 'img' key contains the mosaic
+                image as a numpy array, and other keys contain the combined and adjusted labels for all four images.
+
+        Examples:
+            >>> mosaic = Mosaic(dataset, imgsz=640, p=1.0, n=4)
+            >>> labels = {
+            ...     "img": np.random.rand(480, 640, 3),
+            ...     "mix_labels": [{"img": np.random.rand(480, 640, 3)} for _ in range(3)],
+            ... }
+            >>> result = mosaic._mosaic4(labels)
+            >>> assert result["img"].shape == (1280, 1280, 3)
+        """
+        mosaic_labels = []
+        s = self.imgsz
+        yc, xc = (int(random.uniform(-x, 2 * s + x)) for x in self.border)
+        
+        # 创建mosaic信息字典
+        mosaic_info = {
+            "center": (xc, yc),
+            "size": s,
+            "patches": []
+        }
+
+        # 收集处理前的信息用于可视化
+        patches_info = []
+        for i in range(4):
+            labels_patch = labels if i == 0 else labels["mix_labels"][i - 1]
+            patches_info.append({
+                'img': labels_patch['img'],
+                'img2': labels_patch.get('img2'),
+                'mapping_matrix': labels_patch.get('mapping_matrix'),
+                'pos': [0, 0, 0, 0]  # 位置稍后更新
+            })
+        
+        # 可视化处理前的状态
+        visualize_registration(
+            {
+                'img': labels['img'],  # 使用第一张图作为主图
+                'img2': labels.get('img2'),
+                'mapping_matrix': labels.get('mapping_matrix'),
+                'patches_info': patches_info
+            },
+            title='mosaic4',
+            stage='before'
+        )
+
+        for i in range(4):
+            labels_patch = labels if i == 0 else labels["mix_labels"][i - 1]
+            img = labels_patch["img"]
+            
+            if "img2" in labels_patch:
+                use_multimodal = True
+                img2 = labels_patch["img2"]
+                H_original = labels_patch.get("mapping_matrix", self.create_identity_matrix())
+                if not isinstance(H_original, torch.Tensor):
+                    H_original = torch.tensor(H_original, dtype=torch.float32)
+            
+            h, w = labels_patch.pop("resized_shape")
+            
+            if i == 0:  # 左上角
+                # patch_info["position"] = "top_left"
+                img4 = np.full((s * 2, s * 2, img.shape[2]), 114, dtype=np.uint8)
+                if use_multimodal:
+                    img42 = np.full((s * 2, s * 2, img2.shape[2]), 114, dtype=np.uint8)
+                x1a, y1a, x2a, y2a = max(xc - w, 0), max(yc - h, 0), xc, yc
+                x1b, y1b, x2b, y2b = w - (x2a - x1a), h - (y2a - y1a), w, h
+                
+                if use_multimodal:
+                    # 检查是否需要坐标系变换
+                    dx_local = w - (x2a - x1a)
+                    dy_local = h - (y2a - y1a)
+                    need_transform = (dx_local > 0 or dy_local > 0)
+                    
+            elif i == 1:  # 右上角
+                # patch_info["position"] = "top_right"
+                x1a, y1a, x2a, y2a = xc, max(yc - h, 0), min(xc + w, s * 2), yc
+                x1b, y1b, x2b, y2b = 0, h - (y2a - y1a), min(w, x2a - x1a), h
+                
+                if use_multimodal:
+                    dx_local = 0  # 右上角不需要水平方向的变换
+                    dy_local = h - (y2a - y1a)
+                    need_transform = dy_local > 0
+                    
+            elif i == 2:  # 左下角
+                patch_info["position"] = "bottom_left"
+                x1a, y1a, x2a, y2a = max(xc - w, 0), yc, xc, min(s * 2, yc + h)
+                x1b, y1b, x2b, y2b = w - (x2a - x1a), 0, w, min(y2a - y1a, h)
+                
+                if use_multimodal:
+                    dx_local = w - (x2a - x1a)
+                    dy_local = 0  # 左下角不需要垂直方向的变换
+                    need_transform = dx_local > 0
+                    
+            else:  # 右下角
+                # patch_info["position"] = "bottom_right"
+                x1a, y1a, x2a, y2a = xc, yc, min(xc + w, s * 2), min(s * 2, yc + h)
+                x1b, y1b, x2b, y2b = 0, 0, min(w, x2a - x1a), min(y2a - y1a, h)
+                
+                if use_multimodal:
+                    need_transform = False
+                    dx_local = dy_local = 0
+            
+            if use_multimodal:
+                # 构建mosaic变换矩阵
+                T_mosaic = torch.eye(3, dtype=torch.float32)
+                T_mosaic[0, 2] = x1a - x1b
+                T_mosaic[1, 2] = y1a - y1b
+
+                # 处理子图坐标系变换
+                if need_transform:
+                    T_local = torch.eye(3, dtype=H_original.dtype, device=H_original.device)
+                    T_local_inv = torch.eye(3, dtype=H_original.dtype, device=H_original.device)
+                    if dx_local > 0:
+                        T_local[0, 2] = dx_local
+                        T_local_inv[0, 2] = -dx_local
+                    if dy_local > 0:
+                        T_local[1, 2] = dy_local
+                        T_local_inv[1, 2] = -dy_local
+                    H_new =  T_local_inv @ H_original @ T_local
+                    # H_new_inv = T_local_inv @ H_original
+                else:
+                    H_new = H_original.clone()
+                    T_local = None
+
+                # 保存信息
+                # 保存patch信息
+                patch_info = {
+                    'position': ['top_left', 'top_right', 'bottom_left', 'bottom_right'][i],
+                    'source_coords': (x1b, y1b, x2b, y2b),
+                    'target_coords': (x1a, y1a, x2a, y2a),
+                    'mapping_matrix': H_new,
+                    'original_matrix': H_original,
+                    'local_transform': T_local,
+                    'mosaic_transform': T_mosaic.clone(),
+                    'need_transform': need_transform,
+                    'dx_local': dx_local,
+                    'dy_local': dy_local
+                }
+                
+                mosaic_info["patches"].append(patch_info)
+
+            # 复制图像到mosaic
+            img4[y1a:y2a, x1a:x2a] = img[y1b:y2b, x1b:x2b]
+            if use_multimodal:
+                img42[y1a:y2a, x1a:x2a] = img2[y1b:y2b, x1b:x2b]
+
+            # 更新标签
+            padw = x1a - x1b
+            padh = y1a - y1b
+            labels_patch = self._update_labels(labels_patch, padw, padh)
+            mosaic_labels.append(labels_patch)
+        
+        # 合并标签
+        final_labels = self._cat_labels(mosaic_labels)
+        final_labels["img"] = img4
+
+        if use_multimodal:
+            final_labels["img2"] = img42            
+            final_labels["mosaic_mapping"] = mosaic_info
+
+            # 更新patches_info中的位置信息
+            for i, patch in enumerate(mosaic_info["patches"]):
+                patches_info[i].update({
+                'pos': patch['target_coords'],
+                'source_coords': patch['source_coords'],
+                'position': patch['position'],
+                'mapping_matrix': patch['mapping_matrix']
+            })
 
             # 将patches_info保存到final_labels中
             final_labels["patches_info"] = patches_info
@@ -1316,7 +1515,7 @@ class RandomPerspective:
                     img[1] = cv2.warpAffine(img[1], M[:2], dsize=self.size, borderValue=(114, 114, 114))
                 else:
                     img = cv2.warpAffine(img, M[:2], dsize=self.size, borderValue=(114, 114, 114))
-        return img, M, s
+        return img, M, s, T
 
     def apply_bboxes(self, bboxes, M):
         """
@@ -1495,9 +1694,12 @@ class RandomPerspective:
         self.size = img.shape[1] + border[1] * 2, img.shape[0] + border[0] * 2  # w, h
         # M is affine matrix
         # Scale for func:`box_candidates`
+        # 应用仿射变换 M 到整图 (1280x1280)
         if use_multimodal:
             img = [img, img2]
-        img, M, scale = self.affine_transform(img, border)
+            img, M, scale, T = self.affine_transform(img, border) # M 是 NumPy 矩阵
+        else:
+            img, M, scale, T = self.affine_transform(img, border) # M 是 NumPy 矩阵
         # img2, _, _ = self.affine_transform(img2, border)
 
         bboxes = self.apply_bboxes(instances.bboxes, M)
@@ -1531,78 +1733,84 @@ class RandomPerspective:
 
             patches_info = labels["patches_info"]
             update_patches = []
-            
-            # 获取affine变换参数
-            scale_x = M[0, 0]  # 放缩系数
-            scale_y = M[1, 1]
-            trans_x = M[0, 2]  # 平移量
-            trans_y = M[1, 2]
-            
-            # 计算裁剪量（当s>1时）
-            if scale_x > 1:
-                crop_x = (self.size[0] * scale_x - self.size[0]) / 2
-                crop_y = (self.size[1] * scale_y - self.size[1]) / 2
-            else:
-                crop_x = crop_y = 0
                 
-            for patch in patches_info:
-                # 1. 获取原始位置和映射矩阵
+            for patch in labels['patches_info']:
                 x1, y1, x2, y2 = patch['pos']
                 H_original = patch['mapping_matrix']
                 
-                # 2. 计算affine变换后的新位置
-                new_x1 = x1 * scale_x + trans_x - crop_x
-                new_y1 = y1 * scale_y + trans_y - crop_y
-                new_x2 = x2 * scale_x + trans_x - crop_x
-                new_y2 = y2 * scale_y + trans_y - crop_y
+                # 1. 计算变换后的角点位置
+                points = np.array([[x1, y1, 1],
+                                [x2, y2, 1]])
+                transformed_points = (M @ points.T).T
                 
-                # 3. 构建坐标系转换矩阵
-                # 原始子图到整图
-                S1 = np.array([
-                    [1, 0, x1],
-                    [0, 1, y1],
-                    [0, 0, 1]
-                ], dtype=np.float32)
+                # 2. 获取变换后的角点坐标
+                new_x1, new_y1, _ = transformed_points[0]
+                new_x2, new_y2, _ = transformed_points[1]
+
+                # 3. 计算affine变换后的整图中心点
+                img_center = M @ np.array([640, 640, 1])
+                center_x = img_center[0] 
+                center_y = img_center[1]
+
+                # 4. 计算裁剪区域边界
+                crop_left = center_x - 320
+                crop_right = center_x + 320
+                crop_top = center_y - 320
+                crop_bottom = center_y + 320
+
+                # 5. 判断子图是否被裁减
+                is_cropped = False
+                crop_dx = 0
+                crop_dy = 0
                 
-                # 整图到新子图
-                S2_inv = np.array([
-                    [1, 0, -new_x1],
-                    [0, 1, -new_y1],
-                    [0, 0, 1]
-                ], dtype=np.float32)
+                if new_x1 < crop_left:
+                    is_cropped = True
+                    crop_dx = max(0, crop_left - new_x1)
+                if new_y1 < crop_top:
+                    is_cropped = True
+                    crop_dy = max(0, crop_top - new_y1)
+
+                # 6. 限制坐标范围
+                new_x1 = max(0, min(640, new_x1))
+                new_y1 = max(0, min(640, new_y1))
+                new_x2 = max(0, min(640, new_x2))
+                new_y2 = max(0, min(640, new_y2))
                 
-                # 4. 构建affine变换矩阵
-                A = np.array([
-                    [scale_x, 0, trans_x - crop_x],
-                    [0, scale_y, trans_y - crop_y],
-                    [0, 0, 1]
-                ], dtype=np.float32)
-                
-                # 5. 更新映射矩阵
+                # 7. 更新单应性矩阵 - 简单直接的方法
                 if isinstance(H_original, torch.Tensor):
-                    S1 = torch.from_numpy(S1).to(H_original.device)
-                    A = torch.from_numpy(A).to(H_original.device)
-                    S2_inv = torch.from_numpy(S2_inv).to(H_original.device)
-                    H_global = S1 @ H_original  # 转到整图坐标系
-                    H_affine = A @ H_global    # 应用affine变换
-                    H_new = S2_inv @ H_affine  # 转回子图坐标系
-                else:
-                    H_global = S1 @ H_original
-                    H_affine = A @ H_global
-                    H_new = S2_inv @ H_affine
-                
-                    H_new = H_new.astype(np.float32)
-                
-                # 6. 创建更新后的patch信息
+                    # 1. 首先，保持原始单应性矩阵不变
+                    H_new = H_original.clone()
+                    
+                    # 4. 如果有裁剪，只处理原点偏移，不考虑放缩影响
+                    if is_cropped:
+                        # 构建偏移变换矩阵 T_shift 和其逆矩阵 T_shift_inv
+                        T_shift = torch.eye(3, dtype=H_original.dtype, device=H_original.device)
+                        T_shift[0, 2] = crop_dx
+                        T_shift[1, 2] = crop_dy
+
+                        T_shift_inv = torch.eye(3, dtype=H_original.dtype, device=H_original.device)
+                        T_shift_inv[0, 2] = -crop_dx
+                        T_shift_inv[1, 2] = -crop_dy
+
+                        # 应用变换: H_new = T_inv @ H_orig @ T
+                        H_new = T_shift_inv @ H_original @ T_shift
+                        # H_new = H @ H_new @ H_inv
+                    
+                    print(f"放缩系数: scale={scale}")
+                    print(f"原始H矩阵:\n{H_original}")
+                    print(f"更新后H矩阵:\n{H_new}")
+                    if is_cropped:
+                        print(f"裁剪量: dx={crop_dx}, dy={crop_dy}")
+                    
                 updated_patch = {
                     'pos': [
-                        max(0, int(round(new_x1))),
-                        max(0, int(round(new_y1))),
-                        min(self.size[0], int(round(new_x2))),
-                        min(self.size[1], int(round(new_y2)))
+                        int(round(new_x1)),
+                        int(round(new_y1)),
+                        int(round(new_x2)),
+                        int(round(new_y2))
                     ],
                     'mapping_matrix': H_new,
-                    'source_coords': patch['source_coords']
+                    'source_coords': patch.get('source_coords')
                 }
                 
                 update_patches.append(updated_patch)
@@ -1615,6 +1823,7 @@ class RandomPerspective:
             # 确保update_patchs不为空且格式正确
             if update_patches:
                 # 可视化处理后的状态
+                print("scale: ", scale)
                 visualize_registration(
                     {
                         'img': labels["img"],
@@ -1624,8 +1833,12 @@ class RandomPerspective:
                     },
                     title='random_perspective',
                     stage='after',
-                    use_single_matrix=False
+                    use_single_matrix=False,
+                    show_patches=True
                 )
+
+                # # 可视化子图
+                # self.verify_patch_transform(update_patches, labels["img"], labels["img2"])
             else:
                 LOGGER.warning("No valid patches found after transformation")
         else:
@@ -1856,16 +2069,16 @@ class RandomFlip(BaseMixTransform):
             F[1, 1] = -1
             F[1, 2] = torch.tensor(h, dtype=torch.float32)
             
-        if "mosaic_mapping" in labels:
-            mosaic_info = labels["mosaic_mapping"]
-            for patch in mosaic_info["patches"]:
-                if patch["final_matrix"] is not None:
-                    # 正确处理tensor复制
-                    if isinstance(patch["final_matrix"], torch.Tensor):
-                        matrix = patch["final_matrix"].clone().detach()
-                    else:
-                        matrix = torch.tensor(patch["final_matrix"], dtype=torch.float32)
-                    patch["final_matrix"] = self.update_matrix(matrix, F)
+        # if "mosaic_mapping" in labels:
+        #     mosaic_info = labels["mosaic_mapping"]
+        #     for patch in mosaic_info["patches"]:
+        #         if patch["final_matrix"] is not None:
+        #             # 正确处理tensor复制
+        #             if isinstance(patch["final_matrix"], torch.Tensor):
+        #                 matrix = patch["final_matrix"].clone().detach()
+        #             else:
+        #                 matrix = torch.tensor(patch["final_matrix"], dtype=torch.float32)
+        #             patch["final_matrix"] = self.update_matrix(matrix, F)
 
         img = labels["img"]
         if "img2" in labels:
@@ -3273,8 +3486,123 @@ class ToTensor:
         return im
 
 
+# @staticmethod
+# def visualize_registration(labels, title="registration", stage="before", use_single_matrix=True):
+#     """可视化配准结果的通用方法
+    
+#     Args:
+#         labels (dict): 包含图像和映射信息的字典，必须包含：
+#             - 'img': RGB图像
+#             - 'img2': 红外图像
+#             - 'mapping_matrix': 映射矩阵
+#             - 'patches_info': 可选，包含子图信息的列表
+#         title (str): 可视化标题
+#         stage (str): 处理阶段，用于文件命名
+#         use_single_matrix (bool): 是否使用单一映射矩阵进行可视化
+#     """
+#     try:
+#         save_dir = 'runs/debug/registration'
+#         os.makedirs(save_dir, exist_ok=True)
+        
+#         # 获取主图像信息
+#         rgb_img = labels['img']
+#         ir_img = labels.get('img2')
+#         H = labels.get('mapping_matrix')
+        
+#         # 获取目标尺寸
+#         h, w = rgb_img.shape[:2]
+#         canvas_width = w * 4 if (not use_single_matrix) else w * 3  # 多矩阵模式时增加一列显示原始红外图像
+#         canvas_height = h
+        
+#         canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
+        
+#         # 处理主图像
+#         if ir_img is not None:
+#             # 确保红外图像是3通道
+#             if len(ir_img.shape) == 2:
+#                 ir_img = cv2.cvtColor(ir_img, cv2.COLOR_GRAY2BGR)
+            
+#             if not use_single_matrix and labels.get('patches_info'):
+#                 # 使用多个映射矩阵进行分区域变换
+#                 warped_ir = np.zeros_like(ir_img)
+#                 for patch in labels['patches_info']:
+#                     if not all(key in patch for key in ['pos', 'mapping_matrix']):
+#                         continue
+                    
+#                     x1, y1, x2, y2 = patch['pos']
+#                     patch_H = patch['mapping_matrix']
+
+#                     # 确保坐标为整数
+#                     x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+
+#                     # 计算目标区域的尺寸
+#                     target_width = x2 - x1
+#                     target_height = y2 - y1
+                    
+#                     if target_width <= 0 or target_height <= 0:
+#                         continue
+
+#                     if isinstance(patch_H, torch.Tensor):
+#                         patch_H = patch_H.cpu().numpy()
+                    
+#                     # 提取并变换该区域的图像
+#                     region_ir = ir_img[y1:y2, x1:x2]
+#                     warped_region = cv2.warpPerspective(
+#                         region_ir, 
+#                         patch_H, 
+#                         (target_width, target_height), 
+#                         flags=cv2.INTER_LINEAR,
+#                         borderValue=(0, 0, 0)  # 使用黑色填充)
+#                     )
+#                     # 如果warped_region小于目标区域，会自动用黑色填充
+#                     # 如果warped_region大于目标区域，会自动裁剪
+#                     warped_ir[y1:y2, x1:x2] = warped_region 
+                
+#                 # 放置图像：RGB -> 原始IR -> 变换后IR -> Fusion
+#                 canvas[:h, :w] = rgb_img
+#                 canvas[:h, w:2*w] = ir_img  # 显示原始红外图像
+#                 canvas[:h, 2*w:3*w] = warped_ir
+#                 canvas[:h, 3*w:] = cv2.addWeighted(rgb_img, 0.5, warped_ir, 0.5, 0)
+                
+#                 # 添加标题
+#                 font = cv2.FONT_HERSHEY_SIMPLEX
+#                 cv2.putText(canvas, 'RGB', (w//2-50, 30), font, 1, (255,255,255), 2)
+#                 cv2.putText(canvas, 'Original IR', (w+w//2-80, 30), font, 1, (255,255,255), 2)
+#                 cv2.putText(canvas, 'Warped IR', (2*w+w//2-80, 30), font, 1, (255,255,255), 2)
+#                 cv2.putText(canvas, 'Fusion', (3*w+w//2-60, 30), font, 1, (255,255,255), 2)
+#             else:
+#                 # 使用单一映射矩阵
+#                 if H is not None:
+#                     if isinstance(H, torch.Tensor):
+#                         H = H.cpu().numpy()
+#                     warped_ir = cv2.warpPerspective(ir_img, H, (w, h))
+#                 else:
+#                     warped_ir = ir_img
+                
+#                 # 放置图像：RGB -> Warped IR -> Fusion
+#                 canvas[:h, :w] = rgb_img
+#                 canvas[:h, w:2*w] = warped_ir
+#                 canvas[:h, 2*w:] = cv2.addWeighted(rgb_img, 0.5, warped_ir, 0.5, 0)
+                
+#                 # 添加标题
+#                 font = cv2.FONT_HERSHEY_SIMPLEX
+#                 cv2.putText(canvas, 'RGB', (w//2-50, 30), font, 1, (255,255,255), 2)
+#                 cv2.putText(canvas, 'Warped IR', (w+w//2-80, 30), font, 1, (255,255,255), 2)
+#                 cv2.putText(canvas, 'Fusion', (2*w+w//2-60, 30), font, 1, (255,255,255), 2)
+        
+#         # 保存结果
+#         matrix_type = 'single' if use_single_matrix else 'multi'
+#         save_path = os.path.join(save_dir, f'{title}_{stage}_{matrix_type}.jpg')
+#         cv2.imwrite(save_path, canvas)
+        
+#     except Exception as e:
+#         LOGGER.warning(f"Registration visualization failed: {str(e)}")
+#         import traceback
+#         LOGGER.warning(traceback.format_exc())
+
+
 @staticmethod
-def visualize_registration(labels, title="registration", stage="before", use_single_matrix=True):
+def visualize_registration1(labels, title="registration", stage="before", use_single_matrix=True, show_patches=False):
     """可视化配准结果的通用方法
     
     Args:
@@ -3286,6 +3614,7 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
         title (str): 可视化标题
         stage (str): 处理阶段，用于文件命名
         use_single_matrix (bool): 是否使用单一映射矩阵进行可视化
+        show_patches (bool): 是否显示子图区域
     """
     try:
         save_dir = 'runs/debug/registration'
@@ -3298,12 +3627,12 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
         
         # 获取目标尺寸
         h, w = rgb_img.shape[:2]
-        canvas_width = w * 4 if (not use_single_matrix) else w * 3  # 多矩阵模式时增加一列显示原始红外图像
+        # 如果需要显示子图，增加画布宽度
+        canvas_width = w * 5 if (not use_single_matrix and show_patches) else w * 4 if not use_single_matrix else w * 3
         canvas_height = h
         
         canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
         
-        # 处理主图像
         if ir_img is not None:
             # 确保红外图像是3通道
             if len(ir_img.shape) == 2:
@@ -3312,6 +3641,8 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
             if not use_single_matrix and labels.get('patches_info'):
                 # 使用多个映射矩阵进行分区域变换
                 warped_ir = np.zeros_like(ir_img)
+                patches_vis = np.zeros_like(ir_img) if show_patches else None
+                
                 for patch in labels['patches_info']:
                     if not all(key in patch for key in ['pos', 'mapping_matrix']):
                         continue
@@ -3319,8 +3650,8 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
                     x1, y1, x2, y2 = patch['pos']
                     patch_H = patch['mapping_matrix']
 
-                    # 确保坐标为整数
-                    x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+                    # # 确保坐标为整数
+                    # x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
 
                     # 计算目标区域的尺寸
                     target_width = x2 - x1
@@ -3339,17 +3670,24 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
                         patch_H, 
                         (target_width, target_height), 
                         flags=cv2.INTER_LINEAR,
-                        borderValue=(0, 0, 0)  # 使用黑色填充)
+                        borderValue=(0, 0, 0)
                     )
-                    # 如果warped_region小于目标区域，会自动用黑色填充
-                    # 如果warped_region大于目标区域，会自动裁剪
-                    warped_ir[y1:y2, x1:x2] = warped_region 
+                    warped_ir[y1:y2, x1:x2] = warped_region
+                    
+                    # 如果需要显示子图，将子图区域复制到patches_vis
+                    if show_patches:
+                        patches_vis[y1:y2, x1:x2] = region_ir
+                        # 在子图边界绘制矩形框
+                        cv2.rectangle(patches_vis, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 
-                # 放置图像：RGB -> 原始IR -> 变换后IR -> Fusion
-                canvas[:h, :w] = rgb_img
-                canvas[:h, w:2*w] = ir_img  # 显示原始红外图像
-                canvas[:h, 2*w:3*w] = warped_ir
-                canvas[:h, 3*w:] = cv2.addWeighted(rgb_img, 0.5, warped_ir, 0.5, 0)
+                # 放置图像
+                canvas[:h, :w] = rgb_img  # RGB
+                canvas[:h, w:2*w] = ir_img  # 原始IR
+                canvas[:h, 2*w:3*w] = warped_ir  # 变换后IR
+                canvas[:h, 3*w:4*w] = cv2.addWeighted(rgb_img, 0.5, warped_ir, 0.5, 0)  # Fusion
+                
+                if show_patches:
+                    canvas[:h, 4*w:] = patches_vis  # 子图区域
                 
                 # 添加标题
                 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -3357,8 +3695,10 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
                 cv2.putText(canvas, 'Original IR', (w+w//2-80, 30), font, 1, (255,255,255), 2)
                 cv2.putText(canvas, 'Warped IR', (2*w+w//2-80, 30), font, 1, (255,255,255), 2)
                 cv2.putText(canvas, 'Fusion', (3*w+w//2-60, 30), font, 1, (255,255,255), 2)
+                if show_patches:
+                    cv2.putText(canvas, 'IR Patches', (4*w+w//2-80, 30), font, 1, (255,255,255), 2)
             else:
-                # 使用单一映射矩阵
+                # 使用单一映射矩阵的情况保持不变
                 if H is not None:
                     if isinstance(H, torch.Tensor):
                         H = H.cpu().numpy()
@@ -3366,12 +3706,10 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
                 else:
                     warped_ir = ir_img
                 
-                # 放置图像：RGB -> Warped IR -> Fusion
                 canvas[:h, :w] = rgb_img
                 canvas[:h, w:2*w] = warped_ir
                 canvas[:h, 2*w:] = cv2.addWeighted(rgb_img, 0.5, warped_ir, 0.5, 0)
                 
-                # 添加标题
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(canvas, 'RGB', (w//2-50, 30), font, 1, (255,255,255), 2)
                 cv2.putText(canvas, 'Warped IR', (w+w//2-80, 30), font, 1, (255,255,255), 2)
@@ -3379,7 +3717,174 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
         
         # 保存结果
         matrix_type = 'single' if use_single_matrix else 'multi'
-        save_path = os.path.join(save_dir, f'{title}_{stage}_{matrix_type}.jpg')
+        patches_str = '_patches' if show_patches else ''
+        save_path = os.path.join(save_dir, f'{title}_{stage}_{matrix_type}{patches_str}.jpg')
+        cv2.imwrite(save_path, canvas)
+        
+    except Exception as e:
+        LOGGER.warning(f"Registration visualization failed: {str(e)}")
+        import traceback
+        LOGGER.warning(traceback.format_exc())
+
+
+def visualize_registration(labels, title="registration", stage="before", use_single_matrix=True, show_patches=False):
+    """可视化配准结果的通用方法
+    
+    Args:
+        labels (dict): 包含图像和映射信息的字典，必须包含：
+            - 'img': RGB图像
+            - 'img2': 红外图像
+            - 'mapping_matrix': 映射矩阵
+            - 'patches_info': 可选，包含子图信息的列表
+        title (str): 可视化标题
+        stage (str): 处理阶段，用于文件命名
+        use_single_matrix (bool): 是否使用单一映射矩阵进行可视化
+        show_patches (bool): 是否显示子图区域
+    """
+    try:
+        save_dir = 'runs/debug/registration'
+        os.makedirs(save_dir, exist_ok=True)
+        
+        # 获取主图像信息
+        rgb_img = labels['img']
+        ir_img = labels.get('img2')
+        H = labels.get('mapping_matrix')
+        
+        # 获取目标尺寸
+        h, w = rgb_img.shape[:2]
+        # 如果需要显示子图，增加画布宽度
+        canvas_width = w * 5 if (not use_single_matrix and show_patches) else w * 4 if not use_single_matrix else w * 3
+        canvas_height = h
+        
+        canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
+        
+        if ir_img is not None:
+            # 确保红外图像是3通道
+            if len(ir_img.shape) == 2:
+                ir_img = cv2.cvtColor(ir_img, cv2.COLOR_GRAY2BGR)
+            
+            if not use_single_matrix and labels.get('patches_info'):
+                # 使用多个映射矩阵进行分区域变换
+                warped_ir = np.zeros_like(ir_img)
+                patches_vis = np.zeros_like(ir_img) if show_patches else None
+                
+                # 为每个子图创建单独的显示
+                for idx, patch in enumerate(labels['patches_info']):
+                    if not all(key in patch for key in ['pos', 'mapping_matrix']):
+                        continue
+                    
+                    x1, y1, x2, y2 = patch['pos']
+                    patch_H = patch['mapping_matrix']
+
+                    # 确保坐标为整数且在有效范围内
+                    x1 = max(0, min(w, int(x1)))
+                    y1 = max(0, min(h, int(y1)))
+                    x2 = max(0, min(w, int(x2)))
+                    y2 = max(0, min(h, int(y2)))
+
+                    # 计算目标区域的尺寸
+                    target_width = x2 - x1
+                    target_height = y2 - y1
+                    
+                    if target_width <= 0 or target_height <= 0:
+                        continue
+
+                    if isinstance(patch_H, torch.Tensor):
+                        patch_H = patch_H.cpu().numpy()
+                    
+                    # 创建单个patch的显示画布
+                    patch_canvas_width = w * 4
+                    patch_canvas = np.zeros((h, patch_canvas_width, 3), dtype=np.uint8)
+                    
+                    # 1. 显示完整的RGB图像，并标记当前子图区域
+                    rgb_with_box = rgb_img.copy()
+                    cv2.rectangle(rgb_with_box, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    patch_canvas[:h, :w] = rgb_with_box
+                    
+                    # 2. 显示原始IR子图区域
+                    patch_ir = np.zeros_like(rgb_img)
+                    region_ir = ir_img[y1:y2, x1:x2]
+                    if len(region_ir.shape) == 2:
+                        region_ir = cv2.cvtColor(region_ir, cv2.COLOR_GRAY2BGR)
+                    patch_ir[y1:y2, x1:x2] = region_ir
+                    patch_canvas[:h, w:2*w] = patch_ir
+                    
+                    # 3. 显示变换后的IR子图
+                    warped_patch = np.zeros_like(rgb_img)
+                    warped_region = cv2.warpPerspective(
+                        region_ir, 
+                        patch_H, 
+                        (target_width, target_height), 
+                        flags=cv2.INTER_LINEAR,
+                        borderValue=(0, 0, 0)
+                    )
+                    warped_patch[y1:y2, x1:x2] = warped_region
+                    patch_canvas[:h, 2*w:3*w] = warped_patch
+                    
+                    # 4. 显示融合结果
+                    fusion = cv2.addWeighted(rgb_img, 0.5, warped_patch, 0.5, 0)
+                    patch_canvas[:h, 3*w:] = fusion
+                    
+                    # 添加标题
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    cv2.putText(patch_canvas, f'RGB (Patch {idx+1})', (w//2-80, 30), font, 1, (255,255,255), 2)
+                    cv2.putText(patch_canvas, f'IR Patch {idx+1}', (w+w//2-80, 30), font, 1, (255,255,255), 2)
+                    cv2.putText(patch_canvas, 'Warped IR', (2*w+w//2-80, 30), font, 1, (255,255,255), 2)
+                    cv2.putText(patch_canvas, 'Fusion', (3*w+w//2-60, 30), font, 1, (255,255,255), 2)
+                    
+                    # 保存每个patch的结果
+                    matrix_type = 'single' if use_single_matrix else 'multi'
+                    patch_save_path = os.path.join(save_dir, f'{title}_{stage}_{matrix_type}_patch{idx+1}.jpg')
+                    cv2.imwrite(patch_save_path, patch_canvas)
+                    
+                    # 更新整体warped_ir
+                    warped_ir[y1:y2, x1:x2] = warped_region
+                    
+                    # 如果需要显示子图，将子图区域复制到patches_vis
+                    if show_patches:
+                        patches_vis[y1:y2, x1:x2] = region_ir
+                        # 在子图边界绘制矩形框
+                        cv2.rectangle(patches_vis, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                
+                # 放置整体效果图像
+                canvas[:h, :w] = rgb_img  # RGB
+                canvas[:h, w:2*w] = ir_img  # 原始IR
+                canvas[:h, 2*w:3*w] = warped_ir  # 变换后IR
+                canvas[:h, 3*w:4*w] = cv2.addWeighted(rgb_img, 0.5, warped_ir, 0.5, 0)  # Fusion
+                
+                if show_patches:
+                    canvas[:h, 4*w:] = patches_vis  # 子图区域
+                
+                # 添加标题
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                cv2.putText(canvas, 'RGB', (w//2-50, 30), font, 1, (255,255,255), 2)
+                cv2.putText(canvas, 'Original IR', (w+w//2-80, 30), font, 1, (255,255,255), 2)
+                cv2.putText(canvas, 'Warped IR', (2*w+w//2-80, 30), font, 1, (255,255,255), 2)
+                cv2.putText(canvas, 'Fusion', (3*w+w//2-60, 30), font, 1, (255,255,255), 2)
+                if show_patches:
+                    cv2.putText(canvas, 'IR Patches', (4*w+w//2-80, 30), font, 1, (255,255,255), 2)
+            else:
+                # 使用单一映射矩阵的情况
+                if H is not None:
+                    if isinstance(H, torch.Tensor):
+                        H = H.cpu().numpy()
+                    warped_ir = cv2.warpPerspective(ir_img, H, (w, h))
+                else:
+                    warped_ir = ir_img
+                
+                canvas[:h, :w] = rgb_img
+                canvas[:h, w:2*w] = warped_ir
+                canvas[:h, 2*w:] = cv2.addWeighted(rgb_img, 0.5, warped_ir, 0.5, 0)
+                
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                cv2.putText(canvas, 'RGB', (w//2-50, 30), font, 1, (255,255,255), 2)
+                cv2.putText(canvas, 'Warped IR', (w+w//2-80, 30), font, 1, (255,255,255), 2)
+                cv2.putText(canvas, 'Fusion', (2*w+w//2-60, 30), font, 1, (255,255,255), 2)
+        
+        # 保存整体结果
+        matrix_type = 'single' if use_single_matrix else 'multi'
+        patches_str = '_patches' if show_patches else ''
+        save_path = os.path.join(save_dir, f'{title}_{stage}_{matrix_type}{patches_str}.jpg')
         cv2.imwrite(save_path, canvas)
         
     except Exception as e:
