@@ -1733,7 +1733,9 @@ class RandomPerspective:
 
             patches_info = labels["patches_info"]
             update_patches = []
-                
+            S = torch.tensor([[scale, 0, 0], [0, scale, 0], [0, 0, 1]], dtype=torch.float32)
+            S_inv = torch.tensor([[1/scale, 0, 0], [0, 1/scale, 0], [0, 0, 1]], dtype=torch.float32)
+
             for patch in labels['patches_info']:
                 x1, y1, x2, y2 = patch['pos']
                 H_original = patch['mapping_matrix']
@@ -1747,29 +1749,15 @@ class RandomPerspective:
                 new_x1, new_y1, _ = transformed_points[0]
                 new_x2, new_y2, _ = transformed_points[1]
 
-                # 3. 计算affine变换后的整图中心点
-                img_center = M @ np.array([640, 640, 1])
-                center_x = img_center[0] 
-                center_y = img_center[1]
-
-                # 4. 计算裁剪区域边界
-                crop_left = center_x - 320
-                crop_right = center_x + 320
-                crop_top = center_y - 320
-                crop_bottom = center_y + 320
-
-                # 5. 判断子图是否被裁减
-                is_cropped = False
-                crop_dx = 0
-                crop_dy = 0
+                T_crop = torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=torch.float32)
+                T_crop_inv = torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=torch.float32)
+                if new_x1 < 0:
+                    T_crop[0, 2] = new_x1
+                    T_crop_inv[0, 2] = -new_x1
+                if new_y1 < 0:
+                    T_crop[1, 2] = new_y1
+                    T_crop_inv[1, 2] = -new_y1
                 
-                if new_x1 < crop_left:
-                    is_cropped = True
-                    crop_dx = max(0, crop_left - new_x1)
-                if new_y1 < crop_top:
-                    is_cropped = True
-                    crop_dy = max(0, crop_top - new_y1)
-
                 # 6. 限制坐标范围
                 new_x1 = max(0, min(640, new_x1))
                 new_y1 = max(0, min(640, new_y1))
@@ -1780,28 +1768,8 @@ class RandomPerspective:
                 if isinstance(H_original, torch.Tensor):
                     # 1. 首先，保持原始单应性矩阵不变
                     H_new = H_original.clone()
-                    
-                    # 4. 如果有裁剪，只处理原点偏移，不考虑放缩影响
-                    if is_cropped:
-                        # 构建偏移变换矩阵 T_shift 和其逆矩阵 T_shift_inv
-                        T_shift = torch.eye(3, dtype=H_original.dtype, device=H_original.device)
-                        T_shift[0, 2] = crop_dx
-                        T_shift[1, 2] = crop_dy
+                    H_new = T_crop @ S @ H_new @ S_inv @ T_crop_inv
 
-                        T_shift_inv = torch.eye(3, dtype=H_original.dtype, device=H_original.device)
-                        T_shift_inv[0, 2] = -crop_dx
-                        T_shift_inv[1, 2] = -crop_dy
-
-                        # 应用变换: H_new = T_inv @ H_orig @ T
-                        H_new = T_shift_inv @ H_original @ T_shift
-                        # H_new = H @ H_new @ H_inv
-                    
-                    print(f"放缩系数: scale={scale}")
-                    print(f"原始H矩阵:\n{H_original}")
-                    print(f"更新后H矩阵:\n{H_new}")
-                    if is_cropped:
-                        print(f"裁剪量: dx={crop_dx}, dy={crop_dy}")
-                    
                 updated_patch = {
                     'pos': [
                         int(round(new_x1)),
@@ -1810,12 +1778,11 @@ class RandomPerspective:
                         int(round(new_y2))
                     ],
                     'mapping_matrix': H_new,
-                    'source_coords': patch.get('source_coords')
+                    'source_coords': patch.get('source_coords'),
+                    'scale': scale
                 }
                 
                 update_patches.append(updated_patch)
-
-               
 
             # 更新labels中的patches_info
             labels["patches_info"] = update_patches
@@ -1823,7 +1790,6 @@ class RandomPerspective:
             # 确保update_patchs不为空且格式正确
             if update_patches:
                 # 可视化处理后的状态
-                print("scale: ", scale)
                 visualize_registration(
                     {
                         'img': labels["img"],
@@ -1834,11 +1800,9 @@ class RandomPerspective:
                     title='random_perspective',
                     stage='after',
                     use_single_matrix=False,
-                    show_patches=True
+                    show_patches=False
                 )
 
-                # # 可视化子图
-                # self.verify_patch_transform(update_patches, labels["img"], labels["img2"])
             else:
                 LOGGER.warning("No valid patches found after transformation")
         else:
@@ -3775,6 +3739,7 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
                     
                     x1, y1, x2, y2 = patch['pos']
                     patch_H = patch['mapping_matrix']
+                    scale = patch.get('scale', 1.0)  # 获取缩放系数，默认为1.0
 
                     # 确保坐标为整数且在有效范围内
                     x1 = max(0, min(w, int(x1)))
