@@ -93,6 +93,7 @@ from .transformer import (
 from .DEA import DEA
 from .FMDEA import FMDEA
 from .EnhancedFMDEA import EnhancedFMDEA
+from .EFDEA import EFDEA
 
 __all__ = (
     "Conv",
@@ -170,4 +171,5 @@ __all__ = (
     "DEA",
     "FMDEA",
     "EnhancedFMDEA",
+    "EFDEA",
 )

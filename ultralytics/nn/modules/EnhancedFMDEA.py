@@ -166,75 +166,15 @@ class EnhancedFMDEA(nn.Module):
         
         Args:
             homography (torch.Tensor): 原始单应性矩阵 [B, 3, 3]
-            original_sizes (torch.Tensor): 原始图像尺寸 [B, 2, 2]，其中2表示rgb和ir，2表示(H, W)
-            feature_size (tuple): 特征图尺寸 (H, W)
+            original_sizes (torch.Tensor): 原始图像尺寸 [B, 2, 2]
+            feature_size (tuple): 特征图尺寸 (H, W)，可能是(80,80)、(40,40)或(20,20)
         """
-        B = homography.shape[0]
-        device = homography.device
-        dtype = homography.dtype
-        
-        # 为每个样本创建对应的变换矩阵
-        transformed_H = []
-        for b in range(B):
-            # 获取当前样本的原始尺寸
-            rgb_h, rgb_w = original_sizes[b, 0]  # RGB尺寸
-            ir_h, ir_w = original_sizes[b, 1]    # IR尺寸
-            feat_h, feat_w = feature_size
-            
-            # 计算RGB和IR图像的缩放比例
-            scale_h_rgb = rgb_h / feat_h
-            scale_w_rgb = rgb_w / feat_w
-            scale_h_ir = ir_h / feat_h
-            scale_w_ir = ir_w / feat_w
-            
-            # 构建RGB图像的缩放矩阵（逆变换）
-            S_rgb = torch.eye(3, device=device, dtype=dtype)
-            S_rgb[0, 0] = 1/scale_w_rgb  # x方向缩放
-            S_rgb[1, 1] = 1/scale_h_rgb  # y方向缩放
-            
-            # 构建IR图像的缩放矩阵
-            S_ir = torch.eye(3, device=device, dtype=dtype)
-            S_ir[0, 0] = scale_w_ir    # x方向缩放
-            S_ir[1, 1] = scale_h_ir    # y方向缩放
-            
-            # 计算当前样本的变换矩阵: S_rgb @ H @ S_ir
-            current_H = torch.mm(torch.mm(S_rgb, homography[b]), S_ir)
-            transformed_H.append(current_H)
-        
-        # 堆叠所有样本的变换矩阵
-        return torch.stack(transformed_H)
-    
-    def forward_v1(self, inputs):
-        """
-        前向传播
-        
-        Args:
-            inputs (list): [rgb_features, ir_features, extrinsics]
-                - rgb_features (torch.Tensor): RGB特征图 [B, C, H, W]
-                - ir_features (torch.Tensor): 红外特征图 [B, C, H, W]
-                - extrinsics (torch.Tensor): 外参矩阵 [B, 3, 3]
-                
-        Returns:
-            torch.Tensor: 融合后的特征图 [B, C, H, W]
-        """
-        # 1. 输入验证和解包
-        assert len(inputs) == 3, "输入必须包含RGB特征、红外特征和外参矩阵"
-        rgb_feat, ir_feat, extrinsics = inputs
-
-        # 2. 形状检查
-        self._check_input_shapes(rgb_feat, ir_feat, extrinsics)
-
-        # 4. 特征对齐
-        aligned_ir, refined_H = self.alignment(rgb_feat, ir_feat, extrinsics)
-        
-        # 5. 特征融合
-        deca_features = self.deca([rgb_feat, aligned_ir])
-        result_vi, result_ir = self.depa(deca_features)
-        
-        # 6. 融合结果
-        fused_feat = self.fusion(result_vi + result_ir)
-        
-        return fused_feat
+        scale_factor = original_sizes[0, 0, 0] / feature_size[0]
+        H_new = homography.clone()
+        # 只调整平移和透视项
+        H_new[..., :2, 2] *= scale_factor  # 平移项
+        H_new[..., 2, :2] /= scale_factor  # 透视项
+        return H_new
 
     def forward(self, inputs):
         """
@@ -245,7 +185,7 @@ class EnhancedFMDEA(nn.Module):
                 - rgb_feat (torch.Tensor): RGB特征图 [B, C, H, W]
                 - ir_feat (torch.Tensor): 红外特征图 [B, C, H, W]
                 - extrinsics (torch.Tensor): 外参矩阵 [B, 3, 3]
-                - original_sizes (dict): 原始图像尺寸 [B, num_modalities, 2]
+                - original_sizes (dict): 预处理后的图像尺寸 [B, num_modalities, 2]
         
         Returns:
             torch.Tensor: 融合后的特征图 [B, C, H, W]
