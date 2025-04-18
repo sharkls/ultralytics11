@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 import os
 import torch
+from ultralytics.data.augment import LetterBox
 
 def build_engine(onnx_path, engine_path, max_batch_size=1, fp16_mode=False):
     """构建TensorRT engine
@@ -87,9 +88,13 @@ class TRTInference:
         
         # 创建CUDA流
         self.stream = cuda.Stream()
+        
+        # 设置图像尺寸和步长
+        self.imgsz = (self.input_shape[2], self.input_shape[3])  # (H, W)
+        self.stride = 32  # 与7_export.py保持一致
     
     def preprocess(self, rgb_img, ir_img, homography):
-        """预处理输入图像
+        """预处理输入图像，同时更新单应性矩阵
         
         Args:
             rgb_img (np.ndarray): RGB图像
@@ -97,28 +102,79 @@ class TRTInference:
             homography (np.ndarray): 单应性矩阵
             
         Returns:
-            tuple: 预处理后的输入数据
+            tuple: 预处理后的输入数据和更新后的单应性矩阵
         """
-        # 图像预处理
-        def process_img(img):
-            # 调整大小
-            img = cv2.resize(img, (self.input_shape[2], self.input_shape[3]))
-            # 归一化
-            img = img.astype(np.float32) / 255.0
-            # HWC to CHW
-            img = img.transpose(2, 0, 1)
-            # 添加batch维度
-            img = np.expand_dims(img, 0)
-            return img
+        # 创建letterbox对象
+        letterbox = LetterBox(self.imgsz, auto=False, stride=self.stride)
         
-        # 处理RGB和红外图像
-        rgb_input = process_img(rgb_img)
-        ir_input = process_img(ir_img)
+        # 计算RGB图像的letterbox参数
+        rgb_h, rgb_w = rgb_img.shape[:2]
+        r_rgb = min(self.imgsz[0]/rgb_h, self.imgsz[1]/rgb_w)
+        new_unpad_rgb = int(round(rgb_w * r_rgb)), int(round(rgb_h * r_rgb))
+        dw_rgb, dh_rgb = self.imgsz[1] - new_unpad_rgb[0], self.imgsz[0] - new_unpad_rgb[1]
+        dw_rgb /= 2
+        dh_rgb /= 2
+
+        # 计算IR图像的letterbox参数
+        ir_h, ir_w = ir_img.shape[:2]
+        r_ir = min(self.imgsz[0]/ir_h, self.imgsz[1]/ir_w)
+        new_unpad_ir = int(round(ir_w * r_ir)), int(round(ir_h * r_ir))
+        dw_ir, dh_ir = self.imgsz[1] - new_unpad_ir[0], self.imgsz[0] - new_unpad_ir[1]
+        dw_ir /= 2
+        dh_ir /= 2
+
+        # 构建变换矩阵
+        dtype = torch.float32  # 使用float32类型
+        device = 'cuda'  # 使用CUDA设备
         
-        # 处理单应性矩阵
-        homography = np.expand_dims(homography, 0)  # 添加batch维度
+        S_rgb = torch.eye(3, device=device, dtype=dtype)
+        S_rgb[0, 0] = r_rgb  # x方向缩放
+        S_rgb[1, 1] = r_rgb  # y方向缩放
+
+        S_ir = torch.eye(3, device=device, dtype=dtype)
+        S_ir[0, 0] = r_ir   # x方向缩放
+        S_ir[1, 1] = r_ir   # y方向缩放
+
+        T_rgb = torch.eye(3, device=device, dtype=dtype)
+        T_rgb[0, 2] = dw_rgb  # x方向平移
+        T_rgb[1, 2] = dh_rgb  # y方向平移
+
+        T_ir = torch.eye(3, device=device, dtype=dtype)
+        T_ir[0, 2] = dw_ir  # x方向平移
+        T_ir[1, 2] = dh_ir  # y方向平移
+
+        # 将homography转换为tensor
+        H = torch.from_numpy(homography).float().to(device)
+
+        # 更新单应性矩阵：新IR -> 原始IR -> 原始RGB -> 新RGB
+        # H_new = T_rgb @ S_rgb @ H @ S_ir^(-1) @ T_ir^(-1)
+        updated_H = torch.mm(T_rgb, torch.mm(S_rgb, torch.mm(H, 
+                            torch.mm(torch.inverse(S_ir), torch.inverse(T_ir)))))
+
+        # 应用letterbox变换
+        rgb_img = letterbox(image=rgb_img)
+        ir_img = letterbox(image=ir_img)
         
-        return rgb_input, ir_input, homography
+        # 图像格式转换
+        rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2RGB)
+        ir_img = cv2.cvtColor(ir_img, cv2.COLOR_BGR2RGB)
+        
+        # 归一化
+        rgb_img = rgb_img / 255.0
+        ir_img = ir_img / 255.0
+        
+        # HWC to CHW
+        rgb_img = rgb_img.transpose(2, 0, 1)
+        ir_img = ir_img.transpose(2, 0, 1)
+        
+        # 添加batch维度
+        rgb_img = np.expand_dims(rgb_img, 0).astype(np.float32)
+        ir_img = np.expand_dims(ir_img, 0).astype(np.float32)
+        
+        # 更新后的单应性矩阵添加batch维度
+        updated_H = updated_H.unsqueeze(0)
+        
+        return rgb_img, ir_img, updated_H.cpu().numpy()
     
     def inference(self, rgb_img, ir_img, homography):
         """执行推理

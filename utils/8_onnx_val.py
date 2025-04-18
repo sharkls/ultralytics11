@@ -20,7 +20,7 @@ def parse_args():
                       help='输入图像尺寸 [height, width]')
     
     # 数据集相关参数
-    parser.add_argument('--data-dir', type=str, default='./data/LLVIP',
+    parser.add_argument('--data-dir', type=str, default='./data/Test',
                       help='数据集根目录')
     parser.add_argument('--split', type=str, default='test',
                       help='数据集划分 (train/val/test)')
@@ -42,7 +42,7 @@ def parse_args():
                       help='运行设备 cuda/cpu')
     parser.add_argument('--save-dir', type=str, default='runs/onnx_val',
                       help='结果保存目录')
-    parser.add_argument('--visualize', type=bool, default=False,
+    parser.add_argument('--visualize', type=bool, default=True,
                       help='是否可视化检测结果')
     
     return parser.parse_args()
@@ -304,7 +304,7 @@ def evaluate_onnx(args):
     # 创建ONNX会话
     session = ort.InferenceSession(
         args.onnx_path,
-        providers=['CUDAExecutionProvider','CPUExecutionProvider'],
+        providers=['CPUExecutionProvider'],
         sess_options=sess_options
     )
     
@@ -524,11 +524,67 @@ def evaluate_onnx(args):
         try:
             # 将fns_list转换为数组并确保长度匹配
             fns = np.array(fns_list, dtype=np.int32)
+            # 如果fns是二维数组，取其第一列
+            if len(fns.shape) > 1:
+                fns = fns[:, 0]  # 只取第一列
             # 如果fns长度不匹配，则重复最后一个值直到长度匹配
             if len(fns) < len(tps):
                 fns = np.pad(fns, (0, len(tps) - len(fns)), mode='edge')
             
-            ap, p, r = ap_per_class(tps, fps, fns, confs, classes)
+            # 确保所有数组长度一致
+            min_len = min(len(tps), len(fps), len(confs), len(classes), len(fns))
+            tps = tps[:min_len]
+            fps = fps[:min_len]
+            confs = confs[:min_len]
+            classes = classes[:min_len]
+            fns = fns[:min_len]
+            
+            # 打印处理后的数组信息
+            print("\n处理后的数组信息:")
+            print(f"TPs: {tps.shape}, {tps.dtype}")
+            print(f"FPs: {fps.shape}, {fps.dtype}")
+            print(f"Confs: {confs.shape}, {confs.dtype}")
+            print(f"Classes: {classes.shape}, {classes.dtype}")
+            print(f"FNs: {fns.shape}, {fns.dtype}")
+            
+            # 按置信度排序
+            sort_idx = np.argsort(-confs)
+            tps = tps[sort_idx]
+            fps = fps[sort_idx]
+            confs = confs[sort_idx]
+            classes = classes[sort_idx]
+            
+            # 计算累积TP和FP
+            tp_cumsum = np.cumsum(tps)
+            fp_cumsum = np.cumsum(fps)
+            
+            # 计算召回率和精确率
+            recall = tp_cumsum / (tp_cumsum[-1] + fns[-1] + 1e-16)
+            precision = tp_cumsum / (tp_cumsum + fp_cumsum + 1e-16)
+            
+            # 计算AP
+            ap = np.zeros(args.nc)
+            for cls_id in range(args.nc):
+                cls_mask = classes == cls_id
+                if not np.any(cls_mask):
+                    continue
+                    
+                cls_recall = recall[cls_mask]
+                cls_precision = precision[cls_mask]
+                
+                # 计算AP
+                mrec = np.concatenate(([0.], cls_recall, [1.]))
+                mpre = np.concatenate(([0.], cls_precision, [0.]))
+                
+                # 计算曲线下面积
+                for i in range(mpre.size - 1, 0, -1):
+                    mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
+                i = np.where(mrec[1:] != mrec[:-1])[0]
+                ap[cls_id] = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
+            
+            # 计算平均精确率和召回率
+            p = np.mean(precision)
+            r = np.mean(recall)
             
             # 打印结果
             print(f"\n评估结果:")
@@ -558,6 +614,8 @@ def evaluate_onnx(args):
             print(f"confs shape: {confs.shape}, dtype: {confs.dtype}")
             print(f"classes shape: {classes.shape}, dtype: {classes.dtype}")
             print(f"classes values: {classes}")
+            print(f"fns shape: {fns.shape}, dtype: {fns.dtype}")
+            print(f"fns values: {fns}")
     else:
         print("没有有效的评估结果")
 
