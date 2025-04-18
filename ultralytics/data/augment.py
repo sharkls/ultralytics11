@@ -2070,6 +2070,10 @@ class RandomFlip(BaseMixTransform):
             title='random_flip',
             stage='after',
         )
+
+        final_T = torch.eye([[1,0,labels['pos'][0]],[0,1,labels['pos'][1]],[0,0,1]], dtype=H_original.dtype, device=H_original.device)  # 使用与H_original相同的dtype和device
+        final_T_inv = torch.eye([[1,0,-labels['pos'][0]],[0,1,-labels['pos'][1]],[0,0,1]], dtype=H_original.dtype, device=H_original.device)
+        labels['mapping_matrix'] = final_T @ labels['mapping_matrix'] @ final_T_inv
         return labels
 
     def validate_matrix(self, matrix):

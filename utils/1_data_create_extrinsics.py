@@ -50,8 +50,8 @@ def create_identity_homography_files(input_dir, output_dir):
 def main():
     try:
         # 基础路径
-        base_input_dir = Path("/ultralytics/data/Test/labels/visible")
-        base_output_dir = Path("/ultralytics/data/Test/extrinsics")
+        base_input_dir = Path("/ultralytics/data/LLVIP/labels/visible")
+        base_output_dir = Path("/ultralytics/data/LLVIP/extrinsics")
         
         # 检查基础输入目录是否存在
         if not base_input_dir.exists():

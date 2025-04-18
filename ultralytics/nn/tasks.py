@@ -67,7 +67,8 @@ from ultralytics.nn.modules import (
     MultiModalTransformer,
     DEA,
     FMDEA,
-    EnhancedFMDEA
+    EnhancedFMDEA,
+    EFDEA,
 )
 from ultralytics.utils import DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS, LOGGER, colorstr, emojis, yaml_load
 from ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
@@ -659,7 +660,8 @@ class MultiModalDetectionModel(BaseModel):
                         head_idx = src_idx - (backbone_len + backbone2_len)
                         inputs.append(y_head[head_idx])
                 # 处理多输入情况（如Concat或DEA）
-                if isinstance(m, EnhancedFMDEA):
+                # if m in {EFDEA, EnhancedFMDEA}:
+                if isinstance(m, EnhancedFMDEA) or isinstance(m, EFDEA):
                     inputs.append(extrinsics)
                     inputs.append(original_sizes)
                 x = inputs if len(inputs) > 1 else inputs[0] if inputs else None
@@ -1661,7 +1663,7 @@ def parse_model_fusion(d, ch, ch2, verbose=True):  # model_dict, input_channels(
             if c2 != nc:
                 c2 = make_divisible(min(c2, max_channels) * width, 8)
             args = [c1, *args[1:]]  # Pass both features to DEA
-        elif m in {FMDEA, EnhancedFMDEA}:
+        elif m in {FMDEA, EnhancedFMDEA, EFDEA}:
             c1 = []
             for x in (f if isinstance(f, list) else [f]):
                 if x < backbone_len:  # From visible branch

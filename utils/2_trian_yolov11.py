@@ -36,8 +36,12 @@ import argparse
 # results = model.train(data="multimodal.yaml", batch=2, epochs=2, imgsz=640, device=0)
 
 # # 训练多模态（EnhancedFMDEA）
-model = YOLOMultimodal("yolo11n-EnhancedFMDEA.yaml", task="multimodal") # build a new model from YAML
-results = model.train(data="multimodal_test.yaml", batch=2, epochs=2, imgsz=640, device=0)
+# model = YOLOMultimodal("yolo11n-EnhancedFMDEA.yaml", task="multimodal") # build a new model from YAML
+# results = model.train(data="multimodal_test.yaml", batch=2, epochs=2, imgsz=640, device=0)
+
+# # 训练多模态（EFDEAYOLO）-2025.4.14
+model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal") # build a new model from YAML
+results = model.train(data="multimodal.yaml", batch=64, epochs=300, imgsz=640, device=0)
 
 # 断点续训
 # 2. 断点续训 - 从最后一个检查点继续训练

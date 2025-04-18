@@ -74,7 +74,7 @@ from ultralytics.data.dataset import YOLODataset
 from ultralytics.data.utils import check_cls_dataset, check_det_dataset
 from ultralytics.nn.autobackend import check_class_names, default_class_names
 from ultralytics.nn.modules import C2f, Classify, Detect, RTDETRDecoder
-from ultralytics.nn.tasks import DetectionModel, SegmentationModel, WorldModel
+from ultralytics.nn.tasks import DetectionModel, SegmentationModel, WorldModel, MultiModalDetectionModel
 from ultralytics.utils import (
     ARM64,
     DEFAULT_CFG,
@@ -195,6 +195,7 @@ class Exporter:
             os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"  # must run before TensorBoard callback
 
         self.callbacks = _callbacks or callbacks.get_default_callbacks()
+        self.extra_inputs = self.args.get('extra_inputs', None)  # 添加对额外输入的支持
         callbacks.add_integration_callbacks(self)
 
     def __call__(self, model=None) -> str:
@@ -296,6 +297,9 @@ class Exporter:
 
         # Input
         im = torch.zeros(self.args.batch, 3, *self.imgsz).to(self.device)
+        if self.args.task == "multimodal":
+            im2 = torch.zeros(self.args.batch, 3, *self.imgsz).to(self.device)
+
         file = Path(
             getattr(model, "pt_path", None) or getattr(model, "yaml_file", None) or model.yaml.get("yaml_file", "")
         )
@@ -336,10 +340,23 @@ class Exporter:
                 )
 
         y = None
-        for _ in range(2):
-            y = model(im)  # dry runs
-        if self.args.half and onnx and self.device.type != "cpu":
-            im, model = im.half(), model.half()  # to FP16
+        if self.args.task == "multimodal":
+            # 准备示例输入
+            if self.extra_inputs is None:
+                # 如果没有提供额外输入，创建默认值
+                self.extra_inputs = [
+                    torch.eye(3).unsqueeze(0),  # homography
+                    torch.tensor([[[*self.imgsz], [*self.imgsz]]])  # original_sizes
+                ]
+            for _ in range(2):
+                y = model(im, im2, self.extra_inputs[0])  # dry runs
+            if self.args.half and onnx and self.device.type != "cpu":
+                im, im2, model = im.half(), im2.half(), model.half()  # to FP16
+        else:
+            for _ in range(2):
+                    y = model(im)  # dry runs
+            if self.args.half and onnx and self.device.type != "cpu":
+                im, model = im.half(), model.half()  # to FP16
 
         # Filter warnings
         warnings.filterwarnings("ignore", category=torch.jit.TracerWarning)  # suppress TracerWarning
@@ -348,6 +365,7 @@ class Exporter:
 
         # Assign
         self.im = im
+        self.im2 = im2 if self.args.task == "multimodal" else None
         self.model = model
         self.file = file
         self.output_shape = (
@@ -494,23 +512,39 @@ class Exporter:
         dynamic = self.args.dynamic
         if dynamic:
             dynamic = {"images": {0: "batch", 2: "height", 3: "width"}}  # shape(1,3,640,640)
+            if self.args.task == "multimodal":
+                dynamic["images2"] = {0: "batch", 2: "height", 3: "width"}  # # shape(1,3,640,640)
             if isinstance(self.model, SegmentationModel):
                 dynamic["output0"] = {0: "batch", 2: "anchors"}  # shape(1, 116, 8400)
                 dynamic["output1"] = {0: "batch", 2: "mask_height", 3: "mask_width"}  # shape(1,32,160,160)
-            elif isinstance(self.model, DetectionModel):
+            elif isinstance(self.model, DetectionModel) or isinstance(self.model, MultiModalDetectionModel):
                 dynamic["output0"] = {0: "batch", 2: "anchors"}  # shape(1, 84, 8400)
 
-        torch.onnx.export(
-            self.model.cpu() if dynamic else self.model,  # dynamic=True only compatible with cpu
-            self.im.cpu() if dynamic else self.im,
-            f,
-            verbose=False,
-            opset_version=opset_version,
-            do_constant_folding=True,  # WARNING: DNN inference with torch>=1.12 may require do_constant_folding=False
-            input_names=["images"],
-            output_names=output_names,
-            dynamic_axes=dynamic or None,
-        )
+        if self.args.task == "multimodal":
+            # self.extra_inputs = torch.eye(3).unsqueeze(0)  # homography
+            torch.onnx.export(
+                self.model.cpu() if dynamic else self.model,
+                (self.im.cpu() if dynamic else self.im, self.im2.cpu() if dynamic else self.im2, self.extra_inputs[0]),
+                f,
+                verbose=False,
+                opset_version=opset_version,
+                do_constant_folding=True,  # WARNING: DNN inference with torch>=1.12 may require do_constant_folding=False
+                input_names=["images", "images2", "extrinsics"],
+                output_names=output_names,
+                dynamic_axes=dynamic or None,
+            )
+        else:
+            torch.onnx.export(
+                self.model.cpu() if dynamic else self.model,  # dynamic=True only compatible with cpu
+                self.im.cpu() if dynamic else self.im,
+                f,
+                verbose=False,
+                opset_version=opset_version,
+                do_constant_folding=True,  # WARNING: DNN inference with torch>=1.12 may require do_constant_folding=False
+                input_names=["images"],
+                output_names=output_names,
+                dynamic_axes=dynamic or None,
+            )
 
         # Checks
         model_onnx = onnx.load(f)  # load onnx model

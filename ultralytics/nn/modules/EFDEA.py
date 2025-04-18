@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import warnings
+warnings.filterwarnings("ignore", message="grid_sampler_2d_backward_cuda")
 from .conv import Conv
 from .DEA import DECA, DEPA
 
@@ -126,6 +128,9 @@ class EFDEA(nn.Module):
         """调整单应性矩阵以适应特征图尺度"""
         # 计算缩放因子 (从640到80/40/20)
         scale_factor = original_sizes[0, 0, 0] / feature_size[0]
+
+        # 确保scale_factor在正确的设备上
+        scale_factor = scale_factor.to(homography.device)
         
         # 直接调整相关元素
         H_new = homography.clone()
