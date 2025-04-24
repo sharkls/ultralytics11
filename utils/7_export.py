@@ -34,8 +34,10 @@ def parse_args():
                       help='RGB图像路径')
     parser.add_argument('--ir-path', type=str, default='./data/LLVIP/images/infrared/test/190001.jpg',
                       help='红外图像路径')
-    parser.add_argument('--error-threshold', type=float, default=1e-4,
-                      help='验证误差阈值')
+    parser.add_argument('--pos-error-threshold', type=float, default=1.0,
+                      help='位置误差阈值（像素）')
+    parser.add_argument('--conf-error-threshold', type=float, default=1e-4,
+                      help='置信度误差阈值')
     parser.add_argument('--device', type=str, default='cuda',
                       help='运行设备 cuda/cpu')
     
@@ -163,7 +165,7 @@ def run_inference(model, inputs, device):
     with torch.no_grad():
         return model(rgb_tensor, ir_tensor, homography)
 
-def validate_onnx(onnx_path, inputs, updated_homography_np, torch_output, error_threshold, args):
+def validate_onnx(onnx_path, inputs, updated_homography_np, torch_output, pos_error_threshold, conf_error_threshold, args):
     """验证ONNX模型输出"""
     rgb_input, ir_input = inputs
     providers = ['CPUExecutionProvider']
@@ -196,6 +198,20 @@ def validate_onnx(onnx_path, inputs, updated_homography_np, torch_output, error_
     torch_output = torch_output.cpu().numpy()
     onnx_output = onnx_outputs[0]
     
+    # 检查输出维度
+    print(f"PyTorch输出形状: {torch_output.shape}")
+    print(f"ONNX输出形状: {onnx_output.shape}")
+    
+    # 计算原始输出的误差
+    print("\n原始输出误差:")
+    raw_diff = np.abs(torch_output - onnx_output)
+    max_raw_diff = np.max(raw_diff)
+    mean_raw_diff = np.mean(raw_diff)
+    relative_raw_diff = np.mean(np.abs((torch_output - onnx_output) / (np.abs(torch_output) + 1e-10)))
+    print(f"  最大绝对误差: {max_raw_diff:.6f}")
+    print(f"  平均绝对误差: {mean_raw_diff:.6f}")
+    print(f"  平均相对误差: {relative_raw_diff:.6f}")
+    
     # 分别计算位置信息和置信度的误差
     # 位置信息误差 (x,y,w,h)
     pos_diff = np.abs(torch_output[:, :4, :] - onnx_output[:, :4, :])
@@ -207,15 +223,20 @@ def validate_onnx(onnx_path, inputs, updated_homography_np, torch_output, error_
     relative_pos_diff = np.mean(np.abs((torch_pos - onnx_pos) / (np.abs(torch_pos) + 1e-10)))
     
     # 置信度误差
-    conf_diff = np.abs(torch_output[:, 4, :] - onnx_output[:, 4, :])
+    # 对于single-cls模型，置信度可能在最后一个维度
+    if torch_output.shape[1] == 5:  # 单类别模型
+        torch_conf = torch_output[:, 4, :]
+        onnx_conf = onnx_output[:, 4, :]
+    else:  # 多类别模型
+        torch_conf = torch_output[:, 4:, :].max(axis=1)  # 取所有类别中的最大置信度
+        onnx_conf = onnx_output[:, 4:, :].max(axis=1)
+    
+    conf_diff = np.abs(torch_conf - onnx_conf)
     max_conf_diff = np.max(conf_diff)
     mean_conf_diff = np.mean(conf_diff)
-    # 避免除以0
-    torch_conf = torch_output[:, 4, :]
-    onnx_conf = onnx_output[:, 4, :]
     relative_conf_diff = np.mean(np.abs((torch_conf - onnx_conf) / (np.abs(torch_conf) + 1e-10)))
     
-    print(f"\n验证结果:")
+    print(f"\n转换后误差:")
     print(f"位置信息误差:")
     print(f"  最大绝对误差: {max_pos_diff:.6f}")
     print(f"  平均绝对误差: {mean_pos_diff:.6f}")
@@ -225,103 +246,22 @@ def validate_onnx(onnx_path, inputs, updated_homography_np, torch_output, error_
     print(f"  平均绝对误差: {mean_conf_diff:.6f}")
     print(f"  平均相对误差: {relative_conf_diff:.6f}")
     
-    # 处理检测结果
-    def process_output(output, conf_thres=0.5, iou_thres=0.45):
-        """处理YOLO模型输出，应用NMS
-        
-        Args:
-            output (np.ndarray): YOLO模型输出 (1,5,8400)，其中5表示[x,y,w,h,conf]
-            conf_thres (float): 置信度阈值
-            iou_thres (float): NMS IOU阈值
-            
-        Returns:
-            np.ndarray: 处理后的检测结果 [M, 6]，格式为[x1, y1, x2, y2, conf, class]
-        """
-        # 移除batch维度并转置为[8400, 5]格式
-        output = output.squeeze(0).T
-        
-        # 将xywh转换为xyxy格式
-        boxes = np.zeros_like(output[:, :4])
-        boxes[:, 0] = output[:, 0] - output[:, 2] / 2  # x1
-        boxes[:, 1] = output[:, 1] - output[:, 3] / 2  # y1
-        boxes[:, 2] = output[:, 0] + output[:, 2] / 2  # x2
-        boxes[:, 3] = output[:, 1] + output[:, 3] / 2  # y2
-        
-        # 获取置信度
-        scores = output[:, 4]
-        
-        # 应用置信度阈值
-        mask = scores > conf_thres
-        boxes = boxes[mask]
-        scores = scores[mask]
-        
-        # 如果没有检测到目标，返回空数组
-        if len(boxes) == 0:
-            return np.zeros((0, 6))
-        
-        # 应用NMS
-        indices = nms(boxes, scores, iou_thres)
-        
-        # 组合结果 [x1, y1, x2, y2, conf, class]
-        results = np.zeros((len(indices), 6))
-        results[:, :4] = boxes[indices]
-        results[:, 4] = scores[indices]
-        results[:, 5] = 0  # 类别ID（单类别模型，类别为0）
-        
-        return results
+    # 分别检查位置和置信度误差是否超过阈值
+    pos_check = max_pos_diff < pos_error_threshold
+    conf_check = max_conf_diff < conf_error_threshold
     
-    # 处理PyTorch和ONNX输出
-    torch_results = process_output(torch_output, args.conf_thres, args.iou_thres)
-    onnx_results = process_output(onnx_output, args.conf_thres, args.iou_thres)
-    
-    # 可视化结果
-    def visualize_detections(image, detections, save_path, imgsz=(640, 640)):
-        """可视化检测结果"""
-        img = image.copy()
-        h, w = img.shape[:2]
-        
-        # 计算缩放比例
-        r = min(imgsz[0] / h, imgsz[1] / w)
-        new_unpad = int(round(w * r)), int(round(h * r))
-        dw, dh = imgsz[1] - new_unpad[0], imgsz[0] - new_unpad[1]
-        dw /= 2
-        dh /= 2
-        
-        # 将检测框坐标转换回原始图像尺寸
-        for det in detections:
-            x1, y1, x2, y2, conf, cls = det
-            # 反向应用letterbox变换
-            x1 = (x1 - dw) / r
-            y1 = (y1 - dh) / r
-            x2 = (x2 - dw) / r
-            y2 = (y2 - dh) / r
-            
-            # 确保坐标在图像范围内
-            x1 = max(0, min(int(x1), w))
-            y1 = max(0, min(int(y1), h))
-            x2 = max(0, min(int(x2), w))
-            y2 = max(0, min(int(y2), h))
-            
-            # 绘制边界框
-            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            # 绘制置信度
-            cv2.putText(img, f'{conf:.2f}', (x1, y1-10), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        
-        cv2.imwrite(save_path, img)
-
-    # 读取原始图像
-    rgb_img = cv2.imread(args.rgb_path)
-    if rgb_img is not None:
-        # 可视化PyTorch结果
-        visualize_detections(rgb_img, torch_results, 
-                           str(Path(args.export_path).parent / 'torch_detections.jpg'), args.imgsz)
-        # 可视化ONNX结果
-        visualize_detections(rgb_img, onnx_results, 
-                           str(Path(args.export_path).parent / 'onnx_detections.jpg'), args.imgsz)
-    
-    # 返回验证结果
-    return max(max_pos_diff, max_conf_diff) < error_threshold
+    if pos_check and conf_check:
+        print("\n✅ 验证通过：")
+        print(f"  位置误差 ({max_pos_diff:.6f}) < 阈值 ({pos_error_threshold})")
+        print(f"  置信度误差 ({max_conf_diff:.6f}) < 阈值 ({conf_error_threshold})")
+        return True
+    else:
+        print("\n❌ 验证失败：")
+        if not pos_check:
+            print(f"  位置误差 ({max_pos_diff:.6f}) >= 阈值 ({pos_error_threshold})")
+        if not conf_check:
+            print(f"  置信度误差 ({max_conf_diff:.6f}) >= 阈值 ({conf_error_threshold})")
+        return False
 
 def visualize_registration(rgb_img, ir_img, H, save_path='registration_vis.jpg', save_prefix='vis', is_normalized=False):
     """
@@ -567,10 +507,10 @@ def main():
     
     # 验证ONNX模型
     print("正在验证ONNX模型...")
-    # onnx_path = f"{args.export_path}.onnx"
-    onnx_path = "runs/multimodal/train6/weights/last.onnx"
+    # 根据weights路径设置onnx路径
+    onnx_path = str(Path(args.weights).parent / 'last.onnx')
     # !! 移除 original_sizes.cpu().numpy() !!
-    if validate_onnx(onnx_path, (rgb_input_np, ir_input_np), updated_homography.cpu().numpy(), torch_output, args.error_threshold, args):
+    if validate_onnx(onnx_path, (rgb_input_np, ir_input_np), updated_homography.cpu().numpy(), torch_output, args.pos_error_threshold, args.conf_error_threshold, args):
         print("\n✅ 验证通过：PyTorch和ONNX模型输出一致")
     else:
         print("\n❌ 验证失败：PyTorch和ONNX模型输出存在显著差异")

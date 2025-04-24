@@ -40,5 +40,6 @@ H = torch.tensor([
     [1.06740213e-02, 1.49526420e+00, 2.54558633e+01],
     [2.44125413e-05, 3.28032519e-05, 1.00000000e+00]
 ])
-model = YOLOMultimodal("yolo11s-EnhancedFMDEA.yaml", task="multimodal").load('runs/multimodal/multimodal0317/0319/last.pt')  # pretrained YOLO11n model
-model.predict(source=[['runs/extract_frame/visible_frame10.jpg', 'runs/extract_frame/infrared_frame10.jpg', H]], save=True, imgsz=640, conf=0.5, device=0) # corresponding image pair
+
+model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal").load('runs/multimodal/train6/weights/last.pt')  # pretrained YOLO11n model
+model.predict(source=[['data/Test/images/visible/val/frame009.jpg', 'data/Test/images/infrared/val/frame009.jpg', H]], save=True, imgsz=640, conf=0.5, device=0) # corresponding image pair

@@ -20,7 +20,7 @@ def parse_args():
                       help='输入图像尺寸 [height, width]')
     
     # 数据集相关参数
-    parser.add_argument('--data-dir', type=str, default='./data/Test',
+    parser.add_argument('--data-dir', type=str, default='./data/LLVIP',
                       help='数据集根目录')
     parser.add_argument('--split', type=str, default='test',
                       help='数据集划分 (train/val/test)')
@@ -28,7 +28,7 @@ def parse_args():
     # 检测相关参数
     parser.add_argument('--conf-thres', type=float, default=0.5,
                       help='检测置信度阈值')
-    parser.add_argument('--iou-thres', type=float, default=0.45,
+    parser.add_argument('--iou-thres', type=float, default=0.001,
                       help='NMS IOU阈值')
     parser.add_argument('--nc', type=int, default=1,
                       help='目标类别数量')
@@ -65,6 +65,7 @@ def preprocess_batch(rgb_paths, ir_paths, extrinsics_list, imgsz=(640, 640), str
     ir_inputs = []
     updated_Hs = []
     scale_factors = []
+    letterbox_infos = []  # 存储letterbox处理信息
     
     for i in range(batch_size):
         # 读取图像
@@ -124,6 +125,14 @@ def preprocess_batch(rgb_paths, ir_paths, extrinsics_list, imgsz=(640, 640), str
         rgb_img = letterbox(image=rgb_img)
         ir_img = letterbox(image=ir_img)
         
+        # 保存letterbox处理信息
+        letterbox_info = {
+            'dw': dw_rgb,
+            'dh': dh_rgb,
+            'ratio': r_rgb
+        }
+        letterbox_infos.append(letterbox_info)
+        
         # 图像格式转换
         rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2RGB)
         ir_img = cv2.cvtColor(ir_img, cv2.COLOR_BGR2RGB)
@@ -148,9 +157,9 @@ def preprocess_batch(rgb_paths, ir_paths, extrinsics_list, imgsz=(640, 640), str
     ir_inputs = np.concatenate(ir_inputs, axis=0)    # (batch_size, C, H, W)
     updated_Hs = np.concatenate(updated_Hs, axis=0).astype(np.float32)  # (batch_size, 3, 3)
     
-    return rgb_inputs, ir_inputs, updated_Hs, scale_factors
+    return rgb_inputs, ir_inputs, updated_Hs, scale_factors, letterbox_infos
 
-def process_output(output, conf_thres=0.25, iou_thres=0.45, scale_factor=None, nc=1):
+def process_output(output, conf_thres=0.25, iou_thres=0.45, scale_factor=None, nc=1, letterbox_info=None):
     """处理YOLO模型输出，应用NMS
     
     Args:
@@ -163,8 +172,12 @@ def process_output(output, conf_thres=0.25, iou_thres=0.45, scale_factor=None, n
         iou_thres: NMS IOU阈值
         scale_factor: 缩放因子，用于将检测框坐标转换回原始图像尺寸
         nc: 类别数量
+        letterbox_info: LetterBox处理信息，包含：
+            - dw: 水平填充
+            - dh: 垂直填充
+            - ratio: 缩放比例
     """
-    # 移除batch维度并转置为[8400, 4+nc]格式
+    # 转置为[8400, 4+nc]格式
     output = output.squeeze(0).T  # [4+nc, 8400] -> [8400, 4+nc]
     
     # 获取类别分数
@@ -179,19 +192,22 @@ def process_output(output, conf_thres=0.25, iou_thres=0.45, scale_factor=None, n
     boxes[:, 2] = output[:, 0] + output[:, 2] / 2  # x2
     boxes[:, 3] = output[:, 1] + output[:, 3] / 2  # y2
     
-    # 如果提供了缩放因子，将检测框坐标转换回原始图像尺寸
-    if scale_factor is not None:
-        boxes = boxes * scale_factor
+    # 如果提供了letterbox信息，将检测框坐标转换回原始图像尺寸
+    if letterbox_info is not None:
+        # 1. 先减去填充（反填充）
+        boxes[:, 0] = boxes[:, 0] - letterbox_info['dw']  # x1
+        boxes[:, 1] = boxes[:, 1] - letterbox_info['dh']  # y1
+        boxes[:, 2] = boxes[:, 2] - letterbox_info['dw']  # x2
+        boxes[:, 3] = boxes[:, 3] - letterbox_info['dh']  # y2
+        
+        # 2. 再除以缩放比例（反缩放）
+        boxes = boxes / letterbox_info['ratio']
     
     # 应用置信度阈值
     mask = scores > conf_thres
     boxes = boxes[mask]
     scores = scores[mask]
     cls_ids = cls_ids[mask]
-    
-    # 如果没有检测到目标，返回空数组
-    if len(boxes) == 0:
-        return np.zeros((0, 6))
     
     # 对每个类别分别应用NMS
     results = []
@@ -217,7 +233,8 @@ def process_output(output, conf_thres=0.25, iou_thres=0.45, scale_factor=None, n
     if len(results) == 0:
         return np.zeros((0, 6))
     
-    return np.vstack(results)
+    final_results = np.vstack(results)
+    return final_results
 
 def nms(boxes, scores, iou_threshold):
     """非极大值抑制(NMS)实现"""
@@ -283,6 +300,78 @@ def load_annotations(annotation_path, rgb_dir):
             annotations[img_name] = np.array(boxes)
     return annotations
 
+def calculate_iou(box1, box2):
+    """计算两个边界框的IOU
+    
+    Args:
+        box1: 第一个边界框 [x1, y1, x2, y2, ...]
+        box2: 第二个边界框 [x1, y1, x2, y2, ...]
+    
+    Returns:
+        float: IOU值
+    """
+    # 获取相交区域的坐标
+    x1 = max(box1[0], box2[0])
+    y1 = max(box1[1], box2[1])
+    x2 = min(box1[2], box2[2])
+    y2 = min(box1[3], box2[3])
+    
+    # 计算相交区域面积
+    intersection = max(0, x2 - x1) * max(0, y2 - y1)
+    
+    # 计算两个框的面积
+    box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
+    box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
+    
+    # 计算并集面积
+    union = box1_area + box2_area - intersection
+    
+    # 计算IOU
+    iou = intersection / (union + 1e-16)  # 添加小量避免除零
+    
+    return iou
+
+def calculate_metrics(cls_detections, cls_gt_boxes, iou_thres):
+    # 初始化
+    total_gt = len(cls_gt_boxes)
+    total_det = len(cls_detections)
+    
+    if total_gt == 0:
+        return np.zeros(total_det), np.zeros(total_det), 0
+    
+    # 计算IOU矩阵
+    iou_matrix = np.zeros((total_det, total_gt))
+    for i, det in enumerate(cls_detections):
+        for j, gt in enumerate(cls_gt_boxes):
+            iou_matrix[i, j] = calculate_iou(det, gt)
+    
+    # 初始化TP和FP
+    tps = np.zeros(total_det)
+    fps = np.zeros(total_det)
+    gt_matched = np.zeros(total_gt)
+    
+    # 按置信度排序
+    det_scores = cls_detections[:, 4]
+    sort_idx = np.argsort(-det_scores)
+    
+    # 分配检测框
+    for i in sort_idx:
+        max_iou = np.max(iou_matrix[i])
+        if max_iou > iou_thres:
+            gt_idx = np.argmax(iou_matrix[i])
+            if not gt_matched[gt_idx]:
+                tps[i] = 1
+                gt_matched[gt_idx] = 1
+            else:
+                fps[i] = 1
+        else:
+            fps[i] = 1
+    
+    # 计算FN
+    fn = total_gt - np.sum(gt_matched)
+    
+    return tps, fps, fn
+
 def evaluate_onnx(args):
     """评估ONNX模型"""
     # 创建保存目录
@@ -304,7 +393,7 @@ def evaluate_onnx(args):
     # 创建ONNX会话
     session = ort.InferenceSession(
         args.onnx_path,
-        providers=['CPUExecutionProvider'],
+        providers=['CUDAExecutionProvider','CPUExecutionProvider'],
         sess_options=sess_options
     )
     
@@ -361,7 +450,7 @@ def evaluate_onnx(args):
             
         # 预处理批处理数据
         try:
-            rgb_inputs, ir_inputs, updated_Hs, scale_factors = preprocess_batch(
+            rgb_inputs, ir_inputs, updated_Hs, scale_factors, letterbox_infos = preprocess_batch(
                 rgb_paths,
                 ir_paths,
                 extrinsics_list,
@@ -372,135 +461,90 @@ def evaluate_onnx(args):
             print(f"批处理图像预处理失败: {e}")
             continue
             
-        # # 打印输入数据形状
-        # print("\n输入数据形状:")
-        # print(f"RGB输入: {rgb_inputs.shape}")
-        # print(f"IR输入: {ir_inputs.shape}")
-        # print(f"外参矩阵: {updated_Hs.shape}")
-            
         # ONNX推理
         onnx_inputs = {
             input_names[0]: rgb_inputs,
             input_names[1]: ir_inputs,
             input_names[2]: updated_Hs
         }
-        # print("rgb_input shape:",onnx_inputs[input_names[0]].shape)
-        # print("ir_input shape:",onnx_inputs[input_names[1]].shape)
-        # print("updated_homography_np shape:",onnx_inputs[input_names[2]].shape)
-
-
+        
         try:
-            # # 打印输入数据信息
-            # print("\nONNX输入数据信息:")
-            # for name, value in onnx_inputs.items():
-            #     print(f"{name}: 形状={value.shape}, 类型={value.dtype}, 范围=[{value.min()}, {value.max()}]")
-            
             # 运行推理
             output_names = [output.name for output in session.get_outputs()]
             onnx_outputs = session.run(output_names, onnx_inputs)
             
-            # # 打印输出数据信息
-            # print("\nONNX输出数据信息:")
-            # for name, value in zip(output_names, onnx_outputs):
-            #     print(f"{name}: 形状={value.shape}, 类型={value.dtype}, 范围=[{value.min()}, {value.max()}]")
+            # 处理每个样本的检测结果
+            for i, img_name in enumerate(batch_names):
+                if i >= len(scale_factors):  # 确保索引不越界
+                    continue
+                    
+                # 获取当前样本的输出
+                current_output = onnx_outputs[0][i:i+1]  # 保持batch维度
+                detections = process_output(current_output, args.conf_thres, args.iou_thres, 
+                                         scale_factors[i], args.nc, letterbox_infos[i])
                 
+                # 获取真实标注
+                gt_boxes = annotations[img_name]
+                
+                # 更新评估指标
+                seen += 1
+                if len(gt_boxes) > 0:
+                    # 对每个类别分别计算TP, FP, FN
+                    for cls_id in range(args.nc):
+                        # 获取当前类别的检测结果和标注
+                        cls_detections = detections[detections[:, 5] == cls_id]
+                        cls_gt_boxes = gt_boxes[gt_boxes[:, 4] == cls_id]
+                        
+                        if len(cls_gt_boxes) == 0 and len(cls_detections) == 0:
+                            continue
+                        
+                        # 计算TP, FP, FN
+                        tps, fps, fn = calculate_metrics(cls_detections, cls_gt_boxes, args.iou_thres)
+                        
+                        # 保存统计信息
+                        if len(cls_detections) > 0:
+                            # 确保所有数组长度一致
+                            confs = cls_detections[:, 4]  # 置信度
+                            cls_ids = np.full(len(confs), cls_id, dtype=np.int32)  # 类别ID
+                            
+                            # 确保fn是一个标量值
+                            fn = np.array([fn], dtype=np.int32)
+                            
+                            stats.append([tps, fps, fn, confs, cls_ids])
+                
+                # 可视化结果
+                if args.visualize:
+                    rgb_img = cv2.imread(str(rgb_paths[i]))
+                    
+                    # 绘制原始标签框（红色）
+                    gt_boxes = annotations[img_name]
+                    for gt_box in gt_boxes:
+                        x1, y1, x2, y2, cls_id = gt_box
+                        cv2.rectangle(rgb_img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 2)
+                        cv2.putText(rgb_img, f'GT cls{int(cls_id)}', (int(x1), int(y1)-10), 
+                                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                    
+                    # 绘制检测结果框（绿色）
+                    for det in detections:
+                        x1, y1, x2, y2, conf, cls_id = det
+                        cv2.rectangle(rgb_img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+                        cv2.putText(rgb_img, f'Det cls{int(cls_id)} {conf:.2f}', (int(x1), int(y1)-10), 
+                                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    
+                    # 添加图例
+                    cv2.putText(rgb_img, 'Red: Ground Truth', (10, 30), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                    cv2.putText(rgb_img, 'Green: Detection', (10, 60), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    
+                    cv2.imwrite(str(save_dir / f"{img_name}_det.jpg"), rgb_img)
+                    
         except Exception as e:
             print(f"ONNX推理失败: {e}")
             print("输入数据信息:")
             for name, value in onnx_inputs.items():
                 print(f"{name}: 形状={value.shape}, 类型={value.dtype}, 范围=[{value.min()}, {value.max()}]")
             continue
-        
-        # 处理每个样本的检测结果
-        for i, img_name in enumerate(batch_names):
-            if i >= len(scale_factors):  # 确保索引不越界
-                continue
-                
-            detections = process_output(onnx_outputs[i], args.conf_thres, args.iou_thres, 
-                                     scale_factors[i], args.nc)
-            
-            # 获取真实标注
-            gt_boxes = annotations[img_name]
-            
-            # 更新评估指标
-            seen += 1
-            if len(gt_boxes) > 0:
-                # 对每个类别分别计算TP, FP, FN
-                for cls_id in range(args.nc):
-                    # 获取当前类别的检测结果和标注
-                    cls_detections = detections[detections[:, 5] == cls_id]
-                    cls_gt_boxes = gt_boxes[gt_boxes[:, 4] == cls_id]
-                    
-                    if len(cls_gt_boxes) == 0 and len(cls_detections) == 0:
-                        continue
-                    
-                    # 计算TP, FP, FN
-                    tps = np.zeros(len(cls_detections), dtype=np.int32)
-                    fps = np.zeros(len(cls_detections), dtype=np.int32)
-                    
-                    for j, det in enumerate(cls_detections):
-                        if len(cls_gt_boxes) == 0:
-                            fps[j] = 1
-                            continue
-                            
-                        # 计算IOU
-                        ious = []
-                        for gt in cls_gt_boxes:
-                            xx1 = max(det[0], gt[0])
-                            yy1 = max(det[1], gt[1])
-                            xx2 = min(det[2], gt[2])
-                            yy2 = min(det[3], gt[3])
-                            
-                            w = max(0, xx2 - xx1)
-                            h = max(0, yy2 - yy1)
-                            intersection = w * h
-                            
-                            area_det = (det[2] - det[0]) * (det[3] - det[1])
-                            area_gt = (gt[2] - gt[0]) * (gt[3] - gt[1])
-                            union = area_det + area_gt - intersection
-                            
-                            iou = intersection / union
-                            ious.append(iou)
-                        
-                        if len(ious) > 0:
-                            max_iou = max(ious)
-                            if max_iou > args.iou_thres:
-                                tps[j] = 1
-                            else:
-                                fps[j] = 1
-                        else:
-                            fps[j] = 1
-                    
-                    # 计算FN
-                    fn = len(cls_gt_boxes) - np.sum(tps)
-                    
-                    # 保存统计信息
-                    if len(cls_detections) > 0:
-                        # 确保所有数组长度一致
-                        confs = cls_detections[:, 4]  # 置信度
-                        cls_ids = np.full(len(confs), cls_id, dtype=np.int32)  # 类别ID
-                        
-                        # 打印调试信息
-                        print(f"\n类别 {cls_id} 统计信息:")
-                        print(f"TPs: {tps.shape}, {tps.dtype}")
-                        print(f"FPs: {fps.shape}, {fps.dtype}")
-                        print(f"Confs: {confs.shape}, {confs.dtype}")
-                        print(f"Class IDs: {cls_ids.shape}, {cls_ids.dtype}")
-                        
-                        # 确保fn是一个标量值
-                        fn = np.array([fn], dtype=np.int32)
-                        
-                        stats.append([tps, fps, fn, confs, cls_ids])
-            
-            # 可视化结果
-            if args.visualize:
-                rgb_img = cv2.imread(str(rgb_paths[i]))
-                for det in detections:
-                    x1, y1, x2, y2, conf, cls_id = det
-                    cv2.rectangle(rgb_img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
-                    cv2.putText(rgb_img, f'cls{int(cls_id)} {conf:.2f}', (int(x1), int(y1)-10), 
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                cv2.imwrite(str(save_dir / f"{img_name}_det.jpg"), rgb_img)
     
     # 计算AP
     if len(stats) > 0:

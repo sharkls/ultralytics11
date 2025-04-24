@@ -2058,6 +2058,20 @@ class RandomFlip(BaseMixTransform):
         if use_multimodal:
             labels["img2"] = np.ascontiguousarray(img2)
         
+        
+
+        final_T = torch.tensor([[1, 0, labels['pos'][0]], 
+                              [0, 1, labels['pos'][1]], 
+                              [0, 0, 1]], 
+                             dtype=H_original.dtype, 
+                             device=H_original.device)  # 使用与H_original相同的dtype和device
+        final_T_inv = torch.tensor([[1, 0, -labels['pos'][0]], 
+                                  [0, 1, -labels['pos'][1]], 
+                                  [0, 0, 1]], 
+                                 dtype=H_original.dtype, 
+                                 device=H_original.device)
+        labels['mapping_matrix'] = final_T @ labels['mapping_matrix'] @ final_T_inv
+
         # 可视化处理后的状态
         visualize_registration(
             {
@@ -2069,11 +2083,8 @@ class RandomFlip(BaseMixTransform):
             },
             title='random_flip',
             stage='after',
+            use_patch_coords=True
         )
-
-        final_T = torch.eye([[1,0,labels['pos'][0]],[0,1,labels['pos'][1]],[0,0,1]], dtype=H_original.dtype, device=H_original.device)  # 使用与H_original相同的dtype和device
-        final_T_inv = torch.eye([[1,0,-labels['pos'][0]],[0,1,-labels['pos'][1]],[0,0,1]], dtype=H_original.dtype, device=H_original.device)
-        labels['mapping_matrix'] = final_T @ labels['mapping_matrix'] @ final_T_inv
         return labels
 
     def validate_matrix(self, matrix):
@@ -3680,7 +3691,7 @@ def visualize_registration1(labels, title="registration", stage="before", use_si
         LOGGER.warning(traceback.format_exc())
 
 
-def visualize_registration(labels, title="registration", stage="before", use_single_matrix=True, show_patches=False):
+def visualize_registration(labels, title="registration", stage="before", use_single_matrix=True, show_patches=False, use_patch_coords=True, show_gt=False):
     """可视化配准结果的通用方法
     
     Args:
@@ -3689,10 +3700,13 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
             - 'img2': 红外图像
             - 'mapping_matrix': 映射矩阵
             - 'patches_info': 可选，包含子图信息的列表
+            - 'gt_boxes': 可选，原始标签框，格式为[x1, y1, x2, y2, class_id]
         title (str): 可视化标题
         stage (str): 处理阶段，用于文件命名
         use_single_matrix (bool): 是否使用单一映射矩阵进行可视化
         show_patches (bool): 是否显示子图区域
+        use_patch_coords (bool): 当使用单一映射矩阵时，是否基于子图坐标进行映射
+        show_gt (bool): 是否显示原始标签框
     """
     try:
         save_dir = 'runs/debug/registration'
@@ -3829,10 +3843,9 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
                     # 初始化warped_ir
                     warped_ir = np.zeros_like(ir_img)
 
-                    # 如果有pos信息，进行子图提取和映射
-                    if 'pos' in labels:
+                    # 如果有pos信息且use_patch_coords为True，进行子图提取和映射
+                    if 'pos' in labels and use_patch_coords:
                         x1, y1, x2, y2 = labels['pos']
-                        # print(x1, y1, x2, y2)
                         # 确保坐标为整数且在有效范围内
                         x1 = max(0, min(w, int(x1)))
                         y1 = max(0, min(h, int(y1)))
@@ -3868,7 +3881,7 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
                                 cv2.rectangle(patches_vis, (x1, y1), (x2, y2), (0, 255, 0), 2)
                                 canvas[:h, 4*w:] = patches_vis
                     else:
-                        # 如果没有pos信息，对整个图像进行映射
+                        # 如果没有pos信息或use_patch_coords为False，对整个图像进行映射
                         warped_ir = cv2.warpPerspective(ir_img, H, (w, h))
                 else:
                     warped_ir = ir_img
