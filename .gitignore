@@ -174,3 +174,10 @@ calibration_*.npy
 
 # test dataset
 data/
+
+# c++
+c++/build/
+c++/Submodules/TPL/
+c++/Output/
+deploy/build/
+deploy/Output/

@@ -21,7 +21,7 @@ def parse_args():
                       help='输入图像尺寸 [height, width]')
     
     # 数据集相关参数
-    parser.add_argument('--data-dir', type=str, default='./data/LLVIP',
+    parser.add_argument('--data-dir', type=str, default='./data/Test_1',
                       help='数据集根目录')
     parser.add_argument('--split', type=str, default='test',
                       help='数据集划分 (train/val/test)')
