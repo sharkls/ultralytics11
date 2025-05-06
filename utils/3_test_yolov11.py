@@ -10,12 +10,12 @@
 
 from ultralytics import YOLOMultimodal
 
-model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train13/weights/last.pt')  # load an official model
+model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train6/weights/last.pt')  # load an official model
 # Load a model
 # model = YOLOFusion('yolo11n-DEYOLO.yaml', task="detect").load('/ultralytics/runs/detect/train8/weights/last.pt')  # load an official model
 
 # Validate the model
-metrics = model.val(data="multimodal_val.yaml", batch=64, imgsz=640, device=0)  # no arguments needed, dataset and settings remembered
+metrics = model.val(data="multimodal_val.yaml", batch=64, imgsz=640, device=0, show=True)  # no arguments needed, dataset and settings remembered
 metrics.box.map  # map50-95
 metrics.box.map50  # map50
 metrics.box.map75  # map75

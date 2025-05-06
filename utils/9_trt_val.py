@@ -15,13 +15,17 @@ def parse_args():
     parser = argparse.ArgumentParser(description='YOLO Multimodal TensorRT Model Validation')
     
     # 模型相关参数
-    parser.add_argument('--engine-path', type=str, default='runs/multimodal/train6/weights/last.engine',
-                      help='TensorRT engine文件路径')
+    parser.add_argument('--engine-path-fp32', type=str, default='runs/multimodal/train6/weights/last.engine',
+                      help='FP32 TensorRT engine文件路径')
+    parser.add_argument('--engine-path-fp16', type=str, default='runs/multimodal/train6/weights/last.engine',
+                      help='FP16 TensorRT engine文件路径')
     parser.add_argument('--imgsz', nargs='+', type=int, default=[640, 640],
                       help='输入图像尺寸 [height, width]')
+    parser.add_argument('--precision', type=str, default='fp16', choices=['fp32', 'fp16'],
+                      help='推理精度 (fp32/fp16)')
     
     # 数据集相关参数
-    parser.add_argument('--data-dir', type=str, default='./data/Test_1',
+    parser.add_argument('--data-dir', type=str, default='./data/LLVIP',
                       help='数据集根目录')
     parser.add_argument('--split', type=str, default='test',
                       help='数据集划分 (train/val/test)')
@@ -47,18 +51,28 @@ def parse_args():
     return parser.parse_args()
 
 class TRTInference:
-    def __init__(self, engine_path):
+    def __init__(self, engine_path_fp32, engine_path_fp16, precision='fp32'):
         """初始化TensorRT推理器
         
         Args:
-            engine_path (str): TensorRT engine文件路径
+            engine_path_fp32 (str): FP32 TensorRT engine文件路径
+            engine_path_fp16 (str): FP16 TensorRT engine文件路径
+            precision (str): 推理精度 ('fp32' 或 'fp16')
         """
+        # 根据精度选择engine文件
+        engine_path = engine_path_fp16 if precision == 'fp16' else engine_path_fp32
+        print(f"使用{precision}精度，加载engine文件: {engine_path}")
+        
         # 初始化CUDA
         cuda.init()
         
         # 获取CUDA设备信息
         self.device = cuda.Device(0)  # 使用第一个GPU
         self.cuda_context = self.device.make_context()
+        
+        # 设置精度
+        self.precision = precision
+        self.dtype = np.float16 if precision == 'fp16' else np.float32
         
         # 确保PyTorch和TensorRT使用相同的CUDA上下文
         import torch
@@ -68,6 +82,7 @@ class TRTInference:
         print(f"设备名称: {self.device.name()}")
         print(f"计算能力: {self.device.compute_capability()}")
         print(f"总内存: {self.device.total_memory() // (1024*1024)} MB")
+        print(f"推理精度: {self.precision}")
         
         try:
             # 创建CUDA流
@@ -132,7 +147,7 @@ class TRTInference:
             self.output_buffers = []
             
             for shape in self.input_shapes:
-                size = int(np.prod(shape) * np.dtype(np.float32).itemsize)
+                size = int(np.prod(shape) * np.dtype(self.dtype).itemsize)
                 try:
                     buf = cuda.mem_alloc(size)
                     self.input_buffers.append(buf)
@@ -140,7 +155,7 @@ class TRTInference:
                     raise RuntimeError(f"无法为输入分配GPU内存: {str(e)}")
                 
             for shape in self.output_shapes:
-                size = int(np.prod(shape) * np.dtype(np.float32).itemsize)
+                size = int(np.prod(shape) * np.dtype(self.dtype).itemsize)
                 try:
                     buf = cuda.mem_alloc(size)
                     self.output_buffers.append(buf)
@@ -260,8 +275,8 @@ class TRTInference:
         ir_img = ir_img.transpose(2, 0, 1)
         
         # 添加batch维度
-        rgb_img = np.expand_dims(rgb_img, 0).astype(np.float32)
-        ir_img = np.expand_dims(ir_img, 0).astype(np.float32)
+        rgb_img = np.expand_dims(rgb_img, 0).astype(self.dtype)
+        ir_img = np.expand_dims(ir_img, 0).astype(self.dtype)
         
         # 更新后的单应性矩阵添加batch维度
         updated_H = updated_H.unsqueeze(0)
@@ -305,9 +320,9 @@ class TRTInference:
                 homography = np.ascontiguousarray(homography)
             
             # 检查输入数据类型
-            rgb_input = rgb_input.astype(np.float32)
-            ir_input = ir_input.astype(np.float32)
-            homography = homography.astype(np.float32)
+            rgb_input = rgb_input.astype(self.dtype)
+            ir_input = ir_input.astype(self.dtype)
+            homography = homography.astype(self.dtype)
             
             # 将数据复制到GPU
             try:
@@ -353,7 +368,7 @@ class TRTInference:
             # 分配输出内存
             outputs = []
             for shape in self.output_shapes:
-                output = np.empty(shape, dtype=np.float32)
+                output = np.empty(shape, dtype=self.dtype)
                 outputs.append(output)
             
             # 将结果复制回CPU
@@ -605,8 +620,8 @@ def evaluate_trt(args):
     save_dir.mkdir(parents=True, exist_ok=True)
     
     # 加载TensorRT模型
-    print(f"正在加载TensorRT模型 {args.engine_path} ...")
-    trt_inference = TRTInference(args.engine_path)
+    print(f"正在加载TensorRT模型...")
+    trt_inference = TRTInference(args.engine_path_fp32, args.engine_path_fp16, args.precision)
     
     # 加载数据集
     data_dir = Path(args.data_dir)

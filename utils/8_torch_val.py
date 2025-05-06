@@ -21,13 +21,13 @@ def parse_args():
     # 数据集相关参数
     parser.add_argument('--data-dir', type=str, default='./data/LLVIP',
                       help='数据集根目录')
-    parser.add_argument('--split', type=str, default='test',
+    parser.add_argument('--split', type=str, default='val',
                       help='数据集划分 (train/val/test)')
     
     # 检测相关参数
-    parser.add_argument('--conf-thres', type=float, default=0.5,
+    parser.add_argument('--conf-thres', type=float, default=0.25,
                       help='检测置信度阈值')
-    parser.add_argument('--iou-thres', type=float, default=0.001,
+    parser.add_argument('--iou-thres', type=float, default=0.7,
                       help='NMS IOU阈值')
     parser.add_argument('--nc', type=int, default=1,
                       help='目标类别数量')

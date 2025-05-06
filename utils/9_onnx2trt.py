@@ -660,7 +660,7 @@ def main():
     parser.add_argument('--onnx', type=str, default="runs/multimodal/train6/weights/last.onnx", help='ONNX模型路径')
     parser.add_argument('--engine', type=str, default="runs/multimodal/train6/weights/last.engine", help='保存engine的路径')
     parser.add_argument('--max-batch-size', type=int, default=1, help='最大batch size')
-    parser.add_argument('--fp16', action='store_true', help='使用FP16精度')
+    parser.add_argument('--fp16', default = True, help='使用FP16精度')
     parser.add_argument('--verify', default=True, help='验证engine')
     parser.add_argument('--rgb', type=str, default="data/LLVIP/images/visible/test/190001.jpg", help='RGB图像路径')
     parser.add_argument('--ir', type=str, default="data/LLVIP/images/infrared/test/190001.jpg", help='红外图像路径')
