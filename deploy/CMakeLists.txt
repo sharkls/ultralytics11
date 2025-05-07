@@ -15,8 +15,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Output/Lib)
 
 # 添加头文件搜索路径
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Detection
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Pose
 )
 
 # TensorRT
@@ -67,8 +67,9 @@ set(OpenCV_LIBS
 
 # 添加源文件
 add_executable(trt_infer
-    main.cpp
-    src/trt_infer.cpp
+    # main.cpp
+    Detection.cpp
+    src/Detection/trt_infer.cpp
 )
 
 # 链接库

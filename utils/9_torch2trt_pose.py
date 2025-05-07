@@ -6,7 +6,56 @@ from ultralytics import YOLO
 import onnxruntime as ort
 import subprocess
 import onnx
+import argparse
 from ultralytics.utils.ops import non_max_suppression
+
+def parse_args():
+    """
+    解析命令行参数
+    """
+    parser = argparse.ArgumentParser(description='YOLO姿态估计模型转换和推理')
+    
+    # 模型相关参数
+    parser.add_argument('--model_path', type=str, default='ckpt/yolo11m-pose.pt',
+                      help='PyTorch模型路径')
+    parser.add_argument('--onnx_path', type=str, default='ckpt/yolo11m-pose.onnx',
+                      help='ONNX模型保存路径')
+    parser.add_argument('--engine_path', type=str, default='ckpt/yolo11m-pose.engine',
+                      help='TensorRT engine保存路径')
+    
+    # 推理相关参数
+    parser.add_argument('--image_path', type=str, default='data/coco8-pose/images/val/000000000113.jpg',
+                      help='输入图像路径')
+    parser.add_argument('--max_size', type=int, default=640,
+                      help='最大输入尺寸')
+    parser.add_argument('--stride', type=int, default=32,
+                      help='模型步长')
+    
+    # 后处理参数
+    parser.add_argument('--conf_thres', type=float, default=0.25,
+                      help='置信度阈值')
+    parser.add_argument('--iou_thres', type=float, default=0.7,
+                      help='IOU阈值')
+    
+    # 输出相关参数
+    parser.add_argument('--save_dir', type=str, default='runs/pose/',
+                      help='结果保存目录')
+    parser.add_argument('--save_torch', type=str, default='result_torch.jpg',
+                      help='PyTorch结果保存文件名')
+    parser.add_argument('--save_onnx', type=str, default='result_onnx.jpg',
+                      help='ONNX结果保存文件名')
+    parser.add_argument('--save_engine', type=str, default='result_engine.jpg',
+                      help='TensorRT结果保存文件名')
+    
+    # TensorRT相关参数
+    parser.add_argument('--fp16', action='store_true',
+                      help='是否使用FP16精度')
+    parser.add_argument('--min_batch', type=int, default=1,
+                      help='最小批次大小')
+    parser.add_argument('--max_batch', type=int, default=4,
+                      help='最大批次大小')
+    
+    return parser.parse_args()
 
 def calculate_target_size(orig_shape, max_size=640, stride=32):
     """
@@ -471,11 +520,11 @@ def boxes_rescale(boxes, orig_shape, preprocess_params):
     return boxes
 
 if __name__ == "__main__":
-    # 设置路径
-    model_path = "ckpt/yolo11m-pose.pt"
-    onnx_path = "ckpt/yolo11m-pose.onnx"
-    engine_path = "ckpt/yolo11m-pose.engine"
-    image_path = "data/coco8-pose/images/val/000000000113.jpg"
+    # 解析参数
+    args = parse_args()
+    
+    # 创建保存目录
+    os.makedirs(args.save_dir, exist_ok=True)
     
     # 检查CUDA可用性
     cuda_available, error_msg = check_cuda_available()
@@ -483,58 +532,66 @@ if __name__ == "__main__":
         print(f"警告：{error_msg}")
         print("将只执行ONNX推理，跳过TensorRT转换和推理")
     
-    # 设置参数
-    stride = 32  # 模型步长
-    max_size = 640  # 最大尺寸
-    
     # 读取图像
-    image = cv2.imread(image_path)
+    image = cv2.imread(args.image_path)
     if image is None:
-        raise ValueError(f"无法读取图像: {image_path}")
+        raise ValueError(f"无法读取图像: {args.image_path}")
     print("原始图像尺寸: ", image.shape)
     
     # 获取PyTorch模型结果
-    model = YOLO(model_path)
+    model = YOLO(args.model_path)
     torch_results = model(image)
     torch_img = torch_results[0].plot()
-    cv2.imwrite("result_torch.jpg", torch_img)
-    print("PyTorch结果已保存: result_torch.jpg")
+    torch_save_path = os.path.join(args.save_dir, args.save_torch)
+    cv2.imwrite(torch_save_path, torch_img)
+    print(f"PyTorch结果已保存: {torch_save_path}")
     
     # 导出ONNX和engine
-    if not os.path.exists(onnx_path):
-        export_onnx(model_path, onnx_path, max_size, stride)
+    if not os.path.exists(args.onnx_path):
+        export_onnx(args.model_path, args.onnx_path, args.max_size, args.stride)
     else:
-        print(f"ONNX文件已存在: {onnx_path}，跳过导出。")
+        print(f"ONNX文件已存在: {args.onnx_path}，跳过导出。")
 
     engine_converted = False
-    if cuda_available and not os.path.exists(engine_path):
-        engine_converted = onnx2engine(onnx_path, engine_path, fp16=True, max_size=max_size, stride=stride)
+    if cuda_available and not os.path.exists(args.engine_path):
+        engine_converted = onnx2engine(args.onnx_path, args.engine_path, 
+                                     fp16=args.fp16, max_size=args.max_size, 
+                                     stride=args.stride)
     else:
-        if os.path.exists(engine_path):
-            print(f"engine文件已存在: {engine_path}，跳过转换。")
+        if os.path.exists(args.engine_path):
+            print(f"engine文件已存在: {args.engine_path}，跳过转换。")
             engine_converted = True
         else:
             print("跳过TensorRT转换，因为CUDA不可用")
 
     # 预处理图像
-    img_input, orig_shape, preprocess_params = preprocess(image, max_size, stride)
+    img_input, orig_shape, preprocess_params = preprocess(image, args.max_size, args.stride)
     print("预处理后图像尺寸: ", img_input.shape)
 
     # ONNX推理
-    onnx_outputs = run_onnx(onnx_path, img_input)
-    onnx_kpts, onnx_boxes = postprocess_pose_output(onnx_outputs[0], conf_thres=0.25, iou_thres=0.7, nc=1)
+    onnx_outputs = run_onnx(args.onnx_path, img_input)
+    onnx_kpts, onnx_boxes = postprocess_pose_output(onnx_outputs[0], 
+                                                  conf_thres=args.conf_thres, 
+                                                  iou_thres=args.iou_thres, 
+                                                  nc=1)
     onnx_kpts = keypoints_rescale(onnx_kpts, orig_shape, preprocess_params)
     onnx_boxes = boxes_rescale(onnx_boxes, orig_shape, preprocess_params)
-    plot_pose(image.copy(), onnx_kpts, "result_onnx.jpg", boxes=onnx_boxes)
+    onnx_save_path = os.path.join(args.save_dir, args.save_onnx)
+    plot_pose(image.copy(), onnx_kpts, onnx_save_path, boxes=onnx_boxes)
 
     # TensorRT推理
     if engine_converted and cuda_available:
         try:
-            engine_outputs = run_engine(engine_path, img_input.astype(np.float32))
-            engine_kpts, engine_boxes = postprocess_pose_output(engine_outputs, conf_thres=0.25, iou_thres=0.7, nc=1)
+            engine_outputs = run_engine(args.engine_path, img_input.astype(np.float32))
+            engine_kpts, engine_boxes = postprocess_pose_output(engine_outputs, 
+                                                             conf_thres=args.conf_thres, 
+                                                             iou_thres=args.iou_thres, 
+                                                             nc=1)
             engine_kpts = keypoints_rescale(engine_kpts, orig_shape, preprocess_params)
             engine_boxes = boxes_rescale(engine_boxes, orig_shape, preprocess_params)
-            plot_pose(image.copy(), engine_kpts, "result_engine.jpg", boxes=engine_boxes)
+            print(f"engine_kpts.shape: {engine_kpts.shape}, engine_boxes.shape: {engine_boxes.shape}")
+            engine_save_path = os.path.join(args.save_dir, args.save_engine)
+            plot_pose(image.copy(), engine_kpts, engine_save_path, boxes=engine_boxes)
 
             # 对比输出
             if torch_results is not None:
