@@ -360,6 +360,7 @@ def run_engine(engine_path, img):
         img = np.ascontiguousarray(img)
         d_input = cuda.mem_alloc(img.nbytes)
         output = np.empty(output_shape, dtype=np.float32)
+        print(f"output.shape: {output.shape}")
         d_output = cuda.mem_alloc(output.nbytes)
 
         try:
@@ -583,6 +584,7 @@ if __name__ == "__main__":
     if engine_converted and cuda_available:
         try:
             engine_outputs = run_engine(args.engine_path, img_input.astype(np.float32))
+            print(f"engine_outputs.shape: {engine_outputs.shape}")
             engine_kpts, engine_boxes = postprocess_pose_output(engine_outputs, 
                                                              conf_thres=args.conf_thres, 
                                                              iou_thres=args.iou_thres, 

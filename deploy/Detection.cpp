@@ -1,4 +1,4 @@
-#include "trt_infer.h"
+#include "src/Detection/trt_infer.h"
 #include <iostream>
 #include <iomanip>
 #include <filesystem>
