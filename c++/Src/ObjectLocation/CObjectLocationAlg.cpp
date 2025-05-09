@@ -11,9 +11,22 @@
 #include <iostream>
 #include <filesystem>
 
+bool ObjectLocationConfig::loadFromFile(const std::string& path) {
+    std::ifstream input(path, std::ios::binary);
+    if (!input) {
+        std::cerr << "Failed to open config file: " << path << std::endl;
+        return false;
+    }
+    if (!m_config.ParseFromIstream(&input)) {
+        std::cerr << "Failed to parse protobuf config file: " << path << std::endl;
+        return false;
+    }
+    return true;
+}
+
 CObjectLocationAlg::CObjectLocationAlg(const std::string& exePath)
     : m_exePath(exePath)
-    , m_pConfig(std::make_shared<AlgorithmConfig>())
+    , m_pConfig(std::make_shared<ObjectLocationConfig>())
     , m_currentInput(nullptr)
     , m_currentOutput(nullptr)
     , m_callbackHandle(nullptr)
@@ -38,7 +51,7 @@ bool CObjectLocationAlg::initAlgorithm(CSelfAlgParam* p_pAlgParam, const AlgCall
 
     // 构建配置文件路径
     std::filesystem::path exePath(m_exePath);
-    std::string configPath = (exePath.parent_path() / "config" / "pose_estimation.yaml").string();
+    std::string configPath = (exePath.parent_path() / "config" / "PoseEstimationConfig.conf").string();
 
     // 加载配置文件
     if (!loadConfig(configPath)) {
@@ -89,23 +102,31 @@ bool CObjectLocationAlg::loadConfig(const std::string& configPath)
 
 bool CObjectLocationAlg::initModules()
 {
-    const auto& moduleConfigs = m_pConfig->getModuleConfigs();
+    const auto& poseConfig = m_pConfig->getPoseConfig();
+    const auto& modules = poseConfig.modules_config();
     m_moduleChain.clear();
 
-    for (const auto& config : moduleConfigs) {
-        // 通过工厂创建模块
-        auto module = ModuleFactory::getInstance().createModule(config.moduleName);
-        if (!module) {
-            std::cerr << "Failed to create module: " << config.moduleName << std::endl;
-            return false;
-        }
+    // 预处理
+    if (!modules.preprocess().empty()) {
+        auto module = ModuleFactory::getInstance().createModule("ObjectLocation", modules.preprocess());
+        if (!module) return false;
+        if (!module->init(&poseConfig.yolo_model_config())) return false;
+        m_moduleChain.push_back(module);
+    }
 
-        // 初始化模块
-        if (!module->init(nullptr)) {  // 这里需要传入适当的参数
-            std::cerr << "Failed to initialize module: " << config.moduleName << std::endl;
-            return false;
-        }
+    // 推理
+    if (!modules.inference().empty()) {
+        auto module = ModuleFactory::getInstance().createModule("ObjectLocation", modules.inference());
+        if (!module) return false;
+        if (!module->init(&poseConfig.yolo_model_config())) return false;
+        m_moduleChain.push_back(module);
+    }
 
+    // 后处理
+    if (!modules.postprocess().empty()) {
+        auto module = ModuleFactory::getInstance().createModule("ObjectLocation", modules.postprocess());
+        if (!module) return false;
+        if (!module->init(&poseConfig.yolo_model_config())) return false;
         m_moduleChain.push_back(module);
     }
 

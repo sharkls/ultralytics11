@@ -53,7 +53,7 @@ include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/av_opencv)
 include_directories(${CMAKE_SOURCE_DIR}/Include/ThirdPart/tiny_xml)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/Log/glog)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/yaml-cpp)
-
+include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/protobuf)
 # TensorRT 链接
 set(TENSORRT_ROOT /mnt/env/TensorRT-10.2.0.19)
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -64,6 +64,7 @@ link_directories(${CMAKE_SOURCE_DIR}/Output/Lib)
 link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL)
 # link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/Alg)
 link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/fastdds)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/protobuf)
 link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/av_opencv)
 
 
@@ -76,6 +77,7 @@ link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/av_opencv)
 # 子目录的路径
 add_subdirectory(Src)
 add_subdirectory(Submodules/FastddsSer)
+add_subdirectory(Submodules/ProtoSer)
 
 # 源文件的路径
 aux_source_directory(. HW_SRC_FILES)
@@ -105,12 +107,13 @@ if(CMAKE_PLATFORM MATCHES "86")
     target_link_libraries(${PROJECT_NAME} PRIVATE glog)
     # target_link_libraries(${PROJECT_NAME} PRIVATE cuhash)
     target_link_libraries(${PROJECT_NAME} PRIVATE FastddsSer)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ProtoSer)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${CUDA_LIBRARIES})
     target_link_libraries(${PROJECT_NAME} PRIVATE cudart)
 
 
     # 链接各算法模块的动态库
-    # target_link_libraries(${PROJECT_NAME} PRIVATE PoseEstimationAlg)
+    target_link_libraries(${PROJECT_NAME} PRIVATE PoseEstimationAlg)
     # target_link_libraries(${PROJECT_NAME} PRIVATE ObjectLocationAlg)
     target_link_libraries(${PROJECT_NAME} PRIVATE MultiModalFusionAlg)
 endif()

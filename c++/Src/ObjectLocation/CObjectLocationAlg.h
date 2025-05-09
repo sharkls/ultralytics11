@@ -6,19 +6,28 @@
  日期：2024-03-21
  *******************************************************/
 
-#ifndef COBJECT_LOCATION_ALG_H
-#define COBJECT_LOCATION_ALG_H
+#pragma once
 
 #include <memory>
 #include <vector>
 #include <string>
-#include <map>
 #include "../../Include/Interface/ExportObjectLocationAlgLib.h"
 #include "../Common/IBaseModule.h"
-#include "Config/AlgorithmConfig.h"
+#include "../Common/AlgorithmConfig.h"
+#include "../Common/ModuleFactory.h"
+#include "param/ObjectLocation_conf.pb.h"
 
 // 回调函数类型定义
 using ResultCallback = std::function<void(const void*)>;
+
+class ObjectLocationConfig : public AlgorithmConfig {
+public:
+    bool loadFromFile(const std::string& path) override;
+    const google::protobuf::Message* getConfigMessage() const override { return &m_config; }
+    const PoseConfig& getPoseConfig() const { return m_config; }
+private:
+    PoseConfig m_config;
+};
 
 class CObjectLocationAlg : public IObjectLocationAlg {
 public:
@@ -44,13 +53,11 @@ private:
 
 private:
     std::string m_exePath;                                    // 可执行文件路径
-    std::shared_ptr<AlgorithmConfig> m_pConfig;               // 配置对象
+    std::shared_ptr<ObjectLocationConfig> m_pConfig;               // 配置对象
     std::vector<std::shared_ptr<IBaseModule>> m_moduleChain;  // 模块执行链
     AlgCallback m_algCallback;                               // 算法回调函数
     void* m_callbackHandle;                                  // 回调函数句柄
     void* m_currentInput;                                    // 当前输入数据
     void* m_currentOutput;                                   // 当前输出数据
     ResultCallback m_resultCallback;                              // 结果回调函数
-};
-
-#endif // COBJECT_LOCATION_ALG_H 
+}; 

@@ -23,7 +23,7 @@ enum class ModuleType {
 
 class IBaseModule {
 public:
-    IBaseModule() = default;
+    IBaseModule(std::string exe_path) : m_exe_path(exe_path) {}
     virtual ~IBaseModule() = default;
 
     // 获取模块名称
@@ -33,7 +33,7 @@ public:
     virtual ModuleType getModuleType() const = 0;
 
     // 初始化模块，返回是否成功
-    virtual bool init(CSelfAlgParam* p_pAlgParam) = 0;
+    virtual bool init(void* p_pAlgParam) = 0;
 
     // 执行模块功能，返回执行结果
     virtual void* execute() = 0;
@@ -47,6 +47,9 @@ public:
     // 禁用拷贝构造和赋值操作
     IBaseModule(const IBaseModule&) = delete;
     IBaseModule& operator=(const IBaseModule&) = delete;
+
+protected:
+    std::string m_exe_path;
 };
 
 // 模块工厂基类

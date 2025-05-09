@@ -169,7 +169,7 @@ int main(int argc, char** argv) {
         // 准备算法参数
         CSelfAlgParam *l_stTestAlgParam = new CSelfAlgParam();
         l_stTestAlgParam->m_strRootPath = deploy_path + "/Output/";
-        l_stTestAlgParam->m_strEnginepath = "/ultralytics/runs/multimodal/train6/weights/last.engine";;
+        l_stTestAlgParam->m_strEnginepath = "/ultralytics/runs/multimodal/train6/weights/last.engine";
         l_stTestAlgParam->m_fConfidenceThreshold = 0.25;
         l_stTestAlgParam->m_fNmsThreshold = 0.45;
         l_stTestAlgParam->m_nNumClasses = 1;
