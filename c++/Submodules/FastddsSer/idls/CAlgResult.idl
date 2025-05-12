@@ -7,6 +7,14 @@
  *******************************************************/
 #include "CDataBase.idl"
 
+// 人体关键点信息
+struct Keypoint
+{
+    float x;
+    float y;
+    float confidence;
+};
+
 // 本帧中所有目标的信息
 struct CObjectResult {
     // 融合感知结果信息
@@ -32,6 +40,7 @@ struct CObjectResult {
     float                    fBottomRightX;   // 右下角像素点
     float                    fBottomRightY;   // 右下角像素点
     octet                    ucColor;         // 颜色
+    sequence<Keypoint, 20> vecKeypoints;      // 人体关键点信息（新增）
 
     // 跟踪结果相关信息
     unsigned short           usTargetId;      // 跟踪结果目标ID

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include "log.h"
 
 #include "CAlgResult.h"
 #include "CMultiModalSrcData.h"
@@ -24,21 +25,21 @@ CMultiModalSrcData loadOfflineData(std::string data_path, int index)
     // 加载可见光图像
     cv::Mat rgb_img = cv::imread(rgb_path);
     if (rgb_img.empty()) {
-        std::cerr << "Failed to load RGB image: " << rgb_path << std::endl;
+        LOG(ERROR) << "Failed to load RGB image: " << rgb_path << std::endl;
         return data;
     }
     
     // 加载红外图像
     cv::Mat ir_img = cv::imread(ir_path);
     if (ir_img.empty()) {
-        std::cerr << "Failed to load IR image: " << ir_path << std::endl;
+        LOG(ERROR) << "Failed to load IR image: " << ir_path << std::endl;
         return data;
     }
     
     // 加载单应性矩阵
     std::ifstream homography_file(homography_path);
     if (!homography_file.is_open()) {
-        std::cerr << "Failed to open homography file: " << homography_path << std::endl;
+        LOG(ERROR) << "Failed to open homography file: " << homography_path << std::endl;
         return data;
     }
     
@@ -46,7 +47,7 @@ CMultiModalSrcData loadOfflineData(std::string data_path, int index)
     std::array<float, 9> homography_matrix;
     for (int i = 0; i < 9; ++i) {
         if (!(homography_file >> homography_matrix[i])) {
-            std::cerr << "Failed to read homography matrix" << std::endl;
+            LOG(ERROR) << "Failed to read homography matrix" << std::endl;
             return data;
         }
     }
@@ -85,7 +86,7 @@ void testPoseEstimationAlg(const CAlgResult& alg_result, void* p_handle)
     // 加载原始图像用于可视化
     cv::Mat rgb_img = cv::imread(g_rgb_path);
     if (rgb_img.empty()) {
-        std::cerr << "无法加载原始图像用于可视化" << std::endl;
+        LOG(ERROR) << "无法加载原始图像用于可视化" << std::endl;
         return;
     }
 
@@ -123,13 +124,35 @@ void testPoseEstimationAlg(const CAlgResult& alg_result, void* p_handle)
                    cv::Point(x1, y1 - 5),
                    cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0), 2);
 
-        // // 打印详细信息到控制台
-        // std::cout << "\n检测目标信息:" << std::endl;
-        // std::cout << "类别: " << cls_name << std::endl;
-        // std::cout << "置信度: " << std::fixed << std::setprecision(4) << conf << std::endl;
-        // std::cout << "位置: [" << x1 << ", " << y1 << ", " << x2 << ", " << y2 << "]" << std::endl;
-        // std::cout << "目标ID: " << det.usTargetId() << std::endl;
-        // std::cout << "速度: " << det.sSpeed() << " m/s" << std::endl;
+        // 绘制关键点
+        const auto& keypoints = det.vecKeypoints();
+        for (size_t j = 0; j < keypoints.size(); ++j) {
+            float kpt_x = keypoints[j].x();
+            float kpt_y = keypoints[j].y();
+            float kpt_conf = keypoints[j].confidence();
+            if (kpt_conf > 0.3) {
+                cv::circle(rgb_img, cv::Point(kpt_x, kpt_y), 3, cv::Scalar(0, 255, 0), -1);
+            }
+        }
+
+        // （可选）骨架连线
+        static const int skeleton[][2] = {
+            {0,1},{1,2},{2,3},{3,4},
+            {0,5},{5,6},{6,7},{7,8},
+            {0,9},{9,10},{10,11},
+            {0,12},{12,13},{13,14},
+            {0,15},{15,16}
+        };
+        for (const auto& pair : skeleton) {
+            int idx1 = pair[0], idx2 = pair[1];
+            if (idx1 < keypoints.size() && idx2 < keypoints.size() &&
+                keypoints[idx1].confidence() > 0.3 && keypoints[idx2].confidence() > 0.3) {
+                cv::line(rgb_img, 
+                         cv::Point(keypoints[idx1].x(), keypoints[idx1].y()),
+                         cv::Point(keypoints[idx2].x(), keypoints[idx2].y()),
+                         cv::Scalar(255, 0, 0), 2);
+            }
+        }
     }
 
     // 保存结果
@@ -139,18 +162,18 @@ void testPoseEstimationAlg(const CAlgResult& alg_result, void* p_handle)
     // 检查保存目录是否存在
     if (!std::filesystem::exists(g_save_dir)) {
         std::filesystem::create_directories(g_save_dir);
-        std::cout << "创建保存目录: " << g_save_dir << std::endl;
+        LOG(INFO) << "创建保存目录: " << g_save_dir;
     }
     
     // 保存图像
     bool save_success = cv::imwrite(save_path, rgb_img);
     if (!save_success) {
-        std::cerr << "保存图像失败: " << save_path << std::endl;
+        LOG(ERROR) << "保存图像失败: " << save_path;
         return;
     }
     
-    std::cout << "推理完成，结果已保存到: " << save_path << std::endl;
-    std::cout << "检测到的目标数量: " << detections.size() << std::endl;
+    LOG(INFO) << "推理完成，结果已保存到: " << save_path;
+    LOG(INFO) << "检测到的目标数量: " << detections.size();
 }
 
 int main(int argc, char** argv) {
@@ -166,20 +189,7 @@ int main(int argc, char** argv) {
         // 准备算法参数
         CSelfAlgParam *l_stTestAlgParam = new CSelfAlgParam();
         l_stTestAlgParam->m_strRootPath = deploy_path + "/Output/";
-        l_stTestAlgParam->m_strEnginepath = "/ultralytics/runs/pose/last.engine";;
-        l_stTestAlgParam->m_fConfidenceThreshold = 0.25;
-        l_stTestAlgParam->m_fNmsThreshold = 0.7;
-        l_stTestAlgParam->m_nNumClasses = 1;
-        l_stTestAlgParam->m_nSrcInputHeight = 1080;
-        l_stTestAlgParam->m_nSrcInputWidth = 1920;
         
-        l_stTestAlgParam->m_nBatchSize = 1;
-        l_stTestAlgParam->m_nInputChannels = 3;
-        l_stTestAlgParam->m_nResizeOutputHeight = 640;
-        l_stTestAlgParam->m_nResizeOutputWidth = 640;
-        l_stTestAlgParam->m_nNumAnchors = 8400;
-        l_stTestAlgParam->m_nMaxDetections = 300;
-
         // 初始化算法接口对象
         l_pObj->initAlgorithm(l_stTestAlgParam, testPoseEstimationAlg, nullptr);
 
@@ -192,7 +202,7 @@ int main(int argc, char** argv) {
             l_pObj->runAlgorithm(&multi_modal_data);
         }
     } catch (const std::exception& e) {
-        std::cerr << "错误: " << e.what() << std::endl;
+        LOG(ERROR) << "错误: " << e.what() << std::endl;
         return -1;
     }
 

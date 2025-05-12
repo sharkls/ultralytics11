@@ -28,6 +28,8 @@ namespace _fl = ::google::protobuf::internal::field_layout;
 inline constexpr YOLOModelConfig::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        stride_{},
+        _stride_cached_byte_size_{0},
         engine_path_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
@@ -37,14 +39,16 @@ inline constexpr YOLOModelConfig::Impl_::Impl_(
         height_{0},
         conf_thres_{0},
         iou_thres_{0},
-        stride_{0},
         src_width_{0},
         src_height_{0},
         resize_ratio_{0},
         dw_{0},
         dh_{0},
         new_unpad_w_{0},
-        new_unpad_h_{0} {}
+        new_unpad_h_{0},
+        max_dets_{0},
+        num_keys_{0},
+        channels_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR YOLOModelConfig::YOLOModelConfig(::_pbi::ConstantInitialized)
@@ -197,6 +201,9 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.dh_),
         PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.new_unpad_w_),
         PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.new_unpad_h_),
+        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.max_dets_),
+        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.num_keys_),
+        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.channels_),
         0,
         1,
         2,
@@ -204,6 +211,7 @@ const ::uint32_t
         4,
         5,
         6,
+        ~0u,
         7,
         8,
         9,
@@ -212,6 +220,8 @@ const ::uint32_t
         12,
         13,
         14,
+        15,
+        16,
         PROTOBUF_FIELD_OFFSET(::PoseConfig, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::PoseConfig, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -230,8 +240,8 @@ static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, 10, -1, sizeof(::ModuleConfig)},
         {12, -1, -1, sizeof(::ModulesConfig)},
-        {21, 44, -1, sizeof(::YOLOModelConfig)},
-        {59, 69, -1, sizeof(::PoseConfig)},
+        {21, 47, -1, sizeof(::YOLOModelConfig)},
+        {65, 75, -1, sizeof(::PoseConfig)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::_ModuleConfig_default_instance_._instance,
@@ -244,22 +254,24 @@ const char descriptor_table_protodef_PoseEstimation_5fconf_2eproto[] ABSL_ATTRIB
     "\n\031PoseEstimation_conf.proto\"*\n\014ModuleCon"
     "fig\022\014\n\004type\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\"/\n\rModul"
     "esConfig\022\036\n\007modules\030\001 \003(\0132\r.ModuleConfig"
-    "\"\242\002\n\017YOLOModelConfig\022\023\n\013engine_path\030\001 \001("
+    "\"\330\002\n\017YOLOModelConfig\022\023\n\013engine_path\030\001 \001("
     "\t\022\021\n\tnum_class\030\002 \001(\005\022\022\n\nbatch_size\030\003 \001(\005"
     "\022\r\n\005width\030\004 \001(\005\022\016\n\006height\030\005 \001(\005\022\022\n\nconf_"
     "thres\030\006 \001(\002\022\021\n\tiou_thres\030\007 \001(\002\022\016\n\006stride"
-    "\030\010 \001(\005\022\021\n\tsrc_width\030\t \001(\005\022\022\n\nsrc_height\030"
+    "\030\010 \003(\005\022\021\n\tsrc_width\030\t \001(\005\022\022\n\nsrc_height\030"
     "\n \001(\005\022\024\n\014resize_ratio\030\013 \001(\002\022\n\n\002dw\030\014 \001(\005\022"
     "\n\n\002dh\030\r \001(\005\022\023\n\013new_unpad_w\030\016 \001(\005\022\023\n\013new_"
-    "unpad_h\030\017 \001(\005\"a\n\nPoseConfig\022+\n\021yolo_mode"
-    "l_config\030\001 \001(\0132\020.YOLOModelConfig\022&\n\016modu"
-    "les_config\030\002 \001(\0132\016.ModulesConfigb\006proto3"
+    "unpad_h\030\017 \001(\005\022\020\n\010max_dets\030\020 \001(\005\022\020\n\010num_k"
+    "eys\030\021 \001(\005\022\020\n\010channels\030\022 \001(\005\"a\n\nPoseConfi"
+    "g\022+\n\021yolo_model_config\030\001 \001(\0132\020.YOLOModel"
+    "Config\022&\n\016modules_config\030\002 \001(\0132\016.Modules"
+    "Configb\006proto3"
 };
 static ::absl::once_flag descriptor_table_PoseEstimation_5fconf_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_PoseEstimation_5fconf_2eproto = {
     false,
     false,
-    520,
+    574,
     descriptor_table_protodef_PoseEstimation_5fconf_2eproto,
     "PoseEstimation_conf.proto",
     &descriptor_table_PoseEstimation_5fconf_2eproto_once,
@@ -849,6 +861,8 @@ PROTOBUF_NDEBUG_INLINE YOLOModelConfig::Impl_::Impl_(
     const Impl_& from, const ::YOLOModelConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
+        stride_{visibility, arena, from.stride_},
+        _stride_cached_byte_size_{0},
         engine_path_(arena, from.engine_path_) {}
 
 YOLOModelConfig::YOLOModelConfig(
@@ -868,9 +882,9 @@ YOLOModelConfig::YOLOModelConfig(
                offsetof(Impl_, num_class_),
            reinterpret_cast<const char *>(&from._impl_) +
                offsetof(Impl_, num_class_),
-           offsetof(Impl_, new_unpad_h_) -
+           offsetof(Impl_, channels_) -
                offsetof(Impl_, num_class_) +
-               sizeof(Impl_::new_unpad_h_));
+               sizeof(Impl_::channels_));
 
   // @@protoc_insertion_point(copy_constructor:YOLOModelConfig)
 }
@@ -878,6 +892,8 @@ PROTOBUF_NDEBUG_INLINE YOLOModelConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
       : _cached_size_{0},
+        stride_{visibility, arena},
+        _stride_cached_byte_size_{0},
         engine_path_(arena) {}
 
 inline void YOLOModelConfig::SharedCtor(::_pb::Arena* arena) {
@@ -885,9 +901,9 @@ inline void YOLOModelConfig::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, num_class_),
            0,
-           offsetof(Impl_, new_unpad_h_) -
+           offsetof(Impl_, channels_) -
                offsetof(Impl_, num_class_) +
-               sizeof(Impl_::new_unpad_h_));
+               sizeof(Impl_::channels_));
 }
 YOLOModelConfig::~YOLOModelConfig() {
   // @@protoc_insertion_point(destructor:YOLOModelConfig)
@@ -906,8 +922,20 @@ inline void* YOLOModelConfig::PlacementNew_(const void*, void* mem,
   return ::new (mem) YOLOModelConfig(arena);
 }
 constexpr auto YOLOModelConfig::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(YOLOModelConfig),
-                                            alignof(YOLOModelConfig));
+  constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
+      PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.stride_) +
+          decltype(YOLOModelConfig::_impl_.stride_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+  });
+  if (arena_bits.has_value()) {
+    return ::google::protobuf::internal::MessageCreator::CopyInit(
+        sizeof(YOLOModelConfig), alignof(YOLOModelConfig), *arena_bits);
+  } else {
+    return ::google::protobuf::internal::MessageCreator(&YOLOModelConfig::PlacementNew_,
+                                 sizeof(YOLOModelConfig),
+                                 alignof(YOLOModelConfig));
+  }
 }
 constexpr auto YOLOModelConfig::InternalGenerateClassData_() {
   return ::google::protobuf::internal::ClassDataFull{
@@ -943,15 +971,15 @@ const ::google::protobuf::internal::ClassData* YOLOModelConfig::GetClassData() c
   return YOLOModelConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<4, 15, 0, 43, 2> YOLOModelConfig::_table_ = {
+const ::_pbi::TcParseTable<5, 18, 0, 51, 2> YOLOModelConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_._has_bits_),
     0, // no _extensions_
-    15, 120,  // max_field_number, fast_idx_mask
+    18, 248,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294934528,  // skipmap
+    4294705152,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    15,  // num_field_entries
+    18,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     YOLOModelConfig_class_data_.base(),
@@ -983,30 +1011,52 @@ const ::_pbi::TcParseTable<4, 15, 0, 43, 2> YOLOModelConfig::_table_ = {
     // float iou_thres = 7;
     {::_pbi::TcParser::FastF32S1,
      {61, 6, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.iou_thres_)}},
-    // int32 stride = 8;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.stride_), 7>(),
-     {64, 7, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.stride_)}},
+    // repeated int32 stride = 8;
+    {::_pbi::TcParser::FastV32P1,
+     {66, 63, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.stride_)}},
     // int32 src_width = 9;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.src_width_), 8>(),
-     {72, 8, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.src_width_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.src_width_), 7>(),
+     {72, 7, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.src_width_)}},
     // int32 src_height = 10;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.src_height_), 9>(),
-     {80, 9, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.src_height_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.src_height_), 8>(),
+     {80, 8, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.src_height_)}},
     // float resize_ratio = 11;
     {::_pbi::TcParser::FastF32S1,
-     {93, 10, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.resize_ratio_)}},
+     {93, 9, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.resize_ratio_)}},
     // int32 dw = 12;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.dw_), 11>(),
-     {96, 11, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.dw_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.dw_), 10>(),
+     {96, 10, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.dw_)}},
     // int32 dh = 13;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.dh_), 12>(),
-     {104, 12, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.dh_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.dh_), 11>(),
+     {104, 11, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.dh_)}},
     // int32 new_unpad_w = 14;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.new_unpad_w_), 13>(),
-     {112, 13, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_unpad_w_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.new_unpad_w_), 12>(),
+     {112, 12, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_unpad_w_)}},
     // int32 new_unpad_h = 15;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.new_unpad_h_), 14>(),
-     {120, 14, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_unpad_h_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(YOLOModelConfig, _impl_.new_unpad_h_), 13>(),
+     {120, 13, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_unpad_h_)}},
+    // int32 max_dets = 16;
+    {::_pbi::TcParser::FastV32S2,
+     {384, 14, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.max_dets_)}},
+    // int32 num_keys = 17;
+    {::_pbi::TcParser::FastV32S2,
+     {392, 15, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.num_keys_)}},
+    // int32 channels = 18;
+    {::_pbi::TcParser::FastV32S2,
+     {400, 16, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.channels_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
@@ -1031,34 +1081,43 @@ const ::_pbi::TcParseTable<4, 15, 0, 43, 2> YOLOModelConfig::_table_ = {
     // float iou_thres = 7;
     {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.iou_thres_), _Internal::kHasBitsOffset + 6, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
-    // int32 stride = 8;
-    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.stride_), _Internal::kHasBitsOffset + 7, 0,
-    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // repeated int32 stride = 8;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.stride_), -1, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kPackedInt32)},
     // int32 src_width = 9;
-    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.src_width_), _Internal::kHasBitsOffset + 8, 0,
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.src_width_), _Internal::kHasBitsOffset + 7, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // int32 src_height = 10;
-    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.src_height_), _Internal::kHasBitsOffset + 9, 0,
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.src_height_), _Internal::kHasBitsOffset + 8, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // float resize_ratio = 11;
-    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.resize_ratio_), _Internal::kHasBitsOffset + 10, 0,
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.resize_ratio_), _Internal::kHasBitsOffset + 9, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
     // int32 dw = 12;
-    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.dw_), _Internal::kHasBitsOffset + 11, 0,
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.dw_), _Internal::kHasBitsOffset + 10, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // int32 dh = 13;
-    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.dh_), _Internal::kHasBitsOffset + 12, 0,
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.dh_), _Internal::kHasBitsOffset + 11, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // int32 new_unpad_w = 14;
-    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_unpad_w_), _Internal::kHasBitsOffset + 13, 0,
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_unpad_w_), _Internal::kHasBitsOffset + 12, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // int32 new_unpad_h = 15;
-    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_unpad_h_), _Internal::kHasBitsOffset + 14, 0,
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_unpad_h_), _Internal::kHasBitsOffset + 13, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 max_dets = 16;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.max_dets_), _Internal::kHasBitsOffset + 14, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 num_keys = 17;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.num_keys_), _Internal::kHasBitsOffset + 15, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 channels = 18;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.channels_), _Internal::kHasBitsOffset + 16, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }},
   // no aux_entries
   {{
-    "\17\13\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+    "\17\13\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
     "YOLOModelConfig"
     "engine_path"
   }},
@@ -1071,20 +1130,22 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  _impl_.stride_.Clear();
   cached_has_bits = _impl_._has_bits_[0];
   if (cached_has_bits & 0x00000001u) {
     _impl_.engine_path_.ClearNonDefaultToEmpty();
   }
   if (cached_has_bits & 0x000000feu) {
     ::memset(&_impl_.num_class_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.stride_) -
-        reinterpret_cast<char*>(&_impl_.num_class_)) + sizeof(_impl_.stride_));
+        reinterpret_cast<char*>(&_impl_.src_width_) -
+        reinterpret_cast<char*>(&_impl_.num_class_)) + sizeof(_impl_.src_width_));
   }
-  if (cached_has_bits & 0x00007f00u) {
-    ::memset(&_impl_.src_width_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.new_unpad_h_) -
-        reinterpret_cast<char*>(&_impl_.src_width_)) + sizeof(_impl_.new_unpad_h_));
+  if (cached_has_bits & 0x0000ff00u) {
+    ::memset(&_impl_.src_height_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.num_keys_) -
+        reinterpret_cast<char*>(&_impl_.src_height_)) + sizeof(_impl_.num_keys_));
   }
+  _impl_.channels_ = 0;
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -1168,17 +1229,17 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
             }
           }
 
-          // int32 stride = 8;
-          if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
-            if (this_._internal_stride() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<8>(
-                      stream, this_._internal_stride(), target);
+          // repeated int32 stride = 8;
+          {
+            int byte_size = this_._impl_._stride_cached_byte_size_.Get();
+            if (byte_size > 0) {
+              target = stream->WriteInt32Packed(
+                  8, this_._internal_stride(), byte_size, target);
             }
           }
 
           // int32 src_width = 9;
-          if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
+          if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
             if (this_._internal_src_width() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<9>(
@@ -1187,7 +1248,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
           }
 
           // int32 src_height = 10;
-          if ((this_._impl_._has_bits_[0] & 0x00000200u) != 0) {
+          if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
             if (this_._internal_src_height() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<10>(
@@ -1196,7 +1257,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
           }
 
           // float resize_ratio = 11;
-          if ((this_._impl_._has_bits_[0] & 0x00000400u) != 0) {
+          if ((this_._impl_._has_bits_[0] & 0x00000200u) != 0) {
             if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio()) != 0) {
               target = stream->EnsureSpace(target);
               target = ::_pbi::WireFormatLite::WriteFloatToArray(
@@ -1205,7 +1266,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
           }
 
           // int32 dw = 12;
-          if ((this_._impl_._has_bits_[0] & 0x00000800u) != 0) {
+          if ((this_._impl_._has_bits_[0] & 0x00000400u) != 0) {
             if (this_._internal_dw() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<12>(
@@ -1214,7 +1275,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
           }
 
           // int32 dh = 13;
-          if ((this_._impl_._has_bits_[0] & 0x00001000u) != 0) {
+          if ((this_._impl_._has_bits_[0] & 0x00000800u) != 0) {
             if (this_._internal_dh() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<13>(
@@ -1223,7 +1284,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
           }
 
           // int32 new_unpad_w = 14;
-          if ((this_._impl_._has_bits_[0] & 0x00002000u) != 0) {
+          if ((this_._impl_._has_bits_[0] & 0x00001000u) != 0) {
             if (this_._internal_new_unpad_w() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<14>(
@@ -1232,11 +1293,38 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
           }
 
           // int32 new_unpad_h = 15;
-          if ((this_._impl_._has_bits_[0] & 0x00004000u) != 0) {
+          if ((this_._impl_._has_bits_[0] & 0x00002000u) != 0) {
             if (this_._internal_new_unpad_h() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<15>(
                       stream, this_._internal_new_unpad_h(), target);
+            }
+          }
+
+          // int32 max_dets = 16;
+          if ((this_._impl_._has_bits_[0] & 0x00004000u) != 0) {
+            if (this_._internal_max_dets() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  16, this_._internal_max_dets(), target);
+            }
+          }
+
+          // int32 num_keys = 17;
+          if ((this_._impl_._has_bits_[0] & 0x00008000u) != 0) {
+            if (this_._internal_num_keys() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  17, this_._internal_num_keys(), target);
+            }
+          }
+
+          // int32 channels = 18;
+          if ((this_._impl_._has_bits_[0] & 0x00010000u) != 0) {
+            if (this_._internal_channels() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  18, this_._internal_channels(), target);
             }
           }
 
@@ -1264,6 +1352,15 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
           (void)cached_has_bits;
 
           ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+           {
+            // repeated int32 stride = 8;
+            {
+              total_size +=
+                  ::_pbi::WireFormatLite::Int32SizeWithPackedTagSize(
+                      this_._internal_stride(), 1,
+                      this_._impl_._stride_cached_byte_size_);
+            }
+          }
           cached_has_bits = this_._impl_._has_bits_[0];
           if (cached_has_bits & 0x000000ffu) {
             // string engine_path = 1;
@@ -1313,61 +1410,77 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
                 total_size += 5;
               }
             }
-            // int32 stride = 8;
-            if (cached_has_bits & 0x00000080u) {
-              if (this_._internal_stride() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_stride());
-              }
-            }
-          }
-          if (cached_has_bits & 0x00007f00u) {
             // int32 src_width = 9;
-            if (cached_has_bits & 0x00000100u) {
+            if (cached_has_bits & 0x00000080u) {
               if (this_._internal_src_width() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
                     this_._internal_src_width());
               }
             }
+          }
+          if (cached_has_bits & 0x0000ff00u) {
             // int32 src_height = 10;
-            if (cached_has_bits & 0x00000200u) {
+            if (cached_has_bits & 0x00000100u) {
               if (this_._internal_src_height() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
                     this_._internal_src_height());
               }
             }
             // float resize_ratio = 11;
-            if (cached_has_bits & 0x00000400u) {
+            if (cached_has_bits & 0x00000200u) {
               if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio()) != 0) {
                 total_size += 5;
               }
             }
             // int32 dw = 12;
-            if (cached_has_bits & 0x00000800u) {
+            if (cached_has_bits & 0x00000400u) {
               if (this_._internal_dw() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
                     this_._internal_dw());
               }
             }
             // int32 dh = 13;
-            if (cached_has_bits & 0x00001000u) {
+            if (cached_has_bits & 0x00000800u) {
               if (this_._internal_dh() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
                     this_._internal_dh());
               }
             }
             // int32 new_unpad_w = 14;
-            if (cached_has_bits & 0x00002000u) {
+            if (cached_has_bits & 0x00001000u) {
               if (this_._internal_new_unpad_w() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
                     this_._internal_new_unpad_w());
               }
             }
             // int32 new_unpad_h = 15;
-            if (cached_has_bits & 0x00004000u) {
+            if (cached_has_bits & 0x00002000u) {
               if (this_._internal_new_unpad_h() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
                     this_._internal_new_unpad_h());
+              }
+            }
+            // int32 max_dets = 16;
+            if (cached_has_bits & 0x00004000u) {
+              if (this_._internal_max_dets() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_max_dets());
+              }
+            }
+            // int32 num_keys = 17;
+            if (cached_has_bits & 0x00008000u) {
+              if (this_._internal_num_keys() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_num_keys());
+              }
+            }
+          }
+           {
+            // int32 channels = 18;
+            if (cached_has_bits & 0x00010000u) {
+              if (this_._internal_channels() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_channels());
               }
             }
           }
@@ -1383,6 +1496,7 @@ void YOLOModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  _this->_internal_mutable_stride()->MergeFrom(from._internal_stride());
   cached_has_bits = from._impl_._has_bits_[0];
   if (cached_has_bits & 0x000000ffu) {
     if (cached_has_bits & 0x00000001u) {
@@ -1425,46 +1539,56 @@ void YOLOModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
       }
     }
     if (cached_has_bits & 0x00000080u) {
-      if (from._internal_stride() != 0) {
-        _this->_impl_.stride_ = from._impl_.stride_;
-      }
-    }
-  }
-  if (cached_has_bits & 0x00007f00u) {
-    if (cached_has_bits & 0x00000100u) {
       if (from._internal_src_width() != 0) {
         _this->_impl_.src_width_ = from._impl_.src_width_;
       }
     }
-    if (cached_has_bits & 0x00000200u) {
+  }
+  if (cached_has_bits & 0x0000ff00u) {
+    if (cached_has_bits & 0x00000100u) {
       if (from._internal_src_height() != 0) {
         _this->_impl_.src_height_ = from._impl_.src_height_;
       }
     }
-    if (cached_has_bits & 0x00000400u) {
+    if (cached_has_bits & 0x00000200u) {
       if (::absl::bit_cast<::uint32_t>(from._internal_resize_ratio()) != 0) {
         _this->_impl_.resize_ratio_ = from._impl_.resize_ratio_;
       }
     }
-    if (cached_has_bits & 0x00000800u) {
+    if (cached_has_bits & 0x00000400u) {
       if (from._internal_dw() != 0) {
         _this->_impl_.dw_ = from._impl_.dw_;
       }
     }
-    if (cached_has_bits & 0x00001000u) {
+    if (cached_has_bits & 0x00000800u) {
       if (from._internal_dh() != 0) {
         _this->_impl_.dh_ = from._impl_.dh_;
       }
     }
-    if (cached_has_bits & 0x00002000u) {
+    if (cached_has_bits & 0x00001000u) {
       if (from._internal_new_unpad_w() != 0) {
         _this->_impl_.new_unpad_w_ = from._impl_.new_unpad_w_;
       }
     }
-    if (cached_has_bits & 0x00004000u) {
+    if (cached_has_bits & 0x00002000u) {
       if (from._internal_new_unpad_h() != 0) {
         _this->_impl_.new_unpad_h_ = from._impl_.new_unpad_h_;
       }
+    }
+    if (cached_has_bits & 0x00004000u) {
+      if (from._internal_max_dets() != 0) {
+        _this->_impl_.max_dets_ = from._impl_.max_dets_;
+      }
+    }
+    if (cached_has_bits & 0x00008000u) {
+      if (from._internal_num_keys() != 0) {
+        _this->_impl_.num_keys_ = from._impl_.num_keys_;
+      }
+    }
+  }
+  if (cached_has_bits & 0x00010000u) {
+    if (from._internal_channels() != 0) {
+      _this->_impl_.channels_ = from._impl_.channels_;
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -1485,10 +1609,11 @@ void YOLOModelConfig::InternalSwap(YOLOModelConfig* PROTOBUF_RESTRICT other) {
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.stride_.InternalSwap(&other->_impl_.stride_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.engine_path_, &other->_impl_.engine_path_, arena);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_unpad_h_)
-      + sizeof(YOLOModelConfig::_impl_.new_unpad_h_)
+      PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.channels_)
+      + sizeof(YOLOModelConfig::_impl_.channels_)
       - PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.num_class_)>(
           reinterpret_cast<char*>(&_impl_.num_class_),
           reinterpret_cast<char*>(&other->_impl_.num_class_));

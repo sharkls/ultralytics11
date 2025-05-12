@@ -39,10 +39,12 @@ add_definitions(-w)   # 不显示warning
 
 message("CMAKE_SOURCE_DIR= " ${CMAKE_SOURCE_DIR})
 
-# 包含头文件的路径
+# 包含头文件的路径(Fastdds 、 Proto定义文件)
 include_directories(${CMAKE_SOURCE_DIR}/Submodules/FastddsSer/data)
 include_directories(${CMAKE_SOURCE_DIR}/Submodules/FastddsSer/param)
-
+include_directories(${CMAKE_SOURCE_DIR}/Submodules/ProtoSer/data)
+include_directories(${CMAKE_SOURCE_DIR}/Submodules/ProtoSer/param)
+# 包含头文件的路径
 include_directories(${CMAKE_SOURCE_DIR}/Src)
 include_directories(${CMAKE_SOURCE_DIR}/Include/AlgParam)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Interface)
@@ -50,29 +52,33 @@ include_directories(${CMAKE_SOURCE_DIR}/Include/Common)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/fastdds)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/av_opencv)
-include_directories(${CMAKE_SOURCE_DIR}/Include/ThirdPart/tiny_xml)
-include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/Log/glog)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/yaml-cpp)
-include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/protobuf)
+
+# 新的头文件
+include_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/tinyxml2/include)
+include_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/glog/include)
+include_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/protobuf/include)
+include_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/googletest/include)
+include_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/gflags/include)
 # TensorRT 链接
 set(TENSORRT_ROOT /mnt/env/TensorRT-10.2.0.19)
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${TENSORRT_ROOT}/include)
 link_directories(${TENSORRT_ROOT}/lib)
 
 # 链接动态库的路径
 link_directories(${CMAKE_SOURCE_DIR}/Output/Lib)
 link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL)
-# link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/Alg)
 link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/fastdds)
-link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/protobuf)
 link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/av_opencv)
 
+# 新头文件
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/protobuf/lib)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/googletest/lib)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/gflags/lib)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/yaml-cpp/lib)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/tinyxml2/lib)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/glog/lib)
 
-# if(CMAKE_PLATFORM MATCHES "86")
-#     link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/Alg/libtorch)
-#     link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/av_opencv)
-# else()
-# endif()
 
 # 子目录的路径
 add_subdirectory(Src)
@@ -103,13 +109,14 @@ if(CMAKE_PLATFORM MATCHES "86")
     target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2)
     target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs)
     target_link_libraries(${PROJECT_NAME} PRIVATE pthread)
-    target_link_libraries(${PROJECT_NAME} PRIVATE nvinfer nvinfer_plugin  nvonnxparser) # TensorRT nvparsers
     target_link_libraries(${PROJECT_NAME} PRIVATE glog)
-    # target_link_libraries(${PROJECT_NAME} PRIVATE cuhash)
+    target_link_libraries(${PROJECT_NAME} PRIVATE protobuf)
     target_link_libraries(${PROJECT_NAME} PRIVATE FastddsSer)
     target_link_libraries(${PROJECT_NAME} PRIVATE ProtoSer)
+    target_link_libraries(${PROJECT_NAME} PRIVATE nvinfer nvinfer_plugin  nvonnxparser) # TensorRT nvparsers
     target_link_libraries(${PROJECT_NAME} PRIVATE ${CUDA_LIBRARIES})
     target_link_libraries(${PROJECT_NAME} PRIVATE cudart)
+    # target_link_libraries(${PROJECT_NAME} PRIVATE cuhash)
 
 
     # 链接各算法模块的动态库
@@ -121,4 +128,4 @@ endif()
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-set(CMAKE_INSTALL_RPATH "${CMAKE_SOURCE_DIR}/Output/Lib;${CMAKE_SOURCE_DIR}/Submodules/TPL;${CMAKE_SOURCE_DIR}/Submodules/TPL/fastdds;${CMAKE_SOURCE_DIR}/Submodules/TPL/av_opencv")
+set(CMAKE_INSTALL_RPATH "${CMAKE_SOURCE_DIR}/Output/Lib;${CMAKE_SOURCE_DIR}/Submodules/TPL;${CMAKE_SOURCE_DIR}/Submodules/TPL/fastdds;${CMAKE_SOURCE_DIR}/Submodules/TPL/av_opencv;${CMAKE_SOURCE_DIR}/Submodules/TPL/yaml-cpp/lib")

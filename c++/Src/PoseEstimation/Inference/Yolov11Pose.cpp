@@ -1,72 +1,178 @@
 #include "Yolov11Pose.h"
 
-
-// #include <NvInfer.h>
-// #include <cuda_runtime_api.h>
-
-
-Yolov11Pose::Yolov11Pose(const std::string& exe_path) : IBaseModule(exe_path) {
+Yolov11Pose::Yolov11Pose(const std::string& exe_path) : IBaseModule(exe_path) 
+{
     // 构造函数初始化
     input_buffers_.resize(1, nullptr);
     output_buffers_.resize(1, nullptr);
-    // 其它成员初始化
+
+    // 初始化CUDA流
+    cudaError_t cuda_status = cudaStreamCreate(&stream_);
+    if (cuda_status != cudaSuccess) {
+        throw std::runtime_error("创建CUDA流失败: " + std::string(cudaGetErrorString(cuda_status)));
+    }
 }
 
 Yolov11Pose::~Yolov11Pose() {
     cleanup();
 }
 
-bool Yolov11Pose::init(void* p_pAlgParam) {
+bool Yolov11Pose::init(void* p_pAlgParam) 
+{   
+    // 配置参数核验
     if (!p_pAlgParam) return false;
-    m_poseConfig = *static_cast<PoseConfig*>(p_pAlgParam);
+    m_poseConfig = *static_cast<YOLOModelConfig*>(p_pAlgParam);
 
-    const auto& yolo_cfg = m_poseConfig.yolo_model_config();
-    conf_thres_ = yolo_cfg.conf_thres();
-    iou_thres_ = yolo_cfg.iou_thres();
-    num_classes_ = yolo_cfg.num_class();
-    new_unpad_h_ = yolo_cfg.height();
-    new_unpad_w_ = yolo_cfg.width();
-    // dw/dh/ratio/stride 需根据实际预处理逻辑设置，这里假设proto有这些字段
-    dw_ = yolo_cfg.dw();
-    dh_ = yolo_cfg.dh();
-    ratio_ = yolo_cfg.resize_ratio();
-    stride_ = yolo_cfg.stride();
-    batch_size_ = yolo_cfg.batch_size();
+    // 配置参数获取
+    engine_path_ = m_poseConfig.engine_path();
+    conf_thres_ = m_poseConfig.conf_thres();
+    iou_thres_ = m_poseConfig.iou_thres();
+    num_classes_ = m_poseConfig.num_class();
+    new_unpad_h_ = m_poseConfig.height();
+    new_unpad_w_ = m_poseConfig.width();
+    dw_ = m_poseConfig.dw();
+    dh_ = m_poseConfig.dh();
+    ratio_ = m_poseConfig.resize_ratio();
+    stride_.assign(m_poseConfig.stride().begin(), m_poseConfig.stride().end());
+    // stride_ = m_poseConfig.stride();
+    channels_ = m_poseConfig.channels();
+    batch_size_ = m_poseConfig.batch_size();
+    num_keys_ = m_poseConfig.num_keys();
+    max_dets_ = m_poseConfig.max_dets();
+    src_width_ = m_poseConfig.src_width();
+    src_height_ = m_poseConfig.src_height();
 
+    // 计算实际需要的填充尺寸
+    target_h_ = new_unpad_h_;
+    target_w_ = new_unpad_w_;
+    if (src_width_ < src_height_) {
+        // 高度大于宽度，宽度需要填充
+        target_w_ = ((new_unpad_w_ + stride_[2] - 1) / stride_[2]) * stride_[2];
+    } else {
+        // 宽度大于高度，高度需要填充
+        target_h_ = ((new_unpad_h_ + stride_[2] - 1) / stride_[2]) * stride_[2];
+    }
 
-    // 这里初始化TensorRT引擎、分配buffer等，参考trt_infer.cpp
-    // ... engine加载、runtime/context初始化、buffer分配等 ...
+    // 计算anchor_nums
+    for(int stride : stride_) {
+        num_anchors_ += (new_unpad_h_ / stride) * (new_unpad_w_ / stride);
+    }
+
     return true;
 }
 
-void Yolov11Pose::setInput(void* input) {
+void Yolov11Pose::initTensorRT() 
+{
+    // 初始化TensorRT引擎、分配buffer、engine加载、runtime/context初始化、buffer分配等
+    // 1. 加载engine
+    std::ifstream file(engine_path_, std::ios::binary);
+    if (!file.good()) {
+        throw std::runtime_error("无法打开engine文件");
+    }
+
+    file.seekg(0, std::ios::end);
+    size_t size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::vector<char> engineData(size);
+    file.read(engineData.data(), size);
+    file.close();
+    LOG(INFO) << "[TensorRT] Loaded engine size: " << size / (1024 * 1024) << " MiB";
+
+    // 2. 创建runtime和engine
+    runtime_.reset(nvinfer1::createInferRuntime(logger_));
+    if (!runtime_) {
+        throw std::runtime_error("创建TensorRT runtime失败");
+    }
+
+    engine_.reset(runtime_->deserializeCudaEngine(engineData.data(), size));
+    if (!engine_) {
+        throw std::runtime_error("反序列化engine失败");
+    }
+
+    // 3. 创建执行上下文
+    context_.reset(engine_->createExecutionContext());
+    if (!context_) {
+        throw std::runtime_error("创建执行上下文失败");
+    }
+
+    // 4. 获取输入输出信息
+    input_name_ = engine_->getIOTensorName(0);
+    input_dims_.nbDims = 4;
+    input_dims_.d[0] = batch_size_;
+    input_dims_.d[1] = channels_;
+    input_dims_.d[2] = target_h_;
+    input_dims_.d[3] = target_w_;
+    if (!context_->setInputShape(input_name_, input_dims_)) {
+        throw std::runtime_error("设置输入形状失败");
+    }
+
+    output_name_ = engine_->getIOTensorName(1);
+    output_dims_ = context_->getTensorShape(output_name_);
+
+    // 5. 计算输入输出大小
+    input_size_ = batch_size_ * channels_ * target_h_ * target_w_;
+    output_size_ = batch_size_ * (4 + num_classes_ + num_keys_ * 3) * num_anchors_;
+
+    // 6.1 分配输入GPU内存
+    void* input_buffer = nullptr;
+    cudaError_t cuda_status = cudaMalloc(&input_buffer, input_size_ * sizeof(float));
+    if (cuda_status != cudaSuccess) {
+        throw std::runtime_error("分配输入GPU内存失败: " + std::string(cudaGetErrorString(cuda_status)));
+    }
+    input_buffers_[0] = input_buffer;
+
+    // 6.2 分配输出GPU内存
+    void* output_buffer = nullptr;
+    cuda_status = cudaMalloc(&output_buffer, output_size_ * sizeof(float));
+    if (cuda_status != cudaSuccess) {
+        // 清理已分配的内存
+        cudaFree(input_buffer);
+        throw std::runtime_error("分配输出GPU内存失败: " + std::string(cudaGetErrorString(cuda_status)));
+    }
+    output_buffers_[0] = output_buffer;
+
+    // 7.设置绑定
+    if (!context_->setTensorAddress(input_name_, input_buffers_[0])) {
+        // 清理已分配的内存
+        cudaFree(input_buffer);
+        cudaFree(output_buffer);
+        throw std::runtime_error("设置输入张量地址失败");
+    }
+    if (!context_->setTensorAddress(output_name_, output_buffers_[0])) {
+        // 清理已分配的内存
+        cudaFree(input_buffer);
+        cudaFree(output_buffer);
+        throw std::runtime_error("设置输出张量地址失败");
+    }
+}
+
+void Yolov11Pose::setInput(void* input) 
+{   
+    // 核验输入数据的合法性并进行类型转换和保存
     if (!input) {
         LOG(ERROR) << "输入为空";
         return;
     }
-    m_inputImage = *static_cast<cv::Mat*>(input);
+    m_inputImage = *static_cast<std::vector<float>*>(input);
 }
 
 void* Yolov11Pose::getOutput() {
     return &m_outputResult;
 }
 
-void* Yolov11Pose::execute() {
-    if (m_inputImage.empty()) {
-        LOG(ERROR) << "预处理输出为空";
-        return nullptr;
-    }
-    cv::Mat preprocessed = m_inputImage;
+void Yolov11Pose::execute() 
+{
+    // 执行推理
+    std::vector<float> output = inference();
 
-    const auto& yolo_cfg = m_poseConfig.yolo_model_config();
-    std::vector<float> output = inference(preprocessed);
+    // 结果后处理
+    std::vector<std::vector<float>> results = process_output(output);
 
-    
-
-    auto results = process_output(output);
-    // m_outputResult = ...;
-    return &m_outputResult;
+    // 输出格式转换
+    m_outputResult = formatConverted(results);
 }
+
 
 void Yolov11Pose::cleanup() {
     for (auto& buf : input_buffers_) {
@@ -81,51 +187,70 @@ void Yolov11Pose::cleanup() {
     runtime_.reset();
 }
 
-std::vector<float> Yolov11Pose::inference(const cv::Mat& img)
-{
-    std::vector<float> input;
 
+// 将模型输出结果转换为CAlgResult
+CAlgResult Yolov11Pose::formatConverted(std::vector<std::vector<float>> results)
+{
+    CAlgResult alg_result;
+    CFrameResult frame_result;
+
+    for (const auto& result : results) {
+        CObjectResult obj_result;
+
+        // 边界框
+        obj_result.fTopLeftX(result[0]);
+        obj_result.fTopLeftY(result[1]);
+        obj_result.fBottomRightX(result[2]);
+        obj_result.fBottomRightY(result[3]);
+        // 置信度
+        obj_result.fVideoConfidence(result[4]);
+        // 类别
+        obj_result.strClass(std::to_string(static_cast<int>(result[5])));
+
+        // 关键点
+        std::vector<Keypoint> keypoints;
+        for (int j = 0; j < num_keys_; ++j) 
+        {
+            Keypoint kp;
+            kp.x(result[6 + j * 3]);                // 6（box + class_id + conf） + 3(kpt1_x, kpt1_y, kpt1_conf) * j
+            kp.y(result[6 + j * 3 + 1]);
+            kp.confidence(result[6 + j * 3 + 2]);
+            keypoints.push_back(kp);
+        }
+        obj_result.vecKeypoints(keypoints);
+        frame_result.vecObjectResult().push_back(obj_result);
+    }
+
+    alg_result.vecFrameResult({frame_result});
+    return alg_result;
+}
+
+std::vector<float> Yolov11Pose::inference()
+{   
+    // 初始化输出
+    std::vector<float> output(output_size_);
+
+    // 确认输入数据内存状态并拷贝输入
     if (input_buffers_.empty() || input_buffers_[0] == nullptr) {
         throw std::runtime_error("输入缓冲区未正确初始化");
     }
-
-    const char* input_name = engine_->getIOTensorName(0);
-    nvinfer1::Dims input_dims;
-    input_dims.nbDims = 4;
-    input_dims.d[0] = batch_size_;
-    input_dims.d[1] = 3;
-    input_dims.d[2] = new_unpad_h_;
-    input_dims.d[3] = new_unpad_w_;
-
-    if (!context_->setInputShape(input_name, input_dims)) {
-        throw std::runtime_error("设置输入形状失败");
-    }
-
-    size_t input_size = input.size() * sizeof(float);
-    cudaError_t cuda_status = cudaMemcpyAsync(input_buffers_[0], input.data(),
-                                              input_size,
+    cudaError_t cuda_status = cudaMemcpyAsync(input_buffers_[0], input_.data(),
+                                              input_size_,
                                               cudaMemcpyHostToDevice, stream_);
     if (cuda_status != cudaSuccess) {
         throw std::runtime_error("CUDA内存拷贝失败: " + std::string(cudaGetErrorString(cuda_status)));
     }
 
+    // 执行推理
     bool status = context_->enqueueV3(stream_);
     if (!status) {
         throw std::runtime_error("TensorRT推理失败");
     }
     cudaStreamSynchronize(stream_);
 
-    const char* output_name = engine_->getIOTensorName(1);
-    nvinfer1::Dims output_dims = context_->getTensorShape(output_name);
-
-    size_t output_size = 1;
-    for (int i = 0; i < output_dims.nbDims; ++i) {
-        output_size *= output_dims.d[i];
-    }
-
-    std::vector<float> output(output_size);
+    // 拷贝输出
     cuda_status = cudaMemcpyAsync(output.data(), output_buffers_[0],
-                                  output_size * sizeof(float),
+                                  output_size_ * sizeof(float),
                                   cudaMemcpyDeviceToHost, stream_);
     if (cuda_status != cudaSuccess) {
         throw std::runtime_error("CUDA输出内存拷贝失败: " + std::string(cudaGetErrorString(cuda_status)));
@@ -135,12 +260,8 @@ std::vector<float> Yolov11Pose::inference(const cv::Mat& img)
     return output;
 }
 
-void Yolov11Pose::preprocess(const cv::Mat& img, std::vector<float>& input) {
-    // 参考trt_infer.cpp实现，直接用成员变量
-    // ...
-}
-
-void Yolov11Pose::rescale_coords(std::vector<float>& coords, bool is_keypoint) {
+void Yolov11Pose::rescale_coords(std::vector<float>& coords, bool is_keypoint) 
+{
     if (coords.empty()) return;
     if (is_keypoint) {
         for (size_t i = 0; i < coords.size(); i += 3) {
@@ -159,7 +280,7 @@ void Yolov11Pose::rescale_coords(std::vector<float>& coords, bool is_keypoint) {
 
 std::vector<std::vector<float>> Yolov11Pose::process_keypoints(const std::vector<float>& output, const std::vector<std::vector<float>>& boxes) {
     std::vector<std::vector<float>> keypoints;
-    int num_keypoints = 17; // 可根据模型实际调整
+    int num_keypoints = num_keys_; // 可根据模型实际调整
     for (size_t i = 0; i < boxes.size(); ++i) {
         std::vector<float> kpts;
         int kpt_start = 6; // 可根据模型实际调整
@@ -177,10 +298,10 @@ std::vector<std::vector<float>> Yolov11Pose::process_keypoints(const std::vector
     return keypoints;
 }
 
-std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<float>& output) {
-    // 1. 计算anchor数量和特征维度
-    int num_anchors = (new_unpad_h_ / stride_) * (new_unpad_w_ / stride_);
-    int feature_dim = 4 + num_classes_ + 51; // 4 bbox + num_classes + 17*3关键点
+std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<float>& output) 
+{
+    // 1. 输出特征维度
+    int feature_dim = 4 + num_classes_ + num_keys_ * 3 ; // 4 bbox + num_classes + 17*3关键点
     std::vector<std::vector<float>> results;
 
     // 2. 遍历所有anchor，筛选置信度大于阈值的候选框
@@ -189,7 +310,7 @@ std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<fl
     std::vector<int> class_ids;
     std::vector<std::vector<float>> keypoints;
 
-    for (int i = 0; i < num_anchors; ++i) {
+    for (int i = 0; i < num_anchors_; ++i) {
         // 取bbox
         float x = output[i * feature_dim + 0];
         float y = output[i * feature_dim + 1];
@@ -220,7 +341,7 @@ std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<fl
 
         // 关键点
         std::vector<float> kpts;
-        for (int j = 0; j < 51; j += 3) {
+        for (int j = 0; j < num_keys_ * 3; j += 3) {
             float kpt_x = (output[i * feature_dim + 4 + num_classes_ + j] - dw_) / ratio_;
             float kpt_y = (output[i * feature_dim + 4 + num_classes_ + j + 1] - dh_) / ratio_;
             float kpt_conf = output[i * feature_dim + 4 + num_classes_ + j + 2];
@@ -258,14 +379,14 @@ std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<fl
     std::sort(results.begin(), results.end(), [](const std::vector<float>& a, const std::vector<float>& b) {
         return a[4] > b[4];
     });
-    if (results.size() > 300) results.resize(300);
+    if (results.size() > max_dets_) results.resize(max_dets_);
 
     return results;
 }
 
 std::vector<int> Yolov11Pose::nms(const std::vector<std::vector<float>>& boxes, const std::vector<float>& scores) 
 {
-    float iou_threshold = 0.5f; // 可根据成员变量或配置调整
+    float iou_threshold = iou_thres_; // 可根据成员变量或配置调整
     std::vector<int> indices(scores.size());
     std::iota(indices.begin(), indices.end(), 0);
     std::sort(indices.begin(), indices.end(),

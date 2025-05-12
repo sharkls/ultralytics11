@@ -5,7 +5,7 @@ project(ProtoSer VERSION 0.0.1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Output/Devel)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Output/Lib)
 
 aux_source_directory(./data SRC_FILES)
 aux_source_directory(./param SRC_FILES)

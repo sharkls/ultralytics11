@@ -36,7 +36,7 @@ public:
     virtual bool init(void* p_pAlgParam) = 0;
 
     // 执行模块功能，返回执行结果
-    virtual void* execute() = 0;
+    virtual void execute() = 0;
 
     // 设置输入数据
     virtual void setInput(void* input) = 0;

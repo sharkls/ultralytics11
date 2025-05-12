@@ -226,6 +226,7 @@ class YOLOModelConfig final
 
   // accessors -------------------------------------------------------
   enum : int {
+    kStrideFieldNumber = 8,
     kEnginePathFieldNumber = 1,
     kNumClassFieldNumber = 2,
     kBatchSizeFieldNumber = 3,
@@ -233,7 +234,6 @@ class YOLOModelConfig final
     kHeightFieldNumber = 5,
     kConfThresFieldNumber = 6,
     kIouThresFieldNumber = 7,
-    kStrideFieldNumber = 8,
     kSrcWidthFieldNumber = 9,
     kSrcHeightFieldNumber = 10,
     kResizeRatioFieldNumber = 11,
@@ -241,7 +241,28 @@ class YOLOModelConfig final
     kDhFieldNumber = 13,
     kNewUnpadWFieldNumber = 14,
     kNewUnpadHFieldNumber = 15,
+    kMaxDetsFieldNumber = 16,
+    kNumKeysFieldNumber = 17,
+    kChannelsFieldNumber = 18,
   };
+  // repeated int32 stride = 8;
+  int stride_size() const;
+  private:
+  int _internal_stride_size() const;
+
+  public:
+  void clear_stride() ;
+  ::int32_t stride(int index) const;
+  void set_stride(int index, ::int32_t value);
+  void add_stride(::int32_t value);
+  const ::google::protobuf::RepeatedField<::int32_t>& stride() const;
+  ::google::protobuf::RepeatedField<::int32_t>* mutable_stride();
+
+  private:
+  const ::google::protobuf::RepeatedField<::int32_t>& _internal_stride() const;
+  ::google::protobuf::RepeatedField<::int32_t>* _internal_mutable_stride();
+
+  public:
   // string engine_path = 1;
   void clear_engine_path() ;
   const std::string& engine_path() const;
@@ -317,16 +338,6 @@ class YOLOModelConfig final
   void _internal_set_iou_thres(float value);
 
   public:
-  // int32 stride = 8;
-  void clear_stride() ;
-  ::int32_t stride() const;
-  void set_stride(::int32_t value);
-
-  private:
-  ::int32_t _internal_stride() const;
-  void _internal_set_stride(::int32_t value);
-
-  public:
   // int32 src_width = 9;
   void clear_src_width() ;
   ::int32_t src_width() const;
@@ -397,13 +408,43 @@ class YOLOModelConfig final
   void _internal_set_new_unpad_h(::int32_t value);
 
   public:
+  // int32 max_dets = 16;
+  void clear_max_dets() ;
+  ::int32_t max_dets() const;
+  void set_max_dets(::int32_t value);
+
+  private:
+  ::int32_t _internal_max_dets() const;
+  void _internal_set_max_dets(::int32_t value);
+
+  public:
+  // int32 num_keys = 17;
+  void clear_num_keys() ;
+  ::int32_t num_keys() const;
+  void set_num_keys(::int32_t value);
+
+  private:
+  ::int32_t _internal_num_keys() const;
+  void _internal_set_num_keys(::int32_t value);
+
+  public:
+  // int32 channels = 18;
+  void clear_channels() ;
+  ::int32_t channels() const;
+  void set_channels(::int32_t value);
+
+  private:
+  ::int32_t _internal_channels() const;
+  void _internal_set_channels(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:YOLOModelConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      4, 15, 0,
-      43, 2>
+      5, 18, 0,
+      51, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -422,6 +463,8 @@ class YOLOModelConfig final
                           const YOLOModelConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedField<::int32_t> stride_;
+    ::google::protobuf::internal::CachedSize _stride_cached_byte_size_;
     ::google::protobuf::internal::ArenaStringPtr engine_path_;
     ::int32_t num_class_;
     ::int32_t batch_size_;
@@ -429,7 +472,6 @@ class YOLOModelConfig final
     ::int32_t height_;
     float conf_thres_;
     float iou_thres_;
-    ::int32_t stride_;
     ::int32_t src_width_;
     ::int32_t src_height_;
     float resize_ratio_;
@@ -437,6 +479,9 @@ class YOLOModelConfig final
     ::int32_t dh_;
     ::int32_t new_unpad_w_;
     ::int32_t new_unpad_h_;
+    ::int32_t max_dets_;
+    ::int32_t num_keys_;
+    ::int32_t channels_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1492,35 +1537,56 @@ inline void YOLOModelConfig::_internal_set_iou_thres(float value) {
   _impl_.iou_thres_ = value;
 }
 
-// int32 stride = 8;
+// repeated int32 stride = 8;
+inline int YOLOModelConfig::_internal_stride_size() const {
+  return _internal_stride().size();
+}
+inline int YOLOModelConfig::stride_size() const {
+  return _internal_stride_size();
+}
 inline void YOLOModelConfig::clear_stride() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.stride_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000080u;
+  _impl_.stride_.Clear();
 }
-inline ::int32_t YOLOModelConfig::stride() const {
+inline ::int32_t YOLOModelConfig::stride(int index) const {
   // @@protoc_insertion_point(field_get:YOLOModelConfig.stride)
-  return _internal_stride();
+  return _internal_stride().Get(index);
 }
-inline void YOLOModelConfig::set_stride(::int32_t value) {
-  _internal_set_stride(value);
-  _impl_._has_bits_[0] |= 0x00000080u;
+inline void YOLOModelConfig::set_stride(int index, ::int32_t value) {
+  _internal_mutable_stride()->Set(index, value);
   // @@protoc_insertion_point(field_set:YOLOModelConfig.stride)
 }
-inline ::int32_t YOLOModelConfig::_internal_stride() const {
+inline void YOLOModelConfig::add_stride(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _internal_mutable_stride()->Add(value);
+  // @@protoc_insertion_point(field_add:YOLOModelConfig.stride)
+}
+inline const ::google::protobuf::RepeatedField<::int32_t>& YOLOModelConfig::stride() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:YOLOModelConfig.stride)
+  return _internal_stride();
+}
+inline ::google::protobuf::RepeatedField<::int32_t>* YOLOModelConfig::mutable_stride()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:YOLOModelConfig.stride)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_stride();
+}
+inline const ::google::protobuf::RepeatedField<::int32_t>&
+YOLOModelConfig::_internal_stride() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.stride_;
 }
-inline void YOLOModelConfig::_internal_set_stride(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.stride_ = value;
+inline ::google::protobuf::RepeatedField<::int32_t>* YOLOModelConfig::_internal_mutable_stride() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.stride_;
 }
 
 // int32 src_width = 9;
 inline void YOLOModelConfig::clear_src_width() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.src_width_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000100u;
+  _impl_._has_bits_[0] &= ~0x00000080u;
 }
 inline ::int32_t YOLOModelConfig::src_width() const {
   // @@protoc_insertion_point(field_get:YOLOModelConfig.src_width)
@@ -1528,7 +1594,7 @@ inline ::int32_t YOLOModelConfig::src_width() const {
 }
 inline void YOLOModelConfig::set_src_width(::int32_t value) {
   _internal_set_src_width(value);
-  _impl_._has_bits_[0] |= 0x00000100u;
+  _impl_._has_bits_[0] |= 0x00000080u;
   // @@protoc_insertion_point(field_set:YOLOModelConfig.src_width)
 }
 inline ::int32_t YOLOModelConfig::_internal_src_width() const {
@@ -1544,7 +1610,7 @@ inline void YOLOModelConfig::_internal_set_src_width(::int32_t value) {
 inline void YOLOModelConfig::clear_src_height() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.src_height_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000200u;
+  _impl_._has_bits_[0] &= ~0x00000100u;
 }
 inline ::int32_t YOLOModelConfig::src_height() const {
   // @@protoc_insertion_point(field_get:YOLOModelConfig.src_height)
@@ -1552,7 +1618,7 @@ inline ::int32_t YOLOModelConfig::src_height() const {
 }
 inline void YOLOModelConfig::set_src_height(::int32_t value) {
   _internal_set_src_height(value);
-  _impl_._has_bits_[0] |= 0x00000200u;
+  _impl_._has_bits_[0] |= 0x00000100u;
   // @@protoc_insertion_point(field_set:YOLOModelConfig.src_height)
 }
 inline ::int32_t YOLOModelConfig::_internal_src_height() const {
@@ -1568,7 +1634,7 @@ inline void YOLOModelConfig::_internal_set_src_height(::int32_t value) {
 inline void YOLOModelConfig::clear_resize_ratio() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.resize_ratio_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000400u;
+  _impl_._has_bits_[0] &= ~0x00000200u;
 }
 inline float YOLOModelConfig::resize_ratio() const {
   // @@protoc_insertion_point(field_get:YOLOModelConfig.resize_ratio)
@@ -1576,7 +1642,7 @@ inline float YOLOModelConfig::resize_ratio() const {
 }
 inline void YOLOModelConfig::set_resize_ratio(float value) {
   _internal_set_resize_ratio(value);
-  _impl_._has_bits_[0] |= 0x00000400u;
+  _impl_._has_bits_[0] |= 0x00000200u;
   // @@protoc_insertion_point(field_set:YOLOModelConfig.resize_ratio)
 }
 inline float YOLOModelConfig::_internal_resize_ratio() const {
@@ -1592,7 +1658,7 @@ inline void YOLOModelConfig::_internal_set_resize_ratio(float value) {
 inline void YOLOModelConfig::clear_dw() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.dw_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000800u;
+  _impl_._has_bits_[0] &= ~0x00000400u;
 }
 inline ::int32_t YOLOModelConfig::dw() const {
   // @@protoc_insertion_point(field_get:YOLOModelConfig.dw)
@@ -1600,7 +1666,7 @@ inline ::int32_t YOLOModelConfig::dw() const {
 }
 inline void YOLOModelConfig::set_dw(::int32_t value) {
   _internal_set_dw(value);
-  _impl_._has_bits_[0] |= 0x00000800u;
+  _impl_._has_bits_[0] |= 0x00000400u;
   // @@protoc_insertion_point(field_set:YOLOModelConfig.dw)
 }
 inline ::int32_t YOLOModelConfig::_internal_dw() const {
@@ -1616,7 +1682,7 @@ inline void YOLOModelConfig::_internal_set_dw(::int32_t value) {
 inline void YOLOModelConfig::clear_dh() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.dh_ = 0;
-  _impl_._has_bits_[0] &= ~0x00001000u;
+  _impl_._has_bits_[0] &= ~0x00000800u;
 }
 inline ::int32_t YOLOModelConfig::dh() const {
   // @@protoc_insertion_point(field_get:YOLOModelConfig.dh)
@@ -1624,7 +1690,7 @@ inline ::int32_t YOLOModelConfig::dh() const {
 }
 inline void YOLOModelConfig::set_dh(::int32_t value) {
   _internal_set_dh(value);
-  _impl_._has_bits_[0] |= 0x00001000u;
+  _impl_._has_bits_[0] |= 0x00000800u;
   // @@protoc_insertion_point(field_set:YOLOModelConfig.dh)
 }
 inline ::int32_t YOLOModelConfig::_internal_dh() const {
@@ -1640,7 +1706,7 @@ inline void YOLOModelConfig::_internal_set_dh(::int32_t value) {
 inline void YOLOModelConfig::clear_new_unpad_w() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.new_unpad_w_ = 0;
-  _impl_._has_bits_[0] &= ~0x00002000u;
+  _impl_._has_bits_[0] &= ~0x00001000u;
 }
 inline ::int32_t YOLOModelConfig::new_unpad_w() const {
   // @@protoc_insertion_point(field_get:YOLOModelConfig.new_unpad_w)
@@ -1648,7 +1714,7 @@ inline ::int32_t YOLOModelConfig::new_unpad_w() const {
 }
 inline void YOLOModelConfig::set_new_unpad_w(::int32_t value) {
   _internal_set_new_unpad_w(value);
-  _impl_._has_bits_[0] |= 0x00002000u;
+  _impl_._has_bits_[0] |= 0x00001000u;
   // @@protoc_insertion_point(field_set:YOLOModelConfig.new_unpad_w)
 }
 inline ::int32_t YOLOModelConfig::_internal_new_unpad_w() const {
@@ -1664,7 +1730,7 @@ inline void YOLOModelConfig::_internal_set_new_unpad_w(::int32_t value) {
 inline void YOLOModelConfig::clear_new_unpad_h() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.new_unpad_h_ = 0;
-  _impl_._has_bits_[0] &= ~0x00004000u;
+  _impl_._has_bits_[0] &= ~0x00002000u;
 }
 inline ::int32_t YOLOModelConfig::new_unpad_h() const {
   // @@protoc_insertion_point(field_get:YOLOModelConfig.new_unpad_h)
@@ -1672,7 +1738,7 @@ inline ::int32_t YOLOModelConfig::new_unpad_h() const {
 }
 inline void YOLOModelConfig::set_new_unpad_h(::int32_t value) {
   _internal_set_new_unpad_h(value);
-  _impl_._has_bits_[0] |= 0x00004000u;
+  _impl_._has_bits_[0] |= 0x00002000u;
   // @@protoc_insertion_point(field_set:YOLOModelConfig.new_unpad_h)
 }
 inline ::int32_t YOLOModelConfig::_internal_new_unpad_h() const {
@@ -1682,6 +1748,78 @@ inline ::int32_t YOLOModelConfig::_internal_new_unpad_h() const {
 inline void YOLOModelConfig::_internal_set_new_unpad_h(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.new_unpad_h_ = value;
+}
+
+// int32 max_dets = 16;
+inline void YOLOModelConfig::clear_max_dets() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.max_dets_ = 0;
+  _impl_._has_bits_[0] &= ~0x00004000u;
+}
+inline ::int32_t YOLOModelConfig::max_dets() const {
+  // @@protoc_insertion_point(field_get:YOLOModelConfig.max_dets)
+  return _internal_max_dets();
+}
+inline void YOLOModelConfig::set_max_dets(::int32_t value) {
+  _internal_set_max_dets(value);
+  _impl_._has_bits_[0] |= 0x00004000u;
+  // @@protoc_insertion_point(field_set:YOLOModelConfig.max_dets)
+}
+inline ::int32_t YOLOModelConfig::_internal_max_dets() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.max_dets_;
+}
+inline void YOLOModelConfig::_internal_set_max_dets(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.max_dets_ = value;
+}
+
+// int32 num_keys = 17;
+inline void YOLOModelConfig::clear_num_keys() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.num_keys_ = 0;
+  _impl_._has_bits_[0] &= ~0x00008000u;
+}
+inline ::int32_t YOLOModelConfig::num_keys() const {
+  // @@protoc_insertion_point(field_get:YOLOModelConfig.num_keys)
+  return _internal_num_keys();
+}
+inline void YOLOModelConfig::set_num_keys(::int32_t value) {
+  _internal_set_num_keys(value);
+  _impl_._has_bits_[0] |= 0x00008000u;
+  // @@protoc_insertion_point(field_set:YOLOModelConfig.num_keys)
+}
+inline ::int32_t YOLOModelConfig::_internal_num_keys() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.num_keys_;
+}
+inline void YOLOModelConfig::_internal_set_num_keys(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.num_keys_ = value;
+}
+
+// int32 channels = 18;
+inline void YOLOModelConfig::clear_channels() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.channels_ = 0;
+  _impl_._has_bits_[0] &= ~0x00010000u;
+}
+inline ::int32_t YOLOModelConfig::channels() const {
+  // @@protoc_insertion_point(field_get:YOLOModelConfig.channels)
+  return _internal_channels();
+}
+inline void YOLOModelConfig::set_channels(::int32_t value) {
+  _internal_set_channels(value);
+  _impl_._has_bits_[0] |= 0x00010000u;
+  // @@protoc_insertion_point(field_set:YOLOModelConfig.channels)
+}
+inline ::int32_t YOLOModelConfig::_internal_channels() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.channels_;
+}
+inline void YOLOModelConfig::_internal_set_channels(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.channels_ = value;
 }
 
 // -------------------------------------------------------------------

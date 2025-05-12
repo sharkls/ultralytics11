@@ -13,23 +13,25 @@ message ModulesConfig {
 
 // 姿态估计模型详细配置
 message YOLOModelConfig {
-    string engine_path = 1; // 模型engine路径
-    int32 num_class = 2;    // 目标类型数量
-    int32 batch_size = 3;   // 批次大小
-    int32 width = 4;        // 模型输入图像宽度
-    int32 height = 5;       // 模型输入图像高度
-    float conf_thres = 6;   // 置信度阈值
-    float iou_thres = 7;    // IoU阈值
-    int32 stride = 8;       // 模型下采样步长
-    int32 src_width = 9;    // 原始图像宽度
-    int32 src_height = 10;  // 原始图像高度
-    float resize_ratio = 11;// 等比缩放比例
-    int32 dw = 12;          // 宽度填充值
-    int32 dh = 13;          // 高度填充值
-    int32 new_unpad_w = 14; // 未填充前的图像宽度
-    int32 new_unpad_h = 15; // 未填充前的图像高度
-    int32 max_dets = 16;
-    int32 num_keys = 17;
+    string engine_path = 1;     // 模型engine路径
+    int32 num_class = 2;        // 目标类型数量
+    int32 batch_size = 3;       // 批次大小
+    int32 width = 4;            // 模型输入图像宽度
+    int32 height = 5;           // 模型输入图像高度
+    float conf_thres = 6;       // 置信度阈值
+    float iou_thres = 7;        // IoU阈值
+    repeated int32 stride = 8;  // 模型下采样步长（数组）
+    int32 src_width = 9;        // 原始图像宽度
+    int32 src_height = 10;      // 原始图像高度
+    float resize_ratio = 11;    // 等比缩放比例
+    int32 dw = 12;              // 宽度填充值
+    int32 dh = 13;              // 高度填充值
+    int32 new_unpad_w = 14;     // 未填充前的图像宽度
+    int32 new_unpad_h = 15;     // 未填充前的图像高度
+    int32 max_dets = 16;        // 最大检测目标数量
+    int32 num_keys = 17;        // 关键点数量
+    int32 channels = 18;        // 图像数据通道数
+    
 }
 
 // 姿态估计任务配置参数

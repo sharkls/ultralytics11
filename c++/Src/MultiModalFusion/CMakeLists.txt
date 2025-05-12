@@ -92,7 +92,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 # 设置库的运行时路径
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    INSTALL_RPATH "${CMAKE_SOURCE_DIR}/Submodules/TPL;${CMAKE_SOURCE_DIR}/Submodules/TPL/fastdds;${CMAKE_SOURCE_DIR}/Submodules/TPL/av_opencv;${CMAKE_SOURCE_DIR}/Output/Lib"
+    INSTALL_RPATH "${CMAKE_SOURCE_DIR}/Submodules/TPL;${CMAKE_SOURCE_DIR}/Submodules/TPL/fastdds;${CMAKE_SOURCE_DIR}/Submodules/TPL/av_opencv;${CMAKE_SOURCE_DIR}/Output/Lib;${CMAKE_SOURCE_DIR}/Submodules/TPL/yaml-cpp"
     BUILD_WITH_INSTALL_RPATH TRUE
     INSTALL_RPATH_USE_LINK_PATH TRUE
 )

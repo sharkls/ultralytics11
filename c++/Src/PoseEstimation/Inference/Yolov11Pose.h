@@ -17,10 +17,21 @@
 #include <numeric>
 #include <cstring>
 #include <opencv2/opencv.hpp>
+#include "log.h"
+#include <NvInfer.h>
+#include <cuda_runtime_api.h>
+
 #include "IBaseModule.h"
 #include "CMultiModalSrcData.h"
 #include "PoseEstimation_conf.pb.h"
-#include "glog/logging.h"
+
+// TensorRT日志记录器
+class Logger : public nvinfer1::ILogger {
+    void log(Severity severity, const char* msg) noexcept override {
+        if (severity <= Severity::kINFO)
+            std::cout << "[TensorRT] " << msg << std::endl;
+    }
+};
 
 namespace nvinfer1 {
     class IRuntime;
@@ -39,41 +50,58 @@ public:
     std::string getModuleName() const override { return "Yolov11Pose"; }
     ModuleType getModuleType() const override { return ModuleType::INFERENCE; }
     bool init(void* p_pAlgParam) override;
-    void* execute() override;
+    void execute() override;
     void setInput(void* input) override;
     void* getOutput() override;
 
     void cleanup();
-    std::vector<float> inference(const cv::Mat& img);
-    void preprocess(const cv::Mat& img, std::vector<float>& input);
+    void initTensorRT();
+    std::vector<float> inference();
     void rescale_coords(std::vector<float>& coords, bool is_keypoint);
-    std::vector<std::vector<float>> process_keypoints(const std::vector<float>& output, const std::vector<std::vector<float>>& boxes);
     std::vector<std::vector<float>> process_output(const std::vector<float>& output);
+    std::vector<std::vector<float>> process_keypoints(const std::vector<float>& output, const std::vector<std::vector<float>>& boxes);
     std::vector<int> nms(const std::vector<std::vector<float>>& boxes, const std::vector<float>& scores);
+    CAlgResult formatConverted(std::vector<std::vector<float>> results);
 
 private:
-    PoseConfig m_poseConfig;
-    cv::Mat m_inputImage;
-    // 假设最终输出结构体为CAlgResult
-    CAlgResult m_outputResult;
+    YOLOModelConfig m_poseConfig;       // 配置参数
+    std::vector<float> m_inputImage;    // 输入图像数据
+    CAlgResult m_outputResult;          // 输出结果
 
     // TensorRT相关成员
     std::unique_ptr<nvinfer1::IRuntime> runtime_;
     std::unique_ptr<nvinfer1::ICudaEngine> engine_;
     std::unique_ptr<nvinfer1::IExecutionContext> context_;
+    Logger logger_;
     std::vector<void*> input_buffers_;
     std::vector<void*> output_buffers_;
     cudaStream_t stream_ = nullptr;
+    const char* input_name_;
+    const char* output_name_;
+    nvinfer1::Dims input_dims_;
+    nvinfer1::Dims output_dims_;
+    size_t input_size_ = 1;
+    size_t output_size_ = 1;
+    std::vector<float> input_;      // 模型输入数据缓存区
 
     // 后处理参数
     int new_unpad_h_;
     int new_unpad_w_;
     int dw_;
     int dh_;
-    float ratio_;
-    int stride_;
-    int batch_size_;
+    float ratio_ = 1;
+    std::vector<int> stride_;
+    int batch_size_ = 1;
     float conf_thres_;
     float iou_thres_;
     int num_classes_;
+    int channels_;
+    int num_keys_;
+    int max_dets_ = 300;
+    int src_width_;
+    int src_height_;
+    int target_h_;
+    int target_w_;
+    int num_anchors_ = 0;
+    std::string engine_path_;
 };

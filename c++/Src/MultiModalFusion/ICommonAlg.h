@@ -3,7 +3,7 @@
 
 #include <opencv2/core/mat.hpp>
 #include "log.h"
-#include "yaml-cpp/yaml.h"
+#include "yaml.h"
 #include "CSelfAlgParam.h"
 #include "CMultiModalSrcData.h"
 
