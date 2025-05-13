@@ -23,8 +23,15 @@
 
 #include "IBaseModule.h"
 #include "ModuleFactory.h"
+#include "FunctionHub.h"
 #include "CMultiModalSrcData.h"
 #include "PoseEstimation_conf.pb.h"
+
+namespace nvinfer1 {
+    class IRuntime;
+    class ICudaEngine;
+    class IExecutionContext;
+}
 
 // TensorRT日志记录器
 class Logger : public nvinfer1::ILogger {
@@ -34,11 +41,6 @@ class Logger : public nvinfer1::ILogger {
     }
 };
 
-namespace nvinfer1 {
-    class IRuntime;
-    class ICudaEngine;
-    class IExecutionContext;
-}
 extern "C" {
     typedef struct CUstream_st* cudaStream_t;
 }
@@ -67,7 +69,6 @@ public:
 private:
     YOLOModelConfig m_poseConfig;       // 配置参数
     std::vector<float> m_inputImage;    // 输入图像数据
-    std::vector<float> input_;      // 模型输入数据缓存区
     CAlgResult m_outputResult;          // 输出结果
 
     // TensorRT相关成员
@@ -106,4 +107,7 @@ private:
     int target_w_;              // 目标图像宽度
     int num_anchors_ = 0;       // 锚框数量
     std::string engine_path_;   // 引擎路径
+
+    // 运行状态
+    bool status_;
 };

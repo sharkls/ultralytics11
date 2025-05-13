@@ -31,7 +31,7 @@ message YOLOModelConfig {
     int32 max_dets = 16;        // 最大检测目标数量
     int32 num_keys = 17;        // 关键点数量
     int32 channels = 18;        // 图像数据通道数
-    
+    bool run_status = 19;       // 代码运行方式
 }
 
 // 姿态估计任务配置参数

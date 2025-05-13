@@ -244,6 +244,7 @@ class YOLOModelConfig final
     kMaxDetsFieldNumber = 16,
     kNumKeysFieldNumber = 17,
     kChannelsFieldNumber = 18,
+    kRunStatusFieldNumber = 19,
   };
   // repeated int32 stride = 8;
   int stride_size() const;
@@ -438,12 +439,22 @@ class YOLOModelConfig final
   void _internal_set_channels(::int32_t value);
 
   public:
+  // bool run_status = 19;
+  void clear_run_status() ;
+  bool run_status() const;
+  void set_run_status(bool value);
+
+  private:
+  bool _internal_run_status() const;
+  void _internal_set_run_status(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:YOLOModelConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      5, 18, 0,
+      5, 19, 0,
       51, 2>
       _table_;
 
@@ -482,6 +493,7 @@ class YOLOModelConfig final
     ::int32_t max_dets_;
     ::int32_t num_keys_;
     ::int32_t channels_;
+    bool run_status_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1820,6 +1832,30 @@ inline ::int32_t YOLOModelConfig::_internal_channels() const {
 inline void YOLOModelConfig::_internal_set_channels(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.channels_ = value;
+}
+
+// bool run_status = 19;
+inline void YOLOModelConfig::clear_run_status() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.run_status_ = false;
+  _impl_._has_bits_[0] &= ~0x00020000u;
+}
+inline bool YOLOModelConfig::run_status() const {
+  // @@protoc_insertion_point(field_get:YOLOModelConfig.run_status)
+  return _internal_run_status();
+}
+inline void YOLOModelConfig::set_run_status(bool value) {
+  _internal_set_run_status(value);
+  _impl_._has_bits_[0] |= 0x00020000u;
+  // @@protoc_insertion_point(field_set:YOLOModelConfig.run_status)
+}
+inline bool YOLOModelConfig::_internal_run_status() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.run_status_;
+}
+inline void YOLOModelConfig::_internal_set_run_status(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.run_status_ = value;
 }
 
 // -------------------------------------------------------------------

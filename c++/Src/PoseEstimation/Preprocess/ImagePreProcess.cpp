@@ -8,12 +8,12 @@
 
 #include "ImagePreProcess.h"
 
-// 假设 input_data 是 std::vector<float>
-void save_bin(const std::vector<float>& input_data, const std::string& filename) {
-    std::ofstream ofs(filename, std::ios::binary);
-    ofs.write(reinterpret_cast<const char*>(input_data.data()), input_data.size() * sizeof(float));
-    ofs.close();
-} 
+// // 假设 input_data 是 std::vector<float>
+// void save_bin(const std::vector<float>& input_data, const std::string& filename) {
+//     std::ofstream ofs(filename, std::ios::binary);
+//     ofs.write(reinterpret_cast<const char*>(input_data.data()), input_data.size() * sizeof(float));
+//     ofs.close();
+// } 
 
 // 注册模块
 REGISTER_MODULE("PoseEstimation", ImagePreProcess, ImagePreProcess)
@@ -35,6 +35,7 @@ bool ImagePreProcess::init(void* p_pAlgParam)
     src_h_ = yoloConfig->src_height();
     max_model_size_ = yoloConfig->width();
     stride_ = yoloConfig->stride(2);
+    status_ = yoloConfig->run_status();
 
     // 3. 计算resize_ratio
     float r = yoloConfig->resize_ratio();
@@ -131,7 +132,9 @@ void ImagePreProcess::execute()
         }
 
         LOG(INFO) << "ImagePreProcess::execute status: success!";
-        save_bin(m_outputImage, "preprocess_yolov11pose.bin"); // Yolov11Pose/Preprocess
+        if (status_) {
+            save_bin(m_outputImage, "preprocess_yolov11pose.bin"); // Yolov11Pose/Preprocess
+        }
     }
     catch (const std::exception& e) {
         LOG(ERROR) << "Preprocessing failed: " << e.what();

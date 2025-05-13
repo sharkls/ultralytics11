@@ -44,23 +44,20 @@ bool Yolov11Pose::init(void* p_pAlgParam)
     max_dets_ = m_poseConfig.max_dets();
     src_width_ = m_poseConfig.src_width();
     src_height_ = m_poseConfig.src_height();
-
-    // // 计算实际需要的填充尺寸
-    // new_unpad_h_ = new_unpad_h_;
-    // new_unpad_w_ = new_unpad_w_;
+    status_ = m_poseConfig.run_status();
 
     // 计算anchor_nums
     for(int stride : stride_) {
         num_anchors_ += (new_unpad_h_ / stride) * (new_unpad_w_ / stride);
-        LOG(INFO) << "stride = " << stride;
+        // LOG(INFO) << "stride = " << stride;
     }
-    LOG(INFO) << "conf_thres_ = " << conf_thres_ << ", iou_thres_ = " << iou_thres_ << ", num_classes_ = " << num_classes_ << ", num_keys_ = " << num_keys_ << ", max_dets_ = " << max_dets_;
-    LOG(INFO) << "channels_ = " << channels_ << ", batch_size_ = " << batch_size_;
-    LOG(INFO) << "src_width_ = " << src_width_ << ", src_height_ = " << src_height_;
-    LOG(INFO) << "new_unpad_h_ = " << new_unpad_h_ << ", new_unpad_w_ = " << new_unpad_w_;
-    LOG(INFO) << "dw_ = " << dw_ << ", dh_ = " << dh_;
-    LOG(INFO) << "ratio_ = " << ratio_;
-    LOG(INFO) << "num_anchors_ = " << num_anchors_;
+    // LOG(INFO) << "conf_thres_ = " << conf_thres_ << ", iou_thres_ = " << iou_thres_ << ", num_classes_ = " << num_classes_ << ", num_keys_ = " << num_keys_ << ", max_dets_ = " << max_dets_;
+    // LOG(INFO) << "channels_ = " << channels_ << ", batch_size_ = " << batch_size_;
+    // LOG(INFO) << "src_width_ = " << src_width_ << ", src_height_ = " << src_height_;
+    // LOG(INFO) << "new_unpad_h_ = " << new_unpad_h_ << ", new_unpad_w_ = " << new_unpad_w_;
+    // LOG(INFO) << "dw_ = " << dw_ << ", dh_ = " << dh_;
+    // LOG(INFO) << "ratio_ = " << ratio_;
+    // LOG(INFO) << "num_anchors_ = " << num_anchors_;
 
     // 初始化TensorRT相关配置
     initTensorRT();
@@ -154,13 +151,6 @@ void Yolov11Pose::initTensorRT()
         cudaFree(output_buffer);
         throw std::runtime_error("设置输出张量地址失败");
     }
-
-    LOG(INFO) << "input_name_: " << input_name_ << ", output_name_: " << output_name_;
-    LOG(INFO) << "input_dims_: ";
-    for (int i = 0; i < input_dims_.nbDims; ++i) LOG(INFO) << "  " << input_dims_.d[i];
-    LOG(INFO) << "output_dims_: ";
-    for (int i = 0; i < output_dims_.nbDims; ++i) LOG(INFO) << "  " << output_dims_.d[i];
-    LOG(INFO) << "channels_: " << channels_ << ", batch_size_: " << batch_size_ << ", new_unpad_h_: " << new_unpad_h_ << ", new_unpad_w_: " << new_unpad_w_;
 }
 
 void Yolov11Pose::setInput(void* input) 
@@ -180,30 +170,30 @@ void* Yolov11Pose::getOutput() {
 
 void Yolov11Pose::execute() 
 {
-    // 执行推理
+    // 1、执行推理
     std::vector<float> output = inference();
 
-    // 结果后处理
+    // 2、结果后处理
     std::vector<std::vector<float>> results = process_output(output);
 
-    // 输出格式转换
+    // 3、输出格式转换
     m_outputResult = formatConverted(results);
 }
 
 
-void Yolov11Pose::cleanup() {
+void Yolov11Pose::cleanup() 
+{
     for (auto& buf : input_buffers_) {
-        if (buf) {/* cudaFree(buf); */}
+        if (buf) { cudaFree(buf); buf = nullptr; }
     }
     for (auto& buf : output_buffers_) {
-        if (buf) {/* cudaFree(buf); */}
+        if (buf) { cudaFree(buf); buf = nullptr; }
     }
-    if (stream_) {/* cudaStreamDestroy(stream_); */}
+    if (stream_) { cudaStreamDestroy(stream_); stream_ = nullptr; }
     context_.reset();
     engine_.reset();
     runtime_.reset();
 }
-
 
 // 将模型输出结果转换为CAlgResult
 CAlgResult Yolov11Pose::formatConverted(std::vector<std::vector<float>> results)
@@ -300,9 +290,9 @@ std::vector<float> Yolov11Pose::inference()
     cudaStreamSynchronize(stream_);
 
     // 7. 保存推理输出为bin文件
-    std::ofstream ofs("output_yolov11pose.bin", std::ios::binary);
-    ofs.write(reinterpret_cast<const char*>(output.data()), output.size() * sizeof(float));
-    ofs.close();
+    if (status_) {
+        save_bin(output, "output_yolov11pose.bin"); // Yolov11Pose/Inference
+    }
 
     // LOG(INFO) << "推理输出 shape: " << output.size();
     LOG(INFO) << "Yolov11Pose::inference status: success ";

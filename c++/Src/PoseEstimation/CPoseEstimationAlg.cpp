@@ -8,21 +8,6 @@
 
 #include "CPoseEstimationAlg.h"
 
-
-// // 加载指定路径的conf配置文件并将其反序列化
-// bool PoseEstimationConfig::loadFromFile(const std::string& path) {
-//     std::ifstream input(path, std::ios::binary);
-//     if (!input) {
-//         LOG(ERROR) << "Failed to open config file: " << path;
-//         return false;
-//     }
-//     if (!m_config.ParseFromIstream(&input)) {
-//         LOG(ERROR) << "Failed to parse protobuf config file: " << path;
-//         return false;
-//     }
-//     return true;
-// }
-
 // 加载指定路径的conf配置文件并将其反序列化（解析prototext文件）
 bool PoseEstimationConfig::loadFromFile(const std::string& path) 
 {

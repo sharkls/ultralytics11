@@ -49,17 +49,15 @@ include_directories(${CMAKE_SOURCE_DIR}/Src)
 include_directories(${CMAKE_SOURCE_DIR}/Include/AlgParam)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Interface)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Common)
-include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/fastdds)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/av_opencv)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/yaml-cpp)
+include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/tinyxml2)
+include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/glog)
+include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/protobuf)
+include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/googletest)
+include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/gflags)
 
-# 新的头文件
-include_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/tinyxml2/include)
-include_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/glog/include)
-include_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/protobuf/include)
-include_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/googletest/include)
-include_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/gflags/include)
 # TensorRT 链接
 set(TENSORRT_ROOT /mnt/env/TensorRT-10.2.0.19)
 include_directories(${TENSORRT_ROOT}/include)
@@ -70,14 +68,12 @@ link_directories(${CMAKE_SOURCE_DIR}/Output/Lib)
 link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL)
 link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/fastdds)
 link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/av_opencv)
-
-# 新头文件
-link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/protobuf/lib)
-link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/googletest/lib)
-link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/gflags/lib)
-link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/yaml-cpp/lib)
-link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/tinyxml2/lib)
-link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/glog/lib)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/protobuf)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/googletest)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/gflags)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/yaml-cpp)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/tinyxml2)
+link_directories(${CMAKE_SOURCE_DIR}/Submodules/TPL/glog)
 
 
 # 子目录的路径
@@ -117,7 +113,6 @@ if(CMAKE_PLATFORM MATCHES "86")
     target_link_libraries(${PROJECT_NAME} PRIVATE nvinfer nvinfer_plugin  nvonnxparser) # TensorRT nvparsers
     target_link_libraries(${PROJECT_NAME} PRIVATE ${CUDA_LIBRARIES})
     target_link_libraries(${PROJECT_NAME} PRIVATE cudart)
-    # target_link_libraries(${PROJECT_NAME} PRIVATE cuhash)
 
 
     # 链接各算法模块的动态库

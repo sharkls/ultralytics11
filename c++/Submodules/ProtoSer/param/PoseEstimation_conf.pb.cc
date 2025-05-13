@@ -48,7 +48,8 @@ inline constexpr YOLOModelConfig::Impl_::Impl_(
         new_unpad_h_{0},
         max_dets_{0},
         num_keys_{0},
-        channels_{0} {}
+        channels_{0},
+        run_status_{false} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR YOLOModelConfig::YOLOModelConfig(::_pbi::ConstantInitialized)
@@ -204,6 +205,7 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.max_dets_),
         PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.num_keys_),
         PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.channels_),
+        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.run_status_),
         0,
         1,
         2,
@@ -222,6 +224,7 @@ const ::uint32_t
         14,
         15,
         16,
+        17,
         PROTOBUF_FIELD_OFFSET(::PoseConfig, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::PoseConfig, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -240,8 +243,8 @@ static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, 10, -1, sizeof(::ModuleConfig)},
         {12, -1, -1, sizeof(::ModulesConfig)},
-        {21, 47, -1, sizeof(::YOLOModelConfig)},
-        {65, 75, -1, sizeof(::PoseConfig)},
+        {21, 48, -1, sizeof(::YOLOModelConfig)},
+        {67, 77, -1, sizeof(::PoseConfig)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::_ModuleConfig_default_instance_._instance,
@@ -254,7 +257,7 @@ const char descriptor_table_protodef_PoseEstimation_5fconf_2eproto[] ABSL_ATTRIB
     "\n\031PoseEstimation_conf.proto\"*\n\014ModuleCon"
     "fig\022\014\n\004type\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\"/\n\rModul"
     "esConfig\022\036\n\007modules\030\001 \003(\0132\r.ModuleConfig"
-    "\"\330\002\n\017YOLOModelConfig\022\023\n\013engine_path\030\001 \001("
+    "\"\354\002\n\017YOLOModelConfig\022\023\n\013engine_path\030\001 \001("
     "\t\022\021\n\tnum_class\030\002 \001(\005\022\022\n\nbatch_size\030\003 \001(\005"
     "\022\r\n\005width\030\004 \001(\005\022\016\n\006height\030\005 \001(\005\022\022\n\nconf_"
     "thres\030\006 \001(\002\022\021\n\tiou_thres\030\007 \001(\002\022\016\n\006stride"
@@ -262,16 +265,16 @@ const char descriptor_table_protodef_PoseEstimation_5fconf_2eproto[] ABSL_ATTRIB
     "\n \001(\005\022\024\n\014resize_ratio\030\013 \001(\002\022\n\n\002dw\030\014 \001(\005\022"
     "\n\n\002dh\030\r \001(\005\022\023\n\013new_unpad_w\030\016 \001(\005\022\023\n\013new_"
     "unpad_h\030\017 \001(\005\022\020\n\010max_dets\030\020 \001(\005\022\020\n\010num_k"
-    "eys\030\021 \001(\005\022\020\n\010channels\030\022 \001(\005\"a\n\nPoseConfi"
-    "g\022+\n\021yolo_model_config\030\001 \001(\0132\020.YOLOModel"
-    "Config\022&\n\016modules_config\030\002 \001(\0132\016.Modules"
-    "Configb\006proto3"
+    "eys\030\021 \001(\005\022\020\n\010channels\030\022 \001(\005\022\022\n\nrun_statu"
+    "s\030\023 \001(\010\"a\n\nPoseConfig\022+\n\021yolo_model_conf"
+    "ig\030\001 \001(\0132\020.YOLOModelConfig\022&\n\016modules_co"
+    "nfig\030\002 \001(\0132\016.ModulesConfigb\006proto3"
 };
 static ::absl::once_flag descriptor_table_PoseEstimation_5fconf_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_PoseEstimation_5fconf_2eproto = {
     false,
     false,
-    574,
+    594,
     descriptor_table_protodef_PoseEstimation_5fconf_2eproto,
     "PoseEstimation_conf.proto",
     &descriptor_table_PoseEstimation_5fconf_2eproto_once,
@@ -882,9 +885,9 @@ YOLOModelConfig::YOLOModelConfig(
                offsetof(Impl_, num_class_),
            reinterpret_cast<const char *>(&from._impl_) +
                offsetof(Impl_, num_class_),
-           offsetof(Impl_, channels_) -
+           offsetof(Impl_, run_status_) -
                offsetof(Impl_, num_class_) +
-               sizeof(Impl_::channels_));
+               sizeof(Impl_::run_status_));
 
   // @@protoc_insertion_point(copy_constructor:YOLOModelConfig)
 }
@@ -901,9 +904,9 @@ inline void YOLOModelConfig::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, num_class_),
            0,
-           offsetof(Impl_, channels_) -
+           offsetof(Impl_, run_status_) -
                offsetof(Impl_, num_class_) +
-               sizeof(Impl_::channels_));
+               sizeof(Impl_::run_status_));
 }
 YOLOModelConfig::~YOLOModelConfig() {
   // @@protoc_insertion_point(destructor:YOLOModelConfig)
@@ -971,15 +974,15 @@ const ::google::protobuf::internal::ClassData* YOLOModelConfig::GetClassData() c
   return YOLOModelConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<5, 18, 0, 51, 2> YOLOModelConfig::_table_ = {
+const ::_pbi::TcParseTable<5, 19, 0, 51, 2> YOLOModelConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_._has_bits_),
     0, // no _extensions_
-    18, 248,  // max_field_number, fast_idx_mask
+    19, 248,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294705152,  // skipmap
+    4294443008,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    18,  // num_field_entries
+    19,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     YOLOModelConfig_class_data_.base(),
@@ -1044,7 +1047,9 @@ const ::_pbi::TcParseTable<5, 18, 0, 51, 2> YOLOModelConfig::_table_ = {
     // int32 channels = 18;
     {::_pbi::TcParser::FastV32S2,
      {400, 16, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.channels_)}},
-    {::_pbi::TcParser::MiniParse, {}},
+    // bool run_status = 19;
+    {::_pbi::TcParser::FastV8S2,
+     {408, 17, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.run_status_)}},
     {::_pbi::TcParser::MiniParse, {}},
     {::_pbi::TcParser::MiniParse, {}},
     {::_pbi::TcParser::MiniParse, {}},
@@ -1114,6 +1119,9 @@ const ::_pbi::TcParseTable<5, 18, 0, 51, 2> YOLOModelConfig::_table_ = {
     // int32 channels = 18;
     {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.channels_), _Internal::kHasBitsOffset + 16, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // bool run_status = 19;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.run_status_), _Internal::kHasBitsOffset + 17, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -1145,7 +1153,11 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
         reinterpret_cast<char*>(&_impl_.num_keys_) -
         reinterpret_cast<char*>(&_impl_.src_height_)) + sizeof(_impl_.num_keys_));
   }
-  _impl_.channels_ = 0;
+  if (cached_has_bits & 0x00030000u) {
+    ::memset(&_impl_.channels_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.run_status_) -
+        reinterpret_cast<char*>(&_impl_.channels_)) + sizeof(_impl_.run_status_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -1328,6 +1340,15 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
             }
           }
 
+          // bool run_status = 19;
+          if ((this_._impl_._has_bits_[0] & 0x00020000u) != 0) {
+            if (this_._internal_run_status() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteBoolToArray(
+                  19, this_._internal_run_status(), target);
+            }
+          }
+
           if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
             target =
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -1475,12 +1496,18 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
               }
             }
           }
-           {
+          if (cached_has_bits & 0x00030000u) {
             // int32 channels = 18;
             if (cached_has_bits & 0x00010000u) {
               if (this_._internal_channels() != 0) {
                 total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
                                                 this_._internal_channels());
+              }
+            }
+            // bool run_status = 19;
+            if (cached_has_bits & 0x00020000u) {
+              if (this_._internal_run_status() != 0) {
+                total_size += 3;
               }
             }
           }
@@ -1586,9 +1613,16 @@ void YOLOModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
       }
     }
   }
-  if (cached_has_bits & 0x00010000u) {
-    if (from._internal_channels() != 0) {
-      _this->_impl_.channels_ = from._impl_.channels_;
+  if (cached_has_bits & 0x00030000u) {
+    if (cached_has_bits & 0x00010000u) {
+      if (from._internal_channels() != 0) {
+        _this->_impl_.channels_ = from._impl_.channels_;
+      }
+    }
+    if (cached_has_bits & 0x00020000u) {
+      if (from._internal_run_status() != 0) {
+        _this->_impl_.run_status_ = from._impl_.run_status_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -1612,8 +1646,8 @@ void YOLOModelConfig::InternalSwap(YOLOModelConfig* PROTOBUF_RESTRICT other) {
   _impl_.stride_.InternalSwap(&other->_impl_.stride_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.engine_path_, &other->_impl_.engine_path_, arena);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.channels_)
-      + sizeof(YOLOModelConfig::_impl_.channels_)
+      PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.run_status_)
+      + sizeof(YOLOModelConfig::_impl_.run_status_)
       - PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.num_class_)>(
           reinterpret_cast<char*>(&_impl_.num_class_),
           reinterpret_cast<char*>(&other->_impl_.num_class_));
