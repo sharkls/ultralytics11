@@ -9,14 +9,32 @@
 #include "CPoseEstimationAlg.h"
 
 
-// 加载指定路径的conf配置文件并将其反序列化
-bool PoseEstimationConfig::loadFromFile(const std::string& path) {
-    std::ifstream input(path, std::ios::binary);
+// // 加载指定路径的conf配置文件并将其反序列化
+// bool PoseEstimationConfig::loadFromFile(const std::string& path) {
+//     std::ifstream input(path, std::ios::binary);
+//     if (!input) {
+//         LOG(ERROR) << "Failed to open config file: " << path;
+//         return false;
+//     }
+//     if (!m_config.ParseFromIstream(&input)) {
+//         LOG(ERROR) << "Failed to parse protobuf config file: " << path;
+//         return false;
+//     }
+//     return true;
+// }
+
+// 加载指定路径的conf配置文件并将其反序列化（解析prototext文件）
+bool PoseEstimationConfig::loadFromFile(const std::string& path) 
+{
+    std::ifstream input(path);
     if (!input) {
         LOG(ERROR) << "Failed to open config file: " << path;
         return false;
     }
-    if (!m_config.ParseFromIstream(&input)) {
+    std::stringstream buffer;
+    buffer << input.rdbuf();
+    std::string content = buffer.str();
+    if (!google::protobuf::TextFormat::ParseFromString(content, &m_config)) {
         LOG(ERROR) << "Failed to parse protobuf config file: " << path;
         return false;
     }
@@ -50,6 +68,7 @@ bool CPoseEstimationAlg::initAlgorithm(CSelfAlgParam* p_pAlgParam, const AlgCall
 
     // 3. 构建配置文件路径
     std::filesystem::path exePath(m_exePath);
+    LOG(INFO) << "m_exePath : " << exePath.parent_path().string();
     std::string configPath = (exePath.parent_path() / "Configs"/ "Alg" / "PoseEstimationConfig.conf").string();
 
     // 4. 加载配置文件
@@ -63,12 +82,13 @@ bool CPoseEstimationAlg::initAlgorithm(CSelfAlgParam* p_pAlgParam, const AlgCall
         LOG(ERROR) << "Failed to initialize modules";
         return false;
     }
-
+    LOG(INFO) << "CPoseEstimationAlg::initAlgorithm status: success ";
     return true;
 }
 
 void CPoseEstimationAlg::runAlgorithm(void* p_pSrcData)
 {
+    LOG(INFO) << "CPoseEstimationAlg::runAlgorithm status: start ";
     // 0. 每次运行前重置结构体内容
     m_currentOutput = CAlgResult(); // 或者手动清空成员
 
@@ -97,6 +117,7 @@ void CPoseEstimationAlg::runAlgorithm(void* p_pSrcData)
     if (m_algCallback) {
         m_algCallback(m_currentOutput, m_callbackHandle);
     }
+    LOG(INFO) << "CPoseEstimationAlg::runAlgorithm status: success ";
 }
 
 // 加载配置文件
@@ -107,7 +128,8 @@ bool CPoseEstimationAlg::loadConfig(const std::string& configPath)
 
 // 初始化子模块
 bool CPoseEstimationAlg::initModules()
-{
+{   
+    LOG(INFO) << "CPoseEstimationAlg::initModules status: start ";
     auto& poseConfig = m_pConfig->getPoseConfig();
     const auto& modules = poseConfig.modules_config();
     m_moduleChain.clear();
@@ -126,6 +148,7 @@ bool CPoseEstimationAlg::initModules()
         }
         m_moduleChain.push_back(module);
     }
+    LOG(INFO) << "CPoseEstimationAlg::initModules status: success ";
     return true;
 }
 

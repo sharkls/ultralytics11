@@ -8,6 +8,12 @@
 
 #include "ImagePreProcess.h"
 
+// 假设 input_data 是 std::vector<float>
+void save_bin(const std::vector<float>& input_data, const std::string& filename) {
+    std::ofstream ofs(filename, std::ios::binary);
+    ofs.write(reinterpret_cast<const char*>(input_data.data()), input_data.size() * sizeof(float));
+    ofs.close();
+} 
 
 // 注册模块
 REGISTER_MODULE("PoseEstimation", ImagePreProcess, ImagePreProcess)
@@ -18,32 +24,29 @@ ImagePreProcess::~ImagePreProcess()
 
 bool ImagePreProcess::init(void* p_pAlgParam)
 {
+    LOG(INFO) << "ImagePreProcess::init status: start ";
     // 1. 从配置参数中读取预处理参数
     if (!p_pAlgParam) {
         return false;
     }
-    // 参数格式转换
-    PoseConfig* poseConfig = static_cast<PoseConfig*>(p_pAlgParam);
+    // 2. 参数格式转换
+    YOLOModelConfig* yoloConfig = static_cast<YOLOModelConfig*>(p_pAlgParam);
+    src_w_ = yoloConfig->src_width();
+    src_h_ = yoloConfig->src_height();
+    max_model_size_ = yoloConfig->width();
+    stride_ = yoloConfig->stride(2);
 
-    src_w_ = poseConfig->mutable_yolo_model_config()->src_width();
-    src_h_ = poseConfig->mutable_yolo_model_config()->src_height();
-    max_model_size_ = poseConfig->mutable_yolo_model_config()->width();
-
-    // model_h_ = poseConfig->mutable_yolo_model_config()->height();
-    stride_ = poseConfig->mutable_yolo_model_config()->stride(2);
-
-    // 计算resize_ratio
-    float r = poseConfig->yolo_model_config().resize_ratio();
+    // 3. 计算resize_ratio
+    float r = yoloConfig->resize_ratio();
     if (r == 0.0f && src_w_ > 0 && src_h_ > 0 && max_model_size_ > 0) {
         r = std::min(static_cast<float>(max_model_size_) / src_h_, static_cast<float>(max_model_size_) / src_w_);
-        poseConfig->mutable_yolo_model_config()->set_resize_ratio(r);
     }
 
-    // 计算缩放后未填充的尺寸
+    // 4. 计算缩放后未填充的尺寸
     new_unpad_w_ = static_cast<int>(src_w_ * r);
     new_unpad_h_ = static_cast<int>(src_h_ * r);
 
-    // 保证是stride的整数倍
+    // 5. 保证是stride的整数倍
     if (stride_ > 0) {
         new_unpad_w_ = (new_unpad_w_ / stride_) * stride_;
         new_unpad_h_ = (new_unpad_h_ / stride_) * stride_;
@@ -52,21 +55,23 @@ bool ImagePreProcess::init(void* p_pAlgParam)
         return false;
     }
  
-    poseConfig->mutable_yolo_model_config()->set_new_unpad_w(new_unpad_w_);   // 未填充前的宽度
-    poseConfig->mutable_yolo_model_config()->set_new_unpad_h(new_unpad_h_);   // 未填充前的高度
-
-    // 计算padding
-    // 填充值640*640
-    // dw_ = (max_model_size_ - new_unpad_w_) / 2;
-    // dh_ = (max_model_size_ - new_unpad_h_) / 2;
-    // poseConfig->mutable_yolo_model_config()->set_dw(dw_);
-    // poseConfig->mutable_yolo_model_config()->set_dh(dh_);
+    // 6. 计算padding
     dw_ = 0;
     dh_ = 0;
-    poseConfig->mutable_yolo_model_config()->set_dw(0);
-    poseConfig->mutable_yolo_model_config()->set_dh(0);
 
-    m_poseConfig = *poseConfig;
+    // 7. 填充结果
+    yoloConfig->set_dw(0);
+    yoloConfig->set_dh(0);
+    yoloConfig->set_new_unpad_w(new_unpad_w_);   // 未填充前的宽度
+    yoloConfig->set_new_unpad_h(new_unpad_h_);   // 未填充前的高度
+    yoloConfig->set_resize_ratio(r);
+
+    // 打印所有信息
+    // LOG(INFO) << "src_w_ = " << src_w_ << ", src_h_ = " << src_h_ << ", max_model_size_ = " << max_model_size_ << ", new_unpad_w_ = " << new_unpad_w_ << ", new_unpad_h_ = " << new_unpad_h_ << ", stride_ = " << stride_;
+    // LOG(INFO) << "dw_ = " << dw_ << ", dh_ = " << dh_;
+
+    m_poseConfig = *yoloConfig; 
+    LOG(INFO) << "ImagePreProcess::init status: success ";
     return true;
 }
 
@@ -86,6 +91,7 @@ void* ImagePreProcess::getOutput()
 
 void ImagePreProcess::execute()
 {
+    LOG(INFO) << "ImagePreProcess::execute status: start ";
     if (m_inputImage.vecVideoSrcData().empty()) {
         LOG(ERROR) << "Input image is empty";
         return;
@@ -123,9 +129,12 @@ void ImagePreProcess::execute()
         for (int c = 0; c < 3; ++c) {
             m_outputImage.insert(m_outputImage.end(), (float*)channels[c].datastart, (float*)channels[c].dataend);
         }
+
+        LOG(INFO) << "ImagePreProcess::execute status: success!";
+        save_bin(m_outputImage, "preprocess_yolov11pose.bin"); // Yolov11Pose/Preprocess
     }
     catch (const std::exception& e) {
         LOG(ERROR) << "Preprocessing failed: " << e.what();
         return;
     }
-} 
+}

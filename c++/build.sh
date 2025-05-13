@@ -15,5 +15,5 @@ cmake ..
 # 多线程编译
 make -j5
 
-# cd ../Output/
-# ./testAlgLib
+cd ../Output/
+./testAlgLib

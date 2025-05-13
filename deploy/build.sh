@@ -11,8 +11,8 @@ if [ ! -d "/usr/local/cuda-12.4" ]; then
     exit 1
 fi
 
-if [ ! -d "/ultralytics/c++/Submodule/TPL/av_opencv" ]; then
-    echo "Error: OpenCV not found at /ultralytics/c++/Submodule/TPL/av_opencv"
+if [ ! -d "/ultralytics/c++/Submodules/TPL/av_opencv" ]; then
+    echo "Error: OpenCV not found at /ultralytics/c++/Submodules/TPL/av_opencv"
     exit 1
 fi
 
@@ -28,7 +28,7 @@ cmake .. \
     -DCMAKE_CXX_COMPILER=g++ \
     -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-12.4 \
     -DTENSORRT_ROOT=/mnt/env/TensorRT-10.2.0.19 \
-    -DOpenCV_DIR=/ultralytics/c++/Submodule/TPL/av_opencv
+    -DOpenCV_DIR=/ultralytics/c++/Submodules/TPL/av_opencv
 
 # 编译
 make -j$(nproc)

@@ -3,7 +3,7 @@
  作者：
  描述：Yolov11姿态估计推理模块
  版本：v1.0
- 日期：2025-05-09
+ 日期：2025-05-13
  *******************************************************/
 
 #pragma once
@@ -22,6 +22,7 @@
 #include <cuda_runtime_api.h>
 
 #include "IBaseModule.h"
+#include "ModuleFactory.h"
 #include "CMultiModalSrcData.h"
 #include "PoseEstimation_conf.pb.h"
 
@@ -66,6 +67,7 @@ public:
 private:
     YOLOModelConfig m_poseConfig;       // 配置参数
     std::vector<float> m_inputImage;    // 输入图像数据
+    std::vector<float> input_;      // 模型输入数据缓存区
     CAlgResult m_outputResult;          // 输出结果
 
     // TensorRT相关成员
@@ -82,26 +84,26 @@ private:
     nvinfer1::Dims output_dims_;
     size_t input_size_ = 1;
     size_t output_size_ = 1;
-    std::vector<float> input_;      // 模型输入数据缓存区
+    
 
     // 后处理参数
-    int new_unpad_h_;
-    int new_unpad_w_;
-    int dw_;
-    int dh_;
-    float ratio_ = 1;
-    std::vector<int> stride_;
-    int batch_size_ = 1;
-    float conf_thres_;
-    float iou_thres_;
-    int num_classes_;
-    int channels_;
-    int num_keys_;
-    int max_dets_ = 300;
-    int src_width_;
-    int src_height_;
-    int target_h_;
-    int target_w_;
-    int num_anchors_ = 0;
-    std::string engine_path_;
+    int new_unpad_h_;           // 填充后图像高度
+    int new_unpad_w_;           // 填充后图像宽度
+    int dw_;                    // 宽度填充量
+    int dh_;                    // 高度填充量
+    float ratio_ = 1;           // 缩放比例
+    std::vector<int> stride_;   // 步长
+    int batch_size_ = 1;        // 批量大小
+    float conf_thres_;          // 置信度阈值
+    float iou_thres_;           // 交并比阈值
+    int num_classes_;           // 类别数量
+    int channels_;              // 通道数量
+    int num_keys_;              // 关键点数量
+    int max_dets_ = 300;        // 最大检测目标阈值
+    int src_width_;             // 原始图像宽度
+    int src_height_;            // 原始图像高度
+    int target_h_;              // 目标图像高度
+    int target_w_;              // 目标图像宽度
+    int num_anchors_ = 0;       // 锚框数量
+    std::string engine_path_;   // 引擎路径
 };

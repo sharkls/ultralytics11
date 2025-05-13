@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <fstream>
 #include "log.h"
+#include <google/protobuf/text_format.h>    // 解析prototext格式文本
 #include "ExportPoseEstimationAlgLib.h"
 #include "IBaseModule.h"
 #include "AlgorithmConfig.h"

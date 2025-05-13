@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
     try {
         // 设置默认路径
         std::string engine_path = "/ultralytics/ckpt/yolo11m-pose.engine";
-        std::string image_path = "/ultralytics/data/Test_1/images/visible/test/190001.jpg";
+        std::string image_path = "/ultralytics/data/Test_1/images/visible/test/190009.jpg";
         std::string save_dir = "/ultralytics/runs/pose";
 
         // 创建保存目录

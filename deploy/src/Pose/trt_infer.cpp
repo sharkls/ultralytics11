@@ -28,6 +28,7 @@ TRTInference::TRTInference(const std::string& engine_path) {
     file.read(engineData.data(), size);
     file.close();
 
+    std::cout << "engine_path: " << engine_path << std::endl;
     std::cout << "[TensorRT] Loaded engine size: " << size / (1024 * 1024) << " MiB" << std::endl;
 
     // 创建runtime和engine
@@ -154,6 +155,14 @@ TRTInference::TRTInference(const std::string& engine_path) {
         cudaFree(output_buffer);
         throw std::runtime_error("设置输出张量地址失败");
     }
+
+    std::cout << "input_name: " << input_name << ", output_name: " << output_name << std::endl;
+    std::cout << "input_dims: ";
+    for (int i = 0; i < input_dims.nbDims; ++i) std::cout << input_dims.d[i] << " ";
+    std::cout << std::endl;
+    std::cout << "output_dims: ";
+    for (int i = 0; i < output_dims.nbDims; ++i) std::cout << output_dims.d[i] << " ";
+    std::cout << std::endl;
 }
 
 TRTInference::~TRTInference() {
@@ -172,6 +181,12 @@ void TRTInference::cleanup() {
     context_.reset();
     engine_.reset();
     runtime_.reset();
+}
+
+void save_bin(const std::vector<float>& input_data, const std::string& filename) {
+    std::ofstream ofs(filename, std::ios::binary);
+    ofs.write(reinterpret_cast<const char*>(input_data.data()), input_data.size() * sizeof(float));
+    ofs.close();
 }
 
 void TRTInference::preprocess(const cv::Mat& img,
@@ -259,6 +274,9 @@ void TRTInference::preprocess(const cv::Mat& img,
     std::cout << "预处理 - 缩放后尺寸: " << new_unpad_w << "x" << new_unpad_h << std::endl;
     std::cout << "预处理 - 目标尺寸: " << target_w << "x" << target_h << std::endl;
     std::cout << "预处理 - 填充尺寸: " << dw << "," << dh << std::endl;
+
+    // 新增：保存bin文件
+    save_bin(input, "preprocess_trt_infer.bin");
 }
 
 void TRTInference::rescale_coords(std::vector<float>& coords, 
@@ -331,6 +349,12 @@ std::vector<float> TRTInference::inference(const cv::Mat& img, LetterBoxInfo& le
     // 预处理
     std::vector<float> input;
     preprocess(img, input, letterbox_info);
+    std::cout << "preprocess output input.size() = " << input.size() << std::endl;
+
+    std::cout << "推理输入 shape: 1x3x" << letterbox_info.new_unpad_h << "x" << letterbox_info.new_unpad_w << std::endl;
+    for (int i = 0; i < std::min(10, (int)input.size()); ++i) {
+        std::cout << "input[" << i << "] = " << input[i] << std::endl;
+    }
 
     // 检查输入缓冲区
     if (input_buffers_.empty() || input_buffers_[0] == nullptr) {
@@ -378,7 +402,7 @@ std::vector<float> TRTInference::inference(const cv::Mat& img, LetterBoxInfo& le
     for (int i = 0; i < output_dims.nbDims; ++i) {
         output_size *= output_dims.d[i];
     }
-    
+    std::cout << "inference output_size = " << output_size << std::endl;
     std::cout << "推理 - 输入尺寸: " << letterbox_info.new_unpad_w << "x" << letterbox_info.new_unpad_h << std::endl;
     std::cout << "推理 - 输出维度: ";
     for (int i = 0; i < output_dims.nbDims; ++i) {
@@ -396,6 +420,14 @@ std::vector<float> TRTInference::inference(const cv::Mat& img, LetterBoxInfo& le
         throw std::runtime_error("CUDA输出内存拷贝失败: " + std::string(cudaGetErrorString(cuda_status)));
     }
     cudaStreamSynchronize(stream_);
+
+    // 新增：保存推理输出为bin文件
+    save_bin(output, "output_trt_infer.bin");
+
+    std::cout << "推理输出 shape: " << output.size() << std::endl;
+    for (int i = 0; i < std::min(10, (int)output.size()); ++i) {
+        std::cout << "output[" << i << "] = " << output[i] << std::endl;
+    }
 
     return output;
 }
@@ -507,7 +539,7 @@ std::vector<std::vector<float>> TRTInference::process_output(
                 kpts.push_back(kpt_x);
                 kpts.push_back(kpt_y);
                 kpts.push_back(kpt_conf);
-                std::cout << "关键点 " << j << ": (" << kpt_x << ", " << kpt_y << "), 置信度: " << kpt_conf << std::endl;
+                // std::cout << "关键点 " << j << ": (" << kpt_x << ", " << kpt_y << "), 置信度: " << kpt_conf << std::endl;
             }
             rescale_coords(kpts, letterbox_info, true);
             keypoints.push_back(kpts);
@@ -601,6 +633,14 @@ std::vector<std::vector<float>> TRTInference::process_output(
                 std::cout << keypoint_names[j] << " (" << kpt[0] << ", " << kpt[1] 
                           << "), 置信度: " << kpt[2] << std::endl;
             }
+        }
+
+        for (size_t i = 0; i < cls_boxes.size(); ++i) {
+            std::cout << "[DEBUG] NMS前 box " << i << ": [" << cls_boxes[i][0] << ", " << cls_boxes[i][1] << ", " << cls_boxes[i][2] << ", " << cls_boxes[i][3] << "], score = " << cls_scores[i] << std::endl;
+        }
+        for (size_t i = 0; i < keep.size(); ++i) {
+            int idx = keep[i];
+            std::cout << "[DEBUG] NMS后 box " << i << ": [" << cls_boxes[idx][0] << ", " << cls_boxes[idx][1] << ", " << cls_boxes[idx][2] << ", " << cls_boxes[idx][3] << "], score = " << cls_scores[idx] << std::endl;
         }
     }
 

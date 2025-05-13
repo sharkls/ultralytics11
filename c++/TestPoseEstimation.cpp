@@ -156,8 +156,8 @@ void testPoseEstimationAlg(const CAlgResult& alg_result, void* p_handle)
     }
 
     // 保存结果
-    std::string save_path = g_save_dir + "/" + 
-        std::filesystem::path(g_rgb_path).stem().string() + "_det.jpg";
+    std::string save_path = g_save_dir + 
+        std::filesystem::path(g_rgb_path).stem().string() + "_pose.jpg";
         
     // 检查保存目录是否存在
     if (!std::filesystem::exists(g_save_dir)) {
@@ -179,8 +179,8 @@ void testPoseEstimationAlg(const CAlgResult& alg_result, void* p_handle)
 int main(int argc, char** argv) {
     try {
         // 设置默认路径
-        std::string deploy_path = "/ultralytics/c++/";
-        g_save_dir = deploy_path + "Output/vis/";
+        std::string deploy_path = "/ultralytics/c++/Output/";
+        g_save_dir = deploy_path + "vis/";
         std::string data_path = "/ultralytics/data/Test_1/";
 
         // 算法接口调用流程基本如下：
@@ -188,7 +188,7 @@ int main(int argc, char** argv) {
 
         // 准备算法参数
         CSelfAlgParam *l_stTestAlgParam = new CSelfAlgParam();
-        l_stTestAlgParam->m_strRootPath = deploy_path + "/Output/";
+        l_stTestAlgParam->m_strRootPath = deploy_path;
         
         // 初始化算法接口对象
         l_pObj->initAlgorithm(l_stTestAlgParam, testPoseEstimationAlg, nullptr);

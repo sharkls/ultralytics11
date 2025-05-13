@@ -76,33 +76,55 @@ struct Structure
 
 #### 示例
 
-文件名：CCameraParam.idl
-
+文件名：CRadarSrcData.idl
 ```
-struct C485Param
-{
-    string          strUsbDev;      //USB串口设备文件路径
-    unsigned long   unBaudRate;     //波特率
-    float           fTimeout;       //超时时间
-    unsigned long   unId;           //id,对应相机id
+// 毫米波雷达目标点信息
+struct CRadarPoint {
+    float               fRange;          // 径向距离(m)
+    float               fAzimuth;        // 方位角(度)
+    float               fElevation;      // 俯仰角(度)
+    float               fDopplerVel;     // 多普勒速度(m/s)
+    float               fRCS;            // 雷达散射截面积(dBsm)
+    float               fSNR;            // 信噪比(dB)
+    octet               ucPowerLevel;    // 信号强度等级
 };
-struct CCameraDev
-{
-    string                strCameraIp;            //相机IP
-    octet                 ucCameraId;             //相机序号
-    string                strCameraUser;          //相机用户名
-    string                strCameraPwd;           //相机用户密码
-    sequence<float>       vecInParameter;         //内参
-    sequence<float>       vecRotateMatrix;        //旋转矩阵
-    sequence<float>       vecTranslationMatrix;   //平移矩阵
-    sequence<float>       vecDistMatrix;          //畸变系数
-    C485Param             Camera485Param;         //485参数
+
+// 毫米波雷达目标跟踪信息
+struct CRadarTrack {
+    unsigned short      usTrackId;       // 目标跟踪ID
+    float               fPosX;           // X坐标(m)
+    float               fPosY;           // Y坐标(m)
+    float               fPosZ;           // Z坐标(m)
+    float               fVelX;           // X方向速度(m/s)
+    float               fVelY;           // Y方向速度(m/s)
+    float               fVelZ;           // Z方向速度(m/s)
+    float               fAccX;           // X方向加速度(m/s²)
+    float               fAccY;           // Y方向加速度(m/s²)
+    float               fAccZ;           // Z方向加速度(m/s²)
+    float               fLength;         // 目标长度(m)
+    float               fWidth;          // 目标宽度(m)
+    float               fHeight;         // 目标高度(m)
+    float               fOrientation;    // 目标朝向角(度)
+    float               fConfidence;    // 跟踪置信度
+    octet               ucClassification;// 目标分类
 };
-struct CCameraParam
-{
-    octet                   unCameraCount;      //相机个数
-    boolean                 bUse485;            //是否使用485
-    sequence<CCameraDev>    vecCameraDev;       //相机设备参数
+
+// 毫米波雷达状态信息
+struct CRadarStatus {
+    octet               ucRadarState;    // 雷达工作状态
+    float               fTemperature;    // 雷达温度
+    octet               ucBlockage;      // 雷达遮挡状态
+    octet               ucAlignment;     // 雷达对准状态
+};
+
+// 时间匹配好的毫米波数据结构体
+struct CRadarSrcDataTimematch : CDataBase {
+    octet                        ucRadarId;           // 雷达ID
+    CRadarStatus                 tRadarStatus;        // 雷达状态信息
+    sequence<CRadarPoint>        vecPoints;           // 原始点云数据
+    sequence<CRadarTrack>        vecTracks;           // 目标跟踪数据
+    float                        fNoisePower;         // 噪声功率
+    float                        fInterference;       // 干扰水平
 };
 ```
 
@@ -113,8 +135,8 @@ fastddsgen <idl文件名> -d <生成文件目录>
 ```
 
 
-生成文件：CCameraParam.h、CCameraParam.cxx、CCameraParamPubSubTypes.h、CCameraParamPubSubTypes.cxx
+生成文件：CRadarSrcData.h、CRadarSrcData.cxx、CRadarSrcDataPubSubTypes.h、CRadarSrcDataPubSubTypes.cxx
 
-* CCameraParam.h、CCameraParam.cxx：为定义的消息类
-* CCameraParamPubSubTypes.h、CCameraParamPubSubTypes.cxx：为注册消息类使用的类
+* CRadarSrcData.h、CRadarSrcData.cxx：为定义的消息类
+* CRadarSrcDataPubSubTypes.h、CRadarSrcDataPubSubTypes.cxx：为注册消息类使用的类
 * CDataBase 的析构函数默认生成的不是 virtual 类型，需要自行添加，否则会出现内存释放不完全的问题
