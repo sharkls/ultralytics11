@@ -1,4 +1,4 @@
-project(MultiModalFusionAlgv2)
+project(MultiModalFusionAlg)
 
 message("CMAKE_SOURCE_DIR= " ${CMAKE_SOURCE_DIR})
 message("TestAlg CMAKE_PLATFORM " ${CMAKE_PLATFORM})
