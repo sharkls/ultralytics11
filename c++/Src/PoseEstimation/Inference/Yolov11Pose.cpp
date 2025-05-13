@@ -393,9 +393,15 @@ std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<fl
             float kpt_x = (output_trans[i * feature_dim + 4 + num_classes_ + j] - dw_) / ratio_;
             float kpt_y = (output_trans[i * feature_dim + 4 + num_classes_ + j + 1] - dh_) / ratio_;
             float kpt_conf = output_trans[i * feature_dim + 4 + num_classes_ + j + 2];
-            kpts.push_back(kpt_x);
-            kpts.push_back(kpt_y);
-            kpts.push_back(kpt_conf);
+            if (kpt_conf < conf_thres_) {   // 祛除低于置信度阈值的关键点
+                kpts.push_back(0.0f);
+                kpts.push_back(0.0f);
+                kpts.push_back(0.0f);
+            } else {
+                kpts.push_back(kpt_x);
+                kpts.push_back(kpt_y);
+                kpts.push_back(kpt_conf);
+            }
         }
         keypoints.push_back(kpts);
     }

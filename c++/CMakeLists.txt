@@ -119,6 +119,7 @@ if(CMAKE_PLATFORM MATCHES "86")
     target_link_libraries(${PROJECT_NAME} PRIVATE PoseEstimationAlg)
     # target_link_libraries(${PROJECT_NAME} PRIVATE ObjectLocationAlg)
     target_link_libraries(${PROJECT_NAME} PRIVATE MultiModalFusionAlg)
+    target_link_libraries(${PROJECT_NAME} PRIVATE MultiModalFusionAlgv2)
 endif()
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
