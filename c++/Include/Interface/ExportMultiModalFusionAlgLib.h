@@ -10,8 +10,8 @@
 
 #include "CSelfAlgParam.h"
 
-struct IMultiModalFusionAlg
 {
+struct IMultiModalFusionAlg
     IMultiModalFusionAlg(){};
     virtual ~IMultiModalFusionAlg(){};
 

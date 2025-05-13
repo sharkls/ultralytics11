@@ -1,0 +1,50 @@
+# 算法选择配置文件
+
+# 图像算法选择
+MULTIMODAL_FUSION:
+  # 预处理算法
+  PRE_ISVALID: True
+  PRE_ALG: "pre_1"
+  # 推理算法
+  Inference_ISVALID: True
+  Inference_ALG: "EFDEYolo11"
+  # 后处理算法
+  POST_ISVALID: True
+  POST_ALG: "post_1"
+
+# 测试算法选择
+TEST_ALG:
+  # 预处理算法
+  PRE_ISVALID: True
+  PRE_ALG: "pre_1"
+  # 推理算法
+  PROCESSING_ISVALID: True
+  PROCESSING_ALG: "model_x"
+  # 后处理算法
+  POST_ISVALID: True
+  POST_ALG: "post_1"
+  
+#跟踪算法选择
+TRACK_ALG:
+  #预处理算法
+  PRE_ISVALID: True
+  PRE_ALG: "lidarsort"
+  #推理算法
+  PROCESSING_ISVALID: True
+  PROCESSING_ALG: "sort" 
+  #后处理算法
+  POST_ISVALID: True
+  POST_ALG: "post_track"
+
+# 融合算法选择
+FUSION_ALG:
+  # 预处理算法
+  PRE_ISVALID: True
+  PRE_ALG: "Detection_Resault_Transfer"
+  # 推理算法
+  PROCESSING_ISVALID: True
+  PROCESSING_ALG: "Intersection"
+  # 点云后处理算法
+  POST_ISVALID: True
+  POST_ALG: "FusionPost"
+ 
