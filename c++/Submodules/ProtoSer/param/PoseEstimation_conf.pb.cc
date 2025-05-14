@@ -24,6 +24,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::google::protobuf;
 namespace _pbi = ::google::protobuf::internal;
 namespace _fl = ::google::protobuf::internal::field_layout;
+namespace posetimation {
 
 inline constexpr YOLOModelConfig::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -71,61 +72,6 @@ struct YOLOModelConfigDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 YOLOModelConfigDefaultTypeInternal _YOLOModelConfig_default_instance_;
 
-inline constexpr ModuleConfig::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : _cached_size_{0},
-        type_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()),
-        name_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()) {}
-
-template <typename>
-PROTOBUF_CONSTEXPR ModuleConfig::ModuleConfig(::_pbi::ConstantInitialized)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(ModuleConfig_class_data_.base()),
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
-}
-struct ModuleConfigDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR ModuleConfigDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~ModuleConfigDefaultTypeInternal() {}
-  union {
-    ModuleConfig _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ModuleConfigDefaultTypeInternal _ModuleConfig_default_instance_;
-
-inline constexpr ModulesConfig::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : modules_{},
-        _cached_size_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR ModulesConfig::ModulesConfig(::_pbi::ConstantInitialized)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(ModulesConfig_class_data_.base()),
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
-}
-struct ModulesConfigDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR ModulesConfigDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~ModulesConfigDefaultTypeInternal() {}
-  union {
-    ModulesConfig _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ModulesConfigDefaultTypeInternal _ModulesConfig_default_instance_;
-
 inline constexpr PoseConfig::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
@@ -151,6 +97,7 @@ struct PoseConfigDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 PoseConfigDefaultTypeInternal _PoseConfig_default_instance_;
+}  // namespace posetimation
 static constexpr const ::_pb::EnumDescriptor**
     file_level_enum_descriptors_PoseEstimation_5fconf_2eproto = nullptr;
 static constexpr const ::_pb::ServiceDescriptor**
@@ -158,54 +105,33 @@ static constexpr const ::_pb::ServiceDescriptor**
 const ::uint32_t
     TableStruct_PoseEstimation_5fconf_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
         protodesc_cold) = {
-        PROTOBUF_FIELD_OFFSET(::ModuleConfig, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::ModuleConfig, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::ModuleConfig, _impl_.type_),
-        PROTOBUF_FIELD_OFFSET(::ModuleConfig, _impl_.name_),
-        0,
-        1,
-        ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::ModulesConfig, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::ModulesConfig, _impl_.modules_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.engine_path_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.num_class_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.batch_size_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.width_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.height_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.conf_thres_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.iou_thres_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.stride_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.src_width_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.src_height_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.resize_ratio_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.dw_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.dh_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.new_unpad_w_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.new_unpad_h_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.max_dets_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.num_keys_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.channels_),
-        PROTOBUF_FIELD_OFFSET(::YOLOModelConfig, _impl_.run_status_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.engine_path_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.num_class_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.batch_size_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.width_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.height_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.conf_thres_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.iou_thres_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.stride_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.src_width_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.src_height_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.resize_ratio_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.dw_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.dh_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.new_unpad_w_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.new_unpad_h_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.max_dets_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.num_keys_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.channels_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::YOLOModelConfig, _impl_.run_status_),
         0,
         1,
         2,
@@ -225,621 +151,69 @@ const ::uint32_t
         15,
         16,
         17,
-        PROTOBUF_FIELD_OFFSET(::PoseConfig, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::PoseConfig, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::PoseConfig, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::PoseConfig, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::PoseConfig, _impl_.yolo_model_config_),
-        PROTOBUF_FIELD_OFFSET(::PoseConfig, _impl_.modules_config_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::PoseConfig, _impl_.yolo_model_config_),
+        PROTOBUF_FIELD_OFFSET(::posetimation::PoseConfig, _impl_.modules_config_),
         0,
         1,
 };
 
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-        {0, 10, -1, sizeof(::ModuleConfig)},
-        {12, -1, -1, sizeof(::ModulesConfig)},
-        {21, 48, -1, sizeof(::YOLOModelConfig)},
-        {67, 77, -1, sizeof(::PoseConfig)},
+        {0, 27, -1, sizeof(::posetimation::YOLOModelConfig)},
+        {46, 56, -1, sizeof(::posetimation::PoseConfig)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
-    &::_ModuleConfig_default_instance_._instance,
-    &::_ModulesConfig_default_instance_._instance,
-    &::_YOLOModelConfig_default_instance_._instance,
-    &::_PoseConfig_default_instance_._instance,
+    &::posetimation::_YOLOModelConfig_default_instance_._instance,
+    &::posetimation::_PoseConfig_default_instance_._instance,
 };
 const char descriptor_table_protodef_PoseEstimation_5fconf_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\031PoseEstimation_conf.proto\"*\n\014ModuleCon"
-    "fig\022\014\n\004type\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\"/\n\rModul"
-    "esConfig\022\036\n\007modules\030\001 \003(\0132\r.ModuleConfig"
-    "\"\354\002\n\017YOLOModelConfig\022\023\n\013engine_path\030\001 \001("
-    "\t\022\021\n\tnum_class\030\002 \001(\005\022\022\n\nbatch_size\030\003 \001(\005"
-    "\022\r\n\005width\030\004 \001(\005\022\016\n\006height\030\005 \001(\005\022\022\n\nconf_"
-    "thres\030\006 \001(\002\022\021\n\tiou_thres\030\007 \001(\002\022\016\n\006stride"
-    "\030\010 \003(\005\022\021\n\tsrc_width\030\t \001(\005\022\022\n\nsrc_height\030"
-    "\n \001(\005\022\024\n\014resize_ratio\030\013 \001(\002\022\n\n\002dw\030\014 \001(\005\022"
-    "\n\n\002dh\030\r \001(\005\022\023\n\013new_unpad_w\030\016 \001(\005\022\023\n\013new_"
-    "unpad_h\030\017 \001(\005\022\020\n\010max_dets\030\020 \001(\005\022\020\n\010num_k"
-    "eys\030\021 \001(\005\022\020\n\010channels\030\022 \001(\005\022\022\n\nrun_statu"
-    "s\030\023 \001(\010\"a\n\nPoseConfig\022+\n\021yolo_model_conf"
-    "ig\030\001 \001(\0132\020.YOLOModelConfig\022&\n\016modules_co"
-    "nfig\030\002 \001(\0132\016.ModulesConfigb\006proto3"
+    "\n\031PoseEstimation_conf.proto\022\014posetimatio"
+    "n\032\032AlgorithmConfig_conf.proto\"\354\002\n\017YOLOMo"
+    "delConfig\022\023\n\013engine_path\030\001 \001(\t\022\021\n\tnum_cl"
+    "ass\030\002 \001(\005\022\022\n\nbatch_size\030\003 \001(\005\022\r\n\005width\030\004"
+    " \001(\005\022\016\n\006height\030\005 \001(\005\022\022\n\nconf_thres\030\006 \001(\002"
+    "\022\021\n\tiou_thres\030\007 \001(\002\022\016\n\006stride\030\010 \003(\005\022\021\n\ts"
+    "rc_width\030\t \001(\005\022\022\n\nsrc_height\030\n \001(\005\022\024\n\014re"
+    "size_ratio\030\013 \001(\002\022\n\n\002dw\030\014 \001(\005\022\n\n\002dh\030\r \001(\005"
+    "\022\023\n\013new_unpad_w\030\016 \001(\005\022\023\n\013new_unpad_h\030\017 \001"
+    "(\005\022\020\n\010max_dets\030\020 \001(\005\022\020\n\010num_keys\030\021 \001(\005\022\020"
+    "\n\010channels\030\022 \001(\005\022\022\n\nrun_status\030\023 \001(\010\"u\n\n"
+    "PoseConfig\0228\n\021yolo_model_config\030\001 \001(\0132\035."
+    "posetimation.YOLOModelConfig\022-\n\016modules_"
+    "config\030\002 \001(\0132\025.common.ModulesConfigb\006pro"
+    "to3"
+};
+static const ::_pbi::DescriptorTable* const descriptor_table_PoseEstimation_5fconf_2eproto_deps[1] =
+    {
+        &::descriptor_table_AlgorithmConfig_5fconf_2eproto,
 };
 static ::absl::once_flag descriptor_table_PoseEstimation_5fconf_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_PoseEstimation_5fconf_2eproto = {
     false,
     false,
-    594,
+    563,
     descriptor_table_protodef_PoseEstimation_5fconf_2eproto,
     "PoseEstimation_conf.proto",
     &descriptor_table_PoseEstimation_5fconf_2eproto_once,
-    nullptr,
-    0,
-    4,
+    descriptor_table_PoseEstimation_5fconf_2eproto_deps,
+    1,
+    2,
     schemas,
     file_default_instances,
     TableStruct_PoseEstimation_5fconf_2eproto::offsets,
     file_level_enum_descriptors_PoseEstimation_5fconf_2eproto,
     file_level_service_descriptors_PoseEstimation_5fconf_2eproto,
 };
-// ===================================================================
-
-class ModuleConfig::_Internal {
- public:
-  using HasBits =
-      decltype(std::declval<ModuleConfig>()._impl_._has_bits_);
-  static constexpr ::int32_t kHasBitsOffset =
-      8 * PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_._has_bits_);
-};
-
-ModuleConfig::ModuleConfig(::google::protobuf::Arena* arena)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, ModuleConfig_class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:ModuleConfig)
-}
-PROTOBUF_NDEBUG_INLINE ModuleConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::ModuleConfig& from_msg)
-      : _has_bits_{from._has_bits_},
-        _cached_size_{0},
-        type_(arena, from.type_),
-        name_(arena, from.name_) {}
-
-ModuleConfig::ModuleConfig(
-    ::google::protobuf::Arena* arena,
-    const ModuleConfig& from)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, ModuleConfig_class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  ModuleConfig* const _this = this;
-  (void)_this;
-  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
-      from._internal_metadata_);
-  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-
-  // @@protoc_insertion_point(copy_constructor:ModuleConfig)
-}
-PROTOBUF_NDEBUG_INLINE ModuleConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
-      : _cached_size_{0},
-        type_(arena),
-        name_(arena) {}
-
-inline void ModuleConfig::SharedCtor(::_pb::Arena* arena) {
-  new (&_impl_) Impl_(internal_visibility(), arena);
-}
-ModuleConfig::~ModuleConfig() {
-  // @@protoc_insertion_point(destructor:ModuleConfig)
-  SharedDtor(*this);
-}
-inline void ModuleConfig::SharedDtor(MessageLite& self) {
-  ModuleConfig& this_ = static_cast<ModuleConfig&>(self);
-  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
-  ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.type_.Destroy();
-  this_._impl_.name_.Destroy();
-  this_._impl_.~Impl_();
-}
-
-inline void* ModuleConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
-  return ::new (mem) ModuleConfig(arena);
-}
-constexpr auto ModuleConfig::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(ModuleConfig),
-                                            alignof(ModuleConfig));
-}
-constexpr auto ModuleConfig::InternalGenerateClassData_() {
-  return ::google::protobuf::internal::ClassDataFull{
-      ::google::protobuf::internal::ClassData{
-          &_ModuleConfig_default_instance_._instance,
-          &_table_.header,
-          nullptr,  // OnDemandRegisterArenaDtor
-          nullptr,  // IsInitialized
-          &ModuleConfig::MergeImpl,
-          ::google::protobuf::Message::GetNewImpl<ModuleConfig>(),
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-          &ModuleConfig::SharedDtor,
-          ::google::protobuf::Message::GetClearImpl<ModuleConfig>(), &ModuleConfig::ByteSizeLong,
-              &ModuleConfig::_InternalSerialize,
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_._cached_size_),
-          false,
-      },
-      &ModuleConfig::kDescriptorMethods,
-      &descriptor_table_PoseEstimation_5fconf_2eproto,
-      nullptr,  // tracker
-  };
-}
-
-PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
-        ModuleConfig_class_data_ =
-            ModuleConfig::InternalGenerateClassData_();
-
-const ::google::protobuf::internal::ClassData* ModuleConfig::GetClassData() const {
-  ::google::protobuf::internal::PrefetchToLocalCache(&ModuleConfig_class_data_);
-  ::google::protobuf::internal::PrefetchToLocalCache(ModuleConfig_class_data_.tc_table);
-  return ModuleConfig_class_data_.base();
-}
-PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 29, 2> ModuleConfig::_table_ = {
-  {
-    PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_._has_bits_),
-    0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
-    offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
-    offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
-    0,  // num_aux_entries
-    offsetof(decltype(_table_), field_names),  // no aux_entries
-    ModuleConfig_class_data_.base(),
-    nullptr,  // post_loop_handler
-    ::_pbi::TcParser::GenericFallback,  // fallback
-    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::ModuleConfig>(),  // to_prefetch
-    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
-  }, {{
-    // string name = 2;
-    {::_pbi::TcParser::FastUS1,
-     {18, 1, 0, PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_.name_)}},
-    // string type = 1;
-    {::_pbi::TcParser::FastUS1,
-     {10, 0, 0, PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_.type_)}},
-  }}, {{
-    65535, 65535
-  }}, {{
-    // string type = 1;
-    {PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_.type_), _Internal::kHasBitsOffset + 0, 0,
-    (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // string name = 2;
-    {PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_.name_), _Internal::kHasBitsOffset + 1, 0,
-    (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
-  }},
-  // no aux_entries
-  {{
-    "\14\4\4\0\0\0\0\0"
-    "ModuleConfig"
-    "type"
-    "name"
-  }},
-};
-
-PROTOBUF_NOINLINE void ModuleConfig::Clear() {
-// @@protoc_insertion_point(message_clear_start:ModuleConfig)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
-      _impl_.type_.ClearNonDefaultToEmpty();
-    }
-    if (cached_has_bits & 0x00000002u) {
-      _impl_.name_.ClearNonDefaultToEmpty();
-    }
-  }
-  _impl_._has_bits_.Clear();
-  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
-}
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ModuleConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ModuleConfig& this_ = static_cast<const ModuleConfig&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ModuleConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ModuleConfig& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:ModuleConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
-
-          // string type = 1;
-          if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-            if (!this_._internal_type().empty()) {
-              const std::string& _s = this_._internal_type();
-              ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "ModuleConfig.type");
-              target = stream->WriteStringMaybeAliased(1, _s, target);
-            }
-          }
-
-          // string name = 2;
-          if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
-            if (!this_._internal_name().empty()) {
-              const std::string& _s = this_._internal_name();
-              ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "ModuleConfig.name");
-              target = stream->WriteStringMaybeAliased(2, _s, target);
-            }
-          }
-
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:ModuleConfig)
-          return target;
-        }
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ModuleConfig::ByteSizeLong(const MessageLite& base) {
-          const ModuleConfig& this_ = static_cast<const ModuleConfig&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ModuleConfig::ByteSizeLong() const {
-          const ModuleConfig& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:ModuleConfig)
-          ::size_t total_size = 0;
-
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
-
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-          cached_has_bits = this_._impl_._has_bits_[0];
-          if (cached_has_bits & 0x00000003u) {
-            // string type = 1;
-            if (cached_has_bits & 0x00000001u) {
-              if (!this_._internal_type().empty()) {
-                total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                                this_._internal_type());
-              }
-            }
-            // string name = 2;
-            if (cached_has_bits & 0x00000002u) {
-              if (!this_._internal_name().empty()) {
-                total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                                this_._internal_name());
-              }
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
-
-void ModuleConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<ModuleConfig*>(&to_msg);
-  auto& from = static_cast<const ModuleConfig&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ModuleConfig)
-  ABSL_DCHECK_NE(&from, _this);
-  ::uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
-      if (!from._internal_type().empty()) {
-        _this->_internal_set_type(from._internal_type());
-      } else {
-        if (_this->_impl_.type_.IsDefault()) {
-          _this->_internal_set_type("");
-        }
-      }
-    }
-    if (cached_has_bits & 0x00000002u) {
-      if (!from._internal_name().empty()) {
-        _this->_internal_set_name(from._internal_name());
-      } else {
-        if (_this->_impl_.name_.IsDefault()) {
-          _this->_internal_set_name("");
-        }
-      }
-    }
-  }
-  _this->_impl_._has_bits_[0] |= cached_has_bits;
-  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void ModuleConfig::CopyFrom(const ModuleConfig& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ModuleConfig)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-
-void ModuleConfig::InternalSwap(ModuleConfig* PROTOBUF_RESTRICT other) {
-  using std::swap;
-  auto* arena = GetArena();
-  ABSL_DCHECK_EQ(arena, other->GetArena());
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.type_, &other->_impl_.type_, arena);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.name_, &other->_impl_.name_, arena);
-}
-
-::google::protobuf::Metadata ModuleConfig::GetMetadata() const {
-  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
-}
-// ===================================================================
-
-class ModulesConfig::_Internal {
- public:
-};
-
-ModulesConfig::ModulesConfig(::google::protobuf::Arena* arena)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, ModulesConfig_class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:ModulesConfig)
-}
-PROTOBUF_NDEBUG_INLINE ModulesConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::ModulesConfig& from_msg)
-      : modules_{visibility, arena, from.modules_},
-        _cached_size_{0} {}
-
-ModulesConfig::ModulesConfig(
-    ::google::protobuf::Arena* arena,
-    const ModulesConfig& from)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, ModulesConfig_class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  ModulesConfig* const _this = this;
-  (void)_this;
-  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
-      from._internal_metadata_);
-  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-
-  // @@protoc_insertion_point(copy_constructor:ModulesConfig)
-}
-PROTOBUF_NDEBUG_INLINE ModulesConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
-      : modules_{visibility, arena},
-        _cached_size_{0} {}
-
-inline void ModulesConfig::SharedCtor(::_pb::Arena* arena) {
-  new (&_impl_) Impl_(internal_visibility(), arena);
-}
-ModulesConfig::~ModulesConfig() {
-  // @@protoc_insertion_point(destructor:ModulesConfig)
-  SharedDtor(*this);
-}
-inline void ModulesConfig::SharedDtor(MessageLite& self) {
-  ModulesConfig& this_ = static_cast<ModulesConfig&>(self);
-  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
-  ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.~Impl_();
-}
-
-inline void* ModulesConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
-  return ::new (mem) ModulesConfig(arena);
-}
-constexpr auto ModulesConfig::InternalNewImpl_() {
-  constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
-      PROTOBUF_FIELD_OFFSET(ModulesConfig, _impl_.modules_) +
-          decltype(ModulesConfig::_impl_.modules_)::
-              InternalGetArenaOffset(
-                  ::google::protobuf::Message::internal_visibility()),
-  });
-  if (arena_bits.has_value()) {
-    return ::google::protobuf::internal::MessageCreator::ZeroInit(
-        sizeof(ModulesConfig), alignof(ModulesConfig), *arena_bits);
-  } else {
-    return ::google::protobuf::internal::MessageCreator(&ModulesConfig::PlacementNew_,
-                                 sizeof(ModulesConfig),
-                                 alignof(ModulesConfig));
-  }
-}
-constexpr auto ModulesConfig::InternalGenerateClassData_() {
-  return ::google::protobuf::internal::ClassDataFull{
-      ::google::protobuf::internal::ClassData{
-          &_ModulesConfig_default_instance_._instance,
-          &_table_.header,
-          nullptr,  // OnDemandRegisterArenaDtor
-          nullptr,  // IsInitialized
-          &ModulesConfig::MergeImpl,
-          ::google::protobuf::Message::GetNewImpl<ModulesConfig>(),
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-          &ModulesConfig::SharedDtor,
-          ::google::protobuf::Message::GetClearImpl<ModulesConfig>(), &ModulesConfig::ByteSizeLong,
-              &ModulesConfig::_InternalSerialize,
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          PROTOBUF_FIELD_OFFSET(ModulesConfig, _impl_._cached_size_),
-          false,
-      },
-      &ModulesConfig::kDescriptorMethods,
-      &descriptor_table_PoseEstimation_5fconf_2eproto,
-      nullptr,  // tracker
-  };
-}
-
-PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
-        ModulesConfig_class_data_ =
-            ModulesConfig::InternalGenerateClassData_();
-
-const ::google::protobuf::internal::ClassData* ModulesConfig::GetClassData() const {
-  ::google::protobuf::internal::PrefetchToLocalCache(&ModulesConfig_class_data_);
-  ::google::protobuf::internal::PrefetchToLocalCache(ModulesConfig_class_data_.tc_table);
-  return ModulesConfig_class_data_.base();
-}
-PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 1, 0, 2> ModulesConfig::_table_ = {
-  {
-    0,  // no _has_bits_
-    0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
-    offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
-    offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
-    1,  // num_aux_entries
-    offsetof(decltype(_table_), aux_entries),
-    ModulesConfig_class_data_.base(),
-    nullptr,  // post_loop_handler
-    ::_pbi::TcParser::GenericFallback,  // fallback
-    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::ModulesConfig>(),  // to_prefetch
-    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
-  }, {{
-    // repeated .ModuleConfig modules = 1;
-    {::_pbi::TcParser::FastMtR1,
-     {10, 63, 0, PROTOBUF_FIELD_OFFSET(ModulesConfig, _impl_.modules_)}},
-  }}, {{
-    65535, 65535
-  }}, {{
-    // repeated .ModuleConfig modules = 1;
-    {PROTOBUF_FIELD_OFFSET(ModulesConfig, _impl_.modules_), 0, 0,
-    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
-  }}, {{
-    {::_pbi::TcParser::GetTable<::ModuleConfig>()},
-  }}, {{
-  }},
-};
-
-PROTOBUF_NOINLINE void ModulesConfig::Clear() {
-// @@protoc_insertion_point(message_clear_start:ModulesConfig)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  _impl_.modules_.Clear();
-  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
-}
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ModulesConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ModulesConfig& this_ = static_cast<const ModulesConfig&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ModulesConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ModulesConfig& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:ModulesConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
-
-          // repeated .ModuleConfig modules = 1;
-          for (unsigned i = 0, n = static_cast<unsigned>(
-                                   this_._internal_modules_size());
-               i < n; i++) {
-            const auto& repfield = this_._internal_modules().Get(i);
-            target =
-                ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                    1, repfield, repfield.GetCachedSize(),
-                    target, stream);
-          }
-
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:ModulesConfig)
-          return target;
-        }
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ModulesConfig::ByteSizeLong(const MessageLite& base) {
-          const ModulesConfig& this_ = static_cast<const ModulesConfig&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ModulesConfig::ByteSizeLong() const {
-          const ModulesConfig& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:ModulesConfig)
-          ::size_t total_size = 0;
-
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
-
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-           {
-            // repeated .ModuleConfig modules = 1;
-            {
-              total_size += 1UL * this_._internal_modules_size();
-              for (const auto& msg : this_._internal_modules()) {
-                total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
-              }
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
-
-void ModulesConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<ModulesConfig*>(&to_msg);
-  auto& from = static_cast<const ModulesConfig&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ModulesConfig)
-  ABSL_DCHECK_NE(&from, _this);
-  ::uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  _this->_internal_mutable_modules()->MergeFrom(
-      from._internal_modules());
-  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void ModulesConfig::CopyFrom(const ModulesConfig& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ModulesConfig)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-
-void ModulesConfig::InternalSwap(ModulesConfig* PROTOBUF_RESTRICT other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  _impl_.modules_.InternalSwap(&other->_impl_.modules_);
-}
-
-::google::protobuf::Metadata ModulesConfig::GetMetadata() const {
-  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
-}
+namespace posetimation {
 // ===================================================================
 
 class YOLOModelConfig::_Internal {
@@ -857,11 +231,11 @@ YOLOModelConfig::YOLOModelConfig(::google::protobuf::Arena* arena)
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:YOLOModelConfig)
+  // @@protoc_insertion_point(arena_constructor:posetimation.YOLOModelConfig)
 }
 PROTOBUF_NDEBUG_INLINE YOLOModelConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::YOLOModelConfig& from_msg)
+    const Impl_& from, const ::posetimation::YOLOModelConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         stride_{visibility, arena, from.stride_},
@@ -889,7 +263,7 @@ YOLOModelConfig::YOLOModelConfig(
                offsetof(Impl_, num_class_) +
                sizeof(Impl_::run_status_));
 
-  // @@protoc_insertion_point(copy_constructor:YOLOModelConfig)
+  // @@protoc_insertion_point(copy_constructor:posetimation.YOLOModelConfig)
 }
 PROTOBUF_NDEBUG_INLINE YOLOModelConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -909,7 +283,7 @@ inline void YOLOModelConfig::SharedCtor(::_pb::Arena* arena) {
                sizeof(Impl_::run_status_));
 }
 YOLOModelConfig::~YOLOModelConfig() {
-  // @@protoc_insertion_point(destructor:YOLOModelConfig)
+  // @@protoc_insertion_point(destructor:posetimation.YOLOModelConfig)
   SharedDtor(*this);
 }
 inline void YOLOModelConfig::SharedDtor(MessageLite& self) {
@@ -974,7 +348,7 @@ const ::google::protobuf::internal::ClassData* YOLOModelConfig::GetClassData() c
   return YOLOModelConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<5, 19, 0, 51, 2> YOLOModelConfig::_table_ = {
+const ::_pbi::TcParseTable<5, 19, 0, 64, 2> YOLOModelConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -989,7 +363,7 @@ const ::_pbi::TcParseTable<5, 19, 0, 51, 2> YOLOModelConfig::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::YOLOModelConfig>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::posetimation::YOLOModelConfig>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -1125,14 +499,14 @@ const ::_pbi::TcParseTable<5, 19, 0, 51, 2> YOLOModelConfig::_table_ = {
   }},
   // no aux_entries
   {{
-    "\17\13\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-    "YOLOModelConfig"
+    "\34\13\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+    "posetimation.YOLOModelConfig"
     "engine_path"
   }},
 };
 
 PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
-// @@protoc_insertion_point(message_clear_start:YOLOModelConfig)
+// @@protoc_insertion_point(message_clear_start:posetimation.YOLOModelConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -1173,7 +547,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
             ::google::protobuf::io::EpsCopyOutputStream* stream) const {
           const YOLOModelConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:YOLOModelConfig)
+          // @@protoc_insertion_point(serialize_to_array_start:posetimation.YOLOModelConfig)
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
@@ -1182,7 +556,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
             if (!this_._internal_engine_path().empty()) {
               const std::string& _s = this_._internal_engine_path();
               ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "YOLOModelConfig.engine_path");
+                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "posetimation.YOLOModelConfig.engine_path");
               target = stream->WriteStringMaybeAliased(1, _s, target);
             }
           }
@@ -1354,7 +728,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
                     this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
           }
-          // @@protoc_insertion_point(serialize_to_array_end:YOLOModelConfig)
+          // @@protoc_insertion_point(serialize_to_array_end:posetimation.YOLOModelConfig)
           return target;
         }
 
@@ -1365,7 +739,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
         ::size_t YOLOModelConfig::ByteSizeLong() const {
           const YOLOModelConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:YOLOModelConfig)
+          // @@protoc_insertion_point(message_byte_size_start:posetimation.YOLOModelConfig)
           ::size_t total_size = 0;
 
           ::uint32_t cached_has_bits = 0;
@@ -1518,7 +892,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
 void YOLOModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<YOLOModelConfig*>(&to_msg);
   auto& from = static_cast<const YOLOModelConfig&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:YOLOModelConfig)
+  // @@protoc_insertion_point(class_specific_merge_from_start:posetimation.YOLOModelConfig)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1630,7 +1004,7 @@ void YOLOModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
 }
 
 void YOLOModelConfig::CopyFrom(const YOLOModelConfig& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:YOLOModelConfig)
+// @@protoc_insertion_point(class_specific_copy_from_start:posetimation.YOLOModelConfig)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1666,6 +1040,11 @@ class PoseConfig::_Internal {
       8 * PROTOBUF_FIELD_OFFSET(PoseConfig, _impl_._has_bits_);
 };
 
+void PoseConfig::clear_modules_config() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.modules_config_ != nullptr) _impl_.modules_config_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
 PoseConfig::PoseConfig(::google::protobuf::Arena* arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, PoseConfig_class_data_.base()) {
@@ -1673,11 +1052,11 @@ PoseConfig::PoseConfig(::google::protobuf::Arena* arena)
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:PoseConfig)
+  // @@protoc_insertion_point(arena_constructor:posetimation.PoseConfig)
 }
 PROTOBUF_NDEBUG_INLINE PoseConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::PoseConfig& from_msg)
+    const Impl_& from, const ::posetimation::PoseConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0} {}
 
@@ -1695,14 +1074,14 @@ PoseConfig::PoseConfig(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.yolo_model_config_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::YOLOModelConfig>(
+  _impl_.yolo_model_config_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::posetimation::YOLOModelConfig>(
                               arena, *from._impl_.yolo_model_config_)
                         : nullptr;
-  _impl_.modules_config_ = (cached_has_bits & 0x00000002u) ? ::google::protobuf::Message::CopyConstruct<::ModulesConfig>(
+  _impl_.modules_config_ = (cached_has_bits & 0x00000002u) ? ::google::protobuf::Message::CopyConstruct<::common::ModulesConfig>(
                               arena, *from._impl_.modules_config_)
                         : nullptr;
 
-  // @@protoc_insertion_point(copy_constructor:PoseConfig)
+  // @@protoc_insertion_point(copy_constructor:posetimation.PoseConfig)
 }
 PROTOBUF_NDEBUG_INLINE PoseConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -1719,7 +1098,7 @@ inline void PoseConfig::SharedCtor(::_pb::Arena* arena) {
                sizeof(Impl_::modules_config_));
 }
 PoseConfig::~PoseConfig() {
-  // @@protoc_insertion_point(destructor:PoseConfig)
+  // @@protoc_insertion_point(destructor:posetimation.PoseConfig)
   SharedDtor(*this);
 }
 inline void PoseConfig::SharedDtor(MessageLite& self) {
@@ -1788,33 +1167,33 @@ const ::_pbi::TcParseTable<1, 2, 2, 0, 2> PoseConfig::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::PoseConfig>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::posetimation::PoseConfig>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // .ModulesConfig modules_config = 2;
+    // .common.ModulesConfig modules_config = 2;
     {::_pbi::TcParser::FastMtS1,
      {18, 1, 1, PROTOBUF_FIELD_OFFSET(PoseConfig, _impl_.modules_config_)}},
-    // .YOLOModelConfig yolo_model_config = 1;
+    // .posetimation.YOLOModelConfig yolo_model_config = 1;
     {::_pbi::TcParser::FastMtS1,
      {10, 0, 0, PROTOBUF_FIELD_OFFSET(PoseConfig, _impl_.yolo_model_config_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // .YOLOModelConfig yolo_model_config = 1;
+    // .posetimation.YOLOModelConfig yolo_model_config = 1;
     {PROTOBUF_FIELD_OFFSET(PoseConfig, _impl_.yolo_model_config_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
-    // .ModulesConfig modules_config = 2;
+    // .common.ModulesConfig modules_config = 2;
     {PROTOBUF_FIELD_OFFSET(PoseConfig, _impl_.modules_config_), _Internal::kHasBitsOffset + 1, 1,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
   }}, {{
-    {::_pbi::TcParser::GetTable<::YOLOModelConfig>()},
-    {::_pbi::TcParser::GetTable<::ModulesConfig>()},
+    {::_pbi::TcParser::GetTable<::posetimation::YOLOModelConfig>()},
+    {::_pbi::TcParser::GetTable<::common::ModulesConfig>()},
   }}, {{
   }},
 };
 
 PROTOBUF_NOINLINE void PoseConfig::Clear() {
-// @@protoc_insertion_point(message_clear_start:PoseConfig)
+// @@protoc_insertion_point(message_clear_start:posetimation.PoseConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -1846,19 +1225,19 @@ PROTOBUF_NOINLINE void PoseConfig::Clear() {
             ::google::protobuf::io::EpsCopyOutputStream* stream) const {
           const PoseConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:PoseConfig)
+          // @@protoc_insertion_point(serialize_to_array_start:posetimation.PoseConfig)
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
           cached_has_bits = this_._impl_._has_bits_[0];
-          // .YOLOModelConfig yolo_model_config = 1;
+          // .posetimation.YOLOModelConfig yolo_model_config = 1;
           if (cached_has_bits & 0x00000001u) {
             target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
                 1, *this_._impl_.yolo_model_config_, this_._impl_.yolo_model_config_->GetCachedSize(), target,
                 stream);
           }
 
-          // .ModulesConfig modules_config = 2;
+          // .common.ModulesConfig modules_config = 2;
           if (cached_has_bits & 0x00000002u) {
             target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
                 2, *this_._impl_.modules_config_, this_._impl_.modules_config_->GetCachedSize(), target,
@@ -1870,7 +1249,7 @@ PROTOBUF_NOINLINE void PoseConfig::Clear() {
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
                     this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
           }
-          // @@protoc_insertion_point(serialize_to_array_end:PoseConfig)
+          // @@protoc_insertion_point(serialize_to_array_end:posetimation.PoseConfig)
           return target;
         }
 
@@ -1881,7 +1260,7 @@ PROTOBUF_NOINLINE void PoseConfig::Clear() {
         ::size_t PoseConfig::ByteSizeLong() const {
           const PoseConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:PoseConfig)
+          // @@protoc_insertion_point(message_byte_size_start:posetimation.PoseConfig)
           ::size_t total_size = 0;
 
           ::uint32_t cached_has_bits = 0;
@@ -1891,12 +1270,12 @@ PROTOBUF_NOINLINE void PoseConfig::Clear() {
           ::_pbi::Prefetch5LinesFrom7Lines(&this_);
           cached_has_bits = this_._impl_._has_bits_[0];
           if (cached_has_bits & 0x00000003u) {
-            // .YOLOModelConfig yolo_model_config = 1;
+            // .posetimation.YOLOModelConfig yolo_model_config = 1;
             if (cached_has_bits & 0x00000001u) {
               total_size += 1 +
                             ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.yolo_model_config_);
             }
-            // .ModulesConfig modules_config = 2;
+            // .common.ModulesConfig modules_config = 2;
             if (cached_has_bits & 0x00000002u) {
               total_size += 1 +
                             ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.modules_config_);
@@ -1910,7 +1289,7 @@ void PoseConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goog
   auto* const _this = static_cast<PoseConfig*>(&to_msg);
   auto& from = static_cast<const PoseConfig&>(from_msg);
   ::google::protobuf::Arena* arena = _this->GetArena();
-  // @@protoc_insertion_point(class_specific_merge_from_start:PoseConfig)
+  // @@protoc_insertion_point(class_specific_merge_from_start:posetimation.PoseConfig)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1921,7 +1300,7 @@ void PoseConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goog
       ABSL_DCHECK(from._impl_.yolo_model_config_ != nullptr);
       if (_this->_impl_.yolo_model_config_ == nullptr) {
         _this->_impl_.yolo_model_config_ =
-            ::google::protobuf::Message::CopyConstruct<::YOLOModelConfig>(arena, *from._impl_.yolo_model_config_);
+            ::google::protobuf::Message::CopyConstruct<::posetimation::YOLOModelConfig>(arena, *from._impl_.yolo_model_config_);
       } else {
         _this->_impl_.yolo_model_config_->MergeFrom(*from._impl_.yolo_model_config_);
       }
@@ -1930,7 +1309,7 @@ void PoseConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goog
       ABSL_DCHECK(from._impl_.modules_config_ != nullptr);
       if (_this->_impl_.modules_config_ == nullptr) {
         _this->_impl_.modules_config_ =
-            ::google::protobuf::Message::CopyConstruct<::ModulesConfig>(arena, *from._impl_.modules_config_);
+            ::google::protobuf::Message::CopyConstruct<::common::ModulesConfig>(arena, *from._impl_.modules_config_);
       } else {
         _this->_impl_.modules_config_->MergeFrom(*from._impl_.modules_config_);
       }
@@ -1941,7 +1320,7 @@ void PoseConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goog
 }
 
 void PoseConfig::CopyFrom(const PoseConfig& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:PoseConfig)
+// @@protoc_insertion_point(class_specific_copy_from_start:posetimation.PoseConfig)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1964,6 +1343,7 @@ void PoseConfig::InternalSwap(PoseConfig* PROTOBUF_RESTRICT other) {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace posetimation
 namespace google {
 namespace protobuf {
 }  // namespace protobuf

@@ -25,7 +25,7 @@ bool Yolov11Pose::init(void* p_pAlgParam)
     LOG(INFO) << "Yolov11Pose::init status: start ";
     // 1. 配置参数核验
     if (!p_pAlgParam) return false;
-    m_poseConfig = *static_cast<YOLOModelConfig*>(p_pAlgParam);
+    m_poseConfig = *static_cast<posetimation::YOLOModelConfig*>(p_pAlgParam);
 
     // 2. 配置参数获取
     engine_path_ = m_poseConfig.engine_path();

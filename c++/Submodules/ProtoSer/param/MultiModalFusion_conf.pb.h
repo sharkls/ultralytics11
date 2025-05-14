@@ -29,6 +29,7 @@
 #include "google/protobuf/repeated_field.h"  // IWYU pragma: export
 #include "google/protobuf/extension_set.h"  // IWYU pragma: export
 #include "google/protobuf/unknown_field_set.h"
+#include "AlgorithmConfig_conf.pb.h"
 // @@protoc_insertion_point(includes)
 
 // Must be included last.
@@ -51,14 +52,7 @@ struct TableStruct_MultiModalFusion_5fconf_2eproto {
 };
 extern const ::google::protobuf::internal::DescriptorTable
     descriptor_table_MultiModalFusion_5fconf_2eproto;
-class ModuleConfig;
-struct ModuleConfigDefaultTypeInternal;
-extern ModuleConfigDefaultTypeInternal _ModuleConfig_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull ModuleConfig_class_data_;
-class ModulesConfig;
-struct ModulesConfigDefaultTypeInternal;
-extern ModulesConfigDefaultTypeInternal _ModulesConfig_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull ModulesConfig_class_data_;
+namespace multimodalfusion {
 class MultiModalFusionConfig;
 struct MultiModalFusionConfigDefaultTypeInternal;
 extern MultiModalFusionConfigDefaultTypeInternal _MultiModalFusionConfig_default_instance_;
@@ -67,11 +61,13 @@ class MultiModalFusionModelConfig;
 struct MultiModalFusionModelConfigDefaultTypeInternal;
 extern MultiModalFusionModelConfigDefaultTypeInternal _MultiModalFusionModelConfig_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull MultiModalFusionModelConfig_class_data_;
+}  // namespace multimodalfusion
 namespace google {
 namespace protobuf {
 }  // namespace protobuf
 }  // namespace google
 
+namespace multimodalfusion {
 
 // ===================================================================
 
@@ -80,7 +76,7 @@ namespace protobuf {
 
 class MultiModalFusionModelConfig final
     : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:MultiModalFusionModelConfig) */ {
+/* @@protoc_insertion_point(class_definition:multimodalfusion.MultiModalFusionModelConfig) */ {
  public:
   inline MultiModalFusionModelConfig() : MultiModalFusionModelConfig(nullptr) {}
   ~MultiModalFusionModelConfig() PROTOBUF_FINAL;
@@ -138,7 +134,7 @@ class MultiModalFusionModelConfig final
     return reinterpret_cast<const MultiModalFusionModelConfig*>(
         &_MultiModalFusionModelConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 2;
+  static constexpr int kIndexInFileMessages = 0;
   friend void swap(MultiModalFusionModelConfig& a, MultiModalFusionModelConfig& b) { a.Swap(&b); }
   inline void Swap(MultiModalFusionModelConfig* other) {
     if (other == this) return;
@@ -204,7 +200,7 @@ class MultiModalFusionModelConfig final
   template <typename T>
   friend ::absl::string_view(
       ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "MultiModalFusionModelConfig"; }
+  static ::absl::string_view FullMessageName() { return "multimodalfusion.MultiModalFusionModelConfig"; }
 
  protected:
   explicit MultiModalFusionModelConfig(::google::protobuf::Arena* arena);
@@ -234,16 +230,24 @@ class MultiModalFusionModelConfig final
     kHeightFieldNumber = 5,
     kConfThresFieldNumber = 6,
     kIouThresFieldNumber = 7,
-    kSrcWidthFieldNumber = 9,
-    kSrcHeightFieldNumber = 10,
-    kResizeRatioFieldNumber = 11,
-    kDwFieldNumber = 12,
-    kDhFieldNumber = 13,
-    kNewUnpadWFieldNumber = 14,
-    kNewUnpadHFieldNumber = 15,
+    kSrcWidthRgbFieldNumber = 9,
+    kSrcHeightRgbFieldNumber = 10,
+    kResizeRatioRgbFieldNumber = 11,
+    kDwRgbFieldNumber = 12,
+    kDhRgbFieldNumber = 13,
+    kNewUnpadWRgbFieldNumber = 14,
+    kNewUnpadHRgbFieldNumber = 15,
     kMaxDetsFieldNumber = 16,
+    kNumKeysFieldNumber = 17,
     kChannelsFieldNumber = 18,
     kRunStatusFieldNumber = 19,
+    kSrcWidthIrFieldNumber = 20,
+    kSrcHeightIrFieldNumber = 21,
+    kResizeRatioIrFieldNumber = 22,
+    kDwIrFieldNumber = 23,
+    kDhIrFieldNumber = 24,
+    kNewUnpadWIrFieldNumber = 25,
+    kNewUnpadHIrFieldNumber = 26,
   };
   // repeated int32 stride = 8;
   int stride_size() const;
@@ -338,74 +342,74 @@ class MultiModalFusionModelConfig final
   void _internal_set_iou_thres(float value);
 
   public:
-  // int32 src_width = 9;
-  void clear_src_width() ;
-  ::int32_t src_width() const;
-  void set_src_width(::int32_t value);
+  // int32 src_width_rgb = 9;
+  void clear_src_width_rgb() ;
+  ::int32_t src_width_rgb() const;
+  void set_src_width_rgb(::int32_t value);
 
   private:
-  ::int32_t _internal_src_width() const;
-  void _internal_set_src_width(::int32_t value);
+  ::int32_t _internal_src_width_rgb() const;
+  void _internal_set_src_width_rgb(::int32_t value);
 
   public:
-  // int32 src_height = 10;
-  void clear_src_height() ;
-  ::int32_t src_height() const;
-  void set_src_height(::int32_t value);
+  // int32 src_height_rgb = 10;
+  void clear_src_height_rgb() ;
+  ::int32_t src_height_rgb() const;
+  void set_src_height_rgb(::int32_t value);
 
   private:
-  ::int32_t _internal_src_height() const;
-  void _internal_set_src_height(::int32_t value);
+  ::int32_t _internal_src_height_rgb() const;
+  void _internal_set_src_height_rgb(::int32_t value);
 
   public:
-  // float resize_ratio = 11;
-  void clear_resize_ratio() ;
-  float resize_ratio() const;
-  void set_resize_ratio(float value);
+  // float resize_ratio_rgb = 11;
+  void clear_resize_ratio_rgb() ;
+  float resize_ratio_rgb() const;
+  void set_resize_ratio_rgb(float value);
 
   private:
-  float _internal_resize_ratio() const;
-  void _internal_set_resize_ratio(float value);
+  float _internal_resize_ratio_rgb() const;
+  void _internal_set_resize_ratio_rgb(float value);
 
   public:
-  // int32 dw = 12;
-  void clear_dw() ;
-  ::int32_t dw() const;
-  void set_dw(::int32_t value);
+  // int32 dw_rgb = 12;
+  void clear_dw_rgb() ;
+  ::int32_t dw_rgb() const;
+  void set_dw_rgb(::int32_t value);
 
   private:
-  ::int32_t _internal_dw() const;
-  void _internal_set_dw(::int32_t value);
+  ::int32_t _internal_dw_rgb() const;
+  void _internal_set_dw_rgb(::int32_t value);
 
   public:
-  // int32 dh = 13;
-  void clear_dh() ;
-  ::int32_t dh() const;
-  void set_dh(::int32_t value);
+  // int32 dh_rgb = 13;
+  void clear_dh_rgb() ;
+  ::int32_t dh_rgb() const;
+  void set_dh_rgb(::int32_t value);
 
   private:
-  ::int32_t _internal_dh() const;
-  void _internal_set_dh(::int32_t value);
+  ::int32_t _internal_dh_rgb() const;
+  void _internal_set_dh_rgb(::int32_t value);
 
   public:
-  // int32 new_unpad_w = 14;
-  void clear_new_unpad_w() ;
-  ::int32_t new_unpad_w() const;
-  void set_new_unpad_w(::int32_t value);
+  // int32 new_unpad_w_rgb = 14;
+  void clear_new_unpad_w_rgb() ;
+  ::int32_t new_unpad_w_rgb() const;
+  void set_new_unpad_w_rgb(::int32_t value);
 
   private:
-  ::int32_t _internal_new_unpad_w() const;
-  void _internal_set_new_unpad_w(::int32_t value);
+  ::int32_t _internal_new_unpad_w_rgb() const;
+  void _internal_set_new_unpad_w_rgb(::int32_t value);
 
   public:
-  // int32 new_unpad_h = 15;
-  void clear_new_unpad_h() ;
-  ::int32_t new_unpad_h() const;
-  void set_new_unpad_h(::int32_t value);
+  // int32 new_unpad_h_rgb = 15;
+  void clear_new_unpad_h_rgb() ;
+  ::int32_t new_unpad_h_rgb() const;
+  void set_new_unpad_h_rgb(::int32_t value);
 
   private:
-  ::int32_t _internal_new_unpad_h() const;
-  void _internal_set_new_unpad_h(::int32_t value);
+  ::int32_t _internal_new_unpad_h_rgb() const;
+  void _internal_set_new_unpad_h_rgb(::int32_t value);
 
   public:
   // int32 max_dets = 16;
@@ -416,6 +420,16 @@ class MultiModalFusionModelConfig final
   private:
   ::int32_t _internal_max_dets() const;
   void _internal_set_max_dets(::int32_t value);
+
+  public:
+  // int32 num_keys = 17;
+  void clear_num_keys() ;
+  ::int32_t num_keys() const;
+  void set_num_keys(::int32_t value);
+
+  private:
+  ::int32_t _internal_num_keys() const;
+  void _internal_set_num_keys(::int32_t value);
 
   public:
   // int32 channels = 18;
@@ -438,13 +452,83 @@ class MultiModalFusionModelConfig final
   void _internal_set_run_status(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:MultiModalFusionModelConfig)
+  // int32 src_width_ir = 20;
+  void clear_src_width_ir() ;
+  ::int32_t src_width_ir() const;
+  void set_src_width_ir(::int32_t value);
+
+  private:
+  ::int32_t _internal_src_width_ir() const;
+  void _internal_set_src_width_ir(::int32_t value);
+
+  public:
+  // int32 src_height_ir = 21;
+  void clear_src_height_ir() ;
+  ::int32_t src_height_ir() const;
+  void set_src_height_ir(::int32_t value);
+
+  private:
+  ::int32_t _internal_src_height_ir() const;
+  void _internal_set_src_height_ir(::int32_t value);
+
+  public:
+  // float resize_ratio_ir = 22;
+  void clear_resize_ratio_ir() ;
+  float resize_ratio_ir() const;
+  void set_resize_ratio_ir(float value);
+
+  private:
+  float _internal_resize_ratio_ir() const;
+  void _internal_set_resize_ratio_ir(float value);
+
+  public:
+  // int32 dw_ir = 23;
+  void clear_dw_ir() ;
+  ::int32_t dw_ir() const;
+  void set_dw_ir(::int32_t value);
+
+  private:
+  ::int32_t _internal_dw_ir() const;
+  void _internal_set_dw_ir(::int32_t value);
+
+  public:
+  // int32 dh_ir = 24;
+  void clear_dh_ir() ;
+  ::int32_t dh_ir() const;
+  void set_dh_ir(::int32_t value);
+
+  private:
+  ::int32_t _internal_dh_ir() const;
+  void _internal_set_dh_ir(::int32_t value);
+
+  public:
+  // int32 new_unpad_w_ir = 25;
+  void clear_new_unpad_w_ir() ;
+  ::int32_t new_unpad_w_ir() const;
+  void set_new_unpad_w_ir(::int32_t value);
+
+  private:
+  ::int32_t _internal_new_unpad_w_ir() const;
+  void _internal_set_new_unpad_w_ir(::int32_t value);
+
+  public:
+  // int32 new_unpad_h_ir = 26;
+  void clear_new_unpad_h_ir() ;
+  ::int32_t new_unpad_h_ir() const;
+  void set_new_unpad_h_ir(::int32_t value);
+
+  private:
+  ::int32_t _internal_new_unpad_h_ir() const;
+  void _internal_set_new_unpad_h_ir(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:multimodalfusion.MultiModalFusionModelConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      5, 18, 0,
-      63, 2>
+      5, 26, 0,
+      88, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -472,16 +556,24 @@ class MultiModalFusionModelConfig final
     ::int32_t height_;
     float conf_thres_;
     float iou_thres_;
-    ::int32_t src_width_;
-    ::int32_t src_height_;
-    float resize_ratio_;
-    ::int32_t dw_;
-    ::int32_t dh_;
-    ::int32_t new_unpad_w_;
-    ::int32_t new_unpad_h_;
+    ::int32_t src_width_rgb_;
+    ::int32_t src_height_rgb_;
+    float resize_ratio_rgb_;
+    ::int32_t dw_rgb_;
+    ::int32_t dh_rgb_;
+    ::int32_t new_unpad_w_rgb_;
+    ::int32_t new_unpad_h_rgb_;
     ::int32_t max_dets_;
+    ::int32_t num_keys_;
     ::int32_t channels_;
     bool run_status_;
+    ::int32_t src_width_ir_;
+    ::int32_t src_height_ir_;
+    float resize_ratio_ir_;
+    ::int32_t dw_ir_;
+    ::int32_t dh_ir_;
+    ::int32_t new_unpad_w_ir_;
+    ::int32_t new_unpad_h_ir_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -491,427 +583,9 @@ class MultiModalFusionModelConfig final
 extern const ::google::protobuf::internal::ClassDataFull MultiModalFusionModelConfig_class_data_;
 // -------------------------------------------------------------------
 
-class ModuleConfig final
-    : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:ModuleConfig) */ {
- public:
-  inline ModuleConfig() : ModuleConfig(nullptr) {}
-  ~ModuleConfig() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ModuleConfig* msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(ModuleConfig));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ModuleConfig(
-      ::google::protobuf::internal::ConstantInitialized);
-
-  inline ModuleConfig(const ModuleConfig& from) : ModuleConfig(nullptr, from) {}
-  inline ModuleConfig(ModuleConfig&& from) noexcept
-      : ModuleConfig(nullptr, std::move(from)) {}
-  inline ModuleConfig& operator=(const ModuleConfig& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ModuleConfig& operator=(ModuleConfig&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const ModuleConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ModuleConfig* internal_default_instance() {
-    return reinterpret_cast<const ModuleConfig*>(
-        &_ModuleConfig_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 0;
-  friend void swap(ModuleConfig& a, ModuleConfig& b) { a.Swap(&b); }
-  inline void Swap(ModuleConfig* other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(ModuleConfig* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  ModuleConfig* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<ModuleConfig>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ModuleConfig& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const ModuleConfig& from) { ModuleConfig::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(ModuleConfig* other);
- private:
-  template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "ModuleConfig"; }
-
- protected:
-  explicit ModuleConfig(::google::protobuf::Arena* arena);
-  ModuleConfig(::google::protobuf::Arena* arena, const ModuleConfig& from);
-  ModuleConfig(::google::protobuf::Arena* arena, ModuleConfig&& from) noexcept
-      : ModuleConfig(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kTypeFieldNumber = 1,
-    kNameFieldNumber = 2,
-  };
-  // string type = 1;
-  void clear_type() ;
-  const std::string& type() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_type(Arg_&& arg, Args_... args);
-  std::string* mutable_type();
-  [[nodiscard]] std::string* release_type();
-  void set_allocated_type(std::string* value);
-
-  private:
-  const std::string& _internal_type() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_type(const std::string& value);
-  std::string* _internal_mutable_type();
-
-  public:
-  // string name = 2;
-  void clear_name() ;
-  const std::string& name() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_name(Arg_&& arg, Args_... args);
-  std::string* mutable_name();
-  [[nodiscard]] std::string* release_name();
-  void set_allocated_name(std::string* value);
-
-  private:
-  const std::string& _internal_name() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
-  std::string* _internal_mutable_name();
-
-  public:
-  // @@protoc_insertion_point(class_scope:ModuleConfig)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
-      29, 2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ModuleConfig& from_msg);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::internal::ArenaStringPtr type_;
-    ::google::protobuf::internal::ArenaStringPtr name_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_MultiModalFusion_5fconf_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull ModuleConfig_class_data_;
-// -------------------------------------------------------------------
-
-class ModulesConfig final
-    : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:ModulesConfig) */ {
- public:
-  inline ModulesConfig() : ModulesConfig(nullptr) {}
-  ~ModulesConfig() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ModulesConfig* msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(ModulesConfig));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ModulesConfig(
-      ::google::protobuf::internal::ConstantInitialized);
-
-  inline ModulesConfig(const ModulesConfig& from) : ModulesConfig(nullptr, from) {}
-  inline ModulesConfig(ModulesConfig&& from) noexcept
-      : ModulesConfig(nullptr, std::move(from)) {}
-  inline ModulesConfig& operator=(const ModulesConfig& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ModulesConfig& operator=(ModulesConfig&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const ModulesConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ModulesConfig* internal_default_instance() {
-    return reinterpret_cast<const ModulesConfig*>(
-        &_ModulesConfig_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 1;
-  friend void swap(ModulesConfig& a, ModulesConfig& b) { a.Swap(&b); }
-  inline void Swap(ModulesConfig* other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(ModulesConfig* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  ModulesConfig* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<ModulesConfig>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ModulesConfig& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const ModulesConfig& from) { ModulesConfig::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(ModulesConfig* other);
- private:
-  template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "ModulesConfig"; }
-
- protected:
-  explicit ModulesConfig(::google::protobuf::Arena* arena);
-  ModulesConfig(::google::protobuf::Arena* arena, const ModulesConfig& from);
-  ModulesConfig(::google::protobuf::Arena* arena, ModulesConfig&& from) noexcept
-      : ModulesConfig(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kModulesFieldNumber = 1,
-  };
-  // repeated .ModuleConfig modules = 1;
-  int modules_size() const;
-  private:
-  int _internal_modules_size() const;
-
-  public:
-  void clear_modules() ;
-  ::ModuleConfig* mutable_modules(int index);
-  ::google::protobuf::RepeatedPtrField<::ModuleConfig>* mutable_modules();
-
-  private:
-  const ::google::protobuf::RepeatedPtrField<::ModuleConfig>& _internal_modules() const;
-  ::google::protobuf::RepeatedPtrField<::ModuleConfig>* _internal_mutable_modules();
-  public:
-  const ::ModuleConfig& modules(int index) const;
-  ::ModuleConfig* add_modules();
-  const ::google::protobuf::RepeatedPtrField<::ModuleConfig>& modules() const;
-  // @@protoc_insertion_point(class_scope:ModulesConfig)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 1,
-      0, 2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ModulesConfig& from_msg);
-    ::google::protobuf::RepeatedPtrField< ::ModuleConfig > modules_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_MultiModalFusion_5fconf_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull ModulesConfig_class_data_;
-// -------------------------------------------------------------------
-
 class MultiModalFusionConfig final
     : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:MultiModalFusionConfig) */ {
+/* @@protoc_insertion_point(class_definition:multimodalfusion.MultiModalFusionConfig) */ {
  public:
   inline MultiModalFusionConfig() : MultiModalFusionConfig(nullptr) {}
   ~MultiModalFusionConfig() PROTOBUF_FINAL;
@@ -969,7 +643,7 @@ class MultiModalFusionConfig final
     return reinterpret_cast<const MultiModalFusionConfig*>(
         &_MultiModalFusionConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 3;
+  static constexpr int kIndexInFileMessages = 1;
   friend void swap(MultiModalFusionConfig& a, MultiModalFusionConfig& b) { a.Swap(&b); }
   inline void Swap(MultiModalFusionConfig* other) {
     if (other == this) return;
@@ -1035,7 +709,7 @@ class MultiModalFusionConfig final
   template <typename T>
   friend ::absl::string_view(
       ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "MultiModalFusionConfig"; }
+  static ::absl::string_view FullMessageName() { return "multimodalfusion.MultiModalFusionConfig"; }
 
  protected:
   explicit MultiModalFusionConfig(::google::protobuf::Arena* arena);
@@ -1060,37 +734,37 @@ class MultiModalFusionConfig final
     kModelConfigFieldNumber = 1,
     kModulesConfigFieldNumber = 2,
   };
-  // .MultiModalFusionModelConfig model_config = 1;
+  // .multimodalfusion.MultiModalFusionModelConfig model_config = 1;
   bool has_model_config() const;
   void clear_model_config() ;
-  const ::MultiModalFusionModelConfig& model_config() const;
-  [[nodiscard]] ::MultiModalFusionModelConfig* release_model_config();
-  ::MultiModalFusionModelConfig* mutable_model_config();
-  void set_allocated_model_config(::MultiModalFusionModelConfig* value);
-  void unsafe_arena_set_allocated_model_config(::MultiModalFusionModelConfig* value);
-  ::MultiModalFusionModelConfig* unsafe_arena_release_model_config();
+  const ::multimodalfusion::MultiModalFusionModelConfig& model_config() const;
+  [[nodiscard]] ::multimodalfusion::MultiModalFusionModelConfig* release_model_config();
+  ::multimodalfusion::MultiModalFusionModelConfig* mutable_model_config();
+  void set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* value);
+  void unsafe_arena_set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* value);
+  ::multimodalfusion::MultiModalFusionModelConfig* unsafe_arena_release_model_config();
 
   private:
-  const ::MultiModalFusionModelConfig& _internal_model_config() const;
-  ::MultiModalFusionModelConfig* _internal_mutable_model_config();
+  const ::multimodalfusion::MultiModalFusionModelConfig& _internal_model_config() const;
+  ::multimodalfusion::MultiModalFusionModelConfig* _internal_mutable_model_config();
 
   public:
-  // .ModulesConfig modules_config = 2;
+  // .common.ModulesConfig modules_config = 2;
   bool has_modules_config() const;
   void clear_modules_config() ;
-  const ::ModulesConfig& modules_config() const;
-  [[nodiscard]] ::ModulesConfig* release_modules_config();
-  ::ModulesConfig* mutable_modules_config();
-  void set_allocated_modules_config(::ModulesConfig* value);
-  void unsafe_arena_set_allocated_modules_config(::ModulesConfig* value);
-  ::ModulesConfig* unsafe_arena_release_modules_config();
+  const ::common::ModulesConfig& modules_config() const;
+  [[nodiscard]] ::common::ModulesConfig* release_modules_config();
+  ::common::ModulesConfig* mutable_modules_config();
+  void set_allocated_modules_config(::common::ModulesConfig* value);
+  void unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value);
+  ::common::ModulesConfig* unsafe_arena_release_modules_config();
 
   private:
-  const ::ModulesConfig& _internal_modules_config() const;
-  ::ModulesConfig* _internal_mutable_modules_config();
+  const ::common::ModulesConfig& _internal_modules_config() const;
+  ::common::ModulesConfig* _internal_mutable_modules_config();
 
   public:
-  // @@protoc_insertion_point(class_scope:MultiModalFusionConfig)
+  // @@protoc_insertion_point(class_scope:multimodalfusion.MultiModalFusionConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -1115,8 +789,8 @@ class MultiModalFusionConfig final
                           const MultiModalFusionConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::MultiModalFusionModelConfig* model_config_;
-    ::ModulesConfig* modules_config_;
+    ::multimodalfusion::MultiModalFusionModelConfig* model_config_;
+    ::common::ModulesConfig* modules_config_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1139,193 +813,6 @@ extern const ::google::protobuf::internal::ClassDataFull MultiModalFusionConfig_
 #endif  // __GNUC__
 // -------------------------------------------------------------------
 
-// ModuleConfig
-
-// string type = 1;
-inline void ModuleConfig::clear_type() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.type_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
-}
-inline const std::string& ModuleConfig::type() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:ModuleConfig.type)
-  return _internal_type();
-}
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void ModuleConfig::set_type(Arg_&& arg,
-                                              Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.type_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:ModuleConfig.type)
-}
-inline std::string* ModuleConfig::mutable_type() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_type();
-  // @@protoc_insertion_point(field_mutable:ModuleConfig.type)
-  return _s;
-}
-inline const std::string& ModuleConfig::_internal_type() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.type_.Get();
-}
-inline void ModuleConfig::_internal_set_type(const std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.type_.Set(value, GetArena());
-}
-inline std::string* ModuleConfig::_internal_mutable_type() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.type_.Mutable( GetArena());
-}
-inline std::string* ModuleConfig::release_type() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:ModuleConfig.type)
-  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* released = _impl_.type_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.type_.Set("", GetArena());
-  }
-  return released;
-}
-inline void ModuleConfig::set_allocated_type(std::string* value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-  _impl_.type_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.type_.IsDefault()) {
-    _impl_.type_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:ModuleConfig.type)
-}
-
-// string name = 2;
-inline void ModuleConfig::clear_name() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.name_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000002u;
-}
-inline const std::string& ModuleConfig::name() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:ModuleConfig.name)
-  return _internal_name();
-}
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void ModuleConfig::set_name(Arg_&& arg,
-                                              Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:ModuleConfig.name)
-}
-inline std::string* ModuleConfig::mutable_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_name();
-  // @@protoc_insertion_point(field_mutable:ModuleConfig.name)
-  return _s;
-}
-inline const std::string& ModuleConfig::_internal_name() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.name_.Get();
-}
-inline void ModuleConfig::_internal_set_name(const std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.name_.Set(value, GetArena());
-}
-inline std::string* ModuleConfig::_internal_mutable_name() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  return _impl_.name_.Mutable( GetArena());
-}
-inline std::string* ModuleConfig::release_name() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:ModuleConfig.name)
-  if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000002u;
-  auto* released = _impl_.name_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.name_.Set("", GetArena());
-  }
-  return released;
-}
-inline void ModuleConfig::set_allocated_name(std::string* value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000002u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000002u;
-  }
-  _impl_.name_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.name_.IsDefault()) {
-    _impl_.name_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:ModuleConfig.name)
-}
-
-// -------------------------------------------------------------------
-
-// ModulesConfig
-
-// repeated .ModuleConfig modules = 1;
-inline int ModulesConfig::_internal_modules_size() const {
-  return _internal_modules().size();
-}
-inline int ModulesConfig::modules_size() const {
-  return _internal_modules_size();
-}
-inline void ModulesConfig::clear_modules() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.modules_.Clear();
-}
-inline ::ModuleConfig* ModulesConfig::mutable_modules(int index)
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:ModulesConfig.modules)
-  return _internal_mutable_modules()->Mutable(index);
-}
-inline ::google::protobuf::RepeatedPtrField<::ModuleConfig>* ModulesConfig::mutable_modules()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:ModulesConfig.modules)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_modules();
-}
-inline const ::ModuleConfig& ModulesConfig::modules(int index) const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:ModulesConfig.modules)
-  return _internal_modules().Get(index);
-}
-inline ::ModuleConfig* ModulesConfig::add_modules() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::ModuleConfig* _add = _internal_mutable_modules()->Add();
-  // @@protoc_insertion_point(field_add:ModulesConfig.modules)
-  return _add;
-}
-inline const ::google::protobuf::RepeatedPtrField<::ModuleConfig>& ModulesConfig::modules() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:ModulesConfig.modules)
-  return _internal_modules();
-}
-inline const ::google::protobuf::RepeatedPtrField<::ModuleConfig>&
-ModulesConfig::_internal_modules() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.modules_;
-}
-inline ::google::protobuf::RepeatedPtrField<::ModuleConfig>*
-ModulesConfig::_internal_mutable_modules() {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.modules_;
-}
-
-// -------------------------------------------------------------------
-
 // MultiModalFusionModelConfig
 
 // string engine_path = 1;
@@ -1336,7 +823,7 @@ inline void MultiModalFusionModelConfig::clear_engine_path() {
 }
 inline const std::string& MultiModalFusionModelConfig::engine_path() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.engine_path)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.engine_path)
   return _internal_engine_path();
 }
 template <typename Arg_, typename... Args_>
@@ -1345,11 +832,11 @@ PROTOBUF_ALWAYS_INLINE void MultiModalFusionModelConfig::set_engine_path(Arg_&& 
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.engine_path_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.engine_path)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.engine_path)
 }
 inline std::string* MultiModalFusionModelConfig::mutable_engine_path() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_engine_path();
-  // @@protoc_insertion_point(field_mutable:MultiModalFusionModelConfig.engine_path)
+  // @@protoc_insertion_point(field_mutable:multimodalfusion.MultiModalFusionModelConfig.engine_path)
   return _s;
 }
 inline const std::string& MultiModalFusionModelConfig::_internal_engine_path() const {
@@ -1368,7 +855,7 @@ inline std::string* MultiModalFusionModelConfig::_internal_mutable_engine_path()
 }
 inline std::string* MultiModalFusionModelConfig::release_engine_path() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:MultiModalFusionModelConfig.engine_path)
+  // @@protoc_insertion_point(field_release:multimodalfusion.MultiModalFusionModelConfig.engine_path)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -1390,7 +877,7 @@ inline void MultiModalFusionModelConfig::set_allocated_engine_path(std::string* 
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.engine_path_.IsDefault()) {
     _impl_.engine_path_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:MultiModalFusionModelConfig.engine_path)
+  // @@protoc_insertion_point(field_set_allocated:multimodalfusion.MultiModalFusionModelConfig.engine_path)
 }
 
 // int32 num_class = 2;
@@ -1400,13 +887,13 @@ inline void MultiModalFusionModelConfig::clear_num_class() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::int32_t MultiModalFusionModelConfig::num_class() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.num_class)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.num_class)
   return _internal_num_class();
 }
 inline void MultiModalFusionModelConfig::set_num_class(::int32_t value) {
   _internal_set_num_class(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.num_class)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.num_class)
 }
 inline ::int32_t MultiModalFusionModelConfig::_internal_num_class() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1424,13 +911,13 @@ inline void MultiModalFusionModelConfig::clear_batch_size() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::int32_t MultiModalFusionModelConfig::batch_size() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.batch_size)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.batch_size)
   return _internal_batch_size();
 }
 inline void MultiModalFusionModelConfig::set_batch_size(::int32_t value) {
   _internal_set_batch_size(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.batch_size)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.batch_size)
 }
 inline ::int32_t MultiModalFusionModelConfig::_internal_batch_size() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1448,13 +935,13 @@ inline void MultiModalFusionModelConfig::clear_width() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::int32_t MultiModalFusionModelConfig::width() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.width)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.width)
   return _internal_width();
 }
 inline void MultiModalFusionModelConfig::set_width(::int32_t value) {
   _internal_set_width(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.width)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.width)
 }
 inline ::int32_t MultiModalFusionModelConfig::_internal_width() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1472,13 +959,13 @@ inline void MultiModalFusionModelConfig::clear_height() {
   _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::int32_t MultiModalFusionModelConfig::height() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.height)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.height)
   return _internal_height();
 }
 inline void MultiModalFusionModelConfig::set_height(::int32_t value) {
   _internal_set_height(value);
   _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.height)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.height)
 }
 inline ::int32_t MultiModalFusionModelConfig::_internal_height() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1496,13 +983,13 @@ inline void MultiModalFusionModelConfig::clear_conf_thres() {
   _impl_._has_bits_[0] &= ~0x00000020u;
 }
 inline float MultiModalFusionModelConfig::conf_thres() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.conf_thres)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.conf_thres)
   return _internal_conf_thres();
 }
 inline void MultiModalFusionModelConfig::set_conf_thres(float value) {
   _internal_set_conf_thres(value);
   _impl_._has_bits_[0] |= 0x00000020u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.conf_thres)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.conf_thres)
 }
 inline float MultiModalFusionModelConfig::_internal_conf_thres() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1520,13 +1007,13 @@ inline void MultiModalFusionModelConfig::clear_iou_thres() {
   _impl_._has_bits_[0] &= ~0x00000040u;
 }
 inline float MultiModalFusionModelConfig::iou_thres() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.iou_thres)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.iou_thres)
   return _internal_iou_thres();
 }
 inline void MultiModalFusionModelConfig::set_iou_thres(float value) {
   _internal_set_iou_thres(value);
   _impl_._has_bits_[0] |= 0x00000040u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.iou_thres)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.iou_thres)
 }
 inline float MultiModalFusionModelConfig::_internal_iou_thres() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1549,26 +1036,26 @@ inline void MultiModalFusionModelConfig::clear_stride() {
   _impl_.stride_.Clear();
 }
 inline ::int32_t MultiModalFusionModelConfig::stride(int index) const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.stride)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.stride)
   return _internal_stride().Get(index);
 }
 inline void MultiModalFusionModelConfig::set_stride(int index, ::int32_t value) {
   _internal_mutable_stride()->Set(index, value);
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.stride)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.stride)
 }
 inline void MultiModalFusionModelConfig::add_stride(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_stride()->Add(value);
-  // @@protoc_insertion_point(field_add:MultiModalFusionModelConfig.stride)
+  // @@protoc_insertion_point(field_add:multimodalfusion.MultiModalFusionModelConfig.stride)
 }
 inline const ::google::protobuf::RepeatedField<::int32_t>& MultiModalFusionModelConfig::stride() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:MultiModalFusionModelConfig.stride)
+  // @@protoc_insertion_point(field_list:multimodalfusion.MultiModalFusionModelConfig.stride)
   return _internal_stride();
 }
 inline ::google::protobuf::RepeatedField<::int32_t>* MultiModalFusionModelConfig::mutable_stride()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:MultiModalFusionModelConfig.stride)
+  // @@protoc_insertion_point(field_mutable_list:multimodalfusion.MultiModalFusionModelConfig.stride)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_stride();
 }
@@ -1582,172 +1069,172 @@ inline ::google::protobuf::RepeatedField<::int32_t>* MultiModalFusionModelConfig
   return &_impl_.stride_;
 }
 
-// int32 src_width = 9;
-inline void MultiModalFusionModelConfig::clear_src_width() {
+// int32 src_width_rgb = 9;
+inline void MultiModalFusionModelConfig::clear_src_width_rgb() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.src_width_ = 0;
+  _impl_.src_width_rgb_ = 0;
   _impl_._has_bits_[0] &= ~0x00000080u;
 }
-inline ::int32_t MultiModalFusionModelConfig::src_width() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.src_width)
-  return _internal_src_width();
+inline ::int32_t MultiModalFusionModelConfig::src_width_rgb() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.src_width_rgb)
+  return _internal_src_width_rgb();
 }
-inline void MultiModalFusionModelConfig::set_src_width(::int32_t value) {
-  _internal_set_src_width(value);
+inline void MultiModalFusionModelConfig::set_src_width_rgb(::int32_t value) {
+  _internal_set_src_width_rgb(value);
   _impl_._has_bits_[0] |= 0x00000080u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.src_width)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.src_width_rgb)
 }
-inline ::int32_t MultiModalFusionModelConfig::_internal_src_width() const {
+inline ::int32_t MultiModalFusionModelConfig::_internal_src_width_rgb() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.src_width_;
+  return _impl_.src_width_rgb_;
 }
-inline void MultiModalFusionModelConfig::_internal_set_src_width(::int32_t value) {
+inline void MultiModalFusionModelConfig::_internal_set_src_width_rgb(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.src_width_ = value;
+  _impl_.src_width_rgb_ = value;
 }
 
-// int32 src_height = 10;
-inline void MultiModalFusionModelConfig::clear_src_height() {
+// int32 src_height_rgb = 10;
+inline void MultiModalFusionModelConfig::clear_src_height_rgb() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.src_height_ = 0;
+  _impl_.src_height_rgb_ = 0;
   _impl_._has_bits_[0] &= ~0x00000100u;
 }
-inline ::int32_t MultiModalFusionModelConfig::src_height() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.src_height)
-  return _internal_src_height();
+inline ::int32_t MultiModalFusionModelConfig::src_height_rgb() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.src_height_rgb)
+  return _internal_src_height_rgb();
 }
-inline void MultiModalFusionModelConfig::set_src_height(::int32_t value) {
-  _internal_set_src_height(value);
+inline void MultiModalFusionModelConfig::set_src_height_rgb(::int32_t value) {
+  _internal_set_src_height_rgb(value);
   _impl_._has_bits_[0] |= 0x00000100u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.src_height)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.src_height_rgb)
 }
-inline ::int32_t MultiModalFusionModelConfig::_internal_src_height() const {
+inline ::int32_t MultiModalFusionModelConfig::_internal_src_height_rgb() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.src_height_;
+  return _impl_.src_height_rgb_;
 }
-inline void MultiModalFusionModelConfig::_internal_set_src_height(::int32_t value) {
+inline void MultiModalFusionModelConfig::_internal_set_src_height_rgb(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.src_height_ = value;
+  _impl_.src_height_rgb_ = value;
 }
 
-// float resize_ratio = 11;
-inline void MultiModalFusionModelConfig::clear_resize_ratio() {
+// float resize_ratio_rgb = 11;
+inline void MultiModalFusionModelConfig::clear_resize_ratio_rgb() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.resize_ratio_ = 0;
+  _impl_.resize_ratio_rgb_ = 0;
   _impl_._has_bits_[0] &= ~0x00000200u;
 }
-inline float MultiModalFusionModelConfig::resize_ratio() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.resize_ratio)
-  return _internal_resize_ratio();
+inline float MultiModalFusionModelConfig::resize_ratio_rgb() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.resize_ratio_rgb)
+  return _internal_resize_ratio_rgb();
 }
-inline void MultiModalFusionModelConfig::set_resize_ratio(float value) {
-  _internal_set_resize_ratio(value);
+inline void MultiModalFusionModelConfig::set_resize_ratio_rgb(float value) {
+  _internal_set_resize_ratio_rgb(value);
   _impl_._has_bits_[0] |= 0x00000200u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.resize_ratio)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.resize_ratio_rgb)
 }
-inline float MultiModalFusionModelConfig::_internal_resize_ratio() const {
+inline float MultiModalFusionModelConfig::_internal_resize_ratio_rgb() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.resize_ratio_;
+  return _impl_.resize_ratio_rgb_;
 }
-inline void MultiModalFusionModelConfig::_internal_set_resize_ratio(float value) {
+inline void MultiModalFusionModelConfig::_internal_set_resize_ratio_rgb(float value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.resize_ratio_ = value;
+  _impl_.resize_ratio_rgb_ = value;
 }
 
-// int32 dw = 12;
-inline void MultiModalFusionModelConfig::clear_dw() {
+// int32 dw_rgb = 12;
+inline void MultiModalFusionModelConfig::clear_dw_rgb() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.dw_ = 0;
+  _impl_.dw_rgb_ = 0;
   _impl_._has_bits_[0] &= ~0x00000400u;
 }
-inline ::int32_t MultiModalFusionModelConfig::dw() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.dw)
-  return _internal_dw();
+inline ::int32_t MultiModalFusionModelConfig::dw_rgb() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.dw_rgb)
+  return _internal_dw_rgb();
 }
-inline void MultiModalFusionModelConfig::set_dw(::int32_t value) {
-  _internal_set_dw(value);
+inline void MultiModalFusionModelConfig::set_dw_rgb(::int32_t value) {
+  _internal_set_dw_rgb(value);
   _impl_._has_bits_[0] |= 0x00000400u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.dw)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.dw_rgb)
 }
-inline ::int32_t MultiModalFusionModelConfig::_internal_dw() const {
+inline ::int32_t MultiModalFusionModelConfig::_internal_dw_rgb() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.dw_;
+  return _impl_.dw_rgb_;
 }
-inline void MultiModalFusionModelConfig::_internal_set_dw(::int32_t value) {
+inline void MultiModalFusionModelConfig::_internal_set_dw_rgb(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.dw_ = value;
+  _impl_.dw_rgb_ = value;
 }
 
-// int32 dh = 13;
-inline void MultiModalFusionModelConfig::clear_dh() {
+// int32 dh_rgb = 13;
+inline void MultiModalFusionModelConfig::clear_dh_rgb() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.dh_ = 0;
+  _impl_.dh_rgb_ = 0;
   _impl_._has_bits_[0] &= ~0x00000800u;
 }
-inline ::int32_t MultiModalFusionModelConfig::dh() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.dh)
-  return _internal_dh();
+inline ::int32_t MultiModalFusionModelConfig::dh_rgb() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.dh_rgb)
+  return _internal_dh_rgb();
 }
-inline void MultiModalFusionModelConfig::set_dh(::int32_t value) {
-  _internal_set_dh(value);
+inline void MultiModalFusionModelConfig::set_dh_rgb(::int32_t value) {
+  _internal_set_dh_rgb(value);
   _impl_._has_bits_[0] |= 0x00000800u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.dh)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.dh_rgb)
 }
-inline ::int32_t MultiModalFusionModelConfig::_internal_dh() const {
+inline ::int32_t MultiModalFusionModelConfig::_internal_dh_rgb() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.dh_;
+  return _impl_.dh_rgb_;
 }
-inline void MultiModalFusionModelConfig::_internal_set_dh(::int32_t value) {
+inline void MultiModalFusionModelConfig::_internal_set_dh_rgb(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.dh_ = value;
+  _impl_.dh_rgb_ = value;
 }
 
-// int32 new_unpad_w = 14;
-inline void MultiModalFusionModelConfig::clear_new_unpad_w() {
+// int32 new_unpad_w_rgb = 14;
+inline void MultiModalFusionModelConfig::clear_new_unpad_w_rgb() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.new_unpad_w_ = 0;
+  _impl_.new_unpad_w_rgb_ = 0;
   _impl_._has_bits_[0] &= ~0x00001000u;
 }
-inline ::int32_t MultiModalFusionModelConfig::new_unpad_w() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.new_unpad_w)
-  return _internal_new_unpad_w();
+inline ::int32_t MultiModalFusionModelConfig::new_unpad_w_rgb() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.new_unpad_w_rgb)
+  return _internal_new_unpad_w_rgb();
 }
-inline void MultiModalFusionModelConfig::set_new_unpad_w(::int32_t value) {
-  _internal_set_new_unpad_w(value);
+inline void MultiModalFusionModelConfig::set_new_unpad_w_rgb(::int32_t value) {
+  _internal_set_new_unpad_w_rgb(value);
   _impl_._has_bits_[0] |= 0x00001000u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.new_unpad_w)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.new_unpad_w_rgb)
 }
-inline ::int32_t MultiModalFusionModelConfig::_internal_new_unpad_w() const {
+inline ::int32_t MultiModalFusionModelConfig::_internal_new_unpad_w_rgb() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.new_unpad_w_;
+  return _impl_.new_unpad_w_rgb_;
 }
-inline void MultiModalFusionModelConfig::_internal_set_new_unpad_w(::int32_t value) {
+inline void MultiModalFusionModelConfig::_internal_set_new_unpad_w_rgb(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.new_unpad_w_ = value;
+  _impl_.new_unpad_w_rgb_ = value;
 }
 
-// int32 new_unpad_h = 15;
-inline void MultiModalFusionModelConfig::clear_new_unpad_h() {
+// int32 new_unpad_h_rgb = 15;
+inline void MultiModalFusionModelConfig::clear_new_unpad_h_rgb() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.new_unpad_h_ = 0;
+  _impl_.new_unpad_h_rgb_ = 0;
   _impl_._has_bits_[0] &= ~0x00002000u;
 }
-inline ::int32_t MultiModalFusionModelConfig::new_unpad_h() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.new_unpad_h)
-  return _internal_new_unpad_h();
+inline ::int32_t MultiModalFusionModelConfig::new_unpad_h_rgb() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.new_unpad_h_rgb)
+  return _internal_new_unpad_h_rgb();
 }
-inline void MultiModalFusionModelConfig::set_new_unpad_h(::int32_t value) {
-  _internal_set_new_unpad_h(value);
+inline void MultiModalFusionModelConfig::set_new_unpad_h_rgb(::int32_t value) {
+  _internal_set_new_unpad_h_rgb(value);
   _impl_._has_bits_[0] |= 0x00002000u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.new_unpad_h)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.new_unpad_h_rgb)
 }
-inline ::int32_t MultiModalFusionModelConfig::_internal_new_unpad_h() const {
+inline ::int32_t MultiModalFusionModelConfig::_internal_new_unpad_h_rgb() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.new_unpad_h_;
+  return _impl_.new_unpad_h_rgb_;
 }
-inline void MultiModalFusionModelConfig::_internal_set_new_unpad_h(::int32_t value) {
+inline void MultiModalFusionModelConfig::_internal_set_new_unpad_h_rgb(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.new_unpad_h_ = value;
+  _impl_.new_unpad_h_rgb_ = value;
 }
 
 // int32 max_dets = 16;
@@ -1757,13 +1244,13 @@ inline void MultiModalFusionModelConfig::clear_max_dets() {
   _impl_._has_bits_[0] &= ~0x00004000u;
 }
 inline ::int32_t MultiModalFusionModelConfig::max_dets() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.max_dets)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.max_dets)
   return _internal_max_dets();
 }
 inline void MultiModalFusionModelConfig::set_max_dets(::int32_t value) {
   _internal_set_max_dets(value);
   _impl_._has_bits_[0] |= 0x00004000u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.max_dets)
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.max_dets)
 }
 inline ::int32_t MultiModalFusionModelConfig::_internal_max_dets() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1774,20 +1261,44 @@ inline void MultiModalFusionModelConfig::_internal_set_max_dets(::int32_t value)
   _impl_.max_dets_ = value;
 }
 
+// int32 num_keys = 17;
+inline void MultiModalFusionModelConfig::clear_num_keys() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.num_keys_ = 0;
+  _impl_._has_bits_[0] &= ~0x00008000u;
+}
+inline ::int32_t MultiModalFusionModelConfig::num_keys() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.num_keys)
+  return _internal_num_keys();
+}
+inline void MultiModalFusionModelConfig::set_num_keys(::int32_t value) {
+  _internal_set_num_keys(value);
+  _impl_._has_bits_[0] |= 0x00008000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.num_keys)
+}
+inline ::int32_t MultiModalFusionModelConfig::_internal_num_keys() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.num_keys_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_num_keys(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.num_keys_ = value;
+}
+
 // int32 channels = 18;
 inline void MultiModalFusionModelConfig::clear_channels() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.channels_ = 0;
-  _impl_._has_bits_[0] &= ~0x00008000u;
+  _impl_._has_bits_[0] &= ~0x00010000u;
 }
 inline ::int32_t MultiModalFusionModelConfig::channels() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.channels)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.channels)
   return _internal_channels();
 }
 inline void MultiModalFusionModelConfig::set_channels(::int32_t value) {
   _internal_set_channels(value);
-  _impl_._has_bits_[0] |= 0x00008000u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.channels)
+  _impl_._has_bits_[0] |= 0x00010000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.channels)
 }
 inline ::int32_t MultiModalFusionModelConfig::_internal_channels() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1802,16 +1313,16 @@ inline void MultiModalFusionModelConfig::_internal_set_channels(::int32_t value)
 inline void MultiModalFusionModelConfig::clear_run_status() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.run_status_ = false;
-  _impl_._has_bits_[0] &= ~0x00010000u;
+  _impl_._has_bits_[0] &= ~0x00020000u;
 }
 inline bool MultiModalFusionModelConfig::run_status() const {
-  // @@protoc_insertion_point(field_get:MultiModalFusionModelConfig.run_status)
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.run_status)
   return _internal_run_status();
 }
 inline void MultiModalFusionModelConfig::set_run_status(bool value) {
   _internal_set_run_status(value);
-  _impl_._has_bits_[0] |= 0x00010000u;
-  // @@protoc_insertion_point(field_set:MultiModalFusionModelConfig.run_status)
+  _impl_._has_bits_[0] |= 0x00020000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.run_status)
 }
 inline bool MultiModalFusionModelConfig::_internal_run_status() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1822,11 +1333,179 @@ inline void MultiModalFusionModelConfig::_internal_set_run_status(bool value) {
   _impl_.run_status_ = value;
 }
 
+// int32 src_width_ir = 20;
+inline void MultiModalFusionModelConfig::clear_src_width_ir() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.src_width_ir_ = 0;
+  _impl_._has_bits_[0] &= ~0x00040000u;
+}
+inline ::int32_t MultiModalFusionModelConfig::src_width_ir() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.src_width_ir)
+  return _internal_src_width_ir();
+}
+inline void MultiModalFusionModelConfig::set_src_width_ir(::int32_t value) {
+  _internal_set_src_width_ir(value);
+  _impl_._has_bits_[0] |= 0x00040000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.src_width_ir)
+}
+inline ::int32_t MultiModalFusionModelConfig::_internal_src_width_ir() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.src_width_ir_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_src_width_ir(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.src_width_ir_ = value;
+}
+
+// int32 src_height_ir = 21;
+inline void MultiModalFusionModelConfig::clear_src_height_ir() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.src_height_ir_ = 0;
+  _impl_._has_bits_[0] &= ~0x00080000u;
+}
+inline ::int32_t MultiModalFusionModelConfig::src_height_ir() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.src_height_ir)
+  return _internal_src_height_ir();
+}
+inline void MultiModalFusionModelConfig::set_src_height_ir(::int32_t value) {
+  _internal_set_src_height_ir(value);
+  _impl_._has_bits_[0] |= 0x00080000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.src_height_ir)
+}
+inline ::int32_t MultiModalFusionModelConfig::_internal_src_height_ir() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.src_height_ir_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_src_height_ir(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.src_height_ir_ = value;
+}
+
+// float resize_ratio_ir = 22;
+inline void MultiModalFusionModelConfig::clear_resize_ratio_ir() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.resize_ratio_ir_ = 0;
+  _impl_._has_bits_[0] &= ~0x00100000u;
+}
+inline float MultiModalFusionModelConfig::resize_ratio_ir() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.resize_ratio_ir)
+  return _internal_resize_ratio_ir();
+}
+inline void MultiModalFusionModelConfig::set_resize_ratio_ir(float value) {
+  _internal_set_resize_ratio_ir(value);
+  _impl_._has_bits_[0] |= 0x00100000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.resize_ratio_ir)
+}
+inline float MultiModalFusionModelConfig::_internal_resize_ratio_ir() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.resize_ratio_ir_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_resize_ratio_ir(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.resize_ratio_ir_ = value;
+}
+
+// int32 dw_ir = 23;
+inline void MultiModalFusionModelConfig::clear_dw_ir() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.dw_ir_ = 0;
+  _impl_._has_bits_[0] &= ~0x00200000u;
+}
+inline ::int32_t MultiModalFusionModelConfig::dw_ir() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.dw_ir)
+  return _internal_dw_ir();
+}
+inline void MultiModalFusionModelConfig::set_dw_ir(::int32_t value) {
+  _internal_set_dw_ir(value);
+  _impl_._has_bits_[0] |= 0x00200000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.dw_ir)
+}
+inline ::int32_t MultiModalFusionModelConfig::_internal_dw_ir() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.dw_ir_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_dw_ir(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.dw_ir_ = value;
+}
+
+// int32 dh_ir = 24;
+inline void MultiModalFusionModelConfig::clear_dh_ir() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.dh_ir_ = 0;
+  _impl_._has_bits_[0] &= ~0x00400000u;
+}
+inline ::int32_t MultiModalFusionModelConfig::dh_ir() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.dh_ir)
+  return _internal_dh_ir();
+}
+inline void MultiModalFusionModelConfig::set_dh_ir(::int32_t value) {
+  _internal_set_dh_ir(value);
+  _impl_._has_bits_[0] |= 0x00400000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.dh_ir)
+}
+inline ::int32_t MultiModalFusionModelConfig::_internal_dh_ir() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.dh_ir_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_dh_ir(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.dh_ir_ = value;
+}
+
+// int32 new_unpad_w_ir = 25;
+inline void MultiModalFusionModelConfig::clear_new_unpad_w_ir() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.new_unpad_w_ir_ = 0;
+  _impl_._has_bits_[0] &= ~0x00800000u;
+}
+inline ::int32_t MultiModalFusionModelConfig::new_unpad_w_ir() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.new_unpad_w_ir)
+  return _internal_new_unpad_w_ir();
+}
+inline void MultiModalFusionModelConfig::set_new_unpad_w_ir(::int32_t value) {
+  _internal_set_new_unpad_w_ir(value);
+  _impl_._has_bits_[0] |= 0x00800000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.new_unpad_w_ir)
+}
+inline ::int32_t MultiModalFusionModelConfig::_internal_new_unpad_w_ir() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.new_unpad_w_ir_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_new_unpad_w_ir(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.new_unpad_w_ir_ = value;
+}
+
+// int32 new_unpad_h_ir = 26;
+inline void MultiModalFusionModelConfig::clear_new_unpad_h_ir() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.new_unpad_h_ir_ = 0;
+  _impl_._has_bits_[0] &= ~0x01000000u;
+}
+inline ::int32_t MultiModalFusionModelConfig::new_unpad_h_ir() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.new_unpad_h_ir)
+  return _internal_new_unpad_h_ir();
+}
+inline void MultiModalFusionModelConfig::set_new_unpad_h_ir(::int32_t value) {
+  _internal_set_new_unpad_h_ir(value);
+  _impl_._has_bits_[0] |= 0x01000000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.new_unpad_h_ir)
+}
+inline ::int32_t MultiModalFusionModelConfig::_internal_new_unpad_h_ir() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.new_unpad_h_ir_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_new_unpad_h_ir(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.new_unpad_h_ir_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // MultiModalFusionConfig
 
-// .MultiModalFusionModelConfig model_config = 1;
+// .multimodalfusion.MultiModalFusionModelConfig model_config = 1;
 inline bool MultiModalFusionConfig::has_model_config() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || _impl_.model_config_ != nullptr);
@@ -1837,33 +1516,33 @@ inline void MultiModalFusionConfig::clear_model_config() {
   if (_impl_.model_config_ != nullptr) _impl_.model_config_->Clear();
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline const ::MultiModalFusionModelConfig& MultiModalFusionConfig::_internal_model_config() const {
+inline const ::multimodalfusion::MultiModalFusionModelConfig& MultiModalFusionConfig::_internal_model_config() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  const ::MultiModalFusionModelConfig* p = _impl_.model_config_;
-  return p != nullptr ? *p : reinterpret_cast<const ::MultiModalFusionModelConfig&>(::_MultiModalFusionModelConfig_default_instance_);
+  const ::multimodalfusion::MultiModalFusionModelConfig* p = _impl_.model_config_;
+  return p != nullptr ? *p : reinterpret_cast<const ::multimodalfusion::MultiModalFusionModelConfig&>(::multimodalfusion::_MultiModalFusionModelConfig_default_instance_);
 }
-inline const ::MultiModalFusionModelConfig& MultiModalFusionConfig::model_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:MultiModalFusionConfig.model_config)
+inline const ::multimodalfusion::MultiModalFusionModelConfig& MultiModalFusionConfig::model_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionConfig.model_config)
   return _internal_model_config();
 }
-inline void MultiModalFusionConfig::unsafe_arena_set_allocated_model_config(::MultiModalFusionModelConfig* value) {
+inline void MultiModalFusionConfig::unsafe_arena_set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.model_config_);
   }
-  _impl_.model_config_ = reinterpret_cast<::MultiModalFusionModelConfig*>(value);
+  _impl_.model_config_ = reinterpret_cast<::multimodalfusion::MultiModalFusionModelConfig*>(value);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
   } else {
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:MultiModalFusionConfig.model_config)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:multimodalfusion.MultiModalFusionConfig.model_config)
 }
-inline ::MultiModalFusionModelConfig* MultiModalFusionConfig::release_model_config() {
+inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::release_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
-  ::MultiModalFusionModelConfig* released = _impl_.model_config_;
+  ::multimodalfusion::MultiModalFusionModelConfig* released = _impl_.model_config_;
   _impl_.model_config_ = nullptr;
   if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
     auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
@@ -1878,30 +1557,30 @@ inline ::MultiModalFusionModelConfig* MultiModalFusionConfig::release_model_conf
   }
   return released;
 }
-inline ::MultiModalFusionModelConfig* MultiModalFusionConfig::unsafe_arena_release_model_config() {
+inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::unsafe_arena_release_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:MultiModalFusionConfig.model_config)
+  // @@protoc_insertion_point(field_release:multimodalfusion.MultiModalFusionConfig.model_config)
 
   _impl_._has_bits_[0] &= ~0x00000001u;
-  ::MultiModalFusionModelConfig* temp = _impl_.model_config_;
+  ::multimodalfusion::MultiModalFusionModelConfig* temp = _impl_.model_config_;
   _impl_.model_config_ = nullptr;
   return temp;
 }
-inline ::MultiModalFusionModelConfig* MultiModalFusionConfig::_internal_mutable_model_config() {
+inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::_internal_mutable_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.model_config_ == nullptr) {
-    auto* p = ::google::protobuf::Message::DefaultConstruct<::MultiModalFusionModelConfig>(GetArena());
-    _impl_.model_config_ = reinterpret_cast<::MultiModalFusionModelConfig*>(p);
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::multimodalfusion::MultiModalFusionModelConfig>(GetArena());
+    _impl_.model_config_ = reinterpret_cast<::multimodalfusion::MultiModalFusionModelConfig*>(p);
   }
   return _impl_.model_config_;
 }
-inline ::MultiModalFusionModelConfig* MultiModalFusionConfig::mutable_model_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::mutable_model_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
-  ::MultiModalFusionModelConfig* _msg = _internal_mutable_model_config();
-  // @@protoc_insertion_point(field_mutable:MultiModalFusionConfig.model_config)
+  ::multimodalfusion::MultiModalFusionModelConfig* _msg = _internal_mutable_model_config();
+  // @@protoc_insertion_point(field_mutable:multimodalfusion.MultiModalFusionConfig.model_config)
   return _msg;
 }
-inline void MultiModalFusionConfig::set_allocated_model_config(::MultiModalFusionModelConfig* value) {
+inline void MultiModalFusionConfig::set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
@@ -1918,48 +1597,43 @@ inline void MultiModalFusionConfig::set_allocated_model_config(::MultiModalFusio
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
 
-  _impl_.model_config_ = reinterpret_cast<::MultiModalFusionModelConfig*>(value);
-  // @@protoc_insertion_point(field_set_allocated:MultiModalFusionConfig.model_config)
+  _impl_.model_config_ = reinterpret_cast<::multimodalfusion::MultiModalFusionModelConfig*>(value);
+  // @@protoc_insertion_point(field_set_allocated:multimodalfusion.MultiModalFusionConfig.model_config)
 }
 
-// .ModulesConfig modules_config = 2;
+// .common.ModulesConfig modules_config = 2;
 inline bool MultiModalFusionConfig::has_modules_config() const {
   bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || _impl_.modules_config_ != nullptr);
   return value;
 }
-inline void MultiModalFusionConfig::clear_modules_config() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (_impl_.modules_config_ != nullptr) _impl_.modules_config_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000002u;
-}
-inline const ::ModulesConfig& MultiModalFusionConfig::_internal_modules_config() const {
+inline const ::common::ModulesConfig& MultiModalFusionConfig::_internal_modules_config() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  const ::ModulesConfig* p = _impl_.modules_config_;
-  return p != nullptr ? *p : reinterpret_cast<const ::ModulesConfig&>(::_ModulesConfig_default_instance_);
+  const ::common::ModulesConfig* p = _impl_.modules_config_;
+  return p != nullptr ? *p : reinterpret_cast<const ::common::ModulesConfig&>(::common::_ModulesConfig_default_instance_);
 }
-inline const ::ModulesConfig& MultiModalFusionConfig::modules_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:MultiModalFusionConfig.modules_config)
+inline const ::common::ModulesConfig& MultiModalFusionConfig::modules_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionConfig.modules_config)
   return _internal_modules_config();
 }
-inline void MultiModalFusionConfig::unsafe_arena_set_allocated_modules_config(::ModulesConfig* value) {
+inline void MultiModalFusionConfig::unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.modules_config_);
   }
-  _impl_.modules_config_ = reinterpret_cast<::ModulesConfig*>(value);
+  _impl_.modules_config_ = reinterpret_cast<::common::ModulesConfig*>(value);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000002u;
   } else {
     _impl_._has_bits_[0] &= ~0x00000002u;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:MultiModalFusionConfig.modules_config)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:multimodalfusion.MultiModalFusionConfig.modules_config)
 }
-inline ::ModulesConfig* MultiModalFusionConfig::release_modules_config() {
+inline ::common::ModulesConfig* MultiModalFusionConfig::release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000002u;
-  ::ModulesConfig* released = _impl_.modules_config_;
+  ::common::ModulesConfig* released = _impl_.modules_config_;
   _impl_.modules_config_ = nullptr;
   if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
     auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
@@ -1974,38 +1648,38 @@ inline ::ModulesConfig* MultiModalFusionConfig::release_modules_config() {
   }
   return released;
 }
-inline ::ModulesConfig* MultiModalFusionConfig::unsafe_arena_release_modules_config() {
+inline ::common::ModulesConfig* MultiModalFusionConfig::unsafe_arena_release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:MultiModalFusionConfig.modules_config)
+  // @@protoc_insertion_point(field_release:multimodalfusion.MultiModalFusionConfig.modules_config)
 
   _impl_._has_bits_[0] &= ~0x00000002u;
-  ::ModulesConfig* temp = _impl_.modules_config_;
+  ::common::ModulesConfig* temp = _impl_.modules_config_;
   _impl_.modules_config_ = nullptr;
   return temp;
 }
-inline ::ModulesConfig* MultiModalFusionConfig::_internal_mutable_modules_config() {
+inline ::common::ModulesConfig* MultiModalFusionConfig::_internal_mutable_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.modules_config_ == nullptr) {
-    auto* p = ::google::protobuf::Message::DefaultConstruct<::ModulesConfig>(GetArena());
-    _impl_.modules_config_ = reinterpret_cast<::ModulesConfig*>(p);
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::common::ModulesConfig>(GetArena());
+    _impl_.modules_config_ = reinterpret_cast<::common::ModulesConfig*>(p);
   }
   return _impl_.modules_config_;
 }
-inline ::ModulesConfig* MultiModalFusionConfig::mutable_modules_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::common::ModulesConfig* MultiModalFusionConfig::mutable_modules_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000002u;
-  ::ModulesConfig* _msg = _internal_mutable_modules_config();
-  // @@protoc_insertion_point(field_mutable:MultiModalFusionConfig.modules_config)
+  ::common::ModulesConfig* _msg = _internal_mutable_modules_config();
+  // @@protoc_insertion_point(field_mutable:multimodalfusion.MultiModalFusionConfig.modules_config)
   return _msg;
 }
-inline void MultiModalFusionConfig::set_allocated_modules_config(::ModulesConfig* value) {
+inline void MultiModalFusionConfig::set_allocated_modules_config(::common::ModulesConfig* value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.modules_config_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.modules_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(value)->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
@@ -2014,8 +1688,8 @@ inline void MultiModalFusionConfig::set_allocated_modules_config(::ModulesConfig
     _impl_._has_bits_[0] &= ~0x00000002u;
   }
 
-  _impl_.modules_config_ = reinterpret_cast<::ModulesConfig*>(value);
-  // @@protoc_insertion_point(field_set_allocated:MultiModalFusionConfig.modules_config)
+  _impl_.modules_config_ = reinterpret_cast<::common::ModulesConfig*>(value);
+  // @@protoc_insertion_point(field_set_allocated:multimodalfusion.MultiModalFusionConfig.modules_config)
 }
 
 #ifdef __GNUC__
@@ -2023,6 +1697,7 @@ inline void MultiModalFusionConfig::set_allocated_modules_config(::ModulesConfig
 #endif  // __GNUC__
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace multimodalfusion
 
 
 // @@protoc_insertion_point(global_scope)

@@ -29,6 +29,7 @@
 #include "google/protobuf/repeated_field.h"  // IWYU pragma: export
 #include "google/protobuf/extension_set.h"  // IWYU pragma: export
 #include "google/protobuf/unknown_field_set.h"
+#include "AlgorithmConfig_conf.pb.h"
 // @@protoc_insertion_point(includes)
 
 // Must be included last.
@@ -51,14 +52,7 @@ struct TableStruct_PoseEstimation_5fconf_2eproto {
 };
 extern const ::google::protobuf::internal::DescriptorTable
     descriptor_table_PoseEstimation_5fconf_2eproto;
-class ModuleConfig;
-struct ModuleConfigDefaultTypeInternal;
-extern ModuleConfigDefaultTypeInternal _ModuleConfig_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull ModuleConfig_class_data_;
-class ModulesConfig;
-struct ModulesConfigDefaultTypeInternal;
-extern ModulesConfigDefaultTypeInternal _ModulesConfig_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull ModulesConfig_class_data_;
+namespace posetimation {
 class PoseConfig;
 struct PoseConfigDefaultTypeInternal;
 extern PoseConfigDefaultTypeInternal _PoseConfig_default_instance_;
@@ -67,11 +61,13 @@ class YOLOModelConfig;
 struct YOLOModelConfigDefaultTypeInternal;
 extern YOLOModelConfigDefaultTypeInternal _YOLOModelConfig_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull YOLOModelConfig_class_data_;
+}  // namespace posetimation
 namespace google {
 namespace protobuf {
 }  // namespace protobuf
 }  // namespace google
 
+namespace posetimation {
 
 // ===================================================================
 
@@ -80,7 +76,7 @@ namespace protobuf {
 
 class YOLOModelConfig final
     : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:YOLOModelConfig) */ {
+/* @@protoc_insertion_point(class_definition:posetimation.YOLOModelConfig) */ {
  public:
   inline YOLOModelConfig() : YOLOModelConfig(nullptr) {}
   ~YOLOModelConfig() PROTOBUF_FINAL;
@@ -138,7 +134,7 @@ class YOLOModelConfig final
     return reinterpret_cast<const YOLOModelConfig*>(
         &_YOLOModelConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 2;
+  static constexpr int kIndexInFileMessages = 0;
   friend void swap(YOLOModelConfig& a, YOLOModelConfig& b) { a.Swap(&b); }
   inline void Swap(YOLOModelConfig* other) {
     if (other == this) return;
@@ -204,7 +200,7 @@ class YOLOModelConfig final
   template <typename T>
   friend ::absl::string_view(
       ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "YOLOModelConfig"; }
+  static ::absl::string_view FullMessageName() { return "posetimation.YOLOModelConfig"; }
 
  protected:
   explicit YOLOModelConfig(::google::protobuf::Arena* arena);
@@ -449,13 +445,13 @@ class YOLOModelConfig final
   void _internal_set_run_status(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:YOLOModelConfig)
+  // @@protoc_insertion_point(class_scope:posetimation.YOLOModelConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
       5, 19, 0,
-      51, 2>
+      64, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -503,427 +499,9 @@ class YOLOModelConfig final
 extern const ::google::protobuf::internal::ClassDataFull YOLOModelConfig_class_data_;
 // -------------------------------------------------------------------
 
-class ModuleConfig final
-    : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:ModuleConfig) */ {
- public:
-  inline ModuleConfig() : ModuleConfig(nullptr) {}
-  ~ModuleConfig() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ModuleConfig* msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(ModuleConfig));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ModuleConfig(
-      ::google::protobuf::internal::ConstantInitialized);
-
-  inline ModuleConfig(const ModuleConfig& from) : ModuleConfig(nullptr, from) {}
-  inline ModuleConfig(ModuleConfig&& from) noexcept
-      : ModuleConfig(nullptr, std::move(from)) {}
-  inline ModuleConfig& operator=(const ModuleConfig& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ModuleConfig& operator=(ModuleConfig&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const ModuleConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ModuleConfig* internal_default_instance() {
-    return reinterpret_cast<const ModuleConfig*>(
-        &_ModuleConfig_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 0;
-  friend void swap(ModuleConfig& a, ModuleConfig& b) { a.Swap(&b); }
-  inline void Swap(ModuleConfig* other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(ModuleConfig* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  ModuleConfig* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<ModuleConfig>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ModuleConfig& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const ModuleConfig& from) { ModuleConfig::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(ModuleConfig* other);
- private:
-  template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "ModuleConfig"; }
-
- protected:
-  explicit ModuleConfig(::google::protobuf::Arena* arena);
-  ModuleConfig(::google::protobuf::Arena* arena, const ModuleConfig& from);
-  ModuleConfig(::google::protobuf::Arena* arena, ModuleConfig&& from) noexcept
-      : ModuleConfig(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kTypeFieldNumber = 1,
-    kNameFieldNumber = 2,
-  };
-  // string type = 1;
-  void clear_type() ;
-  const std::string& type() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_type(Arg_&& arg, Args_... args);
-  std::string* mutable_type();
-  [[nodiscard]] std::string* release_type();
-  void set_allocated_type(std::string* value);
-
-  private:
-  const std::string& _internal_type() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_type(const std::string& value);
-  std::string* _internal_mutable_type();
-
-  public:
-  // string name = 2;
-  void clear_name() ;
-  const std::string& name() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_name(Arg_&& arg, Args_... args);
-  std::string* mutable_name();
-  [[nodiscard]] std::string* release_name();
-  void set_allocated_name(std::string* value);
-
-  private:
-  const std::string& _internal_name() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
-  std::string* _internal_mutable_name();
-
-  public:
-  // @@protoc_insertion_point(class_scope:ModuleConfig)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
-      29, 2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ModuleConfig& from_msg);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::internal::ArenaStringPtr type_;
-    ::google::protobuf::internal::ArenaStringPtr name_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_PoseEstimation_5fconf_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull ModuleConfig_class_data_;
-// -------------------------------------------------------------------
-
-class ModulesConfig final
-    : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:ModulesConfig) */ {
- public:
-  inline ModulesConfig() : ModulesConfig(nullptr) {}
-  ~ModulesConfig() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ModulesConfig* msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(ModulesConfig));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ModulesConfig(
-      ::google::protobuf::internal::ConstantInitialized);
-
-  inline ModulesConfig(const ModulesConfig& from) : ModulesConfig(nullptr, from) {}
-  inline ModulesConfig(ModulesConfig&& from) noexcept
-      : ModulesConfig(nullptr, std::move(from)) {}
-  inline ModulesConfig& operator=(const ModulesConfig& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ModulesConfig& operator=(ModulesConfig&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const ModulesConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ModulesConfig* internal_default_instance() {
-    return reinterpret_cast<const ModulesConfig*>(
-        &_ModulesConfig_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 1;
-  friend void swap(ModulesConfig& a, ModulesConfig& b) { a.Swap(&b); }
-  inline void Swap(ModulesConfig* other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(ModulesConfig* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  ModulesConfig* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<ModulesConfig>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ModulesConfig& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const ModulesConfig& from) { ModulesConfig::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(ModulesConfig* other);
- private:
-  template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "ModulesConfig"; }
-
- protected:
-  explicit ModulesConfig(::google::protobuf::Arena* arena);
-  ModulesConfig(::google::protobuf::Arena* arena, const ModulesConfig& from);
-  ModulesConfig(::google::protobuf::Arena* arena, ModulesConfig&& from) noexcept
-      : ModulesConfig(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kModulesFieldNumber = 1,
-  };
-  // repeated .ModuleConfig modules = 1;
-  int modules_size() const;
-  private:
-  int _internal_modules_size() const;
-
-  public:
-  void clear_modules() ;
-  ::ModuleConfig* mutable_modules(int index);
-  ::google::protobuf::RepeatedPtrField<::ModuleConfig>* mutable_modules();
-
-  private:
-  const ::google::protobuf::RepeatedPtrField<::ModuleConfig>& _internal_modules() const;
-  ::google::protobuf::RepeatedPtrField<::ModuleConfig>* _internal_mutable_modules();
-  public:
-  const ::ModuleConfig& modules(int index) const;
-  ::ModuleConfig* add_modules();
-  const ::google::protobuf::RepeatedPtrField<::ModuleConfig>& modules() const;
-  // @@protoc_insertion_point(class_scope:ModulesConfig)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 1,
-      0, 2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ModulesConfig& from_msg);
-    ::google::protobuf::RepeatedPtrField< ::ModuleConfig > modules_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_PoseEstimation_5fconf_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull ModulesConfig_class_data_;
-// -------------------------------------------------------------------
-
 class PoseConfig final
     : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:PoseConfig) */ {
+/* @@protoc_insertion_point(class_definition:posetimation.PoseConfig) */ {
  public:
   inline PoseConfig() : PoseConfig(nullptr) {}
   ~PoseConfig() PROTOBUF_FINAL;
@@ -981,7 +559,7 @@ class PoseConfig final
     return reinterpret_cast<const PoseConfig*>(
         &_PoseConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 3;
+  static constexpr int kIndexInFileMessages = 1;
   friend void swap(PoseConfig& a, PoseConfig& b) { a.Swap(&b); }
   inline void Swap(PoseConfig* other) {
     if (other == this) return;
@@ -1047,7 +625,7 @@ class PoseConfig final
   template <typename T>
   friend ::absl::string_view(
       ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "PoseConfig"; }
+  static ::absl::string_view FullMessageName() { return "posetimation.PoseConfig"; }
 
  protected:
   explicit PoseConfig(::google::protobuf::Arena* arena);
@@ -1072,37 +650,37 @@ class PoseConfig final
     kYoloModelConfigFieldNumber = 1,
     kModulesConfigFieldNumber = 2,
   };
-  // .YOLOModelConfig yolo_model_config = 1;
+  // .posetimation.YOLOModelConfig yolo_model_config = 1;
   bool has_yolo_model_config() const;
   void clear_yolo_model_config() ;
-  const ::YOLOModelConfig& yolo_model_config() const;
-  [[nodiscard]] ::YOLOModelConfig* release_yolo_model_config();
-  ::YOLOModelConfig* mutable_yolo_model_config();
-  void set_allocated_yolo_model_config(::YOLOModelConfig* value);
-  void unsafe_arena_set_allocated_yolo_model_config(::YOLOModelConfig* value);
-  ::YOLOModelConfig* unsafe_arena_release_yolo_model_config();
+  const ::posetimation::YOLOModelConfig& yolo_model_config() const;
+  [[nodiscard]] ::posetimation::YOLOModelConfig* release_yolo_model_config();
+  ::posetimation::YOLOModelConfig* mutable_yolo_model_config();
+  void set_allocated_yolo_model_config(::posetimation::YOLOModelConfig* value);
+  void unsafe_arena_set_allocated_yolo_model_config(::posetimation::YOLOModelConfig* value);
+  ::posetimation::YOLOModelConfig* unsafe_arena_release_yolo_model_config();
 
   private:
-  const ::YOLOModelConfig& _internal_yolo_model_config() const;
-  ::YOLOModelConfig* _internal_mutable_yolo_model_config();
+  const ::posetimation::YOLOModelConfig& _internal_yolo_model_config() const;
+  ::posetimation::YOLOModelConfig* _internal_mutable_yolo_model_config();
 
   public:
-  // .ModulesConfig modules_config = 2;
+  // .common.ModulesConfig modules_config = 2;
   bool has_modules_config() const;
   void clear_modules_config() ;
-  const ::ModulesConfig& modules_config() const;
-  [[nodiscard]] ::ModulesConfig* release_modules_config();
-  ::ModulesConfig* mutable_modules_config();
-  void set_allocated_modules_config(::ModulesConfig* value);
-  void unsafe_arena_set_allocated_modules_config(::ModulesConfig* value);
-  ::ModulesConfig* unsafe_arena_release_modules_config();
+  const ::common::ModulesConfig& modules_config() const;
+  [[nodiscard]] ::common::ModulesConfig* release_modules_config();
+  ::common::ModulesConfig* mutable_modules_config();
+  void set_allocated_modules_config(::common::ModulesConfig* value);
+  void unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value);
+  ::common::ModulesConfig* unsafe_arena_release_modules_config();
 
   private:
-  const ::ModulesConfig& _internal_modules_config() const;
-  ::ModulesConfig* _internal_mutable_modules_config();
+  const ::common::ModulesConfig& _internal_modules_config() const;
+  ::common::ModulesConfig* _internal_mutable_modules_config();
 
   public:
-  // @@protoc_insertion_point(class_scope:PoseConfig)
+  // @@protoc_insertion_point(class_scope:posetimation.PoseConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -1127,8 +705,8 @@ class PoseConfig final
                           const PoseConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::YOLOModelConfig* yolo_model_config_;
-    ::ModulesConfig* modules_config_;
+    ::posetimation::YOLOModelConfig* yolo_model_config_;
+    ::common::ModulesConfig* modules_config_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1151,193 +729,6 @@ extern const ::google::protobuf::internal::ClassDataFull PoseConfig_class_data_;
 #endif  // __GNUC__
 // -------------------------------------------------------------------
 
-// ModuleConfig
-
-// string type = 1;
-inline void ModuleConfig::clear_type() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.type_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
-}
-inline const std::string& ModuleConfig::type() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:ModuleConfig.type)
-  return _internal_type();
-}
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void ModuleConfig::set_type(Arg_&& arg,
-                                              Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.type_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:ModuleConfig.type)
-}
-inline std::string* ModuleConfig::mutable_type() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_type();
-  // @@protoc_insertion_point(field_mutable:ModuleConfig.type)
-  return _s;
-}
-inline const std::string& ModuleConfig::_internal_type() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.type_.Get();
-}
-inline void ModuleConfig::_internal_set_type(const std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.type_.Set(value, GetArena());
-}
-inline std::string* ModuleConfig::_internal_mutable_type() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.type_.Mutable( GetArena());
-}
-inline std::string* ModuleConfig::release_type() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:ModuleConfig.type)
-  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* released = _impl_.type_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.type_.Set("", GetArena());
-  }
-  return released;
-}
-inline void ModuleConfig::set_allocated_type(std::string* value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-  _impl_.type_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.type_.IsDefault()) {
-    _impl_.type_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:ModuleConfig.type)
-}
-
-// string name = 2;
-inline void ModuleConfig::clear_name() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.name_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000002u;
-}
-inline const std::string& ModuleConfig::name() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:ModuleConfig.name)
-  return _internal_name();
-}
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void ModuleConfig::set_name(Arg_&& arg,
-                                              Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:ModuleConfig.name)
-}
-inline std::string* ModuleConfig::mutable_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_name();
-  // @@protoc_insertion_point(field_mutable:ModuleConfig.name)
-  return _s;
-}
-inline const std::string& ModuleConfig::_internal_name() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.name_.Get();
-}
-inline void ModuleConfig::_internal_set_name(const std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.name_.Set(value, GetArena());
-}
-inline std::string* ModuleConfig::_internal_mutable_name() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  return _impl_.name_.Mutable( GetArena());
-}
-inline std::string* ModuleConfig::release_name() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:ModuleConfig.name)
-  if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000002u;
-  auto* released = _impl_.name_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.name_.Set("", GetArena());
-  }
-  return released;
-}
-inline void ModuleConfig::set_allocated_name(std::string* value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000002u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000002u;
-  }
-  _impl_.name_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.name_.IsDefault()) {
-    _impl_.name_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:ModuleConfig.name)
-}
-
-// -------------------------------------------------------------------
-
-// ModulesConfig
-
-// repeated .ModuleConfig modules = 1;
-inline int ModulesConfig::_internal_modules_size() const {
-  return _internal_modules().size();
-}
-inline int ModulesConfig::modules_size() const {
-  return _internal_modules_size();
-}
-inline void ModulesConfig::clear_modules() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.modules_.Clear();
-}
-inline ::ModuleConfig* ModulesConfig::mutable_modules(int index)
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:ModulesConfig.modules)
-  return _internal_mutable_modules()->Mutable(index);
-}
-inline ::google::protobuf::RepeatedPtrField<::ModuleConfig>* ModulesConfig::mutable_modules()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:ModulesConfig.modules)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_modules();
-}
-inline const ::ModuleConfig& ModulesConfig::modules(int index) const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:ModulesConfig.modules)
-  return _internal_modules().Get(index);
-}
-inline ::ModuleConfig* ModulesConfig::add_modules() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::ModuleConfig* _add = _internal_mutable_modules()->Add();
-  // @@protoc_insertion_point(field_add:ModulesConfig.modules)
-  return _add;
-}
-inline const ::google::protobuf::RepeatedPtrField<::ModuleConfig>& ModulesConfig::modules() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:ModulesConfig.modules)
-  return _internal_modules();
-}
-inline const ::google::protobuf::RepeatedPtrField<::ModuleConfig>&
-ModulesConfig::_internal_modules() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.modules_;
-}
-inline ::google::protobuf::RepeatedPtrField<::ModuleConfig>*
-ModulesConfig::_internal_mutable_modules() {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.modules_;
-}
-
-// -------------------------------------------------------------------
-
 // YOLOModelConfig
 
 // string engine_path = 1;
@@ -1348,7 +739,7 @@ inline void YOLOModelConfig::clear_engine_path() {
 }
 inline const std::string& YOLOModelConfig::engine_path() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.engine_path)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.engine_path)
   return _internal_engine_path();
 }
 template <typename Arg_, typename... Args_>
@@ -1357,11 +748,11 @@ PROTOBUF_ALWAYS_INLINE void YOLOModelConfig::set_engine_path(Arg_&& arg,
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.engine_path_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.engine_path)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.engine_path)
 }
 inline std::string* YOLOModelConfig::mutable_engine_path() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_engine_path();
-  // @@protoc_insertion_point(field_mutable:YOLOModelConfig.engine_path)
+  // @@protoc_insertion_point(field_mutable:posetimation.YOLOModelConfig.engine_path)
   return _s;
 }
 inline const std::string& YOLOModelConfig::_internal_engine_path() const {
@@ -1380,7 +771,7 @@ inline std::string* YOLOModelConfig::_internal_mutable_engine_path() {
 }
 inline std::string* YOLOModelConfig::release_engine_path() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:YOLOModelConfig.engine_path)
+  // @@protoc_insertion_point(field_release:posetimation.YOLOModelConfig.engine_path)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -1402,7 +793,7 @@ inline void YOLOModelConfig::set_allocated_engine_path(std::string* value) {
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.engine_path_.IsDefault()) {
     _impl_.engine_path_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:YOLOModelConfig.engine_path)
+  // @@protoc_insertion_point(field_set_allocated:posetimation.YOLOModelConfig.engine_path)
 }
 
 // int32 num_class = 2;
@@ -1412,13 +803,13 @@ inline void YOLOModelConfig::clear_num_class() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::int32_t YOLOModelConfig::num_class() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.num_class)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.num_class)
   return _internal_num_class();
 }
 inline void YOLOModelConfig::set_num_class(::int32_t value) {
   _internal_set_num_class(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.num_class)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.num_class)
 }
 inline ::int32_t YOLOModelConfig::_internal_num_class() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1436,13 +827,13 @@ inline void YOLOModelConfig::clear_batch_size() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::int32_t YOLOModelConfig::batch_size() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.batch_size)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.batch_size)
   return _internal_batch_size();
 }
 inline void YOLOModelConfig::set_batch_size(::int32_t value) {
   _internal_set_batch_size(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.batch_size)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.batch_size)
 }
 inline ::int32_t YOLOModelConfig::_internal_batch_size() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1460,13 +851,13 @@ inline void YOLOModelConfig::clear_width() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::int32_t YOLOModelConfig::width() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.width)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.width)
   return _internal_width();
 }
 inline void YOLOModelConfig::set_width(::int32_t value) {
   _internal_set_width(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.width)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.width)
 }
 inline ::int32_t YOLOModelConfig::_internal_width() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1484,13 +875,13 @@ inline void YOLOModelConfig::clear_height() {
   _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::int32_t YOLOModelConfig::height() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.height)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.height)
   return _internal_height();
 }
 inline void YOLOModelConfig::set_height(::int32_t value) {
   _internal_set_height(value);
   _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.height)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.height)
 }
 inline ::int32_t YOLOModelConfig::_internal_height() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1508,13 +899,13 @@ inline void YOLOModelConfig::clear_conf_thres() {
   _impl_._has_bits_[0] &= ~0x00000020u;
 }
 inline float YOLOModelConfig::conf_thres() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.conf_thres)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.conf_thres)
   return _internal_conf_thres();
 }
 inline void YOLOModelConfig::set_conf_thres(float value) {
   _internal_set_conf_thres(value);
   _impl_._has_bits_[0] |= 0x00000020u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.conf_thres)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.conf_thres)
 }
 inline float YOLOModelConfig::_internal_conf_thres() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1532,13 +923,13 @@ inline void YOLOModelConfig::clear_iou_thres() {
   _impl_._has_bits_[0] &= ~0x00000040u;
 }
 inline float YOLOModelConfig::iou_thres() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.iou_thres)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.iou_thres)
   return _internal_iou_thres();
 }
 inline void YOLOModelConfig::set_iou_thres(float value) {
   _internal_set_iou_thres(value);
   _impl_._has_bits_[0] |= 0x00000040u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.iou_thres)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.iou_thres)
 }
 inline float YOLOModelConfig::_internal_iou_thres() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1561,26 +952,26 @@ inline void YOLOModelConfig::clear_stride() {
   _impl_.stride_.Clear();
 }
 inline ::int32_t YOLOModelConfig::stride(int index) const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.stride)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.stride)
   return _internal_stride().Get(index);
 }
 inline void YOLOModelConfig::set_stride(int index, ::int32_t value) {
   _internal_mutable_stride()->Set(index, value);
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.stride)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.stride)
 }
 inline void YOLOModelConfig::add_stride(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_stride()->Add(value);
-  // @@protoc_insertion_point(field_add:YOLOModelConfig.stride)
+  // @@protoc_insertion_point(field_add:posetimation.YOLOModelConfig.stride)
 }
 inline const ::google::protobuf::RepeatedField<::int32_t>& YOLOModelConfig::stride() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:YOLOModelConfig.stride)
+  // @@protoc_insertion_point(field_list:posetimation.YOLOModelConfig.stride)
   return _internal_stride();
 }
 inline ::google::protobuf::RepeatedField<::int32_t>* YOLOModelConfig::mutable_stride()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:YOLOModelConfig.stride)
+  // @@protoc_insertion_point(field_mutable_list:posetimation.YOLOModelConfig.stride)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_stride();
 }
@@ -1601,13 +992,13 @@ inline void YOLOModelConfig::clear_src_width() {
   _impl_._has_bits_[0] &= ~0x00000080u;
 }
 inline ::int32_t YOLOModelConfig::src_width() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.src_width)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.src_width)
   return _internal_src_width();
 }
 inline void YOLOModelConfig::set_src_width(::int32_t value) {
   _internal_set_src_width(value);
   _impl_._has_bits_[0] |= 0x00000080u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.src_width)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.src_width)
 }
 inline ::int32_t YOLOModelConfig::_internal_src_width() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1625,13 +1016,13 @@ inline void YOLOModelConfig::clear_src_height() {
   _impl_._has_bits_[0] &= ~0x00000100u;
 }
 inline ::int32_t YOLOModelConfig::src_height() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.src_height)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.src_height)
   return _internal_src_height();
 }
 inline void YOLOModelConfig::set_src_height(::int32_t value) {
   _internal_set_src_height(value);
   _impl_._has_bits_[0] |= 0x00000100u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.src_height)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.src_height)
 }
 inline ::int32_t YOLOModelConfig::_internal_src_height() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1649,13 +1040,13 @@ inline void YOLOModelConfig::clear_resize_ratio() {
   _impl_._has_bits_[0] &= ~0x00000200u;
 }
 inline float YOLOModelConfig::resize_ratio() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.resize_ratio)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.resize_ratio)
   return _internal_resize_ratio();
 }
 inline void YOLOModelConfig::set_resize_ratio(float value) {
   _internal_set_resize_ratio(value);
   _impl_._has_bits_[0] |= 0x00000200u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.resize_ratio)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.resize_ratio)
 }
 inline float YOLOModelConfig::_internal_resize_ratio() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1673,13 +1064,13 @@ inline void YOLOModelConfig::clear_dw() {
   _impl_._has_bits_[0] &= ~0x00000400u;
 }
 inline ::int32_t YOLOModelConfig::dw() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.dw)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.dw)
   return _internal_dw();
 }
 inline void YOLOModelConfig::set_dw(::int32_t value) {
   _internal_set_dw(value);
   _impl_._has_bits_[0] |= 0x00000400u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.dw)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.dw)
 }
 inline ::int32_t YOLOModelConfig::_internal_dw() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1697,13 +1088,13 @@ inline void YOLOModelConfig::clear_dh() {
   _impl_._has_bits_[0] &= ~0x00000800u;
 }
 inline ::int32_t YOLOModelConfig::dh() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.dh)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.dh)
   return _internal_dh();
 }
 inline void YOLOModelConfig::set_dh(::int32_t value) {
   _internal_set_dh(value);
   _impl_._has_bits_[0] |= 0x00000800u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.dh)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.dh)
 }
 inline ::int32_t YOLOModelConfig::_internal_dh() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1721,13 +1112,13 @@ inline void YOLOModelConfig::clear_new_unpad_w() {
   _impl_._has_bits_[0] &= ~0x00001000u;
 }
 inline ::int32_t YOLOModelConfig::new_unpad_w() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.new_unpad_w)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.new_unpad_w)
   return _internal_new_unpad_w();
 }
 inline void YOLOModelConfig::set_new_unpad_w(::int32_t value) {
   _internal_set_new_unpad_w(value);
   _impl_._has_bits_[0] |= 0x00001000u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.new_unpad_w)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.new_unpad_w)
 }
 inline ::int32_t YOLOModelConfig::_internal_new_unpad_w() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1745,13 +1136,13 @@ inline void YOLOModelConfig::clear_new_unpad_h() {
   _impl_._has_bits_[0] &= ~0x00002000u;
 }
 inline ::int32_t YOLOModelConfig::new_unpad_h() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.new_unpad_h)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.new_unpad_h)
   return _internal_new_unpad_h();
 }
 inline void YOLOModelConfig::set_new_unpad_h(::int32_t value) {
   _internal_set_new_unpad_h(value);
   _impl_._has_bits_[0] |= 0x00002000u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.new_unpad_h)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.new_unpad_h)
 }
 inline ::int32_t YOLOModelConfig::_internal_new_unpad_h() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1769,13 +1160,13 @@ inline void YOLOModelConfig::clear_max_dets() {
   _impl_._has_bits_[0] &= ~0x00004000u;
 }
 inline ::int32_t YOLOModelConfig::max_dets() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.max_dets)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.max_dets)
   return _internal_max_dets();
 }
 inline void YOLOModelConfig::set_max_dets(::int32_t value) {
   _internal_set_max_dets(value);
   _impl_._has_bits_[0] |= 0x00004000u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.max_dets)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.max_dets)
 }
 inline ::int32_t YOLOModelConfig::_internal_max_dets() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1793,13 +1184,13 @@ inline void YOLOModelConfig::clear_num_keys() {
   _impl_._has_bits_[0] &= ~0x00008000u;
 }
 inline ::int32_t YOLOModelConfig::num_keys() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.num_keys)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.num_keys)
   return _internal_num_keys();
 }
 inline void YOLOModelConfig::set_num_keys(::int32_t value) {
   _internal_set_num_keys(value);
   _impl_._has_bits_[0] |= 0x00008000u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.num_keys)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.num_keys)
 }
 inline ::int32_t YOLOModelConfig::_internal_num_keys() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1817,13 +1208,13 @@ inline void YOLOModelConfig::clear_channels() {
   _impl_._has_bits_[0] &= ~0x00010000u;
 }
 inline ::int32_t YOLOModelConfig::channels() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.channels)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.channels)
   return _internal_channels();
 }
 inline void YOLOModelConfig::set_channels(::int32_t value) {
   _internal_set_channels(value);
   _impl_._has_bits_[0] |= 0x00010000u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.channels)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.channels)
 }
 inline ::int32_t YOLOModelConfig::_internal_channels() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1841,13 +1232,13 @@ inline void YOLOModelConfig::clear_run_status() {
   _impl_._has_bits_[0] &= ~0x00020000u;
 }
 inline bool YOLOModelConfig::run_status() const {
-  // @@protoc_insertion_point(field_get:YOLOModelConfig.run_status)
+  // @@protoc_insertion_point(field_get:posetimation.YOLOModelConfig.run_status)
   return _internal_run_status();
 }
 inline void YOLOModelConfig::set_run_status(bool value) {
   _internal_set_run_status(value);
   _impl_._has_bits_[0] |= 0x00020000u;
-  // @@protoc_insertion_point(field_set:YOLOModelConfig.run_status)
+  // @@protoc_insertion_point(field_set:posetimation.YOLOModelConfig.run_status)
 }
 inline bool YOLOModelConfig::_internal_run_status() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1862,7 +1253,7 @@ inline void YOLOModelConfig::_internal_set_run_status(bool value) {
 
 // PoseConfig
 
-// .YOLOModelConfig yolo_model_config = 1;
+// .posetimation.YOLOModelConfig yolo_model_config = 1;
 inline bool PoseConfig::has_yolo_model_config() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || _impl_.yolo_model_config_ != nullptr);
@@ -1873,33 +1264,33 @@ inline void PoseConfig::clear_yolo_model_config() {
   if (_impl_.yolo_model_config_ != nullptr) _impl_.yolo_model_config_->Clear();
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline const ::YOLOModelConfig& PoseConfig::_internal_yolo_model_config() const {
+inline const ::posetimation::YOLOModelConfig& PoseConfig::_internal_yolo_model_config() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  const ::YOLOModelConfig* p = _impl_.yolo_model_config_;
-  return p != nullptr ? *p : reinterpret_cast<const ::YOLOModelConfig&>(::_YOLOModelConfig_default_instance_);
+  const ::posetimation::YOLOModelConfig* p = _impl_.yolo_model_config_;
+  return p != nullptr ? *p : reinterpret_cast<const ::posetimation::YOLOModelConfig&>(::posetimation::_YOLOModelConfig_default_instance_);
 }
-inline const ::YOLOModelConfig& PoseConfig::yolo_model_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:PoseConfig.yolo_model_config)
+inline const ::posetimation::YOLOModelConfig& PoseConfig::yolo_model_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:posetimation.PoseConfig.yolo_model_config)
   return _internal_yolo_model_config();
 }
-inline void PoseConfig::unsafe_arena_set_allocated_yolo_model_config(::YOLOModelConfig* value) {
+inline void PoseConfig::unsafe_arena_set_allocated_yolo_model_config(::posetimation::YOLOModelConfig* value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.yolo_model_config_);
   }
-  _impl_.yolo_model_config_ = reinterpret_cast<::YOLOModelConfig*>(value);
+  _impl_.yolo_model_config_ = reinterpret_cast<::posetimation::YOLOModelConfig*>(value);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
   } else {
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:PoseConfig.yolo_model_config)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:posetimation.PoseConfig.yolo_model_config)
 }
-inline ::YOLOModelConfig* PoseConfig::release_yolo_model_config() {
+inline ::posetimation::YOLOModelConfig* PoseConfig::release_yolo_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
-  ::YOLOModelConfig* released = _impl_.yolo_model_config_;
+  ::posetimation::YOLOModelConfig* released = _impl_.yolo_model_config_;
   _impl_.yolo_model_config_ = nullptr;
   if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
     auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
@@ -1914,30 +1305,30 @@ inline ::YOLOModelConfig* PoseConfig::release_yolo_model_config() {
   }
   return released;
 }
-inline ::YOLOModelConfig* PoseConfig::unsafe_arena_release_yolo_model_config() {
+inline ::posetimation::YOLOModelConfig* PoseConfig::unsafe_arena_release_yolo_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:PoseConfig.yolo_model_config)
+  // @@protoc_insertion_point(field_release:posetimation.PoseConfig.yolo_model_config)
 
   _impl_._has_bits_[0] &= ~0x00000001u;
-  ::YOLOModelConfig* temp = _impl_.yolo_model_config_;
+  ::posetimation::YOLOModelConfig* temp = _impl_.yolo_model_config_;
   _impl_.yolo_model_config_ = nullptr;
   return temp;
 }
-inline ::YOLOModelConfig* PoseConfig::_internal_mutable_yolo_model_config() {
+inline ::posetimation::YOLOModelConfig* PoseConfig::_internal_mutable_yolo_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.yolo_model_config_ == nullptr) {
-    auto* p = ::google::protobuf::Message::DefaultConstruct<::YOLOModelConfig>(GetArena());
-    _impl_.yolo_model_config_ = reinterpret_cast<::YOLOModelConfig*>(p);
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::posetimation::YOLOModelConfig>(GetArena());
+    _impl_.yolo_model_config_ = reinterpret_cast<::posetimation::YOLOModelConfig*>(p);
   }
   return _impl_.yolo_model_config_;
 }
-inline ::YOLOModelConfig* PoseConfig::mutable_yolo_model_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::posetimation::YOLOModelConfig* PoseConfig::mutable_yolo_model_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
-  ::YOLOModelConfig* _msg = _internal_mutable_yolo_model_config();
-  // @@protoc_insertion_point(field_mutable:PoseConfig.yolo_model_config)
+  ::posetimation::YOLOModelConfig* _msg = _internal_mutable_yolo_model_config();
+  // @@protoc_insertion_point(field_mutable:posetimation.PoseConfig.yolo_model_config)
   return _msg;
 }
-inline void PoseConfig::set_allocated_yolo_model_config(::YOLOModelConfig* value) {
+inline void PoseConfig::set_allocated_yolo_model_config(::posetimation::YOLOModelConfig* value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
@@ -1954,48 +1345,43 @@ inline void PoseConfig::set_allocated_yolo_model_config(::YOLOModelConfig* value
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
 
-  _impl_.yolo_model_config_ = reinterpret_cast<::YOLOModelConfig*>(value);
-  // @@protoc_insertion_point(field_set_allocated:PoseConfig.yolo_model_config)
+  _impl_.yolo_model_config_ = reinterpret_cast<::posetimation::YOLOModelConfig*>(value);
+  // @@protoc_insertion_point(field_set_allocated:posetimation.PoseConfig.yolo_model_config)
 }
 
-// .ModulesConfig modules_config = 2;
+// .common.ModulesConfig modules_config = 2;
 inline bool PoseConfig::has_modules_config() const {
   bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || _impl_.modules_config_ != nullptr);
   return value;
 }
-inline void PoseConfig::clear_modules_config() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (_impl_.modules_config_ != nullptr) _impl_.modules_config_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000002u;
-}
-inline const ::ModulesConfig& PoseConfig::_internal_modules_config() const {
+inline const ::common::ModulesConfig& PoseConfig::_internal_modules_config() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  const ::ModulesConfig* p = _impl_.modules_config_;
-  return p != nullptr ? *p : reinterpret_cast<const ::ModulesConfig&>(::_ModulesConfig_default_instance_);
+  const ::common::ModulesConfig* p = _impl_.modules_config_;
+  return p != nullptr ? *p : reinterpret_cast<const ::common::ModulesConfig&>(::common::_ModulesConfig_default_instance_);
 }
-inline const ::ModulesConfig& PoseConfig::modules_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:PoseConfig.modules_config)
+inline const ::common::ModulesConfig& PoseConfig::modules_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:posetimation.PoseConfig.modules_config)
   return _internal_modules_config();
 }
-inline void PoseConfig::unsafe_arena_set_allocated_modules_config(::ModulesConfig* value) {
+inline void PoseConfig::unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.modules_config_);
   }
-  _impl_.modules_config_ = reinterpret_cast<::ModulesConfig*>(value);
+  _impl_.modules_config_ = reinterpret_cast<::common::ModulesConfig*>(value);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000002u;
   } else {
     _impl_._has_bits_[0] &= ~0x00000002u;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:PoseConfig.modules_config)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:posetimation.PoseConfig.modules_config)
 }
-inline ::ModulesConfig* PoseConfig::release_modules_config() {
+inline ::common::ModulesConfig* PoseConfig::release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000002u;
-  ::ModulesConfig* released = _impl_.modules_config_;
+  ::common::ModulesConfig* released = _impl_.modules_config_;
   _impl_.modules_config_ = nullptr;
   if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
     auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
@@ -2010,38 +1396,38 @@ inline ::ModulesConfig* PoseConfig::release_modules_config() {
   }
   return released;
 }
-inline ::ModulesConfig* PoseConfig::unsafe_arena_release_modules_config() {
+inline ::common::ModulesConfig* PoseConfig::unsafe_arena_release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:PoseConfig.modules_config)
+  // @@protoc_insertion_point(field_release:posetimation.PoseConfig.modules_config)
 
   _impl_._has_bits_[0] &= ~0x00000002u;
-  ::ModulesConfig* temp = _impl_.modules_config_;
+  ::common::ModulesConfig* temp = _impl_.modules_config_;
   _impl_.modules_config_ = nullptr;
   return temp;
 }
-inline ::ModulesConfig* PoseConfig::_internal_mutable_modules_config() {
+inline ::common::ModulesConfig* PoseConfig::_internal_mutable_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.modules_config_ == nullptr) {
-    auto* p = ::google::protobuf::Message::DefaultConstruct<::ModulesConfig>(GetArena());
-    _impl_.modules_config_ = reinterpret_cast<::ModulesConfig*>(p);
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::common::ModulesConfig>(GetArena());
+    _impl_.modules_config_ = reinterpret_cast<::common::ModulesConfig*>(p);
   }
   return _impl_.modules_config_;
 }
-inline ::ModulesConfig* PoseConfig::mutable_modules_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::common::ModulesConfig* PoseConfig::mutable_modules_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000002u;
-  ::ModulesConfig* _msg = _internal_mutable_modules_config();
-  // @@protoc_insertion_point(field_mutable:PoseConfig.modules_config)
+  ::common::ModulesConfig* _msg = _internal_mutable_modules_config();
+  // @@protoc_insertion_point(field_mutable:posetimation.PoseConfig.modules_config)
   return _msg;
 }
-inline void PoseConfig::set_allocated_modules_config(::ModulesConfig* value) {
+inline void PoseConfig::set_allocated_modules_config(::common::ModulesConfig* value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.modules_config_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.modules_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(value)->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
@@ -2050,8 +1436,8 @@ inline void PoseConfig::set_allocated_modules_config(::ModulesConfig* value) {
     _impl_._has_bits_[0] &= ~0x00000002u;
   }
 
-  _impl_.modules_config_ = reinterpret_cast<::ModulesConfig*>(value);
-  // @@protoc_insertion_point(field_set_allocated:PoseConfig.modules_config)
+  _impl_.modules_config_ = reinterpret_cast<::common::ModulesConfig*>(value);
+  // @@protoc_insertion_point(field_set_allocated:posetimation.PoseConfig.modules_config)
 }
 
 #ifdef __GNUC__
@@ -2059,6 +1445,7 @@ inline void PoseConfig::set_allocated_modules_config(::ModulesConfig* value) {
 #endif  // __GNUC__
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace posetimation
 
 
 // @@protoc_insertion_point(global_scope)

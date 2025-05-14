@@ -34,7 +34,8 @@ public:
     void* getOutput() override;
 
 private:
-   YOLOModelConfig m_poseConfig;            // 姿态估计任务配置参数
+
+   posetimation::YOLOModelConfig m_poseConfig;            // 姿态估计任务配置参数
    CMultiModalSrcData m_inputImage;         // 预处理输入数据
    std::vector<float> m_outputImage;        // 模型输入数据缓存区
 

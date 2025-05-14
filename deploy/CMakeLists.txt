@@ -67,11 +67,11 @@ set(OpenCV_LIBS
 
 # 添加源文件
 add_executable(trt_infer
-    # Detection.cpp
-    # src/Detection/trt_infer.cpp
+    Detection.cpp
+    src/Detection/trt_infer.cpp
 
-    PoseEstimation.cpp
-    src/Pose/trt_infer.cpp
+    # PoseEstimation.cpp
+    # src/Pose/trt_infer.cpp
 )
 
 # 链接库

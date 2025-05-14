@@ -21,6 +21,7 @@
 #include "AlgorithmConfig.h"
 #include "ModuleFactory.h"
 #include "PoseEstimation_conf.pb.h"
+#include "AlgorithmConfig_conf.pb.h"
 #include "CMultiModalSrcData.h"
 #include "CAlgResult.h"
 
@@ -28,9 +29,9 @@ class PoseEstimationConfig : public AlgorithmConfig {
 public:
     bool loadFromFile(const std::string& path) override;
     const google::protobuf::Message* getConfigMessage() const override { return &m_config; }
-    PoseConfig& getPoseConfig() { return m_config; }
+    posetimation::PoseConfig& getPoseConfig() { return m_config; }
 private:
-    PoseConfig m_config;
+    posetimation::PoseConfig m_config;
 };
 
 class CPoseEstimationAlg : public IPoseEstimationAlg {

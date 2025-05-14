@@ -116,11 +116,11 @@ bool CPoseEstimationAlg::initModules()
 {   
     LOG(INFO) << "CPoseEstimationAlg::initModules status: start ";
     auto& poseConfig = m_pConfig->getPoseConfig();
-    const auto& modules = poseConfig.modules_config();
+    const common::ModulesConfig& modules = poseConfig.modules_config();
     m_moduleChain.clear();
 
     // 遍历所有模块，按顺序实例化
-    for (const auto& mod : modules.modules()) {
+    for (const common::ModuleConfig& mod : modules.modules()) {
         auto module = ModuleFactory::getInstance().createModule("PoseEstimation", mod.name(), m_exePath);
         if (!module) {
             LOG(ERROR) << "Failed to create module: " << mod.name();

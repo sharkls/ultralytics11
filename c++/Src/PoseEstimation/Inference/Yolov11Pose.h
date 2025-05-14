@@ -67,7 +67,7 @@ public:
     CAlgResult formatConverted(std::vector<std::vector<float>> results);
 
 private:
-    YOLOModelConfig m_poseConfig;       // 配置参数
+    posetimation::YOLOModelConfig m_poseConfig;       // 配置参数
     std::vector<float> m_inputImage;    // 输入图像数据
     CAlgResult m_outputResult;          // 输出结果
 

@@ -1113,9 +1113,12 @@ class BasePredictor:
                             LOGGER.info(f"Transformed boxes in IR:\n{result.boxes.xyxy}")
                     else:
                         # 如果没有有效的框，清空结果
-                        result.boxes.xyxy = torch.empty((0, 4), device=boxes.device)
-                        result.boxes.conf = torch.empty(0, device=boxes.device)
-                        result.boxes.cls = torch.empty(0, device=boxes.device)
+                        # result.boxes.xyxy = torch.empty((0, 4), device=boxes.device)
+                        n_cols = result.boxes.data.shape[1] if result.boxes.data.ndim == 2 else 6
+                        empty_boxes = type(result.boxes)(torch.empty((0, n_cols), device=result.boxes.data.device), orig_shape)
+                        result.boxes = empty_boxes
+                        # result.boxes.conf = torch.empty(0, device=boxes.device)
+                        # result.boxes.cls = torch.empty(0, device=boxes.device)
                 
                 # 设置原始尺寸并绘制
                 result.orig_shape = orig_shape
@@ -1321,6 +1324,12 @@ class BasePredictor:
             # 添加分隔线
             cv2.line(comparison, (w//3, 0), (w//3, h), title_color, 2)
             cv2.line(comparison, (2*w//3, 0), (2*w//3, h), title_color, 2)
+
+            # 保存图片
+            save_path = f"{save_prefix}_registration_{batch_idx}.jpg"
+            cv2.imwrite(save_path, comparison)
+            if self.args.verbose:
+                LOGGER.info(f"Registration visualization saved to {save_path}")
 
             return comparison
 

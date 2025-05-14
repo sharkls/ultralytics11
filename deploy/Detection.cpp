@@ -9,9 +9,9 @@ int main(int argc, char** argv) {
     try {
         // 设置默认路径
         std::string engine_path = "/ultralytics/runs/multimodal/train6/weights/last.engine";
-        std::string rgb_path = "/ultralytics/data/Test_1/images/visible/test/190001.jpg";
-        std::string ir_path = "/ultralytics/data/Test_1/images/infrared/test/190001.jpg";
-        std::string homography_path = "/ultralytics/data/Test_1/extrinsics/test/190001.txt";
+        std::string rgb_path = "/ultralytics/data/Test_unmatch/images/visible/test/190001.jpg";
+        std::string ir_path = "/ultralytics/data/Test_unmatch/images/infrared/test/190001.jpg";
+        std::string homography_path = "/ultralytics/data/Test_unmatch/extrinsics/test/190001.txt";
         std::string save_dir = "/ultralytics/runs/tensorrt_vis";
 
         // 创建保存目录

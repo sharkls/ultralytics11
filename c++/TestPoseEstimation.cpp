@@ -44,7 +44,7 @@ CMultiModalSrcData loadOfflineData(std::string data_path, int index)
     }
     
     // 读取单应性矩阵
-    std::array<float, 9> homography_matrix;
+    std::vector<float> homography_matrix(9);
     for (int i = 0; i < 9; ++i) {
         if (!(homography_file >> homography_matrix[i])) {
             LOG(ERROR) << "Failed to read homography matrix" << std::endl;
@@ -73,7 +73,7 @@ CMultiModalSrcData loadOfflineData(std::string data_path, int index)
     // 设置时间匹配数据
     std::vector<CVideoSrcData> video_data = {rgb_data, ir_data};
     data.vecVideoSrcData(video_data);
-    data.fHomographyMatrix(homography_matrix);
+    data.vecfHomography(homography_matrix);
     
     return data;
 }

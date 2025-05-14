@@ -1,15 +1,7 @@
 syntax = "proto3";
+package posetimation;
 
-// 单个模块配置
-message ModuleConfig {
-    string type = 1;   // 例如 preprocess/inference/postprocess/augment/...
-    string name = 2;   // 例如 Resize/Yolov11/PoseEstimation/...
-}
-
-// 模块链配置
-message ModulesConfig {
-    repeated ModuleConfig modules = 1; // 按顺序排列的模块链
-}
+import "AlgorithmConfig_conf.proto";
 
 // 姿态估计模型详细配置
 message YOLOModelConfig {
@@ -37,5 +29,5 @@ message YOLOModelConfig {
 // 姿态估计任务配置参数
 message PoseConfig {
     YOLOModelConfig yolo_model_config = 1;
-    ModulesConfig modules_config = 2;
+    common.ModulesConfig modules_config = 2;
 }

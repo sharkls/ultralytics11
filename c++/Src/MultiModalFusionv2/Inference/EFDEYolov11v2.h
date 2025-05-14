@@ -62,13 +62,12 @@ public:
     std::vector<float> inference();
     void rescale_coords(std::vector<float>& coords, bool is_keypoint);
     std::vector<std::vector<float>> process_output(const std::vector<float>& output);
-    // std::vector<std::vector<float>> process_keypoints(const std::vector<float>& output, const std::vector<std::vector<float>>& boxes);
     std::vector<int> nms(const std::vector<std::vector<float>>& boxes, const std::vector<float>& scores);
     CAlgResult formatConverted(std::vector<std::vector<float>> results);
 
 private:
-    YOLOModelConfig m_poseConfig;       // 配置参数
-    std::vector<float> m_inputImage;    // 输入图像数据
+    multimodalfusion::MultiModalFusionModelConfig m_config;       // 配置参数
+    std::vector<std::vector<float>> m_inputImage;    // 输入数据：0-可见光，1-红外，2-映射矩阵
     CAlgResult m_outputResult;          // 输出结果
 
     // TensorRT相关成员
@@ -107,6 +106,7 @@ private:
     int target_w_;              // 目标图像宽度
     int num_anchors_ = 0;       // 锚框数量
     std::string engine_path_;   // 引擎路径
+    int target_size_ = 640;     // 目标尺寸
 
     // 运行状态
     bool status_;

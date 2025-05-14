@@ -1,40 +1,41 @@
 syntax = "proto3";
+package multimodalfusion;
 
-// 单个模块配置
-message ModuleConfig {
-    string type = 1;   // 例如 preprocess/inference/postprocess/augment/...
-    string name = 2;   // 例如 Resize/Yolov11/PoseEstimation/...
-}
+import "AlgorithmConfig_conf.proto";
 
-// 模块链配置
-message ModulesConfig {
-    repeated ModuleConfig modules = 1; // 按顺序排列的模块链
-}
-
-// 姿态估计模型详细配置
-message MultiModalFusionModelConfig {
-    string engine_path = 1;     // 模型engine路径
-    int32 num_class = 2;        // 目标类型数量
-    int32 batch_size = 3;       // 批次大小
-    int32 width = 4;            // 模型输入图像宽度
-    int32 height = 5;           // 模型输入图像高度
-    float conf_thres = 6;       // 置信度阈值
-    float iou_thres = 7;        // IoU阈值
-    repeated int32 stride = 8;  // 模型下采样步长（数组）
-    int32 src_width = 9;        // 原始图像宽度
-    int32 src_height = 10;      // 原始图像高度
-    float resize_ratio = 11;    // 等比缩放比例
-    int32 dw = 12;              // 宽度填充值
-    int32 dh = 13;              // 高度填充值
-    int32 new_unpad_w = 14;     // 未填充前的图像宽度
-    int32 new_unpad_h = 15;     // 未填充前的图像高度
-    int32 max_dets = 16;        // 最大检测目标数量
-    int32 channels = 18;        // 图像数据通道数
-    bool run_status = 19;       // 代码运行方式
+// 多模态融合模型详细配置
+message MultiModalFusionModelConfig 
+{
+    string engine_path = 1;         // 模型engine路径
+    int32 num_class = 2;            // 目标类型数量
+    int32 batch_size = 3;           // 批次大小
+    int32 width = 4;                // 模型输入图像宽度
+    int32 height = 5;               // 模型输入图像高度
+    float conf_thres = 6;           // 置信度阈值
+    float iou_thres = 7;            // IoU阈值
+    repeated int32 stride = 8;      // 模型下采样步长（数组）
+    int32 src_width_rgb = 9;        // 可见光原始图像宽度
+    int32 src_height_rgb = 10;      // 可见光原始图像高度
+    float resize_ratio_rgb = 11;    // 可见光等比缩放比例
+    int32 dw_rgb = 12;              // 可见光宽度填充值
+    int32 dh_rgb = 13;              // 可见光高度填充值
+    int32 new_unpad_w_rgb = 14;     // 可见光未填充前的图像宽度
+    int32 new_unpad_h_rgb = 15;     // 可见光未填充前的图像高度
+    int32 max_dets = 16;            // 最大检测目标数量
+    int32 num_keys = 17;            // 关键点数量
+    int32 channels = 18;            // 图像数据通道数
+    bool run_status = 19;           // 代码运行方式
+    int32 src_width_ir = 20;        // 红外原始图像宽度
+    int32 src_height_ir = 21;       // 红外原始图像高度
+    float resize_ratio_ir = 22;     // 红外等比缩放比例
+    int32 dw_ir = 23;               // 红外宽度填充值
+    int32 dh_ir = 24;               // 红外高度填充值
+    int32 new_unpad_w_ir = 25;      // 红外未填充前的图像宽度
+    int32 new_unpad_h_ir = 26;      // 红外未填充前的图像高度
 }
 
 // 姿态估计任务配置参数
 message MultiModalFusionConfig {
     MultiModalFusionModelConfig model_config = 1;
-    ModulesConfig modules_config = 2;
+    common.ModulesConfig modules_config = 2;
 }

@@ -24,6 +24,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::google::protobuf;
 namespace _pbi = ::google::protobuf::internal;
 namespace _fl = ::google::protobuf::internal::field_layout;
+namespace multimodalfusion {
 
 inline constexpr MultiModalFusionModelConfig::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -39,16 +40,24 @@ inline constexpr MultiModalFusionModelConfig::Impl_::Impl_(
         height_{0},
         conf_thres_{0},
         iou_thres_{0},
-        src_width_{0},
-        src_height_{0},
-        resize_ratio_{0},
-        dw_{0},
-        dh_{0},
-        new_unpad_w_{0},
-        new_unpad_h_{0},
+        src_width_rgb_{0},
+        src_height_rgb_{0},
+        resize_ratio_rgb_{0},
+        dw_rgb_{0},
+        dh_rgb_{0},
+        new_unpad_w_rgb_{0},
+        new_unpad_h_rgb_{0},
         max_dets_{0},
+        num_keys_{0},
         channels_{0},
-        run_status_{false} {}
+        run_status_{false},
+        src_width_ir_{0},
+        src_height_ir_{0},
+        resize_ratio_ir_{0},
+        dw_ir_{0},
+        dh_ir_{0},
+        new_unpad_w_ir_{0},
+        new_unpad_h_ir_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR MultiModalFusionModelConfig::MultiModalFusionModelConfig(::_pbi::ConstantInitialized)
@@ -69,61 +78,6 @@ struct MultiModalFusionModelConfigDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 MultiModalFusionModelConfigDefaultTypeInternal _MultiModalFusionModelConfig_default_instance_;
-
-inline constexpr ModuleConfig::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : _cached_size_{0},
-        type_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()),
-        name_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()) {}
-
-template <typename>
-PROTOBUF_CONSTEXPR ModuleConfig::ModuleConfig(::_pbi::ConstantInitialized)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(ModuleConfig_class_data_.base()),
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
-}
-struct ModuleConfigDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR ModuleConfigDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~ModuleConfigDefaultTypeInternal() {}
-  union {
-    ModuleConfig _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ModuleConfigDefaultTypeInternal _ModuleConfig_default_instance_;
-
-inline constexpr ModulesConfig::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : modules_{},
-        _cached_size_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR ModulesConfig::ModulesConfig(::_pbi::ConstantInitialized)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(ModulesConfig_class_data_.base()),
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
-}
-struct ModulesConfigDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR ModulesConfigDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~ModulesConfigDefaultTypeInternal() {}
-  union {
-    ModulesConfig _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ModulesConfigDefaultTypeInternal _ModulesConfig_default_instance_;
 
 inline constexpr MultiModalFusionConfig::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -150,6 +104,7 @@ struct MultiModalFusionConfigDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 MultiModalFusionConfigDefaultTypeInternal _MultiModalFusionConfig_default_instance_;
+}  // namespace multimodalfusion
 static constexpr const ::_pb::EnumDescriptor**
     file_level_enum_descriptors_MultiModalFusion_5fconf_2eproto = nullptr;
 static constexpr const ::_pb::ServiceDescriptor**
@@ -157,53 +112,40 @@ static constexpr const ::_pb::ServiceDescriptor**
 const ::uint32_t
     TableStruct_MultiModalFusion_5fconf_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
         protodesc_cold) = {
-        PROTOBUF_FIELD_OFFSET(::ModuleConfig, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::ModuleConfig, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::ModuleConfig, _impl_.type_),
-        PROTOBUF_FIELD_OFFSET(::ModuleConfig, _impl_.name_),
-        0,
-        1,
-        ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::ModulesConfig, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::ModulesConfig, _impl_.modules_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.engine_path_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.num_class_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.batch_size_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.width_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.height_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.conf_thres_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.iou_thres_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.stride_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.src_width_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.src_height_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.resize_ratio_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.dw_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.dh_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.new_unpad_w_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.new_unpad_h_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.max_dets_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.channels_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionModelConfig, _impl_.run_status_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.engine_path_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.num_class_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.batch_size_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.width_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.height_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.conf_thres_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.iou_thres_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.stride_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.src_width_rgb_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.src_height_rgb_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.resize_ratio_rgb_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.dw_rgb_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.dh_rgb_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.new_unpad_w_rgb_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.new_unpad_h_rgb_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.max_dets_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.num_keys_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.channels_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.run_status_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.src_width_ir_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.src_height_ir_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.resize_ratio_ir_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.dw_ir_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.dh_ir_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.new_unpad_w_ir_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.new_unpad_h_ir_),
         0,
         1,
         2,
@@ -222,622 +164,82 @@ const ::uint32_t
         14,
         15,
         16,
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionConfig, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionConfig, _internal_metadata_),
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionConfig, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionConfig, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionConfig, _impl_.model_config_),
-        PROTOBUF_FIELD_OFFSET(::MultiModalFusionConfig, _impl_.modules_config_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionConfig, _impl_.model_config_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionConfig, _impl_.modules_config_),
         0,
         1,
 };
 
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-        {0, 10, -1, sizeof(::ModuleConfig)},
-        {12, -1, -1, sizeof(::ModulesConfig)},
-        {21, 47, -1, sizeof(::MultiModalFusionModelConfig)},
-        {65, 75, -1, sizeof(::MultiModalFusionConfig)},
+        {0, 34, -1, sizeof(::multimodalfusion::MultiModalFusionModelConfig)},
+        {60, 70, -1, sizeof(::multimodalfusion::MultiModalFusionConfig)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
-    &::_ModuleConfig_default_instance_._instance,
-    &::_ModulesConfig_default_instance_._instance,
-    &::_MultiModalFusionModelConfig_default_instance_._instance,
-    &::_MultiModalFusionConfig_default_instance_._instance,
+    &::multimodalfusion::_MultiModalFusionModelConfig_default_instance_._instance,
+    &::multimodalfusion::_MultiModalFusionConfig_default_instance_._instance,
 };
 const char descriptor_table_protodef_MultiModalFusion_5fconf_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\033MultiModalFusion_conf.proto\"*\n\014ModuleC"
-    "onfig\022\014\n\004type\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\"/\n\rMod"
-    "ulesConfig\022\036\n\007modules\030\001 \003(\0132\r.ModuleConf"
-    "ig\"\346\002\n\033MultiModalFusionModelConfig\022\023\n\013en"
-    "gine_path\030\001 \001(\t\022\021\n\tnum_class\030\002 \001(\005\022\022\n\nba"
-    "tch_size\030\003 \001(\005\022\r\n\005width\030\004 \001(\005\022\016\n\006height\030"
-    "\005 \001(\005\022\022\n\nconf_thres\030\006 \001(\002\022\021\n\tiou_thres\030\007"
-    " \001(\002\022\016\n\006stride\030\010 \003(\005\022\021\n\tsrc_width\030\t \001(\005\022"
-    "\022\n\nsrc_height\030\n \001(\005\022\024\n\014resize_ratio\030\013 \001("
-    "\002\022\n\n\002dw\030\014 \001(\005\022\n\n\002dh\030\r \001(\005\022\023\n\013new_unpad_w"
-    "\030\016 \001(\005\022\023\n\013new_unpad_h\030\017 \001(\005\022\020\n\010max_dets\030"
-    "\020 \001(\005\022\020\n\010channels\030\022 \001(\005\022\022\n\nrun_status\030\023 "
-    "\001(\010\"t\n\026MultiModalFusionConfig\0222\n\014model_c"
-    "onfig\030\001 \001(\0132\034.MultiModalFusionModelConfi"
-    "g\022&\n\016modules_config\030\002 \001(\0132\016.ModulesConfi"
-    "gb\006proto3"
+    "\n\033MultiModalFusion_conf.proto\022\020multimoda"
+    "lfusion\032\032AlgorithmConfig_conf.proto\"\250\004\n\033"
+    "MultiModalFusionModelConfig\022\023\n\013engine_pa"
+    "th\030\001 \001(\t\022\021\n\tnum_class\030\002 \001(\005\022\022\n\nbatch_siz"
+    "e\030\003 \001(\005\022\r\n\005width\030\004 \001(\005\022\016\n\006height\030\005 \001(\005\022\022"
+    "\n\nconf_thres\030\006 \001(\002\022\021\n\tiou_thres\030\007 \001(\002\022\016\n"
+    "\006stride\030\010 \003(\005\022\025\n\rsrc_width_rgb\030\t \001(\005\022\026\n\016"
+    "src_height_rgb\030\n \001(\005\022\030\n\020resize_ratio_rgb"
+    "\030\013 \001(\002\022\016\n\006dw_rgb\030\014 \001(\005\022\016\n\006dh_rgb\030\r \001(\005\022\027"
+    "\n\017new_unpad_w_rgb\030\016 \001(\005\022\027\n\017new_unpad_h_r"
+    "gb\030\017 \001(\005\022\020\n\010max_dets\030\020 \001(\005\022\020\n\010num_keys\030\021"
+    " \001(\005\022\020\n\010channels\030\022 \001(\005\022\022\n\nrun_status\030\023 \001"
+    "(\010\022\024\n\014src_width_ir\030\024 \001(\005\022\025\n\rsrc_height_i"
+    "r\030\025 \001(\005\022\027\n\017resize_ratio_ir\030\026 \001(\002\022\r\n\005dw_i"
+    "r\030\027 \001(\005\022\r\n\005dh_ir\030\030 \001(\005\022\026\n\016new_unpad_w_ir"
+    "\030\031 \001(\005\022\026\n\016new_unpad_h_ir\030\032 \001(\005\"\214\001\n\026Multi"
+    "ModalFusionConfig\022C\n\014model_config\030\001 \001(\0132"
+    "-.multimodalfusion.MultiModalFusionModel"
+    "Config\022-\n\016modules_config\030\002 \001(\0132\025.common."
+    "ModulesConfigb\006proto3"
+};
+static const ::_pbi::DescriptorTable* const descriptor_table_MultiModalFusion_5fconf_2eproto_deps[1] =
+    {
+        &::descriptor_table_AlgorithmConfig_5fconf_2eproto,
 };
 static ::absl::once_flag descriptor_table_MultiModalFusion_5fconf_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_MultiModalFusion_5fconf_2eproto = {
     false,
     false,
-    609,
+    781,
     descriptor_table_protodef_MultiModalFusion_5fconf_2eproto,
     "MultiModalFusion_conf.proto",
     &descriptor_table_MultiModalFusion_5fconf_2eproto_once,
-    nullptr,
-    0,
-    4,
+    descriptor_table_MultiModalFusion_5fconf_2eproto_deps,
+    1,
+    2,
     schemas,
     file_default_instances,
     TableStruct_MultiModalFusion_5fconf_2eproto::offsets,
     file_level_enum_descriptors_MultiModalFusion_5fconf_2eproto,
     file_level_service_descriptors_MultiModalFusion_5fconf_2eproto,
 };
-// ===================================================================
-
-class ModuleConfig::_Internal {
- public:
-  using HasBits =
-      decltype(std::declval<ModuleConfig>()._impl_._has_bits_);
-  static constexpr ::int32_t kHasBitsOffset =
-      8 * PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_._has_bits_);
-};
-
-ModuleConfig::ModuleConfig(::google::protobuf::Arena* arena)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, ModuleConfig_class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:ModuleConfig)
-}
-PROTOBUF_NDEBUG_INLINE ModuleConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::ModuleConfig& from_msg)
-      : _has_bits_{from._has_bits_},
-        _cached_size_{0},
-        type_(arena, from.type_),
-        name_(arena, from.name_) {}
-
-ModuleConfig::ModuleConfig(
-    ::google::protobuf::Arena* arena,
-    const ModuleConfig& from)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, ModuleConfig_class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  ModuleConfig* const _this = this;
-  (void)_this;
-  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
-      from._internal_metadata_);
-  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-
-  // @@protoc_insertion_point(copy_constructor:ModuleConfig)
-}
-PROTOBUF_NDEBUG_INLINE ModuleConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
-      : _cached_size_{0},
-        type_(arena),
-        name_(arena) {}
-
-inline void ModuleConfig::SharedCtor(::_pb::Arena* arena) {
-  new (&_impl_) Impl_(internal_visibility(), arena);
-}
-ModuleConfig::~ModuleConfig() {
-  // @@protoc_insertion_point(destructor:ModuleConfig)
-  SharedDtor(*this);
-}
-inline void ModuleConfig::SharedDtor(MessageLite& self) {
-  ModuleConfig& this_ = static_cast<ModuleConfig&>(self);
-  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
-  ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.type_.Destroy();
-  this_._impl_.name_.Destroy();
-  this_._impl_.~Impl_();
-}
-
-inline void* ModuleConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
-  return ::new (mem) ModuleConfig(arena);
-}
-constexpr auto ModuleConfig::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(ModuleConfig),
-                                            alignof(ModuleConfig));
-}
-constexpr auto ModuleConfig::InternalGenerateClassData_() {
-  return ::google::protobuf::internal::ClassDataFull{
-      ::google::protobuf::internal::ClassData{
-          &_ModuleConfig_default_instance_._instance,
-          &_table_.header,
-          nullptr,  // OnDemandRegisterArenaDtor
-          nullptr,  // IsInitialized
-          &ModuleConfig::MergeImpl,
-          ::google::protobuf::Message::GetNewImpl<ModuleConfig>(),
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-          &ModuleConfig::SharedDtor,
-          ::google::protobuf::Message::GetClearImpl<ModuleConfig>(), &ModuleConfig::ByteSizeLong,
-              &ModuleConfig::_InternalSerialize,
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_._cached_size_),
-          false,
-      },
-      &ModuleConfig::kDescriptorMethods,
-      &descriptor_table_MultiModalFusion_5fconf_2eproto,
-      nullptr,  // tracker
-  };
-}
-
-PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
-        ModuleConfig_class_data_ =
-            ModuleConfig::InternalGenerateClassData_();
-
-const ::google::protobuf::internal::ClassData* ModuleConfig::GetClassData() const {
-  ::google::protobuf::internal::PrefetchToLocalCache(&ModuleConfig_class_data_);
-  ::google::protobuf::internal::PrefetchToLocalCache(ModuleConfig_class_data_.tc_table);
-  return ModuleConfig_class_data_.base();
-}
-PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 29, 2> ModuleConfig::_table_ = {
-  {
-    PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_._has_bits_),
-    0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
-    offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
-    offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
-    0,  // num_aux_entries
-    offsetof(decltype(_table_), field_names),  // no aux_entries
-    ModuleConfig_class_data_.base(),
-    nullptr,  // post_loop_handler
-    ::_pbi::TcParser::GenericFallback,  // fallback
-    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::ModuleConfig>(),  // to_prefetch
-    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
-  }, {{
-    // string name = 2;
-    {::_pbi::TcParser::FastUS1,
-     {18, 1, 0, PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_.name_)}},
-    // string type = 1;
-    {::_pbi::TcParser::FastUS1,
-     {10, 0, 0, PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_.type_)}},
-  }}, {{
-    65535, 65535
-  }}, {{
-    // string type = 1;
-    {PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_.type_), _Internal::kHasBitsOffset + 0, 0,
-    (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // string name = 2;
-    {PROTOBUF_FIELD_OFFSET(ModuleConfig, _impl_.name_), _Internal::kHasBitsOffset + 1, 0,
-    (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
-  }},
-  // no aux_entries
-  {{
-    "\14\4\4\0\0\0\0\0"
-    "ModuleConfig"
-    "type"
-    "name"
-  }},
-};
-
-PROTOBUF_NOINLINE void ModuleConfig::Clear() {
-// @@protoc_insertion_point(message_clear_start:ModuleConfig)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
-      _impl_.type_.ClearNonDefaultToEmpty();
-    }
-    if (cached_has_bits & 0x00000002u) {
-      _impl_.name_.ClearNonDefaultToEmpty();
-    }
-  }
-  _impl_._has_bits_.Clear();
-  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
-}
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ModuleConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ModuleConfig& this_ = static_cast<const ModuleConfig&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ModuleConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ModuleConfig& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:ModuleConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
-
-          // string type = 1;
-          if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-            if (!this_._internal_type().empty()) {
-              const std::string& _s = this_._internal_type();
-              ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "ModuleConfig.type");
-              target = stream->WriteStringMaybeAliased(1, _s, target);
-            }
-          }
-
-          // string name = 2;
-          if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
-            if (!this_._internal_name().empty()) {
-              const std::string& _s = this_._internal_name();
-              ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "ModuleConfig.name");
-              target = stream->WriteStringMaybeAliased(2, _s, target);
-            }
-          }
-
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:ModuleConfig)
-          return target;
-        }
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ModuleConfig::ByteSizeLong(const MessageLite& base) {
-          const ModuleConfig& this_ = static_cast<const ModuleConfig&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ModuleConfig::ByteSizeLong() const {
-          const ModuleConfig& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:ModuleConfig)
-          ::size_t total_size = 0;
-
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
-
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-          cached_has_bits = this_._impl_._has_bits_[0];
-          if (cached_has_bits & 0x00000003u) {
-            // string type = 1;
-            if (cached_has_bits & 0x00000001u) {
-              if (!this_._internal_type().empty()) {
-                total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                                this_._internal_type());
-              }
-            }
-            // string name = 2;
-            if (cached_has_bits & 0x00000002u) {
-              if (!this_._internal_name().empty()) {
-                total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                                this_._internal_name());
-              }
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
-
-void ModuleConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<ModuleConfig*>(&to_msg);
-  auto& from = static_cast<const ModuleConfig&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ModuleConfig)
-  ABSL_DCHECK_NE(&from, _this);
-  ::uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
-      if (!from._internal_type().empty()) {
-        _this->_internal_set_type(from._internal_type());
-      } else {
-        if (_this->_impl_.type_.IsDefault()) {
-          _this->_internal_set_type("");
-        }
-      }
-    }
-    if (cached_has_bits & 0x00000002u) {
-      if (!from._internal_name().empty()) {
-        _this->_internal_set_name(from._internal_name());
-      } else {
-        if (_this->_impl_.name_.IsDefault()) {
-          _this->_internal_set_name("");
-        }
-      }
-    }
-  }
-  _this->_impl_._has_bits_[0] |= cached_has_bits;
-  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void ModuleConfig::CopyFrom(const ModuleConfig& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ModuleConfig)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-
-void ModuleConfig::InternalSwap(ModuleConfig* PROTOBUF_RESTRICT other) {
-  using std::swap;
-  auto* arena = GetArena();
-  ABSL_DCHECK_EQ(arena, other->GetArena());
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.type_, &other->_impl_.type_, arena);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.name_, &other->_impl_.name_, arena);
-}
-
-::google::protobuf::Metadata ModuleConfig::GetMetadata() const {
-  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
-}
-// ===================================================================
-
-class ModulesConfig::_Internal {
- public:
-};
-
-ModulesConfig::ModulesConfig(::google::protobuf::Arena* arena)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, ModulesConfig_class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:ModulesConfig)
-}
-PROTOBUF_NDEBUG_INLINE ModulesConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::ModulesConfig& from_msg)
-      : modules_{visibility, arena, from.modules_},
-        _cached_size_{0} {}
-
-ModulesConfig::ModulesConfig(
-    ::google::protobuf::Arena* arena,
-    const ModulesConfig& from)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, ModulesConfig_class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  ModulesConfig* const _this = this;
-  (void)_this;
-  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
-      from._internal_metadata_);
-  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-
-  // @@protoc_insertion_point(copy_constructor:ModulesConfig)
-}
-PROTOBUF_NDEBUG_INLINE ModulesConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
-      : modules_{visibility, arena},
-        _cached_size_{0} {}
-
-inline void ModulesConfig::SharedCtor(::_pb::Arena* arena) {
-  new (&_impl_) Impl_(internal_visibility(), arena);
-}
-ModulesConfig::~ModulesConfig() {
-  // @@protoc_insertion_point(destructor:ModulesConfig)
-  SharedDtor(*this);
-}
-inline void ModulesConfig::SharedDtor(MessageLite& self) {
-  ModulesConfig& this_ = static_cast<ModulesConfig&>(self);
-  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
-  ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.~Impl_();
-}
-
-inline void* ModulesConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
-  return ::new (mem) ModulesConfig(arena);
-}
-constexpr auto ModulesConfig::InternalNewImpl_() {
-  constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
-      PROTOBUF_FIELD_OFFSET(ModulesConfig, _impl_.modules_) +
-          decltype(ModulesConfig::_impl_.modules_)::
-              InternalGetArenaOffset(
-                  ::google::protobuf::Message::internal_visibility()),
-  });
-  if (arena_bits.has_value()) {
-    return ::google::protobuf::internal::MessageCreator::ZeroInit(
-        sizeof(ModulesConfig), alignof(ModulesConfig), *arena_bits);
-  } else {
-    return ::google::protobuf::internal::MessageCreator(&ModulesConfig::PlacementNew_,
-                                 sizeof(ModulesConfig),
-                                 alignof(ModulesConfig));
-  }
-}
-constexpr auto ModulesConfig::InternalGenerateClassData_() {
-  return ::google::protobuf::internal::ClassDataFull{
-      ::google::protobuf::internal::ClassData{
-          &_ModulesConfig_default_instance_._instance,
-          &_table_.header,
-          nullptr,  // OnDemandRegisterArenaDtor
-          nullptr,  // IsInitialized
-          &ModulesConfig::MergeImpl,
-          ::google::protobuf::Message::GetNewImpl<ModulesConfig>(),
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-          &ModulesConfig::SharedDtor,
-          ::google::protobuf::Message::GetClearImpl<ModulesConfig>(), &ModulesConfig::ByteSizeLong,
-              &ModulesConfig::_InternalSerialize,
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          PROTOBUF_FIELD_OFFSET(ModulesConfig, _impl_._cached_size_),
-          false,
-      },
-      &ModulesConfig::kDescriptorMethods,
-      &descriptor_table_MultiModalFusion_5fconf_2eproto,
-      nullptr,  // tracker
-  };
-}
-
-PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
-        ModulesConfig_class_data_ =
-            ModulesConfig::InternalGenerateClassData_();
-
-const ::google::protobuf::internal::ClassData* ModulesConfig::GetClassData() const {
-  ::google::protobuf::internal::PrefetchToLocalCache(&ModulesConfig_class_data_);
-  ::google::protobuf::internal::PrefetchToLocalCache(ModulesConfig_class_data_.tc_table);
-  return ModulesConfig_class_data_.base();
-}
-PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 1, 0, 2> ModulesConfig::_table_ = {
-  {
-    0,  // no _has_bits_
-    0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
-    offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
-    offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
-    1,  // num_aux_entries
-    offsetof(decltype(_table_), aux_entries),
-    ModulesConfig_class_data_.base(),
-    nullptr,  // post_loop_handler
-    ::_pbi::TcParser::GenericFallback,  // fallback
-    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::ModulesConfig>(),  // to_prefetch
-    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
-  }, {{
-    // repeated .ModuleConfig modules = 1;
-    {::_pbi::TcParser::FastMtR1,
-     {10, 63, 0, PROTOBUF_FIELD_OFFSET(ModulesConfig, _impl_.modules_)}},
-  }}, {{
-    65535, 65535
-  }}, {{
-    // repeated .ModuleConfig modules = 1;
-    {PROTOBUF_FIELD_OFFSET(ModulesConfig, _impl_.modules_), 0, 0,
-    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
-  }}, {{
-    {::_pbi::TcParser::GetTable<::ModuleConfig>()},
-  }}, {{
-  }},
-};
-
-PROTOBUF_NOINLINE void ModulesConfig::Clear() {
-// @@protoc_insertion_point(message_clear_start:ModulesConfig)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  _impl_.modules_.Clear();
-  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
-}
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ModulesConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ModulesConfig& this_ = static_cast<const ModulesConfig&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ModulesConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ModulesConfig& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:ModulesConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
-
-          // repeated .ModuleConfig modules = 1;
-          for (unsigned i = 0, n = static_cast<unsigned>(
-                                   this_._internal_modules_size());
-               i < n; i++) {
-            const auto& repfield = this_._internal_modules().Get(i);
-            target =
-                ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                    1, repfield, repfield.GetCachedSize(),
-                    target, stream);
-          }
-
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:ModulesConfig)
-          return target;
-        }
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ModulesConfig::ByteSizeLong(const MessageLite& base) {
-          const ModulesConfig& this_ = static_cast<const ModulesConfig&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ModulesConfig::ByteSizeLong() const {
-          const ModulesConfig& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:ModulesConfig)
-          ::size_t total_size = 0;
-
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
-
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-           {
-            // repeated .ModuleConfig modules = 1;
-            {
-              total_size += 1UL * this_._internal_modules_size();
-              for (const auto& msg : this_._internal_modules()) {
-                total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
-              }
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
-
-void ModulesConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<ModulesConfig*>(&to_msg);
-  auto& from = static_cast<const ModulesConfig&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ModulesConfig)
-  ABSL_DCHECK_NE(&from, _this);
-  ::uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  _this->_internal_mutable_modules()->MergeFrom(
-      from._internal_modules());
-  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void ModulesConfig::CopyFrom(const ModulesConfig& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ModulesConfig)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-
-void ModulesConfig::InternalSwap(ModulesConfig* PROTOBUF_RESTRICT other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  _impl_.modules_.InternalSwap(&other->_impl_.modules_);
-}
-
-::google::protobuf::Metadata ModulesConfig::GetMetadata() const {
-  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
-}
+namespace multimodalfusion {
 // ===================================================================
 
 class MultiModalFusionModelConfig::_Internal {
@@ -855,11 +257,11 @@ MultiModalFusionModelConfig::MultiModalFusionModelConfig(::google::protobuf::Are
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:MultiModalFusionModelConfig)
+  // @@protoc_insertion_point(arena_constructor:multimodalfusion.MultiModalFusionModelConfig)
 }
 PROTOBUF_NDEBUG_INLINE MultiModalFusionModelConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::MultiModalFusionModelConfig& from_msg)
+    const Impl_& from, const ::multimodalfusion::MultiModalFusionModelConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         stride_{visibility, arena, from.stride_},
@@ -883,11 +285,11 @@ MultiModalFusionModelConfig::MultiModalFusionModelConfig(
                offsetof(Impl_, num_class_),
            reinterpret_cast<const char *>(&from._impl_) +
                offsetof(Impl_, num_class_),
-           offsetof(Impl_, run_status_) -
+           offsetof(Impl_, new_unpad_h_ir_) -
                offsetof(Impl_, num_class_) +
-               sizeof(Impl_::run_status_));
+               sizeof(Impl_::new_unpad_h_ir_));
 
-  // @@protoc_insertion_point(copy_constructor:MultiModalFusionModelConfig)
+  // @@protoc_insertion_point(copy_constructor:multimodalfusion.MultiModalFusionModelConfig)
 }
 PROTOBUF_NDEBUG_INLINE MultiModalFusionModelConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -902,12 +304,12 @@ inline void MultiModalFusionModelConfig::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, num_class_),
            0,
-           offsetof(Impl_, run_status_) -
+           offsetof(Impl_, new_unpad_h_ir_) -
                offsetof(Impl_, num_class_) +
-               sizeof(Impl_::run_status_));
+               sizeof(Impl_::new_unpad_h_ir_));
 }
 MultiModalFusionModelConfig::~MultiModalFusionModelConfig() {
-  // @@protoc_insertion_point(destructor:MultiModalFusionModelConfig)
+  // @@protoc_insertion_point(destructor:multimodalfusion.MultiModalFusionModelConfig)
   SharedDtor(*this);
 }
 inline void MultiModalFusionModelConfig::SharedDtor(MessageLite& self) {
@@ -972,22 +374,22 @@ const ::google::protobuf::internal::ClassData* MultiModalFusionModelConfig::GetC
   return MultiModalFusionModelConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<5, 18, 0, 63, 2> MultiModalFusionModelConfig::_table_ = {
+const ::_pbi::TcParseTable<5, 26, 0, 88, 2> MultiModalFusionModelConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_._has_bits_),
     0, // no _extensions_
-    19, 248,  // max_field_number, fast_idx_mask
+    26, 248,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294508544,  // skipmap
+    4227858432,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    18,  // num_field_entries
+    26,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     MultiModalFusionModelConfig_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::MultiModalFusionModelConfig>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::multimodalfusion::MultiModalFusionModelConfig>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -1015,44 +417,60 @@ const ::_pbi::TcParseTable<5, 18, 0, 63, 2> MultiModalFusionModelConfig::_table_
     // repeated int32 stride = 8;
     {::_pbi::TcParser::FastV32P1,
      {66, 63, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.stride_)}},
-    // int32 src_width = 9;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.src_width_), 7>(),
-     {72, 7, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_width_)}},
-    // int32 src_height = 10;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.src_height_), 8>(),
-     {80, 8, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_height_)}},
-    // float resize_ratio = 11;
+    // int32 src_width_rgb = 9;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.src_width_rgb_), 7>(),
+     {72, 7, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_width_rgb_)}},
+    // int32 src_height_rgb = 10;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.src_height_rgb_), 8>(),
+     {80, 8, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_height_rgb_)}},
+    // float resize_ratio_rgb = 11;
     {::_pbi::TcParser::FastF32S1,
-     {93, 9, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.resize_ratio_)}},
-    // int32 dw = 12;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.dw_), 10>(),
-     {96, 10, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dw_)}},
-    // int32 dh = 13;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.dh_), 11>(),
-     {104, 11, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dh_)}},
-    // int32 new_unpad_w = 14;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.new_unpad_w_), 12>(),
-     {112, 12, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_w_)}},
-    // int32 new_unpad_h = 15;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.new_unpad_h_), 13>(),
-     {120, 13, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_h_)}},
+     {93, 9, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.resize_ratio_rgb_)}},
+    // int32 dw_rgb = 12;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.dw_rgb_), 10>(),
+     {96, 10, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dw_rgb_)}},
+    // int32 dh_rgb = 13;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.dh_rgb_), 11>(),
+     {104, 11, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dh_rgb_)}},
+    // int32 new_unpad_w_rgb = 14;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.new_unpad_w_rgb_), 12>(),
+     {112, 12, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_w_rgb_)}},
+    // int32 new_unpad_h_rgb = 15;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MultiModalFusionModelConfig, _impl_.new_unpad_h_rgb_), 13>(),
+     {120, 13, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_h_rgb_)}},
     // int32 max_dets = 16;
     {::_pbi::TcParser::FastV32S2,
      {384, 14, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.max_dets_)}},
-    {::_pbi::TcParser::MiniParse, {}},
+    // int32 num_keys = 17;
+    {::_pbi::TcParser::FastV32S2,
+     {392, 15, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.num_keys_)}},
     // int32 channels = 18;
     {::_pbi::TcParser::FastV32S2,
-     {400, 15, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.channels_)}},
+     {400, 16, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.channels_)}},
     // bool run_status = 19;
     {::_pbi::TcParser::FastV8S2,
-     {408, 16, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.run_status_)}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
+     {408, 17, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.run_status_)}},
+    // int32 src_width_ir = 20;
+    {::_pbi::TcParser::FastV32S2,
+     {416, 18, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_width_ir_)}},
+    // int32 src_height_ir = 21;
+    {::_pbi::TcParser::FastV32S2,
+     {424, 19, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_height_ir_)}},
+    // float resize_ratio_ir = 22;
+    {::_pbi::TcParser::FastF32S2,
+     {437, 20, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.resize_ratio_ir_)}},
+    // int32 dw_ir = 23;
+    {::_pbi::TcParser::FastV32S2,
+     {440, 21, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dw_ir_)}},
+    // int32 dh_ir = 24;
+    {::_pbi::TcParser::FastV32S2,
+     {448, 22, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dh_ir_)}},
+    // int32 new_unpad_w_ir = 25;
+    {::_pbi::TcParser::FastV32S2,
+     {456, 23, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_w_ir_)}},
+    // int32 new_unpad_h_ir = 26;
+    {::_pbi::TcParser::FastV32S2,
+     {464, 24, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_h_ir_)}},
     {::_pbi::TcParser::MiniParse, {}},
     {::_pbi::TcParser::MiniParse, {}},
     {::_pbi::TcParser::MiniParse, {}},
@@ -1085,47 +503,71 @@ const ::_pbi::TcParseTable<5, 18, 0, 63, 2> MultiModalFusionModelConfig::_table_
     // repeated int32 stride = 8;
     {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.stride_), -1, 0,
     (0 | ::_fl::kFcRepeated | ::_fl::kPackedInt32)},
-    // int32 src_width = 9;
-    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_width_), _Internal::kHasBitsOffset + 7, 0,
+    // int32 src_width_rgb = 9;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_width_rgb_), _Internal::kHasBitsOffset + 7, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // int32 src_height = 10;
-    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_height_), _Internal::kHasBitsOffset + 8, 0,
+    // int32 src_height_rgb = 10;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_height_rgb_), _Internal::kHasBitsOffset + 8, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // float resize_ratio = 11;
-    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.resize_ratio_), _Internal::kHasBitsOffset + 9, 0,
+    // float resize_ratio_rgb = 11;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.resize_ratio_rgb_), _Internal::kHasBitsOffset + 9, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
-    // int32 dw = 12;
-    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dw_), _Internal::kHasBitsOffset + 10, 0,
+    // int32 dw_rgb = 12;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dw_rgb_), _Internal::kHasBitsOffset + 10, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // int32 dh = 13;
-    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dh_), _Internal::kHasBitsOffset + 11, 0,
+    // int32 dh_rgb = 13;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dh_rgb_), _Internal::kHasBitsOffset + 11, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // int32 new_unpad_w = 14;
-    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_w_), _Internal::kHasBitsOffset + 12, 0,
+    // int32 new_unpad_w_rgb = 14;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_w_rgb_), _Internal::kHasBitsOffset + 12, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // int32 new_unpad_h = 15;
-    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_h_), _Internal::kHasBitsOffset + 13, 0,
+    // int32 new_unpad_h_rgb = 15;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_h_rgb_), _Internal::kHasBitsOffset + 13, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // int32 max_dets = 16;
     {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.max_dets_), _Internal::kHasBitsOffset + 14, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 num_keys = 17;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.num_keys_), _Internal::kHasBitsOffset + 15, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // int32 channels = 18;
-    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.channels_), _Internal::kHasBitsOffset + 15, 0,
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.channels_), _Internal::kHasBitsOffset + 16, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // bool run_status = 19;
-    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.run_status_), _Internal::kHasBitsOffset + 16, 0,
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.run_status_), _Internal::kHasBitsOffset + 17, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // int32 src_width_ir = 20;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_width_ir_), _Internal::kHasBitsOffset + 18, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 src_height_ir = 21;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.src_height_ir_), _Internal::kHasBitsOffset + 19, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // float resize_ratio_ir = 22;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.resize_ratio_ir_), _Internal::kHasBitsOffset + 20, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // int32 dw_ir = 23;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dw_ir_), _Internal::kHasBitsOffset + 21, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 dh_ir = 24;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.dh_ir_), _Internal::kHasBitsOffset + 22, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 new_unpad_w_ir = 25;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_w_ir_), _Internal::kHasBitsOffset + 23, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 new_unpad_h_ir = 26;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_h_ir_), _Internal::kHasBitsOffset + 24, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }},
   // no aux_entries
   {{
-    "\33\13\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-    "MultiModalFusionModelConfig"
+    "\54\13\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+    "multimodalfusion.MultiModalFusionModelConfig"
     "engine_path"
   }},
 };
 
 PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
-// @@protoc_insertion_point(message_clear_start:MultiModalFusionModelConfig)
+// @@protoc_insertion_point(message_clear_start:multimodalfusion.MultiModalFusionModelConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -1138,15 +580,20 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
   }
   if (cached_has_bits & 0x000000feu) {
     ::memset(&_impl_.num_class_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.src_width_) -
-        reinterpret_cast<char*>(&_impl_.num_class_)) + sizeof(_impl_.src_width_));
+        reinterpret_cast<char*>(&_impl_.src_width_rgb_) -
+        reinterpret_cast<char*>(&_impl_.num_class_)) + sizeof(_impl_.src_width_rgb_));
   }
   if (cached_has_bits & 0x0000ff00u) {
-    ::memset(&_impl_.src_height_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.channels_) -
-        reinterpret_cast<char*>(&_impl_.src_height_)) + sizeof(_impl_.channels_));
+    ::memset(&_impl_.src_height_rgb_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.num_keys_) -
+        reinterpret_cast<char*>(&_impl_.src_height_rgb_)) + sizeof(_impl_.num_keys_));
   }
-  _impl_.run_status_ = false;
+  if (cached_has_bits & 0x00ff0000u) {
+    ::memset(&_impl_.channels_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.new_unpad_w_ir_) -
+        reinterpret_cast<char*>(&_impl_.channels_)) + sizeof(_impl_.new_unpad_w_ir_));
+  }
+  _impl_.new_unpad_h_ir_ = 0;
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -1162,7 +609,7 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
             ::google::protobuf::io::EpsCopyOutputStream* stream) const {
           const MultiModalFusionModelConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:MultiModalFusionModelConfig)
+          // @@protoc_insertion_point(serialize_to_array_start:multimodalfusion.MultiModalFusionModelConfig)
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
@@ -1171,7 +618,7 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
             if (!this_._internal_engine_path().empty()) {
               const std::string& _s = this_._internal_engine_path();
               ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "MultiModalFusionModelConfig.engine_path");
+                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "multimodalfusion.MultiModalFusionModelConfig.engine_path");
               target = stream->WriteStringMaybeAliased(1, _s, target);
             }
           }
@@ -1239,66 +686,66 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
             }
           }
 
-          // int32 src_width = 9;
+          // int32 src_width_rgb = 9;
           if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
-            if (this_._internal_src_width() != 0) {
+            if (this_._internal_src_width_rgb() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<9>(
-                      stream, this_._internal_src_width(), target);
+                      stream, this_._internal_src_width_rgb(), target);
             }
           }
 
-          // int32 src_height = 10;
+          // int32 src_height_rgb = 10;
           if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
-            if (this_._internal_src_height() != 0) {
+            if (this_._internal_src_height_rgb() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<10>(
-                      stream, this_._internal_src_height(), target);
+                      stream, this_._internal_src_height_rgb(), target);
             }
           }
 
-          // float resize_ratio = 11;
+          // float resize_ratio_rgb = 11;
           if ((this_._impl_._has_bits_[0] & 0x00000200u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio()) != 0) {
+            if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_rgb()) != 0) {
               target = stream->EnsureSpace(target);
               target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  11, this_._internal_resize_ratio(), target);
+                  11, this_._internal_resize_ratio_rgb(), target);
             }
           }
 
-          // int32 dw = 12;
+          // int32 dw_rgb = 12;
           if ((this_._impl_._has_bits_[0] & 0x00000400u) != 0) {
-            if (this_._internal_dw() != 0) {
+            if (this_._internal_dw_rgb() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<12>(
-                      stream, this_._internal_dw(), target);
+                      stream, this_._internal_dw_rgb(), target);
             }
           }
 
-          // int32 dh = 13;
+          // int32 dh_rgb = 13;
           if ((this_._impl_._has_bits_[0] & 0x00000800u) != 0) {
-            if (this_._internal_dh() != 0) {
+            if (this_._internal_dh_rgb() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<13>(
-                      stream, this_._internal_dh(), target);
+                      stream, this_._internal_dh_rgb(), target);
             }
           }
 
-          // int32 new_unpad_w = 14;
+          // int32 new_unpad_w_rgb = 14;
           if ((this_._impl_._has_bits_[0] & 0x00001000u) != 0) {
-            if (this_._internal_new_unpad_w() != 0) {
+            if (this_._internal_new_unpad_w_rgb() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<14>(
-                      stream, this_._internal_new_unpad_w(), target);
+                      stream, this_._internal_new_unpad_w_rgb(), target);
             }
           }
 
-          // int32 new_unpad_h = 15;
+          // int32 new_unpad_h_rgb = 15;
           if ((this_._impl_._has_bits_[0] & 0x00002000u) != 0) {
-            if (this_._internal_new_unpad_h() != 0) {
+            if (this_._internal_new_unpad_h_rgb() != 0) {
               target = ::google::protobuf::internal::WireFormatLite::
                   WriteInt32ToArrayWithField<15>(
-                      stream, this_._internal_new_unpad_h(), target);
+                      stream, this_._internal_new_unpad_h_rgb(), target);
             }
           }
 
@@ -1311,8 +758,17 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
             }
           }
 
-          // int32 channels = 18;
+          // int32 num_keys = 17;
           if ((this_._impl_._has_bits_[0] & 0x00008000u) != 0) {
+            if (this_._internal_num_keys() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  17, this_._internal_num_keys(), target);
+            }
+          }
+
+          // int32 channels = 18;
+          if ((this_._impl_._has_bits_[0] & 0x00010000u) != 0) {
             if (this_._internal_channels() != 0) {
               target = stream->EnsureSpace(target);
               target = ::_pbi::WireFormatLite::WriteInt32ToArray(
@@ -1321,11 +777,74 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
           }
 
           // bool run_status = 19;
-          if ((this_._impl_._has_bits_[0] & 0x00010000u) != 0) {
+          if ((this_._impl_._has_bits_[0] & 0x00020000u) != 0) {
             if (this_._internal_run_status() != 0) {
               target = stream->EnsureSpace(target);
               target = ::_pbi::WireFormatLite::WriteBoolToArray(
                   19, this_._internal_run_status(), target);
+            }
+          }
+
+          // int32 src_width_ir = 20;
+          if ((this_._impl_._has_bits_[0] & 0x00040000u) != 0) {
+            if (this_._internal_src_width_ir() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  20, this_._internal_src_width_ir(), target);
+            }
+          }
+
+          // int32 src_height_ir = 21;
+          if ((this_._impl_._has_bits_[0] & 0x00080000u) != 0) {
+            if (this_._internal_src_height_ir() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  21, this_._internal_src_height_ir(), target);
+            }
+          }
+
+          // float resize_ratio_ir = 22;
+          if ((this_._impl_._has_bits_[0] & 0x00100000u) != 0) {
+            if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_ir()) != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                  22, this_._internal_resize_ratio_ir(), target);
+            }
+          }
+
+          // int32 dw_ir = 23;
+          if ((this_._impl_._has_bits_[0] & 0x00200000u) != 0) {
+            if (this_._internal_dw_ir() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  23, this_._internal_dw_ir(), target);
+            }
+          }
+
+          // int32 dh_ir = 24;
+          if ((this_._impl_._has_bits_[0] & 0x00400000u) != 0) {
+            if (this_._internal_dh_ir() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  24, this_._internal_dh_ir(), target);
+            }
+          }
+
+          // int32 new_unpad_w_ir = 25;
+          if ((this_._impl_._has_bits_[0] & 0x00800000u) != 0) {
+            if (this_._internal_new_unpad_w_ir() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  25, this_._internal_new_unpad_w_ir(), target);
+            }
+          }
+
+          // int32 new_unpad_h_ir = 26;
+          if ((this_._impl_._has_bits_[0] & 0x01000000u) != 0) {
+            if (this_._internal_new_unpad_h_ir() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  26, this_._internal_new_unpad_h_ir(), target);
             }
           }
 
@@ -1334,7 +853,7 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
                     this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
           }
-          // @@protoc_insertion_point(serialize_to_array_end:MultiModalFusionModelConfig)
+          // @@protoc_insertion_point(serialize_to_array_end:multimodalfusion.MultiModalFusionModelConfig)
           return target;
         }
 
@@ -1345,7 +864,7 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
         ::size_t MultiModalFusionModelConfig::ByteSizeLong() const {
           const MultiModalFusionModelConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:MultiModalFusionModelConfig)
+          // @@protoc_insertion_point(message_byte_size_start:multimodalfusion.MultiModalFusionModelConfig)
           ::size_t total_size = 0;
 
           ::uint32_t cached_has_bits = 0;
@@ -1411,54 +930,54 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
                 total_size += 5;
               }
             }
-            // int32 src_width = 9;
+            // int32 src_width_rgb = 9;
             if (cached_has_bits & 0x00000080u) {
-              if (this_._internal_src_width() != 0) {
+              if (this_._internal_src_width_rgb() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_src_width());
+                    this_._internal_src_width_rgb());
               }
             }
           }
           if (cached_has_bits & 0x0000ff00u) {
-            // int32 src_height = 10;
+            // int32 src_height_rgb = 10;
             if (cached_has_bits & 0x00000100u) {
-              if (this_._internal_src_height() != 0) {
+              if (this_._internal_src_height_rgb() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_src_height());
+                    this_._internal_src_height_rgb());
               }
             }
-            // float resize_ratio = 11;
+            // float resize_ratio_rgb = 11;
             if (cached_has_bits & 0x00000200u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio()) != 0) {
+              if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_rgb()) != 0) {
                 total_size += 5;
               }
             }
-            // int32 dw = 12;
+            // int32 dw_rgb = 12;
             if (cached_has_bits & 0x00000400u) {
-              if (this_._internal_dw() != 0) {
+              if (this_._internal_dw_rgb() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_dw());
+                    this_._internal_dw_rgb());
               }
             }
-            // int32 dh = 13;
+            // int32 dh_rgb = 13;
             if (cached_has_bits & 0x00000800u) {
-              if (this_._internal_dh() != 0) {
+              if (this_._internal_dh_rgb() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_dh());
+                    this_._internal_dh_rgb());
               }
             }
-            // int32 new_unpad_w = 14;
+            // int32 new_unpad_w_rgb = 14;
             if (cached_has_bits & 0x00001000u) {
-              if (this_._internal_new_unpad_w() != 0) {
+              if (this_._internal_new_unpad_w_rgb() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_new_unpad_w());
+                    this_._internal_new_unpad_w_rgb());
               }
             }
-            // int32 new_unpad_h = 15;
+            // int32 new_unpad_h_rgb = 15;
             if (cached_has_bits & 0x00002000u) {
-              if (this_._internal_new_unpad_h() != 0) {
+              if (this_._internal_new_unpad_h_rgb() != 0) {
                 total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_new_unpad_h());
+                    this_._internal_new_unpad_h_rgb());
               }
             }
             // int32 max_dets = 16;
@@ -1468,19 +987,76 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
                                                 this_._internal_max_dets());
               }
             }
-            // int32 channels = 18;
+            // int32 num_keys = 17;
             if (cached_has_bits & 0x00008000u) {
+              if (this_._internal_num_keys() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_num_keys());
+              }
+            }
+          }
+          if (cached_has_bits & 0x00ff0000u) {
+            // int32 channels = 18;
+            if (cached_has_bits & 0x00010000u) {
               if (this_._internal_channels() != 0) {
                 total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
                                                 this_._internal_channels());
               }
             }
-          }
-           {
             // bool run_status = 19;
-            if (cached_has_bits & 0x00010000u) {
+            if (cached_has_bits & 0x00020000u) {
               if (this_._internal_run_status() != 0) {
                 total_size += 3;
+              }
+            }
+            // int32 src_width_ir = 20;
+            if (cached_has_bits & 0x00040000u) {
+              if (this_._internal_src_width_ir() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_src_width_ir());
+              }
+            }
+            // int32 src_height_ir = 21;
+            if (cached_has_bits & 0x00080000u) {
+              if (this_._internal_src_height_ir() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_src_height_ir());
+              }
+            }
+            // float resize_ratio_ir = 22;
+            if (cached_has_bits & 0x00100000u) {
+              if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_ir()) != 0) {
+                total_size += 6;
+              }
+            }
+            // int32 dw_ir = 23;
+            if (cached_has_bits & 0x00200000u) {
+              if (this_._internal_dw_ir() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_dw_ir());
+              }
+            }
+            // int32 dh_ir = 24;
+            if (cached_has_bits & 0x00400000u) {
+              if (this_._internal_dh_ir() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_dh_ir());
+              }
+            }
+            // int32 new_unpad_w_ir = 25;
+            if (cached_has_bits & 0x00800000u) {
+              if (this_._internal_new_unpad_w_ir() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_new_unpad_w_ir());
+              }
+            }
+          }
+           {
+            // int32 new_unpad_h_ir = 26;
+            if (cached_has_bits & 0x01000000u) {
+              if (this_._internal_new_unpad_h_ir() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_new_unpad_h_ir());
               }
             }
           }
@@ -1491,7 +1067,7 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
 void MultiModalFusionModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<MultiModalFusionModelConfig*>(&to_msg);
   auto& from = static_cast<const MultiModalFusionModelConfig&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:MultiModalFusionModelConfig)
+  // @@protoc_insertion_point(class_specific_merge_from_start:multimodalfusion.MultiModalFusionModelConfig)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1539,40 +1115,40 @@ void MultiModalFusionModelConfig::MergeImpl(::google::protobuf::MessageLite& to_
       }
     }
     if (cached_has_bits & 0x00000080u) {
-      if (from._internal_src_width() != 0) {
-        _this->_impl_.src_width_ = from._impl_.src_width_;
+      if (from._internal_src_width_rgb() != 0) {
+        _this->_impl_.src_width_rgb_ = from._impl_.src_width_rgb_;
       }
     }
   }
   if (cached_has_bits & 0x0000ff00u) {
     if (cached_has_bits & 0x00000100u) {
-      if (from._internal_src_height() != 0) {
-        _this->_impl_.src_height_ = from._impl_.src_height_;
+      if (from._internal_src_height_rgb() != 0) {
+        _this->_impl_.src_height_rgb_ = from._impl_.src_height_rgb_;
       }
     }
     if (cached_has_bits & 0x00000200u) {
-      if (::absl::bit_cast<::uint32_t>(from._internal_resize_ratio()) != 0) {
-        _this->_impl_.resize_ratio_ = from._impl_.resize_ratio_;
+      if (::absl::bit_cast<::uint32_t>(from._internal_resize_ratio_rgb()) != 0) {
+        _this->_impl_.resize_ratio_rgb_ = from._impl_.resize_ratio_rgb_;
       }
     }
     if (cached_has_bits & 0x00000400u) {
-      if (from._internal_dw() != 0) {
-        _this->_impl_.dw_ = from._impl_.dw_;
+      if (from._internal_dw_rgb() != 0) {
+        _this->_impl_.dw_rgb_ = from._impl_.dw_rgb_;
       }
     }
     if (cached_has_bits & 0x00000800u) {
-      if (from._internal_dh() != 0) {
-        _this->_impl_.dh_ = from._impl_.dh_;
+      if (from._internal_dh_rgb() != 0) {
+        _this->_impl_.dh_rgb_ = from._impl_.dh_rgb_;
       }
     }
     if (cached_has_bits & 0x00001000u) {
-      if (from._internal_new_unpad_w() != 0) {
-        _this->_impl_.new_unpad_w_ = from._impl_.new_unpad_w_;
+      if (from._internal_new_unpad_w_rgb() != 0) {
+        _this->_impl_.new_unpad_w_rgb_ = from._impl_.new_unpad_w_rgb_;
       }
     }
     if (cached_has_bits & 0x00002000u) {
-      if (from._internal_new_unpad_h() != 0) {
-        _this->_impl_.new_unpad_h_ = from._impl_.new_unpad_h_;
+      if (from._internal_new_unpad_h_rgb() != 0) {
+        _this->_impl_.new_unpad_h_rgb_ = from._impl_.new_unpad_h_rgb_;
       }
     }
     if (cached_has_bits & 0x00004000u) {
@@ -1581,14 +1157,56 @@ void MultiModalFusionModelConfig::MergeImpl(::google::protobuf::MessageLite& to_
       }
     }
     if (cached_has_bits & 0x00008000u) {
+      if (from._internal_num_keys() != 0) {
+        _this->_impl_.num_keys_ = from._impl_.num_keys_;
+      }
+    }
+  }
+  if (cached_has_bits & 0x00ff0000u) {
+    if (cached_has_bits & 0x00010000u) {
       if (from._internal_channels() != 0) {
         _this->_impl_.channels_ = from._impl_.channels_;
       }
     }
+    if (cached_has_bits & 0x00020000u) {
+      if (from._internal_run_status() != 0) {
+        _this->_impl_.run_status_ = from._impl_.run_status_;
+      }
+    }
+    if (cached_has_bits & 0x00040000u) {
+      if (from._internal_src_width_ir() != 0) {
+        _this->_impl_.src_width_ir_ = from._impl_.src_width_ir_;
+      }
+    }
+    if (cached_has_bits & 0x00080000u) {
+      if (from._internal_src_height_ir() != 0) {
+        _this->_impl_.src_height_ir_ = from._impl_.src_height_ir_;
+      }
+    }
+    if (cached_has_bits & 0x00100000u) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_resize_ratio_ir()) != 0) {
+        _this->_impl_.resize_ratio_ir_ = from._impl_.resize_ratio_ir_;
+      }
+    }
+    if (cached_has_bits & 0x00200000u) {
+      if (from._internal_dw_ir() != 0) {
+        _this->_impl_.dw_ir_ = from._impl_.dw_ir_;
+      }
+    }
+    if (cached_has_bits & 0x00400000u) {
+      if (from._internal_dh_ir() != 0) {
+        _this->_impl_.dh_ir_ = from._impl_.dh_ir_;
+      }
+    }
+    if (cached_has_bits & 0x00800000u) {
+      if (from._internal_new_unpad_w_ir() != 0) {
+        _this->_impl_.new_unpad_w_ir_ = from._impl_.new_unpad_w_ir_;
+      }
+    }
   }
-  if (cached_has_bits & 0x00010000u) {
-    if (from._internal_run_status() != 0) {
-      _this->_impl_.run_status_ = from._impl_.run_status_;
+  if (cached_has_bits & 0x01000000u) {
+    if (from._internal_new_unpad_h_ir() != 0) {
+      _this->_impl_.new_unpad_h_ir_ = from._impl_.new_unpad_h_ir_;
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -1596,7 +1214,7 @@ void MultiModalFusionModelConfig::MergeImpl(::google::protobuf::MessageLite& to_
 }
 
 void MultiModalFusionModelConfig::CopyFrom(const MultiModalFusionModelConfig& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:MultiModalFusionModelConfig)
+// @@protoc_insertion_point(class_specific_copy_from_start:multimodalfusion.MultiModalFusionModelConfig)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1612,8 +1230,8 @@ void MultiModalFusionModelConfig::InternalSwap(MultiModalFusionModelConfig* PROT
   _impl_.stride_.InternalSwap(&other->_impl_.stride_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.engine_path_, &other->_impl_.engine_path_, arena);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.run_status_)
-      + sizeof(MultiModalFusionModelConfig::_impl_.run_status_)
+      PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_h_ir_)
+      + sizeof(MultiModalFusionModelConfig::_impl_.new_unpad_h_ir_)
       - PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.num_class_)>(
           reinterpret_cast<char*>(&_impl_.num_class_),
           reinterpret_cast<char*>(&other->_impl_.num_class_));
@@ -1632,6 +1250,11 @@ class MultiModalFusionConfig::_Internal {
       8 * PROTOBUF_FIELD_OFFSET(MultiModalFusionConfig, _impl_._has_bits_);
 };
 
+void MultiModalFusionConfig::clear_modules_config() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.modules_config_ != nullptr) _impl_.modules_config_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
 MultiModalFusionConfig::MultiModalFusionConfig(::google::protobuf::Arena* arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, MultiModalFusionConfig_class_data_.base()) {
@@ -1639,11 +1262,11 @@ MultiModalFusionConfig::MultiModalFusionConfig(::google::protobuf::Arena* arena)
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:MultiModalFusionConfig)
+  // @@protoc_insertion_point(arena_constructor:multimodalfusion.MultiModalFusionConfig)
 }
 PROTOBUF_NDEBUG_INLINE MultiModalFusionConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::MultiModalFusionConfig& from_msg)
+    const Impl_& from, const ::multimodalfusion::MultiModalFusionConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0} {}
 
@@ -1661,14 +1284,14 @@ MultiModalFusionConfig::MultiModalFusionConfig(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.model_config_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::MultiModalFusionModelConfig>(
+  _impl_.model_config_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::multimodalfusion::MultiModalFusionModelConfig>(
                               arena, *from._impl_.model_config_)
                         : nullptr;
-  _impl_.modules_config_ = (cached_has_bits & 0x00000002u) ? ::google::protobuf::Message::CopyConstruct<::ModulesConfig>(
+  _impl_.modules_config_ = (cached_has_bits & 0x00000002u) ? ::google::protobuf::Message::CopyConstruct<::common::ModulesConfig>(
                               arena, *from._impl_.modules_config_)
                         : nullptr;
 
-  // @@protoc_insertion_point(copy_constructor:MultiModalFusionConfig)
+  // @@protoc_insertion_point(copy_constructor:multimodalfusion.MultiModalFusionConfig)
 }
 PROTOBUF_NDEBUG_INLINE MultiModalFusionConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -1685,7 +1308,7 @@ inline void MultiModalFusionConfig::SharedCtor(::_pb::Arena* arena) {
                sizeof(Impl_::modules_config_));
 }
 MultiModalFusionConfig::~MultiModalFusionConfig() {
-  // @@protoc_insertion_point(destructor:MultiModalFusionConfig)
+  // @@protoc_insertion_point(destructor:multimodalfusion.MultiModalFusionConfig)
   SharedDtor(*this);
 }
 inline void MultiModalFusionConfig::SharedDtor(MessageLite& self) {
@@ -1754,33 +1377,33 @@ const ::_pbi::TcParseTable<1, 2, 2, 0, 2> MultiModalFusionConfig::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::MultiModalFusionConfig>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::multimodalfusion::MultiModalFusionConfig>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // .ModulesConfig modules_config = 2;
+    // .common.ModulesConfig modules_config = 2;
     {::_pbi::TcParser::FastMtS1,
      {18, 1, 1, PROTOBUF_FIELD_OFFSET(MultiModalFusionConfig, _impl_.modules_config_)}},
-    // .MultiModalFusionModelConfig model_config = 1;
+    // .multimodalfusion.MultiModalFusionModelConfig model_config = 1;
     {::_pbi::TcParser::FastMtS1,
      {10, 0, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionConfig, _impl_.model_config_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // .MultiModalFusionModelConfig model_config = 1;
+    // .multimodalfusion.MultiModalFusionModelConfig model_config = 1;
     {PROTOBUF_FIELD_OFFSET(MultiModalFusionConfig, _impl_.model_config_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
-    // .ModulesConfig modules_config = 2;
+    // .common.ModulesConfig modules_config = 2;
     {PROTOBUF_FIELD_OFFSET(MultiModalFusionConfig, _impl_.modules_config_), _Internal::kHasBitsOffset + 1, 1,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
   }}, {{
-    {::_pbi::TcParser::GetTable<::MultiModalFusionModelConfig>()},
-    {::_pbi::TcParser::GetTable<::ModulesConfig>()},
+    {::_pbi::TcParser::GetTable<::multimodalfusion::MultiModalFusionModelConfig>()},
+    {::_pbi::TcParser::GetTable<::common::ModulesConfig>()},
   }}, {{
   }},
 };
 
 PROTOBUF_NOINLINE void MultiModalFusionConfig::Clear() {
-// @@protoc_insertion_point(message_clear_start:MultiModalFusionConfig)
+// @@protoc_insertion_point(message_clear_start:multimodalfusion.MultiModalFusionConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -1812,19 +1435,19 @@ PROTOBUF_NOINLINE void MultiModalFusionConfig::Clear() {
             ::google::protobuf::io::EpsCopyOutputStream* stream) const {
           const MultiModalFusionConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:MultiModalFusionConfig)
+          // @@protoc_insertion_point(serialize_to_array_start:multimodalfusion.MultiModalFusionConfig)
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
           cached_has_bits = this_._impl_._has_bits_[0];
-          // .MultiModalFusionModelConfig model_config = 1;
+          // .multimodalfusion.MultiModalFusionModelConfig model_config = 1;
           if (cached_has_bits & 0x00000001u) {
             target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
                 1, *this_._impl_.model_config_, this_._impl_.model_config_->GetCachedSize(), target,
                 stream);
           }
 
-          // .ModulesConfig modules_config = 2;
+          // .common.ModulesConfig modules_config = 2;
           if (cached_has_bits & 0x00000002u) {
             target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
                 2, *this_._impl_.modules_config_, this_._impl_.modules_config_->GetCachedSize(), target,
@@ -1836,7 +1459,7 @@ PROTOBUF_NOINLINE void MultiModalFusionConfig::Clear() {
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
                     this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
           }
-          // @@protoc_insertion_point(serialize_to_array_end:MultiModalFusionConfig)
+          // @@protoc_insertion_point(serialize_to_array_end:multimodalfusion.MultiModalFusionConfig)
           return target;
         }
 
@@ -1847,7 +1470,7 @@ PROTOBUF_NOINLINE void MultiModalFusionConfig::Clear() {
         ::size_t MultiModalFusionConfig::ByteSizeLong() const {
           const MultiModalFusionConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:MultiModalFusionConfig)
+          // @@protoc_insertion_point(message_byte_size_start:multimodalfusion.MultiModalFusionConfig)
           ::size_t total_size = 0;
 
           ::uint32_t cached_has_bits = 0;
@@ -1857,12 +1480,12 @@ PROTOBUF_NOINLINE void MultiModalFusionConfig::Clear() {
           ::_pbi::Prefetch5LinesFrom7Lines(&this_);
           cached_has_bits = this_._impl_._has_bits_[0];
           if (cached_has_bits & 0x00000003u) {
-            // .MultiModalFusionModelConfig model_config = 1;
+            // .multimodalfusion.MultiModalFusionModelConfig model_config = 1;
             if (cached_has_bits & 0x00000001u) {
               total_size += 1 +
                             ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.model_config_);
             }
-            // .ModulesConfig modules_config = 2;
+            // .common.ModulesConfig modules_config = 2;
             if (cached_has_bits & 0x00000002u) {
               total_size += 1 +
                             ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.modules_config_);
@@ -1876,7 +1499,7 @@ void MultiModalFusionConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, 
   auto* const _this = static_cast<MultiModalFusionConfig*>(&to_msg);
   auto& from = static_cast<const MultiModalFusionConfig&>(from_msg);
   ::google::protobuf::Arena* arena = _this->GetArena();
-  // @@protoc_insertion_point(class_specific_merge_from_start:MultiModalFusionConfig)
+  // @@protoc_insertion_point(class_specific_merge_from_start:multimodalfusion.MultiModalFusionConfig)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1887,7 +1510,7 @@ void MultiModalFusionConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, 
       ABSL_DCHECK(from._impl_.model_config_ != nullptr);
       if (_this->_impl_.model_config_ == nullptr) {
         _this->_impl_.model_config_ =
-            ::google::protobuf::Message::CopyConstruct<::MultiModalFusionModelConfig>(arena, *from._impl_.model_config_);
+            ::google::protobuf::Message::CopyConstruct<::multimodalfusion::MultiModalFusionModelConfig>(arena, *from._impl_.model_config_);
       } else {
         _this->_impl_.model_config_->MergeFrom(*from._impl_.model_config_);
       }
@@ -1896,7 +1519,7 @@ void MultiModalFusionConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, 
       ABSL_DCHECK(from._impl_.modules_config_ != nullptr);
       if (_this->_impl_.modules_config_ == nullptr) {
         _this->_impl_.modules_config_ =
-            ::google::protobuf::Message::CopyConstruct<::ModulesConfig>(arena, *from._impl_.modules_config_);
+            ::google::protobuf::Message::CopyConstruct<::common::ModulesConfig>(arena, *from._impl_.modules_config_);
       } else {
         _this->_impl_.modules_config_->MergeFrom(*from._impl_.modules_config_);
       }
@@ -1907,7 +1530,7 @@ void MultiModalFusionConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, 
 }
 
 void MultiModalFusionConfig::CopyFrom(const MultiModalFusionConfig& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:MultiModalFusionConfig)
+// @@protoc_insertion_point(class_specific_copy_from_start:multimodalfusion.MultiModalFusionConfig)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1930,6 +1553,7 @@ void MultiModalFusionConfig::InternalSwap(MultiModalFusionConfig* PROTOBUF_RESTR
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace multimodalfusion
 namespace google {
 namespace protobuf {
 }  // namespace protobuf

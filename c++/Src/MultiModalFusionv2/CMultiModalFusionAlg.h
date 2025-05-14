@@ -16,21 +16,23 @@
 #include <fstream>
 #include "log.h"
 #include <google/protobuf/text_format.h>    // 解析prototext格式文本
+
 #include "ExportMultiModalFusionAlgLib.h"
 #include "IBaseModule.h"
 #include "AlgorithmConfig.h"
 #include "ModuleFactory.h"
 #include "MultiModalFusion_conf.pb.h"
+#include "AlgorithmConfig_conf.pb.h"
 #include "CMultiModalSrcData.h"
 #include "CAlgResult.h"
 
 class MultiModalFusionConfig : public AlgorithmConfig {
 public:
     bool loadFromFile(const std::string& path) override;
-    const google::protobuf::Message* getConfigMessage() const override { return &m_config; }
-    MultiModalFusionConfig& getMultiModalFusionConfig() { return m_config; }
+    const google::protobuf::Message* getConfigMessage() const override { return &m_protoConfig; }
+    multimodalfusion::MultiModalFusionConfig& getMultiModalFusionConfig() { return m_protoConfig; }
 private:
-    MultiModalFusionConfig m_config;
+    multimodalfusion::MultiModalFusionConfig m_protoConfig;
 };
 
 class CMultiModalFusionAlg : public IMultiModalFusionAlg {

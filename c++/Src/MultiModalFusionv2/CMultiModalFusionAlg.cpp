@@ -19,7 +19,7 @@ bool MultiModalFusionConfig::loadFromFile(const std::string& path)
     std::stringstream buffer;
     buffer << input.rdbuf();
     std::string content = buffer.str();
-    if (!google::protobuf::TextFormat::ParseFromString(content, &m_config)) {
+    if (!google::protobuf::TextFormat::ParseFromString(content, &m_protoConfig)) {
         LOG(ERROR) << "Failed to parse protobuf config file: " << path;
         return false;
     }
@@ -116,18 +116,18 @@ bool CMultiModalFusionAlg::initModules()
 {   
     LOG(INFO) << "CMultiModalFusionAlg::initModules status: start ";
     auto& multiModalConfig = m_pConfig->getMultiModalFusionConfig();
-    const auto& modules = multiModalConfig.modules_config();
+    const common::ModulesConfig& modules = multiModalConfig.modules_config();
     m_moduleChain.clear();
 
     // 遍历所有模块，按顺序实例化
-    for (const auto& mod : modules.modules()) {
+    for (const common::ModuleConfig& mod : modules.modules()) {
         auto module = ModuleFactory::getInstance().createModule("MultiModalFusion", mod.name(), m_exePath);
         if (!module) {
             LOG(ERROR) << "Failed to create module: " << mod.name();
             return false;
         }
         // 传递可写指针
-        if (!module->init((void*)multiModalConfig.mutable_multi_modal_fusion_model_config())) {
+        if (!module->init((void*)multiModalConfig.mutable_model_config())) {
             LOG(ERROR) << "Failed to initialize module: " << mod.name();
             return false;
         }

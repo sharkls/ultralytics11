@@ -17,3 +17,12 @@ inline void save_bin(const std::vector<float>& input_data, const std::string& fi
     ofs.write(reinterpret_cast<const char*>(input_data.data()), input_data.size() * sizeof(float));
     ofs.close();
 }
+
+inline void save_bin(const std::vector<std::vector<float>>& input_data, const std::string& filename) 
+{
+    std::ofstream ofs(filename, std::ios::binary);
+    for (const auto& v : input_data) {
+        ofs.write(reinterpret_cast<const char*>(v.data()), v.size() * sizeof(float));
+    }
+    ofs.close();
+}

@@ -30,7 +30,7 @@ bool ImagePreProcess::init(void* p_pAlgParam)
         return false;
     }
     // 2. 参数格式转换
-    YOLOModelConfig* yoloConfig = static_cast<YOLOModelConfig*>(p_pAlgParam);
+    posetimation::YOLOModelConfig* yoloConfig = static_cast<posetimation::YOLOModelConfig*>(p_pAlgParam);
     src_w_ = yoloConfig->src_width();
     src_h_ = yoloConfig->src_height();
     max_model_size_ = yoloConfig->width();

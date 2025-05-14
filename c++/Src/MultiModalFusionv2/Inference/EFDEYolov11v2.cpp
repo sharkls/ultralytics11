@@ -1,4 +1,4 @@
-#include "EFDEYolo11.h"
+#include "EFDEYolov11v2.h"
 
 // 注册模块
 REGISTER_MODULE("MultiModalFusion", EFDEYolo11, EFDEYolo11)
@@ -6,7 +6,7 @@ REGISTER_MODULE("MultiModalFusion", EFDEYolo11, EFDEYolo11)
 EFDEYolo11::EFDEYolo11(const std::string& exe_path) : IBaseModule(exe_path) 
 {
     // 构造函数初始化
-    input_buffers_.resize(1, nullptr);
+    input_buffers_.resize(3, nullptr);
     output_buffers_.resize(1, nullptr);
 
     // 初始化CUDA流
@@ -25,33 +25,33 @@ bool EFDEYolo11::init(void* p_pAlgParam)
     LOG(INFO) << "EFDEYolo11::init status: start ";
     // 1. 配置参数核验
     if (!p_pAlgParam) return false;
-    m_poseConfig = *static_cast<YOLOModelConfig*>(p_pAlgParam);
+    m_config = *static_cast<multimodalfusion::MultiModalFusionModelConfig*>(p_pAlgParam);
 
     // 2. 配置参数获取
-    engine_path_ = m_poseConfig.engine_path();
-    conf_thres_ = m_poseConfig.conf_thres();
-    iou_thres_ = m_poseConfig.iou_thres();
-    num_classes_ = m_poseConfig.num_class();
-    new_unpad_h_ = m_poseConfig.new_unpad_h();
-    new_unpad_w_ = m_poseConfig.new_unpad_w();
-    dw_ = m_poseConfig.dw();
-    dh_ = m_poseConfig.dh();
-    ratio_ = m_poseConfig.resize_ratio();
-    stride_.assign(m_poseConfig.stride().begin(), m_poseConfig.stride().end());
-    channels_ = m_poseConfig.channels();
-    batch_size_ = m_poseConfig.batch_size();
-    num_keys_ = m_poseConfig.num_keys();
-    max_dets_ = m_poseConfig.max_dets();
-    src_width_ = m_poseConfig.src_width();
-    src_height_ = m_poseConfig.src_height();
-    status_ = m_poseConfig.run_status();
+    engine_path_ = m_config.engine_path();
+    conf_thres_ = m_config.conf_thres();
+    iou_thres_ = m_config.iou_thres();
+    num_classes_ = m_config.num_class();
+    new_unpad_h_ = m_config.new_unpad_h_rgb();
+    new_unpad_w_ = m_config.new_unpad_w_rgb();
+    dw_ = m_config.dw_rgb();
+    dh_ = m_config.dh_rgb();
+    ratio_ = m_config.resize_ratio_rgb();
+    stride_.assign(m_config.stride().begin(), m_config.stride().end());
+    channels_ = m_config.channels();
+    batch_size_ = m_config.batch_size();
+    max_dets_ = m_config.max_dets();
+    src_width_ = m_config.src_width_rgb();
+    src_height_ = m_config.src_height_rgb();
+    status_ = m_config.run_status();
+    target_size_ = m_config.width();
 
     // 计算anchor_nums
     for(int stride : stride_) {
-        num_anchors_ += (new_unpad_h_ / stride) * (new_unpad_w_ / stride);
+        num_anchors_ += (target_size_ / stride) * (target_size_ / stride);
         // LOG(INFO) << "stride = " << stride;
     }
-    // LOG(INFO) << "conf_thres_ = " << conf_thres_ << ", iou_thres_ = " << iou_thres_ << ", num_classes_ = " << num_classes_ << ", num_keys_ = " << num_keys_ << ", max_dets_ = " << max_dets_;
+    // LOG(INFO) << "conf_thres_ = " << conf_thres_ << ", iou_thres_ = " << iou_thres_ << ", num_classes_ = " << num_classes_ ", max_dets_ = " << max_dets_;
     // LOG(INFO) << "channels_ = " << channels_ << ", batch_size_ = " << batch_size_;
     // LOG(INFO) << "src_width_ = " << src_width_ << ", src_height_ = " << src_height_;
     // LOG(INFO) << "new_unpad_h_ = " << new_unpad_h_ << ", new_unpad_w_ = " << new_unpad_w_;
@@ -102,55 +102,94 @@ void EFDEYolo11::initTensorRT()
     }
 
     // 4. 获取输入输出信息
-    input_name_ = engine_->getIOTensorName(0);
+    // 获取三个输入张量名
+    const char* input_name_rgb = engine_->getIOTensorName(0); // images
+    const char* input_name_ir = engine_->getIOTensorName(1);  // images2
+    const char* input_name_homo = engine_->getIOTensorName(2); // extrinsics
+    input_name_ = input_name_rgb;
     input_dims_.nbDims = 4;
     input_dims_.d[0] = batch_size_;
     input_dims_.d[1] = channels_;
-    input_dims_.d[2] = new_unpad_h_;
-    input_dims_.d[3] = new_unpad_w_;
-    if (!context_->setInputShape(input_name_, input_dims_)) {
-        throw std::runtime_error("设置输入形状失败");
+    input_dims_.d[2] = target_size_;
+    input_dims_.d[3] = target_size_;
+    if (!context_->setInputShape(input_name_rgb, input_dims_)) {
+        throw std::runtime_error("设置可见光输入形状失败");
     }
-
-    output_name_ = engine_->getIOTensorName(1);
+    if (!context_->setInputShape(input_name_ir, input_dims_)) {
+        throw std::runtime_error("设置红外输入形状失败");
+    }
+    nvinfer1::Dims homo_dims;
+    homo_dims.nbDims = 3;
+    homo_dims.d[0] = batch_size_;
+    homo_dims.d[1] = 3;
+    homo_dims.d[2] = 3;
+    if (!context_->setInputShape(input_name_homo, homo_dims)) {
+        throw std::runtime_error("设置映射矩阵输入形状失败");
+    }
+    output_name_ = engine_->getIOTensorName(3); // output
     output_dims_ = context_->getTensorShape(output_name_);
 
-    // 5. 计算输入输出大小
-    input_size_ = batch_size_ * channels_ * new_unpad_h_ * new_unpad_w_;
-    output_size_ = batch_size_ * (4 + num_classes_) * num_anchors_;
-    LOG(INFO) << "input_size_ = " << input_size_ << ", output_size_ = " << output_size_;
-
-    // 6.1 分配输入GPU内存
-    void* input_buffer = nullptr;
-    cudaError_t cuda_status = cudaMalloc(&input_buffer, input_size_ * sizeof(float));
+    // 5. 分配输入输出buffer
+    size_t img_size = batch_size_ * channels_ * target_size_ * target_size_ * sizeof(float);
+    size_t homo_size = batch_size_ * 9 * sizeof(float);
+    input_buffers_.resize(3, nullptr);
+    cudaError_t cuda_status = cudaMalloc(&input_buffers_[0], img_size); // RGB
     if (cuda_status != cudaSuccess) {
-        throw std::runtime_error("分配输入GPU内存失败: " + std::string(cudaGetErrorString(cuda_status)));
+        throw std::runtime_error("分配可见光输入GPU内存失败: " + std::string(cudaGetErrorString(cuda_status)));
     }
-    input_buffers_[0] = input_buffer;
-
-    // 6.2 分配输出GPU内存
-    void* output_buffer = nullptr;
-    cuda_status = cudaMalloc(&output_buffer, output_size_ * sizeof(float));
+    cuda_status = cudaMalloc(&input_buffers_[1], img_size); // IR
     if (cuda_status != cudaSuccess) {
-        // 清理已分配的内存
-        cudaFree(input_buffer);
+        cudaFree(input_buffers_[0]);
+        throw std::runtime_error("分配红外输入GPU内存失败: " + std::string(cudaGetErrorString(cuda_status)));
+    }
+    cuda_status = cudaMalloc(&input_buffers_[2], homo_size); // Homography
+    if (cuda_status != cudaSuccess) {
+        cudaFree(input_buffers_[0]);
+        cudaFree(input_buffers_[1]);
+        throw std::runtime_error("分配映射矩阵输入GPU内存失败: " + std::string(cudaGetErrorString(cuda_status)));
+    }
+    // 输出buffer
+    size_t output_size = batch_size_ * (4 + num_classes_) * num_anchors_ * sizeof(float);
+    void* output_buffer = nullptr;
+    cuda_status = cudaMalloc(&output_buffer, output_size);
+    if (cuda_status != cudaSuccess) {
+        cudaFree(input_buffers_[0]);
+        cudaFree(input_buffers_[1]);
+        cudaFree(input_buffers_[2]);
         throw std::runtime_error("分配输出GPU内存失败: " + std::string(cudaGetErrorString(cuda_status)));
     }
     output_buffers_[0] = output_buffer;
 
-    // 7.设置绑定
-    if (!context_->setTensorAddress(input_name_, input_buffers_[0])) {
-        // 清理已分配的内存
-        cudaFree(input_buffer);
+    // 6. 绑定输入输出buffer
+    if (!context_->setTensorAddress(input_name_rgb, input_buffers_[0])) {
+        cudaFree(input_buffers_[0]);
+        cudaFree(input_buffers_[1]);
+        cudaFree(input_buffers_[2]);
         cudaFree(output_buffer);
-        throw std::runtime_error("设置输入张量地址失败");
+        throw std::runtime_error("绑定可见光输入张量失败");
+    }
+    if (!context_->setTensorAddress(input_name_ir, input_buffers_[1])) {
+        cudaFree(input_buffers_[0]);
+        cudaFree(input_buffers_[1]);
+        cudaFree(input_buffers_[2]);
+        cudaFree(output_buffer);
+        throw std::runtime_error("绑定红外输入张量失败");
+    }
+    if (!context_->setTensorAddress(input_name_homo, input_buffers_[2])) {
+        cudaFree(input_buffers_[0]);
+        cudaFree(input_buffers_[1]);
+        cudaFree(input_buffers_[2]);
+        cudaFree(output_buffer);
+        throw std::runtime_error("绑定映射矩阵输入张量失败");
     }
     if (!context_->setTensorAddress(output_name_, output_buffers_[0])) {
-        // 清理已分配的内存
-        cudaFree(input_buffer);
+        cudaFree(input_buffers_[0]);
+        cudaFree(input_buffers_[1]);
+        cudaFree(input_buffers_[2]);
         cudaFree(output_buffer);
-        throw std::runtime_error("设置输出张量地址失败");
+        throw std::runtime_error("绑定输出张量失败");
     }
+    LOG(INFO) << "已绑定所有输入张量: " << input_name_rgb << ", " << input_name_ir << ", " << input_name_homo;
 }
 
 void EFDEYolo11::setInput(void* input) 
@@ -160,8 +199,25 @@ void EFDEYolo11::setInput(void* input)
         LOG(ERROR) << "输入为空";
         return;
     }
-    m_inputImage = *static_cast<std::vector<float>*>(input);
-    // LOG(INFO) << "m_inputImage.size() = " << m_inputImage.size() << ", input_size_ = " << input_size_;
+    auto* vec = static_cast<std::vector<std::vector<float>>*>(input);
+    if (vec->size() != 3) {
+        LOG(ERROR) << "输入vector数量错误，期望3，实际" << vec->size();
+        return;
+    }
+    size_t img_len = batch_size_ * channels_ * target_size_ * target_size_;
+    if ((*vec)[0].size() != img_len) {
+        LOG(ERROR) << "可见光数据长度错误，期望" << img_len << "，实际" << (*vec)[0].size();
+        return;
+    }
+    if ((*vec)[1].size() != img_len) {
+        LOG(ERROR) << "红外数据长度错误，期望" << img_len << "，实际" << (*vec)[1].size();
+        return;
+    }
+    if ((*vec)[2].size() != 9) {
+        LOG(ERROR) << "映射矩阵长度错误，期望9，实际" << (*vec)[2].size();
+        return;
+    }
+    m_inputImage = *vec;
 }
 
 void* EFDEYolo11::getOutput() {
@@ -227,34 +283,77 @@ std::vector<float> EFDEYolo11::inference()
     input_dims_.nbDims = 4;
     input_dims_.d[0] = batch_size_;  // batch size
     input_dims_.d[1] = channels_;  // channels
-    input_dims_.d[2] = new_unpad_h_;
-    input_dims_.d[3] = new_unpad_w_;
-    if (!context_->setInputShape(input_name_, input_dims_)) {
-        throw std::runtime_error("设置输入形状失败");
+    input_dims_.d[2] = target_size_;
+    input_dims_.d[3] = target_size_;
+    size_t img_size = batch_size_ * channels_ * target_size_ * target_size_;
+    // 校验输入
+    if (m_inputImage.size() != 3) {
+        LOG(ERROR) << "m_inputImage.size() != 3";
+        return {};
     }
+    if (m_inputImage[0].size() != img_size) {
+        LOG(ERROR) << "可见光数据长度错误，期望" << img_size << "，实际" << m_inputImage[0].size();
+        return {};
+    }
+    if (m_inputImage[1].size() != img_size) {
+        LOG(ERROR) << "红外数据长度错误，期望" << img_size << "，实际" << m_inputImage[1].size();
+        return {};
+    }
+    size_t batch_homo33 = batch_size_ * 3 * 3;
+    if (m_inputImage[2].size() != batch_homo33) {
+        LOG(ERROR) << "映射矩阵长度错误，必须为batch*3*3=" << batch_homo33 << "，实际" << m_inputImage[2].size();
+        return {};
+    }
+    // LOG(INFO) << "推理输入 shape: batch=" << bds) << ", 红外长度: " << m_inputImage[1].size() << ", 映射矩阵长度: " << m_inputImage[2].size();
 
     // 2. 绑定输入输出 buffer
-    if (!context_->setTensorAddress(input_name_, input_buffers_[0])) {
-        throw std::runtime_error("设置输入张量地址失败");
+    // 多输入：每个输入都要绑定
+    const char* input_name_rgb = engine_->getIOTensorName(0);
+    const char* input_name_ir = engine_->getIOTensorName(1);
+    const char* input_name_homo = engine_->getIOTensorName(2);
+    if (!context_->setTensorAddress(input_name_rgb, input_buffers_[0])) {
+        throw std::runtime_error("绑定可见光输入张量失败");
+    }
+    if (!context_->setTensorAddress(input_name_ir, input_buffers_[1])) {
+        throw std::runtime_error("绑定红外输入张量失败");
+    }
+    if (!context_->setTensorAddress(input_name_homo, input_buffers_[2])) {
+        throw std::runtime_error("绑定映射矩阵输入张量失败");
     }
     if (!context_->setTensorAddress(output_name_, output_buffers_[0])) {
         throw std::runtime_error("设置输出张量地址失败");
     }
+    LOG(INFO) << "已绑定所有输入张量: " << input_name_rgb << ", " << input_name_ir << ", " << input_name_homo;
 
     // 3. 拷贝输入数据到GPU
-    size_t input_size = m_inputImage.size() * sizeof(float);
-    cudaError_t cuda_status = cudaMemcpyAsync(input_buffers_[0], m_inputImage.data(),
-                                              input_size,
+    cudaError_t cuda_status = cudaMemcpyAsync(input_buffers_[0], m_inputImage[0].data(),
+                                              m_inputImage[0].size() * sizeof(float),
                                               cudaMemcpyHostToDevice, stream_);
     if (cuda_status != cudaSuccess) {
-        throw std::runtime_error("CUDA内存拷贝失败: " + std::string(cudaGetErrorString(cuda_status)));
+        LOG(ERROR) << "可见光 CUDA内存拷贝失败: " << cudaGetErrorString(cuda_status);
+        return {};
+    }
+    cuda_status = cudaMemcpyAsync(input_buffers_[1], m_inputImage[1].data(),
+                                  m_inputImage[1].size() * sizeof(float),
+                                  cudaMemcpyHostToDevice, stream_);
+    if (cuda_status != cudaSuccess) {
+        LOG(ERROR) << "红外 CUDA内存拷贝失败: " << cudaGetErrorString(cuda_status);
+        return {};
+    }
+    cuda_status = cudaMemcpyAsync(input_buffers_[2], m_inputImage[2].data(),
+                                  m_inputImage[2].size() * sizeof(float),
+                                  cudaMemcpyHostToDevice, stream_);
+    if (cuda_status != cudaSuccess) {
+        LOG(ERROR) << "映射矩阵 CUDA内存拷贝失败: " << cudaGetErrorString(cuda_status);
+        return {};
     }
     cudaStreamSynchronize(stream_);
 
     // 4. 执行推理
     bool status = context_->enqueueV3(stream_);
     if (!status) {
-        throw std::runtime_error("TensorRT推理失败");
+        LOG(ERROR) << "TensorRT推理失败";
+        return {};
     }
     cudaStreamSynchronize(stream_);
 
@@ -271,7 +370,8 @@ std::vector<float> EFDEYolo11::inference()
                                   output_size * sizeof(float),
                                   cudaMemcpyDeviceToHost, stream_);
     if (cuda_status != cudaSuccess) {
-        throw std::runtime_error("CUDA输出内存拷贝失败: " + std::string(cudaGetErrorString(cuda_status)));
+        LOG(ERROR) << "CUDA输出内存拷贝失败: " << cudaGetErrorString(cuda_status);
+        return {};
     }
     cudaStreamSynchronize(stream_);
 
@@ -285,43 +385,23 @@ std::vector<float> EFDEYolo11::inference()
     return output;
 }
 
-void EFDEYolo11::rescale_coords(std::vector<float>& coords, bool is_keypoint) 
-{
-    if (coords.empty()) return;
-    if (is_keypoint) {
-        for (size_t i = 0; i < coords.size(); i += 3) {
-            coords[i] = (coords[i] - dw_) / ratio_;
-            coords[i + 1] = (coords[i + 1] - dh_) / ratio_;
-        }
-    } else {
-        for (size_t i = 0; i < coords.size(); i += 4) {
-            coords[i] = (coords[i] - dw_) / ratio_;
-            coords[i + 1] = (coords[i + 1] - dh_) / ratio_;
-            coords[i + 2] = (coords[i + 2] - dw_) / ratio_;
-            coords[i + 3] = (coords[i + 3] - dh_) / ratio_;
-        }
-    }
-}
-
-std::vector<std::vector<float>> EFDEYolo11::process_keypoints(const std::vector<float>& output, const std::vector<std::vector<float>>& boxes) {
-    std::vector<std::vector<float>> keypoints;
-    int num_keypoints = num_keys_; // 可根据模型实际调整
-    for (size_t i = 0; i < boxes.size(); ++i) {
-        std::vector<float> kpts;
-        int kpt_start = 6; // 可根据模型实际调整
-        for (int j = 0; j < num_keypoints; ++j) {
-            float x = output[kpt_start + j * 3];
-            float y = output[kpt_start + j * 3 + 1];
-            float conf = output[kpt_start + j * 3 + 2];
-            kpts.push_back(x);
-            kpts.push_back(y);
-            kpts.push_back(conf);
-        }
-        rescale_coords(kpts, true);
-        keypoints.push_back(kpts);
-    }
-    return keypoints;
-}
+// void EFDEYolo11::rescale_coords(std::vector<float>& coords, bool is_keypoint) 
+// {
+//     if (coords.empty()) return;
+//     if (is_keypoint) {
+//         for (size_t i = 0; i < coords.size(); i += 3) {
+//             coords[i] = (coords[i] - dw_) / ratio_;
+//             coords[i + 1] = (coords[i + 1] - dh_) / ratio_;
+//         }
+//     } else {
+//         for (size_t i = 0; i < coords.size(); i += 4) {
+//             coords[i] = (coords[i] - dw_) / ratio_;
+//             coords[i + 1] = (coords[i + 1] - dh_) / ratio_;
+//             coords[i + 2] = (coords[i + 2] - dw_) / ratio_;
+//             coords[i + 3] = (coords[i + 3] - dh_) / ratio_;
+//         }
+//     }
+// }
 
 std::vector<std::vector<float>> EFDEYolo11::process_output(const std::vector<float>& output)
 {
