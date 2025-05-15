@@ -47,6 +47,11 @@ public:
                                                  float iou_thres,
                                                  int num_classes,
                                                  const LetterBoxInfo& letterbox_info);
+    
+    void fuse_and_save_padded_images(const cv::Mat& rgb_img, const cv::Mat& ir_img,
+                                 const std::vector<float>& homography,
+                                 const std::string& save_dir,
+                                 const std::string& save_name);
 
 private:
     // TensorRT相关

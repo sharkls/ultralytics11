@@ -385,24 +385,6 @@ std::vector<float> EFDEYolo11::inference()
     return output;
 }
 
-// void EFDEYolo11::rescale_coords(std::vector<float>& coords, bool is_keypoint) 
-// {
-//     if (coords.empty()) return;
-//     if (is_keypoint) {
-//         for (size_t i = 0; i < coords.size(); i += 3) {
-//             coords[i] = (coords[i] - dw_) / ratio_;
-//             coords[i + 1] = (coords[i + 1] - dh_) / ratio_;
-//         }
-//     } else {
-//         for (size_t i = 0; i < coords.size(); i += 4) {
-//             coords[i] = (coords[i] - dw_) / ratio_;
-//             coords[i + 1] = (coords[i + 1] - dh_) / ratio_;
-//             coords[i + 2] = (coords[i + 2] - dw_) / ratio_;
-//             coords[i + 3] = (coords[i + 3] - dh_) / ratio_;
-//         }
-//     }
-// }
-
 std::vector<std::vector<float>> EFDEYolo11::process_output(const std::vector<float>& output)
 {
     // 1. TensorRT输出数据转置
@@ -442,15 +424,21 @@ std::vector<std::vector<float>> EFDEYolo11::process_output(const std::vector<flo
         if (max_conf < conf_thres_) continue;
 
         // 坐标还原
+        // std::cout << "x: " << x << ", y: " << y << ", w: " << w << ", h: " << h << std::endl;
         float x1 = (x - w / 2 - dw_) / ratio_;
         float y1 = (y - h / 2 - dh_) / ratio_;
         float x2 = (x + w / 2 - dw_) / ratio_;
         float y2 = (y + h / 2 - dh_) / ratio_;
+        // std::cout << "x1: " << x1 << ", y1: " << y1 << ", x2: " << x2 << ", y2: " << y2 << std::endl;
 
         boxes.push_back({x1, y1, x2, y2});
         scores.push_back(max_conf);
         class_ids.push_back(max_class);
     }
+
+    // std::cout << "boxes.size(): " << boxes.size() << std::endl;
+    // std::cout << "scores.size(): " << scores.size() << std::endl;
+    // std::cout << "class_ids.size(): " << class_ids.size() << std::endl;
 
     // 3. 按类别分组做NMS
     for (int cls = 0; cls < num_classes_; ++cls) {
@@ -471,6 +459,8 @@ std::vector<std::vector<float>> EFDEYolo11::process_output(const std::vector<flo
             results.push_back(result);
         }
     }
+
+    std::cout << "results.size(): " << results.size() << std::endl;
 
     // 4. 按置信度排序，截断最大检测数
     std::sort(results.begin(), results.end(), [](const std::vector<float>& a, const std::vector<float>& b) {

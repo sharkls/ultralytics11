@@ -521,6 +521,7 @@ class BasePredictor:
                         is_normalized=True
                     )
             
+            print("预处理后的extrinsics: ", extrinsics)
             return im, im2, extrinsics
 
     def letterbox(self, im, stride=32):

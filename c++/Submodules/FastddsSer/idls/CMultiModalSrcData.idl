@@ -29,6 +29,6 @@ struct CDisparityResult {
 struct CMultiModalSrcData : CDataBase
 {   
 	sequence<CVideoSrcData>  vecVideoSrcData;		    // 与时间匹配好的每一路相机数据（0为双目图像，1为红外图像）
-    sequence<float>          vecfHomography;         // 双目图像和红外图像之间的单应性矩阵(3x3)
+    sequence<float>          vecfHomography;            // 双目图像和红外图像之间的单应性矩阵(3x3)
 	CDisparityResult   		 tDisparityResult; 		    // 视差图结果
 };

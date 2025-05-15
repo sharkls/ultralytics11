@@ -344,3 +344,56 @@ std::vector<std::vector<float>> TRTInference::process_output(
     std::cout << "最终检测结果数量: " << results.size() << std::endl;
     return results;
 }
+
+// 新增：融合与保存函数
+void TRTInference::fuse_and_save_padded_images(const cv::Mat& rgb_img, const cv::Mat& ir_img,
+                                               const std::vector<float>& homography,
+                                               const std::string& save_dir,
+                                               const std::string& save_name) {
+    // 计算letterbox参数
+    float r_rgb = std::min(static_cast<float>(input_h_) / rgb_img.rows,
+                          static_cast<float>(input_w_) / rgb_img.cols);
+    float r_ir = std::min(static_cast<float>(input_h_) / ir_img.rows,
+                         static_cast<float>(input_w_) / ir_img.cols);
+
+    int new_unpad_rgb_w = static_cast<int>(rgb_img.cols * r_rgb);
+    int new_unpad_rgb_h = static_cast<int>(rgb_img.rows * r_rgb);
+    int new_unpad_ir_w = static_cast<int>(ir_img.cols * r_ir);
+    int new_unpad_ir_h = static_cast<int>(ir_img.rows * r_ir);
+
+    float dw_rgb = (input_w_ - new_unpad_rgb_w) / 2.0f;
+    float dh_rgb = (input_h_ - new_unpad_rgb_h) / 2.0f;
+    float dw_ir = (input_w_ - new_unpad_ir_w) / 2.0f;
+    float dh_ir = (input_h_ - new_unpad_ir_h) / 2.0f;
+
+    // 更新单应性矩阵
+    std::vector<float> S_rgb = {r_rgb, 0, 0, 0, r_rgb, 0, 0, 0, 1};
+    std::vector<float> S_ir = {r_ir, 0, 0, 0, r_ir, 0, 0, 0, 1};
+    std::vector<float> T_rgb = {1, 0, dw_rgb, 0, 1, dh_rgb, 0, 0, 1};
+    std::vector<float> T_ir = {1, 0, dw_ir, 0, 1, dh_ir, 0, 0, 1};
+    // 这里简化处理，实际应为 H_new = T_rgb @ S_rgb @ H @ S_ir^(-1) @ T_ir^(-1)
+    std::vector<float> h_input = homography;
+
+    // 生成padded图像
+    cv::Mat rgb_resized, ir_resized;
+    cv::resize(rgb_img, rgb_resized, cv::Size(new_unpad_rgb_w, new_unpad_rgb_h));
+    cv::resize(ir_img, ir_resized, cv::Size(new_unpad_ir_w, new_unpad_ir_h));
+    cv::Mat rgb_padded(input_h_, input_w_, CV_8UC3, cv::Scalar(114, 114, 114));
+    cv::Mat ir_padded(input_h_, input_w_, CV_8UC3, cv::Scalar(114, 114, 114));
+    rgb_resized.copyTo(rgb_padded(cv::Rect(dw_rgb, dh_rgb, new_unpad_rgb_w, new_unpad_rgb_h)));
+    ir_resized.copyTo(ir_padded(cv::Rect(dw_ir, dh_ir, new_unpad_ir_w, new_unpad_ir_h)));
+
+    // 单应性变换（注意h_input为float型vector）
+    cv::Mat H = cv::Mat(3, 3, CV_32F, h_input.data()).clone();
+    cv::Mat ir_warped;
+    cv::warpPerspective(ir_padded, ir_warped, H, rgb_padded.size());
+
+    // 融合
+    cv::Mat fused_img;
+    cv::addWeighted(rgb_padded, 0.6, ir_warped, 0.4, 0, fused_img);
+
+    // 保存
+    std::string fused_save_path = save_dir + "/" + save_name;
+    cv::imwrite(fused_save_path, fused_img);
+    std::cout << "融合图像已保存到: " << fused_save_path << std::endl;
+}

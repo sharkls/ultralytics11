@@ -86,8 +86,8 @@ aux_source_directory(. HW_SRC_FILES)
 
 if(CMAKE_PLATFORM MATCHES "86")
     #生成可执行程序
-    add_executable(${PROJECT_NAME} TestMultiModalDetectionv2.cpp)
-    # add_executable(${PROJECT_NAME} TestPoseEstimation.cpp)
+    # add_executable(${PROJECT_NAME} TestMultiModalDetectionv2.cpp)
+    add_executable(${PROJECT_NAME} TestPoseEstimation.cpp)
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_core)
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_imgproc)
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_imgcodecs)

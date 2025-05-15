@@ -97,7 +97,6 @@ cv::Mat ImagePreProcess::preprocess(cv::Mat img, int new_pad_w, int new_pad_h, i
     cv::resize(img, resized, cv::Size(new_pad_w, new_pad_h), 0, 0, cv::INTER_LINEAR);
     
     // 3.letterbox填充，目标尺寸为max_model_size*max_model_size
-    // int max_model_size = new_pad_w + 2 * dw; // 这里假设new_pad_w==new_pad_h，dw==dh
     cv::Mat padded(max_model_size_, max_model_size_, CV_8UC3, cv::Scalar(114, 114, 114));
     resized.copyTo(padded(cv::Rect(dw, dh, resized.cols, resized.rows)));
     
@@ -149,23 +148,11 @@ void ImagePreProcess::execute()
             LOG(ERROR) << "Homography matrix size error!";
             m_outputImage.push_back(std::vector<float>(9, 0));
         } else {
-            // cv::Mat H_ir2rgb = cv::Mat(3, 3, CV_32F, H_vec.data()).clone();
-            // // 构建S_rgb, S_ir, T_rgb, T_ir
-            // cv::Mat S_rgb = (cv::Mat_<float>(3,3) << r_rgb_, 0, 0, 0, r_rgb_, 0, 0, 0, 1);
-            // cv::Mat S_ir  = (cv::Mat_<float>(3,3) << r_ir_, 0, 0, 0, r_ir_, 0, 0, 0, 1);
-            // cv::Mat T_rgb = (cv::Mat_<float>(3,3) << 1, 0, dw_rgb_, 0, 1, dh_rgb_, 0, 0, 1);
-            // cv::Mat T_ir  = (cv::Mat_<float>(3,3) << 1, 0, dw_ir_, 0, 1, dh_ir_, 0, 0, 1);
-            // // H_new = T_rgb * S_rgb * H * S_ir^-1 * T_ir^-1
-            // cv::Mat S_ir_inv = S_ir.inv();
-            // cv::Mat T_ir_inv = T_ir.inv();
-            // cv::Mat H_new = T_rgb * S_rgb * H_ir2rgb * S_ir_inv * T_ir_inv;
-            // std::vector<float> H_new_vec(9);
-            // memcpy(H_new_vec.data(), H_new.ptr<float>(), 9 * sizeof(float));
-
             // 假设H_vec为原始单应性矩阵的std::vector<float>，长度为9
             cv::Mat H_ir2rgb = cv::Mat(3, 3, CV_32F, H_vec.data()).clone();
 
             // 构建缩放和平移矩阵
+            std::cout << "r_rgb_: " << r_rgb_ << "r_ir_: " << r_ir_ <<std::endl;
             cv::Mat S_rgb = (cv::Mat_<float>(3,3) << r_rgb_, 0, 0, 0, r_rgb_, 0, 0, 0, 1);
             cv::Mat S_ir  = (cv::Mat_<float>(3,3) << r_ir_, 0, 0, 0, r_ir_, 0, 0, 0, 1);
             cv::Mat T_rgb = (cv::Mat_<float>(3,3) << 1, 0, dw_rgb_, 0, 1, dh_rgb_, 0, 0, 1);
@@ -191,10 +178,10 @@ void ImagePreProcess::execute()
             save_bin(m_outputImage, "preprocess_multimodalfusion_output.bin"); // MultiModalFusion/Preprocess
             if (m_outputImage.size() >= 3) {
                 // 1. 还原可见光和红外预处理后的Mat
-                // int max_model_size = new_unpad_w_rgb_ + 2 * dw_rgb_;
                 int img_area = max_model_size_ * max_model_size_;
                 // --- 可见光 ---
                 const std::vector<float>& rgb_output = m_outputImage[0];
+                std::cout << "rgb_output.size(): " << rgb_output.size() << std::endl;
                 std::vector<cv::Mat> rgb_channels(3);
                 for (int c = 0; c < 3; ++c) {
                     rgb_channels[c] = cv::Mat(max_model_size_, max_model_size_, CV_32F, (void*)(rgb_output.data() + c * img_area)).clone();
@@ -203,6 +190,7 @@ void ImagePreProcess::execute()
                 cv::merge(rgb_channels, rgb_preprocessed);
                 // --- 红外 ---
                 const std::vector<float>& ir_output = m_outputImage[1];
+                std::cout << "ir_output.size(): " << ir_output.size() << std::endl;
                 std::vector<cv::Mat> ir_channels(3);
                 for (int c = 0; c < 3; ++c) {
                     ir_channels[c] = cv::Mat(max_model_size_, max_model_size_, CV_32F, (void*)(ir_output.data() + c * img_area)).clone();
@@ -215,15 +203,39 @@ void ImagePreProcess::execute()
                 rgb_preprocessed = cv::min(rgb_preprocessed, 1.0f);
                 rgb_preprocessed = cv::max(rgb_preprocessed, 0.0f);
                 rgb_preprocessed.convertTo(rgb_u8, CV_8UC3, 255.0);
+                cv::imwrite("rgb_preprocessed.jpg", rgb_u8);
 
                 ir_preprocessed = cv::min(ir_preprocessed, 1.0f);
                 ir_preprocessed = cv::max(ir_preprocessed, 0.0f);
                 ir_preprocessed.convertTo(ir_u8, CV_8UC3, 255.0);
+                cv::imwrite("ir_preprocessed.jpg", ir_u8);
 
-                // 3. 加权融合
+                // 3. 红外图像投影到可见光坐标系
+                const std::vector<float>& H_new_vec = m_outputImage[2];
+                cv::Mat H_new = cv::Mat(3, 3, CV_32F, (void*)H_new_vec.data()).clone();
+                cv::Mat ir_warped_u8;
+                cv::warpPerspective(ir_u8, ir_warped_u8, H_new, rgb_u8.size(), cv::INTER_LINEAR, cv::BORDER_CONSTANT, 0);
+
+                // 4. 加权融合
                 cv::Mat blend;
-                cv::addWeighted(rgb_u8, 0.5, ir_u8, 0.5, 0, blend);
-                cv::imwrite("blend_ir_rgb.jpg", blend);
+                cv::addWeighted(rgb_u8, 0.5, ir_warped_u8, 0.5, 0, blend);
+                cv::imwrite("blend_ir_rgb_projected.jpg", blend);
+
+                // 新增：原始图像域的红外映射与融合
+                const CVideoSrcData& irData  = m_inputImage.vecVideoSrcData()[1];
+                const CVideoSrcData& rgbData = m_inputImage.vecVideoSrcData()[0];
+                cv::Mat irImg(irData.usBmpLength(), irData.usBmpWidth(), CV_8UC3, (void*)irData.vecImageBuf().data());
+                cv::Mat rgbImg(rgbData.usBmpLength(), rgbData.usBmpWidth(), CV_8UC3, (void*)rgbData.vecImageBuf().data());
+
+                const std::vector<float>& H_vec = m_inputImage.vecfHomography();
+                cv::Mat H_ir2rgb = cv::Mat(3, 3, CV_32F, (void*)H_vec.data()).clone();
+
+                cv::Mat ir2rgb_raw;
+                cv::warpPerspective(irImg, ir2rgb_raw, H_ir2rgb, rgbImg.size(), cv::INTER_LINEAR, cv::BORDER_CONSTANT, 0);
+
+                cv::Mat blend_raw;
+                cv::addWeighted(rgbImg, 0.5, ir2rgb_raw, 0.5, 0, blend_raw);
+                cv::imwrite("blend_ir_rgb_raw.jpg", blend_raw);
             }
         }
     }

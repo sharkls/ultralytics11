@@ -37,6 +37,20 @@ int main(int argc, char** argv) {
             h_file >> homography[i];
         }
 
+        // 1. 红外图像单应性变换到RGB坐标系
+        cv::Mat ir_warped;
+        cv::Mat H = cv::Mat(3, 3, CV_32F, homography.data());
+        cv::warpPerspective(ir_img, ir_warped, H, rgb_img.size());
+
+        // 2. 图像加权融合（例如：RGB占0.6，IR占0.4，可根据实际调整）
+        cv::Mat fused_img;
+        cv::addWeighted(rgb_img, 0.6, ir_warped, 0.4, 0, fused_img);
+
+        // 3. 保存融合图像
+        std::string fused_save_path = save_dir + "/" + std::filesystem::path(rgb_path).stem().string() + "_fused.jpg";
+        cv::imwrite(fused_save_path, fused_img);
+        std::cout << "融合图像已保存到: " << fused_save_path << std::endl;
+
         // 模型预热
         std::cout << "开始模型预热..." << std::endl;
         for (int i = 0; i < 3; i++) {
@@ -53,6 +67,7 @@ int main(int argc, char** argv) {
             // 开始计时
             auto start_time = std::chrono::high_resolution_clock::now();
             
+            trt_infer.fuse_and_save_padded_images(rgb_img, ir_img, homography, save_dir, "190001_preprocess_final_fused.jpg");
             std::vector<float> output = trt_infer.inference(rgb_img, ir_img, homography, letterbox_info);
             
             // 结束计时
