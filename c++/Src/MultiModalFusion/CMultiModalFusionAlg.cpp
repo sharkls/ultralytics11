@@ -157,5 +157,10 @@ bool CMultiModalFusionAlg::executeModuleChain()
 
     // 假设最后一个模块输出CAlgResult结构体
     m_currentOutput = *static_cast<CAlgResult *>(currentData);
+
+    // 深度值跟随FrameResult穿透 
+    if(m_currentOutput.vecFrameResult().size() > 0) {
+        m_currentOutput.vecFrameResult()[0].tCameraSupplement() = m_currentInput->tDisparityResult();  
+    }
     return true;
 } 

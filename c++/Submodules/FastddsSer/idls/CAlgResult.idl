@@ -5,7 +5,8 @@
  版本：v1.0
  日期：2025-04-18
  *******************************************************/
-#include "CDataBase.idl"
+
+#include "CMultiModalSrcData.idl"
 
 // 人体关键点信息
 struct Keypoint
@@ -65,12 +66,14 @@ struct CObjectResult {
 
 // 该传感器在该帧的信息，点云和融合是单帧结果，图像是单张图像的结果
 struct CFrameResult : CDataBase {
-    sequence<CObjectResult>  vecObjectResult;      // 该帧中所有的参与者信息
+    sequence<CObjectResult>  vecObjectResult;         // 该帧中所有的参与者信息
+    CDisparityResult         tCameraSupplement;       // 相机附加信息
     // CLidarSupplement         tLidarSupplement;     // 雷达附加信息
-    // CCameraSupplement        tCameraSupplement;    // 相机附加信息
     // CRadarSupplement         tRadarSupplement;     // 毫米波附加信息
     // CFusionSupplemet         tFusionSupplement;    // 融合附加信息
 };
+
+
 
 // 算法结果通用的结构体
 struct CAlgResult : CDataBase {
