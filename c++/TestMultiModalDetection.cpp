@@ -49,7 +49,7 @@ CMultiModalSrcData loadOfflineData(std::string data_path, int index)
     std::vector<float> homography_matrix(9);
     for (int i = 0; i < 9; ++i) {
         if (!(homography_file >> homography_matrix[i])) {
-            LOG(ERROR) << "Failed to read homography matrix" << std::endl;
+            std::cerr << "Failed to read homography matrix" << std::endl;
             return data;
         }
     }
@@ -159,29 +159,16 @@ void testMultiModalFusionAlg(const CAlgResult& alg_result, void* p_handle)
 int main(int argc, char** argv) {
     try {
         // 设置默认路径
-        std::string deploy_path = "/ultralytics/c++/";
-        g_save_dir = deploy_path + "Output/vis/";
-        std::string data_path = "/ultralytics/data/Test_1/";
+        std::string deploy_path = "/ultralytics/c++/Output/";
+        g_save_dir = deploy_path + "vis";
+        std::string data_path = "/ultralytics/data/Test_unmatch/";
 
         // 算法接口调用流程基本如下：
         IMultiModalFusionAlg* l_pObj = CreateMultiModalFusionAlgObj(deploy_path);
 
         // 准备算法参数
         CSelfAlgParam *l_stTestAlgParam = new CSelfAlgParam();
-        l_stTestAlgParam->m_strRootPath = deploy_path + "/Output/";
-        l_stTestAlgParam->m_strEnginepath = "/ultralytics/runs/multimodal/train6/weights/last.engine";
-        l_stTestAlgParam->m_fConfidenceThreshold = 0.25;
-        l_stTestAlgParam->m_fNmsThreshold = 0.45;
-        l_stTestAlgParam->m_nNumClasses = 1;
-        l_stTestAlgParam->m_nSrcInputHeight = 1080;
-        l_stTestAlgParam->m_nSrcInputWidth = 1920;
-        
-        l_stTestAlgParam->m_nBatchSize = 1;
-        l_stTestAlgParam->m_nInputChannels = 3;
-        l_stTestAlgParam->m_nResizeOutputHeight = 640;
-        l_stTestAlgParam->m_nResizeOutputWidth = 640;
-        l_stTestAlgParam->m_nNumAnchors = 8400;
-
+        l_stTestAlgParam->m_strRootPath = deploy_path;
 
         // 初始化算法接口对象
         l_pObj->initAlgorithm(l_stTestAlgParam, testMultiModalFusionAlg, nullptr);
