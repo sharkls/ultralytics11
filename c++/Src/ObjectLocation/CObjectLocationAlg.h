@@ -26,6 +26,8 @@
 
 #include "CMultiModalSrcData.h"
 #include "CAlgResult.h"
+#include "GlobalContext.h"
+#include "FunctionHub.h"
 
 class ObjectLocationConfig : public AlgorithmConfig {
 public:

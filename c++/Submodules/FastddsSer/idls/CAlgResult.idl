@@ -1,6 +1,6 @@
 /*******************************************************
  文件：CAlgResult.idl
- 作者：
+ 作者：sharkls
  描述：描述所有算法结果的统一结构
  版本：v1.0
  日期：2025-04-18
@@ -31,7 +31,7 @@ struct CObjectResult {
     unsigned short           usWidth;        // 宽度：cm
     unsigned short           usHeight;       // 高度：cm
     short                    sCourseAngle;   // 航向角，度
-    float                    fDistance;      // 目标到设备的距离
+    float                    fDistance;      // 目标到设备的距离: cm
 
     // 2D目标框信息
     unsigned short           usVideoTargetId; // 2d跟踪的id

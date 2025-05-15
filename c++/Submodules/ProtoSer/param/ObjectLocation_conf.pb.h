@@ -222,110 +222,13 @@ class TaskConfig final
 
   // accessors -------------------------------------------------------
   enum : int {
-    kStrideFieldNumber = 8,
-    kEnginePathFieldNumber = 1,
-    kNumClassFieldNumber = 2,
-    kBatchSizeFieldNumber = 3,
-    kWidthFieldNumber = 4,
-    kHeightFieldNumber = 5,
-    kConfThresFieldNumber = 6,
-    kIouThresFieldNumber = 7,
-    kSrcWidthFieldNumber = 9,
-    kSrcHeightFieldNumber = 10,
-    kResizeRatioFieldNumber = 11,
-    kDwFieldNumber = 12,
-    kDhFieldNumber = 13,
-    kNewUnpadWFieldNumber = 14,
-    kNewUnpadHFieldNumber = 15,
-    kMaxDetsFieldNumber = 16,
-    kNumKeysFieldNumber = 17,
-    kChannelsFieldNumber = 18,
-    kRunStatusFieldNumber = 19,
+    kIouThresFieldNumber = 1,
+    kNumKeysFieldNumber = 2,
+    kBucketSizeFieldNumber = 3,
+    kMaxDistanceFieldNumber = 4,
+    kRunStatusFieldNumber = 5,
   };
-  // repeated int32 stride = 8;
-  int stride_size() const;
-  private:
-  int _internal_stride_size() const;
-
-  public:
-  void clear_stride() ;
-  ::int32_t stride(int index) const;
-  void set_stride(int index, ::int32_t value);
-  void add_stride(::int32_t value);
-  const ::google::protobuf::RepeatedField<::int32_t>& stride() const;
-  ::google::protobuf::RepeatedField<::int32_t>* mutable_stride();
-
-  private:
-  const ::google::protobuf::RepeatedField<::int32_t>& _internal_stride() const;
-  ::google::protobuf::RepeatedField<::int32_t>* _internal_mutable_stride();
-
-  public:
-  // string engine_path = 1;
-  void clear_engine_path() ;
-  const std::string& engine_path() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_engine_path(Arg_&& arg, Args_... args);
-  std::string* mutable_engine_path();
-  [[nodiscard]] std::string* release_engine_path();
-  void set_allocated_engine_path(std::string* value);
-
-  private:
-  const std::string& _internal_engine_path() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_engine_path(const std::string& value);
-  std::string* _internal_mutable_engine_path();
-
-  public:
-  // int32 num_class = 2;
-  void clear_num_class() ;
-  ::int32_t num_class() const;
-  void set_num_class(::int32_t value);
-
-  private:
-  ::int32_t _internal_num_class() const;
-  void _internal_set_num_class(::int32_t value);
-
-  public:
-  // int32 batch_size = 3;
-  void clear_batch_size() ;
-  ::int32_t batch_size() const;
-  void set_batch_size(::int32_t value);
-
-  private:
-  ::int32_t _internal_batch_size() const;
-  void _internal_set_batch_size(::int32_t value);
-
-  public:
-  // int32 width = 4;
-  void clear_width() ;
-  ::int32_t width() const;
-  void set_width(::int32_t value);
-
-  private:
-  ::int32_t _internal_width() const;
-  void _internal_set_width(::int32_t value);
-
-  public:
-  // int32 height = 5;
-  void clear_height() ;
-  ::int32_t height() const;
-  void set_height(::int32_t value);
-
-  private:
-  ::int32_t _internal_height() const;
-  void _internal_set_height(::int32_t value);
-
-  public:
-  // float conf_thres = 6;
-  void clear_conf_thres() ;
-  float conf_thres() const;
-  void set_conf_thres(float value);
-
-  private:
-  float _internal_conf_thres() const;
-  void _internal_set_conf_thres(float value);
-
-  public:
-  // float iou_thres = 7;
+  // float iou_thres = 1;
   void clear_iou_thres() ;
   float iou_thres() const;
   void set_iou_thres(float value);
@@ -335,87 +238,7 @@ class TaskConfig final
   void _internal_set_iou_thres(float value);
 
   public:
-  // int32 src_width = 9;
-  void clear_src_width() ;
-  ::int32_t src_width() const;
-  void set_src_width(::int32_t value);
-
-  private:
-  ::int32_t _internal_src_width() const;
-  void _internal_set_src_width(::int32_t value);
-
-  public:
-  // int32 src_height = 10;
-  void clear_src_height() ;
-  ::int32_t src_height() const;
-  void set_src_height(::int32_t value);
-
-  private:
-  ::int32_t _internal_src_height() const;
-  void _internal_set_src_height(::int32_t value);
-
-  public:
-  // float resize_ratio = 11;
-  void clear_resize_ratio() ;
-  float resize_ratio() const;
-  void set_resize_ratio(float value);
-
-  private:
-  float _internal_resize_ratio() const;
-  void _internal_set_resize_ratio(float value);
-
-  public:
-  // int32 dw = 12;
-  void clear_dw() ;
-  ::int32_t dw() const;
-  void set_dw(::int32_t value);
-
-  private:
-  ::int32_t _internal_dw() const;
-  void _internal_set_dw(::int32_t value);
-
-  public:
-  // int32 dh = 13;
-  void clear_dh() ;
-  ::int32_t dh() const;
-  void set_dh(::int32_t value);
-
-  private:
-  ::int32_t _internal_dh() const;
-  void _internal_set_dh(::int32_t value);
-
-  public:
-  // int32 new_unpad_w = 14;
-  void clear_new_unpad_w() ;
-  ::int32_t new_unpad_w() const;
-  void set_new_unpad_w(::int32_t value);
-
-  private:
-  ::int32_t _internal_new_unpad_w() const;
-  void _internal_set_new_unpad_w(::int32_t value);
-
-  public:
-  // int32 new_unpad_h = 15;
-  void clear_new_unpad_h() ;
-  ::int32_t new_unpad_h() const;
-  void set_new_unpad_h(::int32_t value);
-
-  private:
-  ::int32_t _internal_new_unpad_h() const;
-  void _internal_set_new_unpad_h(::int32_t value);
-
-  public:
-  // int32 max_dets = 16;
-  void clear_max_dets() ;
-  ::int32_t max_dets() const;
-  void set_max_dets(::int32_t value);
-
-  private:
-  ::int32_t _internal_max_dets() const;
-  void _internal_set_max_dets(::int32_t value);
-
-  public:
-  // int32 num_keys = 17;
+  // int32 num_keys = 2;
   void clear_num_keys() ;
   ::int32_t num_keys() const;
   void set_num_keys(::int32_t value);
@@ -425,17 +248,27 @@ class TaskConfig final
   void _internal_set_num_keys(::int32_t value);
 
   public:
-  // int32 channels = 18;
-  void clear_channels() ;
-  ::int32_t channels() const;
-  void set_channels(::int32_t value);
+  // float bucket_size = 3;
+  void clear_bucket_size() ;
+  float bucket_size() const;
+  void set_bucket_size(float value);
 
   private:
-  ::int32_t _internal_channels() const;
-  void _internal_set_channels(::int32_t value);
+  float _internal_bucket_size() const;
+  void _internal_set_bucket_size(float value);
 
   public:
-  // bool run_status = 19;
+  // float max_distance = 4;
+  void clear_max_distance() ;
+  float max_distance() const;
+  void set_max_distance(float value);
+
+  private:
+  float _internal_max_distance() const;
+  void _internal_set_max_distance(float value);
+
+  public:
+  // bool run_status = 5;
   void clear_run_status() ;
   bool run_status() const;
   void set_run_status(bool value);
@@ -450,8 +283,8 @@ class TaskConfig final
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      5, 19, 0,
-      61, 2>
+      3, 5, 0,
+      0, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -470,25 +303,10 @@ class TaskConfig final
                           const TaskConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::RepeatedField<::int32_t> stride_;
-    ::google::protobuf::internal::CachedSize _stride_cached_byte_size_;
-    ::google::protobuf::internal::ArenaStringPtr engine_path_;
-    ::int32_t num_class_;
-    ::int32_t batch_size_;
-    ::int32_t width_;
-    ::int32_t height_;
-    float conf_thres_;
     float iou_thres_;
-    ::int32_t src_width_;
-    ::int32_t src_height_;
-    float resize_ratio_;
-    ::int32_t dw_;
-    ::int32_t dh_;
-    ::int32_t new_unpad_w_;
-    ::int32_t new_unpad_h_;
-    ::int32_t max_dets_;
     ::int32_t num_keys_;
-    ::int32_t channels_;
+    float bucket_size_;
+    float max_distance_;
     bool run_status_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -731,196 +549,11 @@ extern const ::google::protobuf::internal::ClassDataFull ObjectLocationConfig_cl
 
 // TaskConfig
 
-// string engine_path = 1;
-inline void TaskConfig::clear_engine_path() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.engine_path_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
-}
-inline const std::string& TaskConfig::engine_path() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.engine_path)
-  return _internal_engine_path();
-}
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void TaskConfig::set_engine_path(Arg_&& arg,
-                                              Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.engine_path_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.engine_path)
-}
-inline std::string* TaskConfig::mutable_engine_path() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_engine_path();
-  // @@protoc_insertion_point(field_mutable:objectlocation.TaskConfig.engine_path)
-  return _s;
-}
-inline const std::string& TaskConfig::_internal_engine_path() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.engine_path_.Get();
-}
-inline void TaskConfig::_internal_set_engine_path(const std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.engine_path_.Set(value, GetArena());
-}
-inline std::string* TaskConfig::_internal_mutable_engine_path() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.engine_path_.Mutable( GetArena());
-}
-inline std::string* TaskConfig::release_engine_path() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:objectlocation.TaskConfig.engine_path)
-  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* released = _impl_.engine_path_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.engine_path_.Set("", GetArena());
-  }
-  return released;
-}
-inline void TaskConfig::set_allocated_engine_path(std::string* value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-  _impl_.engine_path_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.engine_path_.IsDefault()) {
-    _impl_.engine_path_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:objectlocation.TaskConfig.engine_path)
-}
-
-// int32 num_class = 2;
-inline void TaskConfig::clear_num_class() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.num_class_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000002u;
-}
-inline ::int32_t TaskConfig::num_class() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.num_class)
-  return _internal_num_class();
-}
-inline void TaskConfig::set_num_class(::int32_t value) {
-  _internal_set_num_class(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.num_class)
-}
-inline ::int32_t TaskConfig::_internal_num_class() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.num_class_;
-}
-inline void TaskConfig::_internal_set_num_class(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.num_class_ = value;
-}
-
-// int32 batch_size = 3;
-inline void TaskConfig::clear_batch_size() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.batch_size_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000004u;
-}
-inline ::int32_t TaskConfig::batch_size() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.batch_size)
-  return _internal_batch_size();
-}
-inline void TaskConfig::set_batch_size(::int32_t value) {
-  _internal_set_batch_size(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.batch_size)
-}
-inline ::int32_t TaskConfig::_internal_batch_size() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.batch_size_;
-}
-inline void TaskConfig::_internal_set_batch_size(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.batch_size_ = value;
-}
-
-// int32 width = 4;
-inline void TaskConfig::clear_width() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.width_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000008u;
-}
-inline ::int32_t TaskConfig::width() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.width)
-  return _internal_width();
-}
-inline void TaskConfig::set_width(::int32_t value) {
-  _internal_set_width(value);
-  _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.width)
-}
-inline ::int32_t TaskConfig::_internal_width() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.width_;
-}
-inline void TaskConfig::_internal_set_width(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.width_ = value;
-}
-
-// int32 height = 5;
-inline void TaskConfig::clear_height() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.height_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000010u;
-}
-inline ::int32_t TaskConfig::height() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.height)
-  return _internal_height();
-}
-inline void TaskConfig::set_height(::int32_t value) {
-  _internal_set_height(value);
-  _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.height)
-}
-inline ::int32_t TaskConfig::_internal_height() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.height_;
-}
-inline void TaskConfig::_internal_set_height(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.height_ = value;
-}
-
-// float conf_thres = 6;
-inline void TaskConfig::clear_conf_thres() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.conf_thres_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000020u;
-}
-inline float TaskConfig::conf_thres() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.conf_thres)
-  return _internal_conf_thres();
-}
-inline void TaskConfig::set_conf_thres(float value) {
-  _internal_set_conf_thres(value);
-  _impl_._has_bits_[0] |= 0x00000020u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.conf_thres)
-}
-inline float TaskConfig::_internal_conf_thres() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.conf_thres_;
-}
-inline void TaskConfig::_internal_set_conf_thres(float value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.conf_thres_ = value;
-}
-
-// float iou_thres = 7;
+// float iou_thres = 1;
 inline void TaskConfig::clear_iou_thres() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.iou_thres_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000040u;
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline float TaskConfig::iou_thres() const {
   // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.iou_thres)
@@ -928,7 +561,7 @@ inline float TaskConfig::iou_thres() const {
 }
 inline void TaskConfig::set_iou_thres(float value) {
   _internal_set_iou_thres(value);
-  _impl_._has_bits_[0] |= 0x00000040u;
+  _impl_._has_bits_[0] |= 0x00000001u;
   // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.iou_thres)
 }
 inline float TaskConfig::_internal_iou_thres() const {
@@ -940,248 +573,11 @@ inline void TaskConfig::_internal_set_iou_thres(float value) {
   _impl_.iou_thres_ = value;
 }
 
-// repeated int32 stride = 8;
-inline int TaskConfig::_internal_stride_size() const {
-  return _internal_stride().size();
-}
-inline int TaskConfig::stride_size() const {
-  return _internal_stride_size();
-}
-inline void TaskConfig::clear_stride() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.stride_.Clear();
-}
-inline ::int32_t TaskConfig::stride(int index) const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.stride)
-  return _internal_stride().Get(index);
-}
-inline void TaskConfig::set_stride(int index, ::int32_t value) {
-  _internal_mutable_stride()->Set(index, value);
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.stride)
-}
-inline void TaskConfig::add_stride(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _internal_mutable_stride()->Add(value);
-  // @@protoc_insertion_point(field_add:objectlocation.TaskConfig.stride)
-}
-inline const ::google::protobuf::RepeatedField<::int32_t>& TaskConfig::stride() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:objectlocation.TaskConfig.stride)
-  return _internal_stride();
-}
-inline ::google::protobuf::RepeatedField<::int32_t>* TaskConfig::mutable_stride()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:objectlocation.TaskConfig.stride)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_stride();
-}
-inline const ::google::protobuf::RepeatedField<::int32_t>&
-TaskConfig::_internal_stride() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.stride_;
-}
-inline ::google::protobuf::RepeatedField<::int32_t>* TaskConfig::_internal_mutable_stride() {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.stride_;
-}
-
-// int32 src_width = 9;
-inline void TaskConfig::clear_src_width() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.src_width_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000080u;
-}
-inline ::int32_t TaskConfig::src_width() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.src_width)
-  return _internal_src_width();
-}
-inline void TaskConfig::set_src_width(::int32_t value) {
-  _internal_set_src_width(value);
-  _impl_._has_bits_[0] |= 0x00000080u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.src_width)
-}
-inline ::int32_t TaskConfig::_internal_src_width() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.src_width_;
-}
-inline void TaskConfig::_internal_set_src_width(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.src_width_ = value;
-}
-
-// int32 src_height = 10;
-inline void TaskConfig::clear_src_height() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.src_height_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000100u;
-}
-inline ::int32_t TaskConfig::src_height() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.src_height)
-  return _internal_src_height();
-}
-inline void TaskConfig::set_src_height(::int32_t value) {
-  _internal_set_src_height(value);
-  _impl_._has_bits_[0] |= 0x00000100u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.src_height)
-}
-inline ::int32_t TaskConfig::_internal_src_height() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.src_height_;
-}
-inline void TaskConfig::_internal_set_src_height(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.src_height_ = value;
-}
-
-// float resize_ratio = 11;
-inline void TaskConfig::clear_resize_ratio() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.resize_ratio_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000200u;
-}
-inline float TaskConfig::resize_ratio() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.resize_ratio)
-  return _internal_resize_ratio();
-}
-inline void TaskConfig::set_resize_ratio(float value) {
-  _internal_set_resize_ratio(value);
-  _impl_._has_bits_[0] |= 0x00000200u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.resize_ratio)
-}
-inline float TaskConfig::_internal_resize_ratio() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.resize_ratio_;
-}
-inline void TaskConfig::_internal_set_resize_ratio(float value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.resize_ratio_ = value;
-}
-
-// int32 dw = 12;
-inline void TaskConfig::clear_dw() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.dw_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000400u;
-}
-inline ::int32_t TaskConfig::dw() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.dw)
-  return _internal_dw();
-}
-inline void TaskConfig::set_dw(::int32_t value) {
-  _internal_set_dw(value);
-  _impl_._has_bits_[0] |= 0x00000400u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.dw)
-}
-inline ::int32_t TaskConfig::_internal_dw() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.dw_;
-}
-inline void TaskConfig::_internal_set_dw(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.dw_ = value;
-}
-
-// int32 dh = 13;
-inline void TaskConfig::clear_dh() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.dh_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000800u;
-}
-inline ::int32_t TaskConfig::dh() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.dh)
-  return _internal_dh();
-}
-inline void TaskConfig::set_dh(::int32_t value) {
-  _internal_set_dh(value);
-  _impl_._has_bits_[0] |= 0x00000800u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.dh)
-}
-inline ::int32_t TaskConfig::_internal_dh() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.dh_;
-}
-inline void TaskConfig::_internal_set_dh(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.dh_ = value;
-}
-
-// int32 new_unpad_w = 14;
-inline void TaskConfig::clear_new_unpad_w() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.new_unpad_w_ = 0;
-  _impl_._has_bits_[0] &= ~0x00001000u;
-}
-inline ::int32_t TaskConfig::new_unpad_w() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.new_unpad_w)
-  return _internal_new_unpad_w();
-}
-inline void TaskConfig::set_new_unpad_w(::int32_t value) {
-  _internal_set_new_unpad_w(value);
-  _impl_._has_bits_[0] |= 0x00001000u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.new_unpad_w)
-}
-inline ::int32_t TaskConfig::_internal_new_unpad_w() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.new_unpad_w_;
-}
-inline void TaskConfig::_internal_set_new_unpad_w(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.new_unpad_w_ = value;
-}
-
-// int32 new_unpad_h = 15;
-inline void TaskConfig::clear_new_unpad_h() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.new_unpad_h_ = 0;
-  _impl_._has_bits_[0] &= ~0x00002000u;
-}
-inline ::int32_t TaskConfig::new_unpad_h() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.new_unpad_h)
-  return _internal_new_unpad_h();
-}
-inline void TaskConfig::set_new_unpad_h(::int32_t value) {
-  _internal_set_new_unpad_h(value);
-  _impl_._has_bits_[0] |= 0x00002000u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.new_unpad_h)
-}
-inline ::int32_t TaskConfig::_internal_new_unpad_h() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.new_unpad_h_;
-}
-inline void TaskConfig::_internal_set_new_unpad_h(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.new_unpad_h_ = value;
-}
-
-// int32 max_dets = 16;
-inline void TaskConfig::clear_max_dets() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.max_dets_ = 0;
-  _impl_._has_bits_[0] &= ~0x00004000u;
-}
-inline ::int32_t TaskConfig::max_dets() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.max_dets)
-  return _internal_max_dets();
-}
-inline void TaskConfig::set_max_dets(::int32_t value) {
-  _internal_set_max_dets(value);
-  _impl_._has_bits_[0] |= 0x00004000u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.max_dets)
-}
-inline ::int32_t TaskConfig::_internal_max_dets() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.max_dets_;
-}
-inline void TaskConfig::_internal_set_max_dets(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.max_dets_ = value;
-}
-
-// int32 num_keys = 17;
+// int32 num_keys = 2;
 inline void TaskConfig::clear_num_keys() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.num_keys_ = 0;
-  _impl_._has_bits_[0] &= ~0x00008000u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::int32_t TaskConfig::num_keys() const {
   // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.num_keys)
@@ -1189,7 +585,7 @@ inline ::int32_t TaskConfig::num_keys() const {
 }
 inline void TaskConfig::set_num_keys(::int32_t value) {
   _internal_set_num_keys(value);
-  _impl_._has_bits_[0] |= 0x00008000u;
+  _impl_._has_bits_[0] |= 0x00000002u;
   // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.num_keys)
 }
 inline ::int32_t TaskConfig::_internal_num_keys() const {
@@ -1201,35 +597,59 @@ inline void TaskConfig::_internal_set_num_keys(::int32_t value) {
   _impl_.num_keys_ = value;
 }
 
-// int32 channels = 18;
-inline void TaskConfig::clear_channels() {
+// float bucket_size = 3;
+inline void TaskConfig::clear_bucket_size() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.channels_ = 0;
-  _impl_._has_bits_[0] &= ~0x00010000u;
+  _impl_.bucket_size_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
-inline ::int32_t TaskConfig::channels() const {
-  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.channels)
-  return _internal_channels();
+inline float TaskConfig::bucket_size() const {
+  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.bucket_size)
+  return _internal_bucket_size();
 }
-inline void TaskConfig::set_channels(::int32_t value) {
-  _internal_set_channels(value);
-  _impl_._has_bits_[0] |= 0x00010000u;
-  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.channels)
+inline void TaskConfig::set_bucket_size(float value) {
+  _internal_set_bucket_size(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.bucket_size)
 }
-inline ::int32_t TaskConfig::_internal_channels() const {
+inline float TaskConfig::_internal_bucket_size() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.channels_;
+  return _impl_.bucket_size_;
 }
-inline void TaskConfig::_internal_set_channels(::int32_t value) {
+inline void TaskConfig::_internal_set_bucket_size(float value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.channels_ = value;
+  _impl_.bucket_size_ = value;
 }
 
-// bool run_status = 19;
+// float max_distance = 4;
+inline void TaskConfig::clear_max_distance() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.max_distance_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline float TaskConfig::max_distance() const {
+  // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.max_distance)
+  return _internal_max_distance();
+}
+inline void TaskConfig::set_max_distance(float value) {
+  _internal_set_max_distance(value);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.max_distance)
+}
+inline float TaskConfig::_internal_max_distance() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.max_distance_;
+}
+inline void TaskConfig::_internal_set_max_distance(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.max_distance_ = value;
+}
+
+// bool run_status = 5;
 inline void TaskConfig::clear_run_status() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.run_status_ = false;
-  _impl_._has_bits_[0] &= ~0x00020000u;
+  _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline bool TaskConfig::run_status() const {
   // @@protoc_insertion_point(field_get:objectlocation.TaskConfig.run_status)
@@ -1237,7 +657,7 @@ inline bool TaskConfig::run_status() const {
 }
 inline void TaskConfig::set_run_status(bool value) {
   _internal_set_run_status(value);
-  _impl_._has_bits_[0] |= 0x00020000u;
+  _impl_._has_bits_[0] |= 0x00000010u;
   // @@protoc_insertion_point(field_set:objectlocation.TaskConfig.run_status)
 }
 inline bool TaskConfig::_internal_run_status() const {

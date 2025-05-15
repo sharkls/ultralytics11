@@ -1,19 +1,12 @@
 /*******************************************************
  文件名：ImagePreProcess.cpp
- 作者：
- 描述：图像预处理模块实现
+ 作者：sharkls
+ 描述：图像预处理模块实现(等比缩放+窄边填充至stride整数倍)
  版本：v1.0
- 日期：2024-03-21
+ 日期：2025-05-15
  *******************************************************/
 
 #include "ImagePreProcess.h"
-
-// // 假设 input_data 是 std::vector<float>
-// void save_bin(const std::vector<float>& input_data, const std::string& filename) {
-//     std::ofstream ofs(filename, std::ios::binary);
-//     ofs.write(reinterpret_cast<const char*>(input_data.data()), input_data.size() * sizeof(float));
-//     ofs.close();
-// } 
 
 // 注册模块
 REGISTER_MODULE("PoseEstimation", ImagePreProcess, ImagePreProcess)
@@ -133,7 +126,7 @@ void ImagePreProcess::execute()
 
         LOG(INFO) << "ImagePreProcess::execute status: success!";
         if (status_) {
-            save_bin(m_outputImage, "preprocess_yolov11pose.bin"); // Yolov11Pose/Preprocess
+            save_bin(m_outputImage, "./Save_Data/pose/result/preprocess_yolov11pose.bin"); // Yolov11Pose/Preprocess
         }
     }
     catch (const std::exception& e) {

@@ -1,4 +1,4 @@
-#include "EFDEYolov11v2.h"
+#include "EFDEYolov11.h"
 
 // 注册模块
 REGISTER_MODULE("MultiModalFusion", EFDEYolo11, EFDEYolo11)
@@ -377,7 +377,7 @@ std::vector<float> EFDEYolo11::inference()
 
     // 7. 保存推理输出为bin文件
     if (status_) {
-        save_bin(output, "output_yolov11pose.bin"); // EFDEYolo11/Inference
+        save_bin(output, "./Save_Data/multimodal/result/output_EFDEYolo11.bin"); // EFDEYolo11/Inference
     }
 
     // LOG(INFO) << "推理输出 shape: " << output.size();
@@ -468,6 +468,10 @@ std::vector<std::vector<float>> EFDEYolo11::process_output(const std::vector<flo
     });
     if (results.size() > max_dets_) results.resize(max_dets_);
 
+    if(status_)
+    {
+        save_bin(results, "./Save_Data/multimodal/result/processed_output_EFDEYolo11.bin"); // EFDEYolo11/Inference
+    }
     return results;
 }
 

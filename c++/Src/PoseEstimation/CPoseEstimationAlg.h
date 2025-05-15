@@ -24,6 +24,8 @@
 #include "AlgorithmConfig_conf.pb.h"
 #include "CMultiModalSrcData.h"
 #include "CAlgResult.h"
+#include "GlobalContext.h"
+#include "FunctionHub.h"
 
 class PoseEstimationConfig : public AlgorithmConfig {
 public:

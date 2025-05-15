@@ -25,7 +25,8 @@
 #include "AlgorithmConfig_conf.pb.h"
 #include "CMultiModalSrcData.h"
 #include "CAlgResult.h"
-
+#include "GlobalContext.h"
+#include "FunctionHub.h"
 class MultiModalFusionConfig : public AlgorithmConfig {
 public:
     bool loadFromFile(const std::string& path) override;

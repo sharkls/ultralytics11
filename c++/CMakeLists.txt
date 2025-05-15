@@ -86,8 +86,9 @@ aux_source_directory(. HW_SRC_FILES)
 
 if(CMAKE_PLATFORM MATCHES "86")
     #生成可执行程序
-    add_executable(${PROJECT_NAME} TestMultiModalDetection.cpp)
-    # add_executable(${PROJECT_NAME} TestPoseEstimation.cpp)
+    # add_executable(${PROJECT_NAME} TestMultiModalDetection.cpp)
+    add_executable(${PROJECT_NAME} TestPoseEstimation.cpp)
+    # add_executable(${PROJECT_NAME} TestObjectLocation.cpp)
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_core)
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_imgproc)
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_imgcodecs)
@@ -117,6 +118,6 @@ if(CMAKE_PLATFORM MATCHES "86")
 
     # 链接各算法模块的动态库
     target_link_libraries(${PROJECT_NAME} PRIVATE PoseEstimationAlg)
-    # target_link_libraries(${PROJECT_NAME} PRIVATE ObjectLocationAlg)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ObjectLocationAlg)
     target_link_libraries(${PROJECT_NAME} PRIVATE MultiModalFusionAlg)
 endif()

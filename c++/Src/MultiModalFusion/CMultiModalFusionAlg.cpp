@@ -76,6 +76,8 @@ void CMultiModalFusionAlg::runAlgorithm(void* p_pSrcData)
     LOG(INFO) << "CMultiModalFusionAlg::runAlgorithm status: start ";
     // 0. 每次运行前重置结构体内容
     m_currentOutput = CAlgResult(); // 或者手动清空成员
+    int64_t startTimeStamp = GetTimeStamp();
+    m_currentOutput.mapTimeStamp()[TIMESTAMP_MMALG_BEGIN] = startTimeStamp;
 
     // 1. 核验输入数据是否为空
     if (!p_pSrcData) {
@@ -157,10 +159,23 @@ bool CMultiModalFusionAlg::executeModuleChain()
 
     // 假设最后一个模块输出CAlgResult结构体
     m_currentOutput = *static_cast<CAlgResult *>(currentData);
+    int64_t endTimeStamp = GetTimeStamp();
 
-    // 深度值跟随FrameResult穿透 
-    if(m_currentOutput.vecFrameResult().size() > 0) {
-        m_currentOutput.vecFrameResult()[0].tCameraSupplement() = m_currentInput->tDisparityResult();  
+    // 结果穿透
+    if(m_currentOutput.vecFrameResult().size() > 0) 
+    {   
+        // 输入数据常规信息穿透
+        m_currentOutput.vecFrameResult()[0].unFrameId() = m_currentInput->unFrameId();
+        m_currentOutput.vecFrameResult()[0].mapTimeStamp() = m_currentInput->mapTimeStamp();
+        m_currentOutput.vecFrameResult()[0].mapDelay() = m_currentInput->mapDelay();
+        m_currentOutput.vecFrameResult()[0].mapFps() = m_currentInput->mapFps();
+
+        // 独有数据填充
+        m_currentOutput.vecFrameResult()[0].tCameraSupplement() = m_currentInput->tDisparityResult();          // 深度图
+        m_currentOutput.vecFrameResult()[0].eDataType(DATA_TYPE_MMALG_RESULT);                                 // 数据类型赋值
+        m_currentOutput.vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_MMALG_END] = endTimeStamp;                // 多模态结束时间戳
+        m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_MMALG] = endTimeStamp - m_currentOutput.mapTimeStamp()[TIMESTAMP_MMALG_BEGIN];    // 多模态算法耗时计算
     }
+
     return true;
 } 

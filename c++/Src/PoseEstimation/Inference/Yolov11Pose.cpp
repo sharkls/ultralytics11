@@ -291,7 +291,7 @@ std::vector<float> Yolov11Pose::inference()
 
     // 7. 保存推理输出为bin文件
     if (status_) {
-        save_bin(output, "output_yolov11pose.bin"); // Yolov11Pose/Inference
+        save_bin(output, "./Save_Data/pose/result/inference_output_yolov11pose.bin"); // Yolov11Pose/Inference
     }
 
     // LOG(INFO) << "推理输出 shape: " << output.size();
@@ -435,6 +435,10 @@ std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<fl
     });
     if (results.size() > max_dets_) results.resize(max_dets_);
 
+    if(status_)
+    {
+        save_bin(results, "./Save_Data/pose/result/processed_output_yolov11pose.bin"); // Yolov11Pose/Inference
+    }
     return results;
 }
 
