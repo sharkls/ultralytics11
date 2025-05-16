@@ -521,7 +521,7 @@ class BasePredictor:
                         is_normalized=True
                     )
             
-            print("预处理后的extrinsics: ", extrinsics)
+            # print("预处理后的extrinsics: ", extrinsics)
             return im, im2, extrinsics
 
     def letterbox(self, im, stride=32):
@@ -1326,11 +1326,11 @@ class BasePredictor:
             cv2.line(comparison, (w//3, 0), (w//3, h), title_color, 2)
             cv2.line(comparison, (2*w//3, 0), (2*w//3, h), title_color, 2)
 
-            # 保存图片
-            save_path = f"{save_prefix}_registration_{batch_idx}.jpg"
-            cv2.imwrite(save_path, comparison)
-            if self.args.verbose:
-                LOGGER.info(f"Registration visualization saved to {save_path}")
+            # # 保存图片
+            # save_path = f"{save_prefix}_registration_{batch_idx}.jpg"
+            # cv2.imwrite(save_path, comparison)
+            # if self.args.verbose:
+            #     LOGGER.info(f"Registration visualization saved to {save_path}")
 
             return comparison
 

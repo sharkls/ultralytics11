@@ -1,5 +1,5 @@
 # Parameters
-nc: 1
+nc: 2
 # scale: n
 scales:
   # 根据双流结构调整深度系数（此处示例调整为0.75，可依需求调整）
