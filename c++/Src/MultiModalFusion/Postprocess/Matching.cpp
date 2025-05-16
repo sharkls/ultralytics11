@@ -1,4 +1,12 @@
-#include "matching.h"
+/*******************************************************
+ 文件名：Matching.cpp
+ 作者：sharkls
+ 描述：目标跟踪匹配算法实现
+ 版本：v1.0
+ 日期：2025-05-15
+ *******************************************************/
+
+#include "Matching.h"
 #include <limits>
 #include <algorithm>
 
@@ -17,8 +25,9 @@ float iou_single(const Eigen::VectorXf& box1, const Eigen::VectorXf& box2) {
     return iou;
 }
 
-namespace matching {
-    Eigen::MatrixXf iou_distance(const std::vector<std::shared_ptr<STrack>>& tracks, const std::vector<std::shared_ptr<STrack>>& detections) {
+namespace Matching {
+    Eigen::MatrixXf iou_distance(const std::vector<std::shared_ptr<STrack>>& tracks, 
+                                const std::vector<std::shared_ptr<STrack>>& detections) {
         int n = tracks.size(), m = detections.size();
         Eigen::MatrixXf dist = Eigen::MatrixXf::Ones(n, m);
         for (int i = 0; i < n; ++i) {
@@ -31,15 +40,18 @@ namespace matching {
     }
 
     // 简化版匈牙利算法（贪心），适合小规模
-    void linear_assignment(const Eigen::MatrixXf& cost_matrix, float thresh,
+    void linear_assignment(const Eigen::MatrixXf& cost_matrix, 
+                          float thresh,
                           std::vector<std::pair<int, int>>& matches,
                           std::vector<int>& unmatched_tracks,
                           std::vector<int>& unmatched_detections) {
         int n = cost_matrix.rows(), m = cost_matrix.cols();
         std::vector<bool> track_used(n, false), det_used(m, false);
+        
         for (int k = 0; k < std::min(n, m); ++k) {
             float min_cost = thresh;
             int min_i = -1, min_j = -1;
+            
             for (int i = 0; i < n; ++i) {
                 if (track_used[i]) continue;
                 for (int j = 0; j < m; ++j) {
@@ -51,12 +63,20 @@ namespace matching {
                     }
                 }
             }
+            
             if (min_i == -1) break;
+            
             matches.emplace_back(min_i, min_j);
             track_used[min_i] = true;
             det_used[min_j] = true;
         }
-        for (int i = 0; i < n; ++i) if (!track_used[i]) unmatched_tracks.push_back(i);
-        for (int j = 0; j < m; ++j) if (!det_used[j]) unmatched_detections.push_back(j);
+        
+        // 收集未匹配的tracks和detections
+        for (int i = 0; i < n; ++i) {
+            if (!track_used[i]) unmatched_tracks.push_back(i);
+        }
+        for (int j = 0; j < m; ++j) {
+            if (!det_used[j]) unmatched_detections.push_back(j);
+        }
     }
 } 

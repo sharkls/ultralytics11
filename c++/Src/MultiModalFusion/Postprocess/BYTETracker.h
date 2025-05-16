@@ -1,11 +1,11 @@
+
 #pragma once
 #include <vector>
 #include <memory>
 #include <Eigen/Dense>
 #include "BaseTrack.h"
 #include "KalmanFilterXYAH.h"
-
-class STrack;
+#include "STrack.h"
 
 // BYTETracker类，多目标跟踪主控器
 class BYTETracker {
