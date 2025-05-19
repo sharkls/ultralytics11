@@ -40,18 +40,18 @@ import argparse
 # results = model.train(data="multimodal_test.yaml", batch=2, epochs=2, imgsz=640, device=0)
 
 # # 训练多模态（EFDEAYOLO）-2025.4.14
-# model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal") # build a new model from YAML
-# results = model.train(data="multimodal.yaml", batch=64, epochs=300, imgsz=640, device=0)
+model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal") # build a new model from YAML
+results = model.train(data="multimodal.yaml", batch=64, epochs=300, imgsz=640, device=0)
 
 
 
 # 使用100帧LLVIP_RAW数据训练多模态（EFDEAYOLO）-2025.5.16
 # model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal") # build a new model from YAML
-# results = model.train(data="multimodal_llvip_raw_test.yaml", batch=16, epochs=100, imgsz=640, device=0)
+# results = model.train(data="multimodal_llvip_raw_test.yaml", batch=16, epochs=2, imgsz=640, device=0)
 
 # 使用100帧LLVIP_RAW数据训练单模态（YOLO）-2025.5.16
-model = YOLO("yolo11s.yaml", task="detect") # build a new model from YAML
-results = model.train(data="multimodal_llvip_raw_test.yaml", batch=16, epochs=100, imgsz=640, device=0)
+# model = YOLO("yolo11s.yaml", task="detect") # build a new model from YAML
+# results = model.train(data="multimodal_llvip_raw_test.yaml", batch=16, epochs=2, imgsz=640, device=0)
 
 
 

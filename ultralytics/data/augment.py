@@ -1994,19 +1994,22 @@ class RandomFlip(BaseMixTransform):
         if random.random() >= self.p:
             return labels
         
-        # 可视化处理后的状态
-        visualize_registration(
-            {
-                'img': labels["img"],
-                'img2': labels["img2"],
-                'mapping_matrix': labels['mapping_matrix'], 
-                'patches_info': None,  # 直接使用更新后的patches_info
-                'pos': labels['pos']
-            },
-            title='random_flip',
-            stage='before',
-        )
-            
+        # 检查是否使用多模态
+        use_multimodal = "img2" in labels
+        if use_multimodal:
+            # 可视化处理前的状态
+            visualize_registration(
+                {
+                    'img': labels["img"],
+                    'img2': labels["img2"],
+                    'mapping_matrix': labels['mapping_matrix'], 
+                    'patches_info': None,
+                    'pos': labels['pos']
+                },
+                title='random_flip',
+                stage='before',
+            )
+        
         # 创建tensor形式的翻转矩阵
         F = torch.eye(3, dtype=torch.float32)
         h, w = labels["img"].shape[:2]
@@ -2019,12 +2022,10 @@ class RandomFlip(BaseMixTransform):
             F[1, 2] = torch.tensor(h, dtype=torch.float32)
 
         img = labels["img"]
-        if "img2" in labels:
+        if use_multimodal:
             img2 = labels["img2"]
-            use_multimodal = True
             H_original = labels.get("mapping_matrix", np.eye(3))
-        else:
-            use_multimodal = False
+        
         instances = labels.pop("instances")
         instances.convert_bbox(format="xywh")
         h, w = img.shape[:2]
@@ -2037,54 +2038,54 @@ class RandomFlip(BaseMixTransform):
             if use_multimodal:
                 img2 = np.flipud(img2)
             instances.flipud(h)
+        
         if self.direction == "horizontal" and random.random() < self.p:
             img = np.fliplr(img)
             instances.fliplr(w)
             if use_multimodal:
                 img2 = np.fliplr(img2)
-
                 # 更新单应性矩阵
-                F = torch.eye(3, dtype=H_original.dtype, device=H_original.device)  # 使用与H_original相同的dtype和device
-                F[0, 0] = -1        # x轴反转
-                F[0, 2] = img.shape[1]  # x轴平移补偿
-                # 直接用矩阵乘法更新映射矩阵: F * H_original
+                F = torch.eye(3, dtype=H_original.dtype, device=H_original.device)
+                F[0, 0] = -1
+                F[0, 2] = img.shape[1]
                 labels["mapping_matrix"] = F @ H_original @ F
 
             # For keypoints
             if self.flip_idx is not None and instances.keypoints is not None:
                 instances.keypoints = np.ascontiguousarray(instances.keypoints[:, self.flip_idx, :])
+                
         labels["img"] = np.ascontiguousarray(img)
         labels["instances"] = instances
+        
         if use_multimodal:
             labels["img2"] = np.ascontiguousarray(img2)
-        
-        
-
-        final_T = torch.tensor([[1, 0, labels['pos'][0]], 
-                              [0, 1, labels['pos'][1]], 
-                              [0, 0, 1]], 
-                             dtype=H_original.dtype, 
-                             device=H_original.device)  # 使用与H_original相同的dtype和device
-        final_T_inv = torch.tensor([[1, 0, -labels['pos'][0]], 
-                                  [0, 1, -labels['pos'][1]], 
+            # 更新最终的单应性矩阵
+            final_T = torch.tensor([[1, 0, labels['pos'][0]], 
+                                  [0, 1, labels['pos'][1]], 
                                   [0, 0, 1]], 
                                  dtype=H_original.dtype, 
                                  device=H_original.device)
-        labels['mapping_matrix'] = final_T @ labels['mapping_matrix'] @ final_T_inv
-
-        # 可视化处理后的状态
-        visualize_registration(
-            {
-                'img': labels["img"],
-                'img2': labels["img2"],
-                'mapping_matrix': labels['mapping_matrix'], 
-                'patches_info': None,  # 直接使用更新后的patches_info
-                'pos': labels['pos']
-            },
-            title='random_flip',
-            stage='after',
-            use_patch_coords=True
-        )
+            final_T_inv = torch.tensor([[1, 0, -labels['pos'][0]], 
+                                      [0, 1, -labels['pos'][1]], 
+                                      [0, 0, 1]], 
+                                     dtype=H_original.dtype, 
+                                     device=H_original.device)
+            labels['mapping_matrix'] = final_T @ labels['mapping_matrix'] @ final_T_inv
+            
+            # 可视化处理后的状态
+            visualize_registration(
+                {
+                    'img': labels["img"],
+                    'img2': labels["img2"],
+                    'mapping_matrix': labels['mapping_matrix'], 
+                    'patches_info': None,
+                    'pos': labels['pos']
+                },
+                title='random_flip',
+                stage='after',
+                use_patch_coords=True
+            )
+        
         return labels
 
     def validate_matrix(self, matrix):
