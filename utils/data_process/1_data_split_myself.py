@@ -71,9 +71,13 @@ def process_dataset(source_path, visible_save_path, infrared_save_path,
         
         if len(selected_images) >= min_images:
             break
-        elif frame_interval <= min_interval:  # 设置最小帧间隔
-            print(f"警告：即使使用最小帧间隔 {min_interval}，图像数量仍然不足 {min_images}！")
-            return
+        elif frame_interval <= min_interval:  # 达到最小帧间隔
+            if frame_interval > 1:  # 如果还可以继续递减
+                frame_interval -= 1
+                print(f"已达到最小帧间隔，继续递减至: {frame_interval}")
+            else:  # 如果帧间隔已经为1
+                print(f"警告：即使使用最小帧间隔 1，图像数量仍然不足 {min_images}！")
+                return
         else:
             frame_interval -= interval_step
             print(f"降低帧间隔至: {frame_interval}")
@@ -97,13 +101,13 @@ def parse_args():
     
     # 路径参数
     parser.add_argument('--source_path', type=str, 
-                       default='/share/Data/Casualty_dataset/',
+                       default='/share/Data/data_20250519_v2/',
                        help='源数据路径')
     parser.add_argument('--visible_save_path', type=str,
-                       default='/share/Data/Casualty_dataset/images/visible/',
+                       default='/share/Data/data_20250519_v2/images/visible/',
                        help='可见光图像保存路径')
     parser.add_argument('--infrared_save_path', type=str,
-                       default='/share/Data/Casualty_dataset/images/infrared/',
+                       default='/share/Data/data_20250519_v2/images/infrared/',
                        help='红外图像保存路径')
     
     # 处理参数
