@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+message TopicConfig {
+    optional string multi_modal_fusion_result_topic = 3;
+    optional string pose_estimation_result_topic = 4;
+    optional string object_location_result_topic = 5;
+}
+
+message Config {
+    optional TopicConfig topic_config = 1;
+}

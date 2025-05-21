@@ -1,0 +1,27 @@
+enum ActivityRunCmdEnum
+{
+    RUN,
+    PAUSE,
+    SHUTDOWN,
+    NO_CMD
+};
+
+struct ActivityCmdControlMessage
+{
+    string activity_name;
+    ActivityRunCmdEnum activity_cmd;
+};
+
+enum ActivityStatusEnum
+{
+    INIT,
+    RUNNING,
+    PAUSED,
+    FINISHED
+};
+
+struct ActivityStatusFeedbackMessage
+{
+    string activity_name;
+    ActivityStatusEnum activity_status;
+};

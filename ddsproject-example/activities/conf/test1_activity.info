@@ -1,0 +1,11 @@
+class_name: "ActivityTest1"
+activiry_conf {
+    conf_file_path: "/workspace/ddsproject-example/activities/test1_activity/conf/test1_activity.conf"
+    node_conf {
+        name: "activity_test1"
+        domain_Id: 80
+        comm_type: UDP
+        segment_size: 1000000
+        white_list: "127.0.0.1"
+    }
+}

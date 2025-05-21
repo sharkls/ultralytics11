@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+import "node_conf.proto";
+
+
+message CommunicateTopicConfig
+{
+    required string activity_cmd_ctrl = 1;
+    required string activity_status_feedback = 2;
+}
+
+message CommunicateConfig
+{
+    required NodeConfig node_config = 1;
+    required CommunicateTopicConfig topic_config = 2;
+}

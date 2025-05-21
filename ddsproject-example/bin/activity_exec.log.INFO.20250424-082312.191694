@@ -1,0 +1,44 @@
+Log file created at: 2025/04/24 08:23:12
+Running on machine: 9e7fdba9c29c
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+W20250424 08:23:12.882237 140189202005696 environment.hpp:14] Environment variable [DDS_PATH] not set, fallback to
+I20250424 08:23:12.890118 140189202005696 class_loader.cpp:19] Begin LoadLibrary [ /workspace/ddsproject-example/output/lib/libtest2_activity.so ]
+I20250424 08:23:12.892658 140189202005696 class_loader_utility.hpp:84] register class [ ActivityTest2 ], [ ActivityBase ], [/workspace/ddsproject-example/output/lib/libtest2_activity.so ]
+I20250424 08:23:12.893004 140189202005696 class_loader.hpp:79] CreateClassObj [ ActivityTest2 ] addr: [ 0x5654a8067bc0]
+I20250424 08:23:12.893047 140189202005696 node.cpp:13] node config [ name : activity_test2 ] [ domainID : 80 ] [ comm_type : 0 ] [ segment_size : 1000000 ] [ white_list : 172.17.0.2 ]
+I20250424 08:23:12.893152 140189202005696 node.cpp:26] node dds config whitelist is not empty, add whiltelist:172.17.0.2
+I20250424 08:23:12.895481 140189202005696 activitybase.hpp:54] config_file_path: [ /workspace/ddsproject-example/activities/test2_activity/conf/test2_activity.conf ]
+I20250424 08:23:12.895495 140189202005696 activitybase.cpp:28] Activity AddTopic [ ActivityCmdControl ] for recv CmdControlMessage
+I20250424 08:23:12.895597 140189202005696 node.cpp:216] AddTopic success
+I20250424 08:23:12.897018 140189202005696 activitybase.cpp:36] Activity AddTopic [ ActivityStatusFeedback ] for send CmdControlFeedbackMessage
+I20250424 08:23:12.897060 140189202005696 node.cpp:216] AddTopic success
+I20250424 08:23:12.897529 140189202005696 node.cpp:216] AddTopic success
+I20250424 08:23:12.897850 140189202005696 reader.hpp:107] activity_test2 : CounterResponseTopic reader matched. currently matched 1
+I20250424 08:23:12.897909 140189202005696 activitybase.cpp:49] Activity Init() success.
+I20250424 08:23:12.897923 140189202005696 activity.cpp:126] Register exit handle success
+I20250424 08:23:13.493920 140189167552256 reader.hpp:107] activity_test2 : ActivityCmdControl reader matched. currently matched 1
+I20250424 08:23:13.494454 140189167552256 writer.cpp:77] activity_test2: ActivityStatusFeedbackwriter matched. currently matched 1
+I20250424 08:23:13.498157 140189202005696 test2_activity.cpp:66] ActivityTest2 running
+I20250424 08:23:13.498171 140189202005696 activitybase.cpp:110] topic [ ActivityStatusFeedback ], activity_name [ ActivityTest2 ]cmd_control [ running ]
+I20250424 08:23:15.505544 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1001 ], data_name [ after deal message ]
+I20250424 08:23:17.505446 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1005 ], data_name [ after deal message ]
+I20250424 08:23:19.505916 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1009 ], data_name [ after deal message ]
+I20250424 08:23:21.506126 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1013 ], data_name [ after deal message ]
+I20250424 08:23:23.506115 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1017 ], data_name [ after deal message ]
+I20250424 08:23:25.506490 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1021 ], data_name [ after deal message ]
+I20250424 08:23:27.506812 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1025 ], data_name [ after deal message ]
+I20250424 08:23:29.507173 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1029 ], data_name [ after deal message ]
+I20250424 08:23:31.507499 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1033 ], data_name [ after deal message ]
+I20250424 08:23:33.507529 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1037 ], data_name [ after deal message ]
+I20250424 08:23:35.507683 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1041 ], data_name [ after deal message ]
+I20250424 08:23:37.508095 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1045 ], data_name [ after deal message ]
+I20250424 08:23:39.508352 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1049 ], data_name [ after deal message ]
+I20250424 08:23:41.508744 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1053 ], data_name [ after deal message ]
+I20250424 08:23:43.508741 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1057 ], data_name [ after deal message ]
+I20250424 08:23:45.508872 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1061 ], data_name [ after deal message ]
+I20250424 08:23:47.509261 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1065 ], data_name [ after deal message ]
+I20250424 08:23:49.509659 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1069 ], data_name [ after deal message ]
+I20250424 08:23:51.509822 140189159159552 test2_activity.cpp:71] ActivityTest2 recv message data : [ 1073 ], data_name [ after deal message ]
+I20250424 08:23:53.122590 140189202005696 activitybase.cpp:110] topic [ ActivityStatusFeedback ], activity_name [ ActivityTest2 ]cmd_control [ finished ]
+I20250424 08:23:53.322983 140189202005696 node.cpp:228] Delete topic name [ ActivityCmdControl ] in DamainParticipant
+I20250424 08:23:53.323041 140189202005696 node.cpp:228] Delete topic name [ ActivityStatusFeedback ] in DamainParticipant

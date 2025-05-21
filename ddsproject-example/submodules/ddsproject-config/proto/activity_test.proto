@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+message ActivityTestTopicConfig {
+    optional string read_topic1 = 1;
+    optional string write_topic2 = 2;
+}
+
+message ActivityTestConfig {
+    optional ActivityTestTopicConfig topic_config = 1;
+}

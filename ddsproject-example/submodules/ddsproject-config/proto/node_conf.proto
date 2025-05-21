@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+enum CommType
+{
+    UDP     = 0;
+    SHM     = 1;
+    DEFAULT = 2;
+}
+
+message NodeConfig {
+    required string     name = 1;                           // node name(fastdds participant name)
+    required uint32     domain_Id = 2 [default = 80];    // fastdds domainId
+    optional CommType   comm_type = 3 [default = DEFAULT];  // fastdds commtype
+    optional uint32     segment_size = 4;                   // commtype->shm 的设置
+    optional string     white_list = 5 [default = ""];      // commtype->udp 的白名单
+}
+
+message NodeConfs {
+    repeated NodeConfig   node_conf = 1;
+}

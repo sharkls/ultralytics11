@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+message ActivityLaunchConfig
+{
+    required string activity_name = 1;
+    required bool pause = 2;
+    required bool shutdown = 3; 
+}
+
+message ModuleLaunchConfig
+{
+    repeated ActivityLaunchConfig activity_launch_config = 1;
+};

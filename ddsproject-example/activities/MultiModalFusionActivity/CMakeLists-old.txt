@@ -1,0 +1,86 @@
+cmake_minimum_required(VERSION 3.22)
+
+project(MultiModalFusionActivity LANGUAGES CXX)
+
+# 设置 C++ 标准
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 添加编译选项
+add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0)
+
+# 设置链接选项
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-as-needed")
+
+# 设置运行时库路径
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+set(MultiModalFusionActivity_PROTO_LIB MultiModalFusionActivity_proto)
+
+# opencv
+set(OpenCV_LIBS ${CMAKE_SOURCE_DIR}/submodules/ddsproject-thirdparty/av_opencv)
+include_directories(${OpenCV_LIBS}/include)
+link_directories(${OpenCV_LIBS}/lib)
+
+
+add_subdirectory(proto)
+
+aux_source_directory(. SRC_FILES)
+
+# 对应方法一：生成activity的可执行程序
+add_executable(MultiModalFusionActivity_exec ${SRC_FILES})
+target_link_libraries(MultiModalFusionActivity_exec PRIVATE
+
+    # 常规 Activity 依赖
+    common
+    activity_base
+    node
+    idl
+    proto
+    ${ACTIVITY_IDL_LIB}
+    
+    # 活动自身定义的proto
+    ${MultiModalFusionActivity_PROTO_LIB}
+    
+    # 常规三方库
+    opencv_core
+    opencv_imgproc
+    opencv_imgcodecs
+    opencv_highgui
+    opencv_calib3d
+    opencv_dnn
+    opencv_features2d
+    opencv_flann
+    opencv_photo
+    opencv_stitching
+    opencv_video
+    opencv_videoio
+    opencv_ml
+    opencv_objdetect
+    tinyxml2
+    pthread
+    glog
+
+    # protobuf
+    protobuf
+    absl_log_internal_check_op
+    absl_log_internal_message
+
+    # fastdds
+    fastrtps
+    fastcdr)
+
+# target_link_libraries(MultiModalFusionActivity_exec PRIVATE pthread)
+# target_link_libraries(MultiModalFusionActivity_exec PRIVATE glog.so)
+
+# target_link_libraries(MultiModalFusionActivity_exec PRIVATE 
+#     protobuf 
+#     absl_log_internal_check_op
+#     absl_log_internal_message)
+
+# target_link_libraries(MultiModalFusionActivity_exec PRIVATE 
+#     fastrtps
+#     fastcdr)
+

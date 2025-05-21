@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+message TopicConfig {
+    optional string counter_topic = 1;
+    optional string counter_response_topic = 2;
+}
+
+message Config {
+    optional TopicConfig topic_config = 1;
+}

@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+import "activity_conf.proto";
+
+message ModuleConfig
+{
+    optional string         module_library = 1;     // 模块的动态库路径
+    repeated ActivityInfo   activity_info = 2;      // activity相关内容
+}
+
+message DagConfig
+{
+    repeated ModuleConfig module_config = 1;
+}
