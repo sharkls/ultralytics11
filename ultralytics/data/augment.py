@@ -1981,11 +1981,19 @@ class RandomFlip(BaseMixTransform):
                 'img' (numpy.ndarray): The image to be flipped.
                 'instances' (ultralytics.utils.instance.Instances): An object containing bounding boxes and
                     optionally keypoints.
+                'img2' (numpy.ndarray, optional): Second input image for multimodal data.
+                'mapping_matrix' (numpy.ndarray, optional): Homography matrix for multimodal data.
+                'pos' (List[int], optional): Position information for first image.
+                'pos2' (List[int], optional): Position information for second image.
 
         Returns:
             (Dict): The same dictionary with the flipped image and updated instances:
                 'img' (numpy.ndarray): The flipped image.
                 'instances' (ultralytics.utils.instance.Instances): Updated instances matching the flipped image.
+                'img2' (numpy.ndarray, optional): Updated second image for multimodal data.
+                'mapping_matrix' (numpy.ndarray, optional): Updated homography matrix for multimodal data.
+                'pos' (List[int], optional): Updated position information for first image.
+                'pos2' (List[int], optional): Updated position information for second image.
         Examples:
             >>> labels = {"img": np.random.rand(640, 640, 3), "instances": Instances(...)}
             >>> random_flip = RandomFlip(p=0.5, direction="horizontal")
@@ -2002,9 +2010,10 @@ class RandomFlip(BaseMixTransform):
                 {
                     'img': labels["img"],
                     'img2': labels["img2"],
-                    'mapping_matrix': labels['mapping_matrix'], 
+                    'mapping_matrix': labels.get('mapping_matrix', np.eye(3)), 
                     'patches_info': None,
-                    'pos': labels['pos']
+                    'pos': labels.get('pos', [0, 0, 0, 0]),
+                    'pos2': labels.get('pos2', [0, 0, 0, 0])
                 },
                 title='random_flip',
                 stage='before',
@@ -2037,6 +2046,13 @@ class RandomFlip(BaseMixTransform):
             img = np.flipud(img)
             if use_multimodal:
                 img2 = np.flipud(img2)
+                # 更新pos和pos2
+                if 'pos' in labels:
+                    pos = labels['pos']
+                    labels['pos'] = [pos[0], h - pos[3], pos[2], h - pos[1]]
+                if 'pos2' in labels:
+                    pos2 = labels['pos2']
+                    labels['pos2'] = [pos2[0], h - pos2[3], pos2[2], h - pos2[1]]
             instances.flipud(h)
         
         if self.direction == "horizontal" and random.random() < self.p:
@@ -2044,6 +2060,13 @@ class RandomFlip(BaseMixTransform):
             instances.fliplr(w)
             if use_multimodal:
                 img2 = np.fliplr(img2)
+                # 更新pos和pos2
+                if 'pos' in labels:
+                    pos = labels['pos']
+                    labels['pos'] = [w - pos[2], pos[1], w - pos[0], pos[3]]
+                if 'pos2' in labels:
+                    pos2 = labels['pos2']
+                    labels['pos2'] = [w - pos2[2], pos2[1], w - pos2[0], pos2[3]]
                 # 更新单应性矩阵
                 F = torch.eye(3, dtype=H_original.dtype, device=H_original.device)
                 F[0, 0] = -1
@@ -2060,26 +2083,28 @@ class RandomFlip(BaseMixTransform):
         if use_multimodal:
             labels["img2"] = np.ascontiguousarray(img2)
             # 更新最终的单应性矩阵
-            final_T = torch.tensor([[1, 0, labels['pos'][0]], 
-                                  [0, 1, labels['pos'][1]], 
-                                  [0, 0, 1]], 
-                                 dtype=H_original.dtype, 
-                                 device=H_original.device)
-            final_T_inv = torch.tensor([[1, 0, -labels['pos'][0]], 
-                                      [0, 1, -labels['pos'][1]], 
+            if 'pos' in labels:
+                final_T = torch.tensor([[1, 0, labels['pos'][0]], 
+                                      [0, 1, labels['pos'][1]], 
                                       [0, 0, 1]], 
                                      dtype=H_original.dtype, 
                                      device=H_original.device)
-            labels['mapping_matrix'] = final_T @ labels['mapping_matrix'] @ final_T_inv
+                final_T_inv = torch.tensor([[1, 0, -labels['pos'][0]], 
+                                          [0, 1, -labels['pos'][1]], 
+                                          [0, 0, 1]], 
+                                         dtype=H_original.dtype, 
+                                         device=H_original.device)
+                labels['mapping_matrix'] = final_T @ labels['mapping_matrix'] @ final_T_inv
             
             # 可视化处理后的状态
             visualize_registration(
                 {
                     'img': labels["img"],
                     'img2': labels["img2"],
-                    'mapping_matrix': labels['mapping_matrix'], 
+                    'mapping_matrix': labels.get('mapping_matrix', np.eye(3)), 
                     'patches_info': None,
-                    'pos': labels['pos']
+                    'pos': labels.get('pos', [0, 0, 0, 0]),
+                    'pos2': labels.get('pos2', [0, 0, 0, 0])
                 },
                 title='random_flip',
                 stage='after',
@@ -2187,38 +2212,9 @@ class LetterBox:
         self.stride = stride
         self.center = center  # Put the image in the middle or top-left
 
-    def __call__(self, labels=None, image=None, image2=None):
-        """
-        Resizes and pads an image for object detection, instance segmentation, or pose estimation tasks.
-
-        This method applies letterboxing to the input image, which involves resizing the image while maintaining its
-        aspect ratio and adding padding to fit the new shape. It also updates any associated labels accordingly.
-
-        Args:
-            labels (Dict | None): A dictionary containing image data and associated labels, or empty dict if None.
-            image (np.ndarray | None): The input image as a numpy array. If None, the image is taken from 'labels'.
-
-        Returns:
-            (Dict | Tuple): If 'labels' is provided, returns an updated dictionary with the resized and padded image,
-                updated labels, and additional metadata. If 'labels' is empty, returns a tuple containing the resized
-                and padded image, and a tuple of (ratio, (left_pad, top_pad)).
-
-        Examples:
-            >>> letterbox = LetterBox(new_shape=(640, 640))
-            >>> result = letterbox(labels={"img": np.zeros((480, 640, 3)), "instances": Instances(...)})
-            >>> resized_img = result["img"]
-            >>> updated_instances = result["instances"]
-        """
-        if labels is None:
-            labels = {}
-        img = labels.get("img") if image is None else image
-        if "img2" in labels:
-            img2 = labels.get("img2") if image2 is None else image2
-            use_multimodal = True
-        else:
-            use_multimodal = False
+    def _letterbox_single(self, img, new_shape):
+        """处理单个图像的letterbox变换"""
         shape = img.shape[:2]  # current shape [height, width]
-        new_shape = labels.pop("rect_shape", self.new_shape)
         if isinstance(new_shape, int):
             new_shape = (new_shape, new_shape)
 
@@ -2229,47 +2225,121 @@ class LetterBox:
 
         # Compute padding
         ratio = r, r  # width, height ratios
-        new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
-        dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]  # wh padding
+        # 修正：new_unpad应该是(height, width)的顺序
+        new_unpad = int(round(shape[0] * r)), int(round(shape[1] * r))
+        dw, dh = new_shape[1] - new_unpad[1], new_shape[0] - new_unpad[0]  # wh padding
         if self.auto:  # minimum rectangle
             dw, dh = np.mod(dw, self.stride), np.mod(dh, self.stride)  # wh padding
         elif self.scaleFill:  # stretch
             dw, dh = 0.0, 0.0
-            new_unpad = (new_shape[1], new_shape[0])
+            new_unpad = (new_shape[0], new_shape[1])
             ratio = new_shape[1] / shape[1], new_shape[0] / shape[0]  # width, height ratios
 
         if self.center:
             dw /= 2  # divide padding into 2 sides
             dh /= 2
 
-        if shape[::-1] != new_unpad:  # resize
-            img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
-            if use_multimodal:
-                img2 = cv2.resize(img2, new_unpad, interpolation=cv2.INTER_LINEAR)
+        if shape != new_unpad:  # resize
+            img = cv2.resize(img, new_unpad[::-1], interpolation=cv2.INTER_LINEAR)
         top, bottom = int(round(dh - 0.1)) if self.center else 0, int(round(dh + 0.1))
         left, right = int(round(dw - 0.1)) if self.center else 0, int(round(dw + 0.1))
         img = cv2.copyMakeBorder(
             img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(114, 114, 114)
         )  # add border
+        
+        return img, ratio, (left, top, right, bottom)
+
+    def __call__(self, labels=None, image=None, image2=None):
+        """
+        Resizes and pads images for object detection, instance segmentation, or pose estimation tasks.
+
+        This method applies letterboxing to the input images, which involves resizing the images while maintaining their
+        aspect ratios and adding padding to fit the new shapes. It also updates any associated labels accordingly.
+
+        Args:
+            labels (Dict | None): A dictionary containing image data and associated labels, or empty dict if None.
+            image (np.ndarray | None): The input image as a numpy array. If None, the image is taken from 'labels'.
+            image2 (np.ndarray | None): The second input image as a numpy array. If None, the image is taken from 'labels'.
+
+        Returns:
+            (Dict | Tuple): If 'labels' is provided, returns an updated dictionary with the resized and padded images,
+                updated labels, and additional metadata. If 'labels' is empty, returns a tuple containing the resized
+                and padded images.
+        
+        Examples:
+        >>> letterbox = LetterBox(new_shape=(640, 640))
+        >>> result = letterbox(labels={"img": np.zeros((480, 640, 3)), "instances": Instances(...)})
+        >>> resized_img = result["img"]
+        >>> updated_instances = result["instances"]
+        """
+        if labels is None:
+            labels = {}
+        img = labels.get("img") if image is None else image
+        if "img2" in labels:
+            img2 = labels.get("img2") if image2 is None else image2
+            use_multimodal = True
+            # print(f"LetterBox Before: img.shape: {img.shape}, img2.shape: {img2.shape}")
+        else:
+            use_multimodal = False
+
+        # 处理第一个图像
+        new_shape = labels.pop("rect_shape", self.new_shape)
+        img, ratio, (left, top, right, bottom) = self._letterbox_single(img, new_shape)
+        
+        # 处理第二个图像（如果存在）
         if use_multimodal:
-            img2 = cv2.copyMakeBorder(
-                img2, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(114, 114, 114)
-            )  # add border
+            new_shape2 = labels.pop("rect_shape2", self.new_shape)
+            img2, ratio2, (left2, top2, right2, bottom2) = self._letterbox_single(img2, new_shape2)
+
         if labels.get("ratio_pad"):
             labels["ratio_pad"] = (labels["ratio_pad"], (left, top))  # for evaluation
         if labels.get("ratio_pad2"):
-            labels["ratio_pad2"] = (labels["ratio_pad2"], (left, top))  # for evaluation
+            labels["ratio_pad2"] = (labels["ratio_pad2"], (left2, top2))  # for evaluation
 
         if len(labels):
             labels = self._update_labels(labels, ratio, left, top)
             img_h, img_w = img.shape[:2]
             labels["pos"] = [left, top, img_w - right, img_h - bottom]  # 去除padding区域
-            # print("labels['pos']: ",labels["pos"])
             labels["img"] = img
             labels["resized_shape"] = new_shape
+            
             if use_multimodal:
+                img2_h, img2_w = img2.shape[:2]
+                labels["pos2"] = [left2, top2, img2_w - right2, img2_h - bottom2]  # 去除padding区域
                 labels["img2"] = img2
-                labels["resized_shape2"] = new_shape
+                labels["resized_shape2"] = new_shape2
+                
+                # 更新mapping_matrix以考虑填充
+                if 'mapping_matrix' in labels:
+                    H = labels['mapping_matrix']
+                    # T1: 可见光填充+缩放矩阵
+                    # T2: 红外填充+缩放矩阵
+
+                    # 可见光缩放
+                    S1 = torch.tensor([
+                        [ratio[0], 0, 0],
+                        [0, ratio[1], 0],
+                        [0, 0, 1]
+                    ], dtype=torch.float32, device=H.device)
+                    # 红外缩放
+                    S2 = torch.tensor([
+                        [ratio2[0], 0, 0],
+                        [0, ratio2[1], 0],
+                        [0, 0, 1]
+                    ], dtype=torch.float32, device=H.device)
+
+                    # 可见光平移
+                    T1 = torch.tensor([[1, 0, left], [0, 1, top], [0, 0, 1]], dtype=torch.float32, device=H.device)
+                    # 红外平移
+                    T2 = torch.tensor([[1, 0, left2], [0, 1, top2], [0, 0, 1]], dtype=torch.float32, device=H.device)
+
+                    # 组合：先缩放再平移
+                    M1 = T1 @ S1
+                    M2 = T2 @ S2
+
+                    # 新的映射矩阵：M1 @ H @ M2^-1
+                    labels['mapping_matrix'] = M1 @ H @ torch.linalg.inv(M2)
+                    
             return labels
         else:
             if use_multimodal:
@@ -3006,6 +3076,7 @@ def v8_transforms(dataset, imgsz, hyp, stretch=False):
         >>> transforms = v8_transforms(dataset, imgsz=640, hyp=hyp)
         >>> augmented_data = transforms(dataset[0])
     """
+    print(f"v8_transforms: {imgsz}")
     mosaic = Mosaic(dataset, imgsz=imgsz, p=hyp.mosaic)
     affine = RandomPerspective( # 仿射变换
         degrees=hyp.degrees,
@@ -3015,6 +3086,7 @@ def v8_transforms(dataset, imgsz, hyp, stretch=False):
         perspective=hyp.perspective,
         pre_transform=None if stretch else LetterBox(new_shape=(imgsz, imgsz)),
     )
+    print(f"affine size: {imgsz}")
 
     pre_transform = Compose([mosaic, affine])
     if hyp.copy_paste_mode == "flip":
@@ -3716,6 +3788,7 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
         # 获取主图像信息
         rgb_img = labels['img']
         ir_img = labels.get('img2')
+        # print(f"rgb_img.shape: {rgb_img.shape}, ir_img.shape: {ir_img.shape}")
         H = labels.get('mapping_matrix')
 
         # 获取目标尺寸
@@ -3842,48 +3915,49 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
                     if isinstance(H, torch.Tensor):
                         H = H.cpu().numpy()
                     # 初始化warped_ir
-                    warped_ir = np.zeros_like(ir_img)
+                    # 直接对整个图像进行映射
+                    warped_ir = cv2.warpPerspective(ir_img, H, (w, h), flags=cv2.INTER_LINEAR, borderValue=(0, 0, 0))
 
                     # 如果有pos信息且use_patch_coords为True，进行子图提取和映射
-                    if 'pos' in labels and use_patch_coords:
-                        x1, y1, x2, y2 = labels['pos']
-                        # 确保坐标为整数且在有效范围内
-                        x1 = max(0, min(w, int(x1)))
-                        y1 = max(0, min(h, int(y1)))
-                        x2 = max(0, min(w, int(x2)))
-                        y2 = max(0, min(h, int(y2)))
+                    # if 'pos' in labels and use_patch_coords:
+                    #     x1, y1, x2, y2 = labels['pos']
+                    #     # 确保坐标为整数且在有效范围内
+                    #     x1 = max(0, min(w, int(x1)))
+                    #     y1 = max(0, min(h, int(y1)))
+                    #     x2 = max(0, min(w, int(x2)))
+                    #     y2 = max(0, min(h, int(y2)))
                         
-                        # 计算目标区域的尺寸
-                        target_width = x2 - x1
-                        target_height = y2 - y1
+                    #     # 计算目标区域的尺寸
+                    #     target_width = x2 - x1
+                    #     target_height = y2 - y1
                         
-                        if target_width > 0 and target_height > 0:
-                            # 提取子图
-                            region_ir = ir_img[y1:y2, x1:x2]
-                            if len(region_ir.shape) == 2:
-                                region_ir = cv2.cvtColor(region_ir, cv2.COLOR_GRAY2BGR)
+                    #     if target_width > 0 and target_height > 0:
+                    #         # 提取子图
+                    #         region_ir = ir_img[y1:y2, x1:x2]
+                    #         if len(region_ir.shape) == 2:
+                    #             region_ir = cv2.cvtColor(region_ir, cv2.COLOR_GRAY2BGR)
                             
-                            # 对子图进行映射
-                            warped_region = cv2.warpPerspective(
-                                region_ir, 
-                                H, 
-                                (target_width, target_height), 
-                                flags=cv2.INTER_LINEAR,
-                                borderValue=(0, 0, 0)
-                            )
+                    #         # 对子图进行映射
+                    #         warped_region = cv2.warpPerspective(
+                    #             region_ir, 
+                    #             H, 
+                    #             (target_width, target_height), 
+                    #             flags=cv2.INTER_LINEAR,
+                    #             borderValue=(0, 0, 0)
+                    #         )
                             
-                            # 将映射后的子图放回原位置
-                            warped_ir[y1:y2, x1:x2] = warped_region
+                    #         # 将映射后的子图放回原位置
+                    #         warped_ir[y1:y2, x1:x2] = warped_region
                             
-                            # 显示子图区域
-                            if show_patches:
-                                patches_vis = np.zeros_like(ir_img)
-                                patches_vis[y1:y2, x1:x2] = region_ir
-                                cv2.rectangle(patches_vis, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                                canvas[:h, 4*w:] = patches_vis
-                    else:
-                        # 如果没有pos信息或use_patch_coords为False，对整个图像进行映射
-                        warped_ir = cv2.warpPerspective(ir_img, H, (w, h))
+                    #         # 显示子图区域
+                    #         if show_patches:
+                    #             patches_vis = np.zeros_like(ir_img)
+                    #             patches_vis[y1:y2, x1:x2] = region_ir
+                    #             cv2.rectangle(patches_vis, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    #             canvas[:h, 4*w:] = patches_vis
+                    # else:
+                    #     # 如果没有pos信息或use_patch_coords为False，对整个图像进行映射
+                    #     warped_ir = cv2.warpPerspective(ir_img, H, (w, h))
                 else:
                     warped_ir = ir_img
                 
@@ -3909,4 +3983,6 @@ def visualize_registration(labels, title="registration", stage="before", use_sin
     except Exception as e:
         LOGGER.warning(f"Registration visualization failed: {str(e)}")
         import traceback
+        LOGGER.warning(traceback.format_exc())
+
         LOGGER.warning(traceback.format_exc())

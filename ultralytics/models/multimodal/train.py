@@ -42,7 +42,8 @@ class MultiModalDetectionTrainer(BaseTrainer):
             batch (int, optional): Size of batches, this is for `rect`. Defaults to None.
         """
         gs = max(int(de_parallel(self.model).stride.max() if self.model else 0), 32)
-        return build_multimodal_dataset(self.args, img_path, img_path2, batch, self.data, mode=mode, rect=mode == "val", stride=gs)  # TODO 增加红外图像
+        # return build_multimodal_dataset(self.args, img_path, img_path2, batch, self.data, mode=mode, rect=mode == "val", stride=gs)  # TODO 增加红外图像
+        return build_multimodal_dataset(self.args, img_path, img_path2, batch, self.data, mode=mode, rect=False, stride=gs)  # TODO 增加红外图像
 
     def get_dataloader(self, dataset_path, dataset_path2, batch_size=16, rank=0, mode="train"):  # TODO 增加红外图像
         """Construct and return dataloader."""

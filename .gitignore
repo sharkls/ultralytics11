@@ -181,3 +181,6 @@ c++/Submodules/TPL/
 c++/Output/
 deploy/build/
 deploy/Output/
+
+# ddsproject-example
+ddsproject-example/submodules/ddsproject-thirdparty/

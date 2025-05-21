@@ -236,9 +236,9 @@ if __name__ == "__main__":
     # image_therm = 'data/homography/infrared_010001.jpg'
 
     # 
-    image_vis = 'data/LLVIP_RAW_TEST/images/visible/train/020002.jpg'
-    image_therm = 'data/LLVIP_RAW_TEST/images/infrared/train/020002.jpg'
-    save_path = 'runs/mapping_matrix'
+    image_vis = 'data/Myself/images/visible/train/000011.jpg'
+    image_therm = 'data/Myself/images/infrared/train/000011.jpg'
+    save_path = 'runs/mapping_matrix0520'
     
     # 确保保存路径存在
     os.makedirs(save_path, exist_ok=True)

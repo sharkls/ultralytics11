@@ -669,6 +669,8 @@ class BaseMultiModalDataset(Dataset):
                 shapes[i] = [1, 1 / mini]
 
         self.batch_shapes = np.ceil(np.array(shapes) * self.imgsz / self.stride + self.pad).astype(int) * self.stride
+        # 为红外图像设置相同的batch_shapes
+        self.batch_shapes2 = self.batch_shapes.copy()
         self.batch = bi  # batch index of image
 
     def __getitem__(self, index):
