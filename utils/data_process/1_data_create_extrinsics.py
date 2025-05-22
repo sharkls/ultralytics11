@@ -79,15 +79,15 @@ def main():
     
     # 添加命令行参数
     parser.add_argument('--input_dir', type=str, 
-                      default="/ultralytics/data/LLVIP_RAW_TEST/labels/visible",
+                      default="/ultralytics/data/Myself-v2/labels/visible",
                       help='输入目录路径，包含原始.txt文件')
     parser.add_argument('--output_dir', type=str,
-                      default="/ultralytics/data/LLVIP_RAW_TEST/extrinsics",
+                      default="/ultralytics/data/Myself-v2/extrinsics",
                       help='输出目录路径，用于保存生成的单应性矩阵文件')
     parser.add_argument('--homography_path', type=str, default="runs/mapping_matrix/manual_homography_matrix.npy",
                       help='单应性矩阵.npy文件的路径（可选）')
     parser.add_argument('--subdirs', type=str, nargs='+',
-                      default=['train', 'val'],
+                      default=['train', 'val', 'test'],
                       help='要处理的子目录列表，默认为 train val test')
     
     # 解析命令行参数

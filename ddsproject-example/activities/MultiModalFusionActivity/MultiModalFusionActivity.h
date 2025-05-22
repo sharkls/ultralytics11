@@ -1,3 +1,6 @@
+#ifndef MULTIMODALFUSIONACTIVITY_H
+#define MULTIMODALFUSIONACTIVITY_H
+
 #include "include/activity/base/activitybase.hpp"
 
 #include <fastdds/dds/topic/TypeSupport.hpp>
@@ -62,4 +65,9 @@ private:
     IMultiModalFusionAlg *multi_modal_fusion_alg_{nullptr};
     std::string root_path_;
     CSelfAlgParam alg_param_;
+
+    // 单应性矩阵
+    std::vector<float> homography_;
 };
+
+#endif // MULTIMODALFUSIONACTIVITY_H

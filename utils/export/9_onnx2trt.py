@@ -22,7 +22,7 @@ def build_engine(onnx_path, engine_path, max_batch_size=1, fp16_mode=False):
         print(f"删除已存在的engine文件: {engine_path}")
         os.remove(engine_path)
     
-    logger = trt.Logger(trt.Logger.VERBOSE)
+    logger = trt.Logger(trt.Logger.WARNING)  # 降低日志级别
     builder = trt.Builder(logger)
     
     # 创建网络定义
@@ -134,7 +134,7 @@ class TRTInference:
             self.stream = cuda.Stream()
             
             # 加载engine
-            self.logger = trt.Logger(trt.Logger.VERBOSE)
+            self.logger = trt.Logger(trt.Logger.WARNING)
             with open(engine_path, 'rb') as f:
                 engine_data = f.read()
             
@@ -466,7 +466,7 @@ def visualize_detection(img, detections, conf_thres=0.25, save_path=None):
     
     return vis_img
 
-def verify_engine(engine_path, rgb_path, ir_path, homography_path, conf_thres=0.25, visualize=False, save_dir=None):
+def verify_engine(engine_path, rgb_path, ir_path, homography_path, conf_thres=0.25, visualize=False, save_dir=None, nc=1):
     """验证TensorRT engine的有效性
     
     Args:
@@ -477,6 +477,7 @@ def verify_engine(engine_path, rgb_path, ir_path, homography_path, conf_thres=0.
         conf_thres (float): 置信度阈值
         visualize (bool): 是否可视化结果
         save_dir (str): 可视化结果保存目录
+        nc (int): 目标类别数量
     """
     # 加载图像和单应性矩阵
     rgb_img = cv2.imread(rgb_path)
@@ -503,7 +504,7 @@ def verify_engine(engine_path, rgb_path, ir_path, homography_path, conf_thres=0.
             # 可视化结果
             if visualize:
                 # 处理输出
-                detections = process_output(output, conf_thres=conf_thres, letterbox_info=letterbox_info)
+                detections = process_output(output, conf_thres=conf_thres, letterbox_info=letterbox_info, nc=nc)
                 
                 # 可视化检测结果
                 if save_dir:
@@ -657,17 +658,18 @@ def process_output(output, conf_thres=0.25, iou_thres=0.45, scale_factor=None, n
 def main():
     import argparse
     parser = argparse.ArgumentParser(description='将ONNX模型转换为TensorRT engine并验证')
-    parser.add_argument('--onnx', type=str, default="runs/multimodal/train6/weights/last.onnx", help='ONNX模型路径')
-    parser.add_argument('--engine', type=str, default="runs/multimodal/train6/weights/last.engine", help='保存engine的路径')
+    parser.add_argument('--onnx', type=str, default="runs/multimodal/train64/weights/best.onnx", help='ONNX模型路径')
+    parser.add_argument('--engine', type=str, default="runs/multimodal/train64/weights/best16.engine", help='保存engine的路径')
     parser.add_argument('--max-batch-size', type=int, default=1, help='最大batch size')
     parser.add_argument('--fp16', default = True, help='使用FP16精度')
     parser.add_argument('--verify', default=True, help='验证engine')
-    parser.add_argument('--rgb', type=str, default="data/LLVIP/images/visible/test/190001.jpg", help='RGB图像路径')
-    parser.add_argument('--ir', type=str, default="data/LLVIP/images/infrared/test/190001.jpg", help='红外图像路径')
-    parser.add_argument('--homography', type=str, default="data/LLVIP/extrinsics/test/190001.txt", help='单应性矩阵路径')
+    parser.add_argument('--rgb', type=str, default="data/Myself-v2/images/visible/test/000020.jpg", help='RGB图像路径')
+    parser.add_argument('--ir', type=str, default="data/Myself-v2/images/infrared/test/000020.jpg", help='红外图像路径')
+    parser.add_argument('--homography', type=str, default="data/Myself-v2/extrinsics/test/000020.txt", help='单应性矩阵路径')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='置信度阈值')
     parser.add_argument('--visualize', default=True, help='是否可视化结果')
-    parser.add_argument('--save-dir', type=str, default="runs/tensorrt_vis", help='可视化结果保存目录')
+    parser.add_argument('--save-dir', type=str, default="runs/tensorrt_vis-myself16", help='可视化结果保存目录')
+    parser.add_argument('--nc', type=int, default=2, help='目标类别数量')
     args = parser.parse_args()
     
     # 确保输出目录存在
@@ -690,7 +692,8 @@ def main():
         verify_engine(args.engine, args.rgb, args.ir, args.homography, 
                      conf_thres=args.conf_thres, 
                      visualize=args.visualize,
-                     save_dir=args.save_dir)
+                     save_dir=args.save_dir,
+                     nc=args.nc)
 
 if __name__ == '__main__':
     main() 

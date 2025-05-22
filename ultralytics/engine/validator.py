@@ -156,6 +156,7 @@ class BaseValidator:
                 self.args.rect = False
             self.stride = model.stride  # used in get_dataloader() for padding
             if self.args.task == 'multimodal':
+                self.args.rect = False      # 多模态尺寸不一致不能使用rect
                 self.dataloader = self.dataloader or self.get_dataloader(self.data.get('val'), self.data.get('val2'), self.args.batch)
             else:
                 self.dataloader = self.dataloader or self.get_dataloader(self.data.get(self.args.split), self.args.batch)

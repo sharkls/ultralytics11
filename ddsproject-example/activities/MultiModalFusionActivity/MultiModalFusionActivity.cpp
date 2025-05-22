@@ -5,6 +5,12 @@
 
 MultiModalFusionActivity::MultiModalFusionActivity()
 {
+    // 初始化单应性矩阵
+    homography_ = {
+        1.666317f, -0.050601f, 75.329809f,
+        0.021197f, 1.554738f, -48.619249f,
+        0.000110f, -0.000091f, 1.000000f
+    };
 }
 
 MultiModalFusionActivity::~MultiModalFusionActivity()
@@ -115,7 +121,7 @@ void MultiModalFusionActivity::MessageProducerThreadFunc()
 void MultiModalFusionActivity::MessageConsumerThreadFunc()
 {
     while (is_running_.load())
-    {      
+    {     
         // 输入到融合算法的数据
         std::shared_ptr<CMultiModalSrcData> l_pMultiModalSrcData = std::make_shared<CMultiModalSrcData>();             
         if (!camera_merged_data_deque_.PopFront(l_pMultiModalSrcData, 1))
@@ -123,6 +129,10 @@ void MultiModalFusionActivity::MessageConsumerThreadFunc()
             // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             continue;
         }
+
+        // 设置单应性矩阵
+        l_pMultiModalSrcData->vecfHomography(homography_);
+
         // 执行融合算法
         LOG(INFO) << "MultiModalFusionActivity Algorithm InputData get !!! ---------- CMultiModalSrcData : " << l_pMultiModalSrcData->vecVideoSrcData().size();
         multi_modal_fusion_alg_->runAlgorithm(l_pMultiModalSrcData.get());

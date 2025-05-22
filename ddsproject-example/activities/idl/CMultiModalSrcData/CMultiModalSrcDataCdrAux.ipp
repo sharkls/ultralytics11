@@ -64,27 +64,30 @@ eProsima_user_DllExport size_t calculate_serialized_size(
                 data.unFrameId(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(3),
-                data.mapTimeStamp(), current_alignment);
+                data.lTimeStamp(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(4),
-                data.mapDelay(), current_alignment);
+                data.mapTimeStamp(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(5),
-                data.mapFps(), current_alignment);
+                data.mapDelay(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(6),
-                data.ucCameraId(), current_alignment);
+                data.mapFps(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(7),
-                data.usBmpLength(), current_alignment);
+                data.ucCameraId(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(8),
-                data.usBmpWidth(), current_alignment);
+                data.usBmpLength(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(9),
-                data.unBmpBytes(), current_alignment);
+                data.usBmpWidth(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(10),
+                data.unBmpBytes(), current_alignment);
+
+        calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(11),
                 data.vecImageBuf(), current_alignment);
 
 
@@ -108,14 +111,15 @@ eProsima_user_DllExport void serialize(
         << eprosima::fastcdr::MemberId(0) << data.eDataType()
         << eprosima::fastcdr::MemberId(1) << data.eDataSourceType()
         << eprosima::fastcdr::MemberId(2) << data.unFrameId()
-        << eprosima::fastcdr::MemberId(3) << data.mapTimeStamp()
-        << eprosima::fastcdr::MemberId(4) << data.mapDelay()
-        << eprosima::fastcdr::MemberId(5) << data.mapFps()
-        << eprosima::fastcdr::MemberId(6) << data.ucCameraId()
-        << eprosima::fastcdr::MemberId(7) << data.usBmpLength()
-        << eprosima::fastcdr::MemberId(8) << data.usBmpWidth()
-        << eprosima::fastcdr::MemberId(9) << data.unBmpBytes()
-        << eprosima::fastcdr::MemberId(10) << data.vecImageBuf()
+        << eprosima::fastcdr::MemberId(3) << data.lTimeStamp()
+        << eprosima::fastcdr::MemberId(4) << data.mapTimeStamp()
+        << eprosima::fastcdr::MemberId(5) << data.mapDelay()
+        << eprosima::fastcdr::MemberId(6) << data.mapFps()
+        << eprosima::fastcdr::MemberId(7) << data.ucCameraId()
+        << eprosima::fastcdr::MemberId(8) << data.usBmpLength()
+        << eprosima::fastcdr::MemberId(9) << data.usBmpWidth()
+        << eprosima::fastcdr::MemberId(10) << data.unBmpBytes()
+        << eprosima::fastcdr::MemberId(11) << data.vecImageBuf()
 ;
     scdr.end_serialize_type(current_state);
 }
@@ -146,34 +150,38 @@ eProsima_user_DllExport void deserialize(
                                             break;
 
                                         case 3:
-                                                dcdr >> data.mapTimeStamp();
+                                                dcdr >> data.lTimeStamp();
                                             break;
 
                                         case 4:
-                                                dcdr >> data.mapDelay();
+                                                dcdr >> data.mapTimeStamp();
                                             break;
 
                                         case 5:
-                                                dcdr >> data.mapFps();
+                                                dcdr >> data.mapDelay();
                                             break;
 
                                         case 6:
-                                                dcdr >> data.ucCameraId();
+                                                dcdr >> data.mapFps();
                                             break;
 
                                         case 7:
-                                                dcdr >> data.usBmpLength();
+                                                dcdr >> data.ucCameraId();
                                             break;
 
                                         case 8:
-                                                dcdr >> data.usBmpWidth();
+                                                dcdr >> data.usBmpLength();
                                             break;
 
                                         case 9:
-                                                dcdr >> data.unBmpBytes();
+                                                dcdr >> data.usBmpWidth();
                                             break;
 
                                         case 10:
+                                                dcdr >> data.unBmpBytes();
+                                            break;
+
+                                        case 11:
                                                 dcdr >> data.vecImageBuf();
                                             break;
 
@@ -318,21 +326,24 @@ eProsima_user_DllExport size_t calculate_serialized_size(
                 data.unFrameId(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(3),
-                data.mapTimeStamp(), current_alignment);
+                data.lTimeStamp(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(4),
-                data.mapDelay(), current_alignment);
+                data.mapTimeStamp(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(5),
-                data.mapFps(), current_alignment);
+                data.mapDelay(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(6),
-                data.vecVideoSrcData(), current_alignment);
+                data.mapFps(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(7),
-                data.vecfHomography(), current_alignment);
+                data.vecVideoSrcData(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(8),
+                data.vecfHomography(), current_alignment);
+
+        calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(9),
                 data.tDisparityResult(), current_alignment);
 
 
@@ -356,12 +367,13 @@ eProsima_user_DllExport void serialize(
         << eprosima::fastcdr::MemberId(0) << data.eDataType()
         << eprosima::fastcdr::MemberId(1) << data.eDataSourceType()
         << eprosima::fastcdr::MemberId(2) << data.unFrameId()
-        << eprosima::fastcdr::MemberId(3) << data.mapTimeStamp()
-        << eprosima::fastcdr::MemberId(4) << data.mapDelay()
-        << eprosima::fastcdr::MemberId(5) << data.mapFps()
-        << eprosima::fastcdr::MemberId(6) << data.vecVideoSrcData()
-        << eprosima::fastcdr::MemberId(7) << data.vecfHomography()
-        << eprosima::fastcdr::MemberId(8) << data.tDisparityResult()
+        << eprosima::fastcdr::MemberId(3) << data.lTimeStamp()
+        << eprosima::fastcdr::MemberId(4) << data.mapTimeStamp()
+        << eprosima::fastcdr::MemberId(5) << data.mapDelay()
+        << eprosima::fastcdr::MemberId(6) << data.mapFps()
+        << eprosima::fastcdr::MemberId(7) << data.vecVideoSrcData()
+        << eprosima::fastcdr::MemberId(8) << data.vecfHomography()
+        << eprosima::fastcdr::MemberId(9) << data.tDisparityResult()
 ;
     scdr.end_serialize_type(current_state);
 }
@@ -392,26 +404,30 @@ eProsima_user_DllExport void deserialize(
                                             break;
 
                                         case 3:
-                                                dcdr >> data.mapTimeStamp();
+                                                dcdr >> data.lTimeStamp();
                                             break;
 
                                         case 4:
-                                                dcdr >> data.mapDelay();
+                                                dcdr >> data.mapTimeStamp();
                                             break;
 
                                         case 5:
-                                                dcdr >> data.mapFps();
+                                                dcdr >> data.mapDelay();
                                             break;
 
                                         case 6:
-                                                dcdr >> data.vecVideoSrcData();
+                                                dcdr >> data.mapFps();
                                             break;
 
                                         case 7:
-                                                dcdr >> data.vecfHomography();
+                                                dcdr >> data.vecVideoSrcData();
                                             break;
 
                                         case 8:
+                                                dcdr >> data.vecfHomography();
+                                            break;
+
+                                        case 9:
                                                 dcdr >> data.tDisparityResult();
                                             break;
 

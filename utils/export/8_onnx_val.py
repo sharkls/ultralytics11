@@ -14,13 +14,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description='YOLO Multimodal ONNX Model Validation')
     
     # 模型相关参数
-    parser.add_argument('--onnx-path', type=str, default='runs/multimodal/train6/weights/last.onnx',
+    parser.add_argument('--onnx-path', type=str, default='runs/multimodal/train64/weights/best.onnx',
                       help='ONNX模型路径')
     parser.add_argument('--imgsz', nargs='+', type=int, default=[640, 640],
                       help='输入图像尺寸 [height, width]')
     
     # 数据集相关参数
-    parser.add_argument('--data-dir', type=str, default='./data/LLVIP',
+    parser.add_argument('--data-dir', type=str, default='./data/Myself-v2',
                       help='数据集根目录')
     parser.add_argument('--split', type=str, default='test',
                       help='数据集划分 (train/val/test)')
@@ -30,7 +30,7 @@ def parse_args():
                       help='检测置信度阈值')
     parser.add_argument('--iou-thres', type=float, default=0.001,
                       help='NMS IOU阈值')
-    parser.add_argument('--nc', type=int, default=1,
+    parser.add_argument('--nc', type=int, default=2,
                       help='目标类别数量')
     
     # 批处理参数
@@ -40,7 +40,7 @@ def parse_args():
     # 其他参数
     parser.add_argument('--device', type=str, default='cuda',
                       help='运行设备 cuda/cpu')
-    parser.add_argument('--save-dir', type=str, default='runs/onnx_val',
+    parser.add_argument('--save-dir', type=str, default='runs/onnx_val-meselfv2-0522',
                       help='结果保存目录')
     parser.add_argument('--visualize', type=bool, default=True,
                       help='是否可视化检测结果')

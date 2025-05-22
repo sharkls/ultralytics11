@@ -33,7 +33,7 @@ constexpr uint32_t CRadarPoint_max_key_cdr_typesize {0UL};
 constexpr uint32_t CRadarStatus_max_cdr_typesize {14UL};
 constexpr uint32_t CRadarStatus_max_key_cdr_typesize {0UL};
 
-constexpr uint32_t CRadarSrcDataTimematch_max_cdr_typesize {13268UL};
+constexpr uint32_t CRadarSrcDataTimematch_max_cdr_typesize {13276UL};
 constexpr uint32_t CRadarSrcDataTimematch_max_key_cdr_typesize {0UL};
 
 

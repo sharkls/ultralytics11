@@ -24,7 +24,7 @@
 
 #include "CDataBase.h"
 
-constexpr uint32_t CDataBase_max_cdr_typesize {3224UL};
+constexpr uint32_t CDataBase_max_cdr_typesize {3232UL};
 constexpr uint32_t CDataBase_max_key_cdr_typesize {0UL};
 
 

@@ -55,6 +55,7 @@ CDataBase::CDataBase(
     m_eDataType = x.m_eDataType;
     m_eDataSourceType = x.m_eDataSourceType;
     m_unFrameId = x.m_unFrameId;
+    m_lTimeStamp = x.m_lTimeStamp;
     m_mapTimeStamp = x.m_mapTimeStamp;
     m_mapDelay = x.m_mapDelay;
     m_mapFps = x.m_mapFps;
@@ -66,6 +67,7 @@ CDataBase::CDataBase(
     m_eDataType = x.m_eDataType;
     m_eDataSourceType = x.m_eDataSourceType;
     m_unFrameId = x.m_unFrameId;
+    m_lTimeStamp = x.m_lTimeStamp;
     m_mapTimeStamp = std::move(x.m_mapTimeStamp);
     m_mapDelay = std::move(x.m_mapDelay);
     m_mapFps = std::move(x.m_mapFps);
@@ -78,6 +80,7 @@ CDataBase& CDataBase::operator =(
     m_eDataType = x.m_eDataType;
     m_eDataSourceType = x.m_eDataSourceType;
     m_unFrameId = x.m_unFrameId;
+    m_lTimeStamp = x.m_lTimeStamp;
     m_mapTimeStamp = x.m_mapTimeStamp;
     m_mapDelay = x.m_mapDelay;
     m_mapFps = x.m_mapFps;
@@ -91,6 +94,7 @@ CDataBase& CDataBase::operator =(
     m_eDataType = x.m_eDataType;
     m_eDataSourceType = x.m_eDataSourceType;
     m_unFrameId = x.m_unFrameId;
+    m_lTimeStamp = x.m_lTimeStamp;
     m_mapTimeStamp = std::move(x.m_mapTimeStamp);
     m_mapDelay = std::move(x.m_mapDelay);
     m_mapFps = std::move(x.m_mapFps);
@@ -103,6 +107,7 @@ bool CDataBase::operator ==(
     return (m_eDataType == x.m_eDataType &&
            m_eDataSourceType == x.m_eDataSourceType &&
            m_unFrameId == x.m_unFrameId &&
+           m_lTimeStamp == x.m_lTimeStamp &&
            m_mapTimeStamp == x.m_mapTimeStamp &&
            m_mapDelay == x.m_mapDelay &&
            m_mapFps == x.m_mapFps);
@@ -198,6 +203,35 @@ uint32_t CDataBase::unFrameId() const
 uint32_t& CDataBase::unFrameId()
 {
     return m_unFrameId;
+}
+
+
+/*!
+ * @brief This function sets a value in member lTimeStamp
+ * @param _lTimeStamp New value for member lTimeStamp
+ */
+void CDataBase::lTimeStamp(
+        uint64_t _lTimeStamp)
+{
+    m_lTimeStamp = _lTimeStamp;
+}
+
+/*!
+ * @brief This function returns the value of member lTimeStamp
+ * @return Value of member lTimeStamp
+ */
+uint64_t CDataBase::lTimeStamp() const
+{
+    return m_lTimeStamp;
+}
+
+/*!
+ * @brief This function returns a reference to member lTimeStamp
+ * @return Reference to member lTimeStamp
+ */
+uint64_t& CDataBase::lTimeStamp()
+{
+    return m_lTimeStamp;
 }
 
 

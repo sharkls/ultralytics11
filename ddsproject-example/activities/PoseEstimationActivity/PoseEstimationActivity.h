@@ -1,3 +1,6 @@
+#ifndef POSEESTIMATIONACTIVITY_H
+#define POSEESTIMATIONACTIVITY_H
+
 #include "include/activity/base/activitybase.hpp"
 
 #include <fastdds/dds/topic/TypeSupport.hpp>
@@ -63,3 +66,5 @@ private:
     std::string root_path_;
     CSelfAlgParam alg_param_;
 };
+
+#endif // POSEESTIMATIONACTIVITY_H

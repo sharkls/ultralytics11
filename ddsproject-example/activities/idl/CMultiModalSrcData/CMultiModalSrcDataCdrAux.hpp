@@ -24,13 +24,13 @@
 
 #include "CMultiModalSrcData.h"
 
-constexpr uint32_t CMultiModalSrcData_max_cdr_typesize {337652UL};
+constexpr uint32_t CMultiModalSrcData_max_cdr_typesize {338460UL};
 constexpr uint32_t CMultiModalSrcData_max_key_cdr_typesize {0UL};
 
 constexpr uint32_t CDisparityResult_max_cdr_typesize {412UL};
 constexpr uint32_t CDisparityResult_max_key_cdr_typesize {0UL};
 
-constexpr uint32_t CVideoSrcData_max_cdr_typesize {3340UL};
+constexpr uint32_t CVideoSrcData_max_cdr_typesize {3348UL};
 constexpr uint32_t CVideoSrcData_max_key_cdr_typesize {0UL};
 
 

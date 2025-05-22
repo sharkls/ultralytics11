@@ -506,18 +506,21 @@ eProsima_user_DllExport size_t calculate_serialized_size(
                 data.unFrameId(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(3),
-                data.mapTimeStamp(), current_alignment);
+                data.lTimeStamp(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(4),
-                data.mapDelay(), current_alignment);
+                data.mapTimeStamp(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(5),
-                data.mapFps(), current_alignment);
+                data.mapDelay(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(6),
-                data.vecObjectResult(), current_alignment);
+                data.mapFps(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(7),
+                data.vecObjectResult(), current_alignment);
+
+        calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(8),
                 data.tCameraSupplement(), current_alignment);
 
 
@@ -541,11 +544,12 @@ eProsima_user_DllExport void serialize(
         << eprosima::fastcdr::MemberId(0) << data.eDataType()
         << eprosima::fastcdr::MemberId(1) << data.eDataSourceType()
         << eprosima::fastcdr::MemberId(2) << data.unFrameId()
-        << eprosima::fastcdr::MemberId(3) << data.mapTimeStamp()
-        << eprosima::fastcdr::MemberId(4) << data.mapDelay()
-        << eprosima::fastcdr::MemberId(5) << data.mapFps()
-        << eprosima::fastcdr::MemberId(6) << data.vecObjectResult()
-        << eprosima::fastcdr::MemberId(7) << data.tCameraSupplement()
+        << eprosima::fastcdr::MemberId(3) << data.lTimeStamp()
+        << eprosima::fastcdr::MemberId(4) << data.mapTimeStamp()
+        << eprosima::fastcdr::MemberId(5) << data.mapDelay()
+        << eprosima::fastcdr::MemberId(6) << data.mapFps()
+        << eprosima::fastcdr::MemberId(7) << data.vecObjectResult()
+        << eprosima::fastcdr::MemberId(8) << data.tCameraSupplement()
 ;
     scdr.end_serialize_type(current_state);
 }
@@ -576,22 +580,26 @@ eProsima_user_DllExport void deserialize(
                                             break;
 
                                         case 3:
-                                                dcdr >> data.mapTimeStamp();
+                                                dcdr >> data.lTimeStamp();
                                             break;
 
                                         case 4:
-                                                dcdr >> data.mapDelay();
+                                                dcdr >> data.mapTimeStamp();
                                             break;
 
                                         case 5:
-                                                dcdr >> data.mapFps();
+                                                dcdr >> data.mapDelay();
                                             break;
 
                                         case 6:
-                                                dcdr >> data.vecObjectResult();
+                                                dcdr >> data.mapFps();
                                             break;
 
                                         case 7:
+                                                dcdr >> data.vecObjectResult();
+                                            break;
+
+                                        case 8:
                                                 dcdr >> data.tCameraSupplement();
                                             break;
 
@@ -642,15 +650,18 @@ eProsima_user_DllExport size_t calculate_serialized_size(
                 data.unFrameId(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(3),
-                data.mapTimeStamp(), current_alignment);
+                data.lTimeStamp(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(4),
-                data.mapDelay(), current_alignment);
+                data.mapTimeStamp(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(5),
-                data.mapFps(), current_alignment);
+                data.mapDelay(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(6),
+                data.mapFps(), current_alignment);
+
+        calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(7),
                 data.vecFrameResult(), current_alignment);
 
 
@@ -674,10 +685,11 @@ eProsima_user_DllExport void serialize(
         << eprosima::fastcdr::MemberId(0) << data.eDataType()
         << eprosima::fastcdr::MemberId(1) << data.eDataSourceType()
         << eprosima::fastcdr::MemberId(2) << data.unFrameId()
-        << eprosima::fastcdr::MemberId(3) << data.mapTimeStamp()
-        << eprosima::fastcdr::MemberId(4) << data.mapDelay()
-        << eprosima::fastcdr::MemberId(5) << data.mapFps()
-        << eprosima::fastcdr::MemberId(6) << data.vecFrameResult()
+        << eprosima::fastcdr::MemberId(3) << data.lTimeStamp()
+        << eprosima::fastcdr::MemberId(4) << data.mapTimeStamp()
+        << eprosima::fastcdr::MemberId(5) << data.mapDelay()
+        << eprosima::fastcdr::MemberId(6) << data.mapFps()
+        << eprosima::fastcdr::MemberId(7) << data.vecFrameResult()
 ;
     scdr.end_serialize_type(current_state);
 }
@@ -708,18 +720,22 @@ eProsima_user_DllExport void deserialize(
                                             break;
 
                                         case 3:
-                                                dcdr >> data.mapTimeStamp();
+                                                dcdr >> data.lTimeStamp();
                                             break;
 
                                         case 4:
-                                                dcdr >> data.mapDelay();
+                                                dcdr >> data.mapTimeStamp();
                                             break;
 
                                         case 5:
-                                                dcdr >> data.mapFps();
+                                                dcdr >> data.mapDelay();
                                             break;
 
                                         case 6:
+                                                dcdr >> data.mapFps();
+                                            break;
+
+                                        case 7:
                                                 dcdr >> data.vecFrameResult();
                                             break;
 

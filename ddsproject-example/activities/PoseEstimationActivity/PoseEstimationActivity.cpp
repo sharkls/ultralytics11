@@ -100,13 +100,15 @@ void PoseEstimationActivity::MessageProducerThreadFunc()
     // 向CounterTopic中循环发送数据
     // is_running_是线程结束的标志位，通过master的指令进行控制
     while (is_running_.load())
-    {
+    {   
+        LOG(INFO) << "Waiting ...";
         std::shared_ptr<CMultiModalSrcData> message;
         if (!camera_merged_data_deque_.PopFront(message, 1))
         {
             // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             continue;
         }
+        LOG(INFO) << "Get CMultiModalSrcData!!";
         writer_->SendMessage((void*)message.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }

@@ -161,6 +161,8 @@ bool CMultiModalFusionAlg::executeModuleChain()
     m_currentOutput = *static_cast<CAlgResult *>(currentData);
     int64_t endTimeStamp = GetTimeStamp();
 
+
+    std::cout << "MultiModalFusion End : Input TIMESTAMP_TIME_MATCH"<< m_currentInput->mapTimeStamp()[TIMESTAMP_TIME_MATCH] << std::endl;
     // 结果穿透
     if(m_currentOutput.vecFrameResult().size() > 0) 
     {   

@@ -8,14 +8,17 @@
 # # Train the model
 # results = model.test(data="multimodal.yaml", batch=2, imgsz=640, device=0)
 
-from ultralytics import YOLOMultimodal
+from ultralytics import YOLOMultimodal, YOLO
 
-model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train15/weights/best.pt')  # load an official model
-# Load a model
-# model = YOLOFusion('yolo11n-DEYOLO.yaml', task="detect").load('/ultralytics/runs/detect/train8/weights/last.pt')  # load an official model
+model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train64/weights/best.pt')  # load an official model
+metrics = model.val(data="multimodal-Myself-v2-test.yaml", batch=16, imgsz=640, device=0, show=True)  # no arguments needed, dataset and settings remembered
+
+# model = YOLO("yolo11s.yaml", task="detect").load('/ultralytics/runs/detect/train8/weights/best.pt')  # load an official model
+# metrics = model.val(data="multimodal-Myself-v2-test.yaml", batch=16, imgsz=640, device=0, show=True) 
+
+
 
 # Validate the model
-metrics = model.val(data="multimodal_llvip_raw_test.yaml", batch=16, imgsz=640, device=0, show=True)  # no arguments needed, dataset and settings remembered
 metrics.box.map  # map50-95
 metrics.box.map50  # map50
 metrics.box.map75  # map75

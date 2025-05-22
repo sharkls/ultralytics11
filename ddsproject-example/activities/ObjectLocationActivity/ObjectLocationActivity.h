@@ -1,3 +1,6 @@
+#ifndef OBJECTLOCATIONACTIVITY_H
+#define OBJECTLOCATIONACTIVITY_H
+
 #include "include/activity/base/activitybase.hpp"
 
 #include <fastdds/dds/topic/TypeSupport.hpp>
@@ -71,3 +74,5 @@ private:
     std::string root_path_;
     CSelfAlgParam alg_param_;
 };
+
+#endif // OBJECTLOCATIONACTIVITY_H

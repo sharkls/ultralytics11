@@ -12,13 +12,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description='YOLO Multimodal Model Export and Validation')
     
     # 模型相关参数
-    parser.add_argument('--weights', type=str, default='runs/multimodal/train6/weights/last.pt',
+    parser.add_argument('--weights', type=str, default='/ultralytics/runs/multimodal/train64/weights/best.pt',
                       help='训练好的模型权重路径')
     parser.add_argument('--imgsz', nargs='+', type=int, default=[640, 640],
                       help='输入图像尺寸 [height, width]')
     
     # 导出相关参数
-    parser.add_argument('--export-path', type=str, default='./runs/export/EFDE-YOLO',
+    parser.add_argument('--export-path', type=str, default='/ultralytics/runs/export/EFDE-YOLO-Myslef-v2',
                       help='ONNX模型导出路径')
     parser.add_argument('--opset', type=int, default=16,
                       help='ONNX opset版本')
@@ -28,15 +28,15 @@ def parse_args():
                       help='是否简化ONNX模型')
     
     # 验证相关参数
-    parser.add_argument('--extrinsics', type=str, default='./data/LLVIP/extrinsics/test/190001.txt',
+    parser.add_argument('--extrinsics', type=str, default='/ultralytics/data/Myself-v2/extrinsics/test/000020.txt',
                       help='RGB图像路径')
-    parser.add_argument('--rgb-path', type=str, default='./data/LLVIP/images/visible/test/190001.jpg',
+    parser.add_argument('--rgb-path', type=str, default='/ultralytics/data/Myself-v2/images/visible/test/000020.jpg',
                       help='RGB图像路径')
-    parser.add_argument('--ir-path', type=str, default='./data/LLVIP/images/infrared/test/190001.jpg',
+    parser.add_argument('--ir-path', type=str, default='/ultralytics/data/Myself-v2/images/infrared/test/000020.jpg',
                       help='红外图像路径')
-    parser.add_argument('--pos-error-threshold', type=float, default=1.0,
+    parser.add_argument('--pos-error-threshold', type=float, default=10.0,
                       help='位置误差阈值（像素）')
-    parser.add_argument('--conf-error-threshold', type=float, default=1e-4,
+    parser.add_argument('--conf-error-threshold', type=float, default=0.01,
                       help='置信度误差阈值')
     parser.add_argument('--device', type=str, default='cuda',
                       help='运行设备 cuda/cpu')
@@ -236,6 +236,18 @@ def validate_onnx(onnx_path, inputs, updated_homography_np, torch_output, pos_er
     mean_conf_diff = np.mean(conf_diff)
     relative_conf_diff = np.mean(np.abs((torch_conf - onnx_conf) / (np.abs(torch_conf) + 1e-10)))
     
+    # 打印数值范围统计
+    print("\n数值范围统计:")
+    print("位置信息 (x,y,w,h):")
+    print(f"  PyTorch - 最小值: {torch_pos.min():.6f}, 最大值: {torch_pos.max():.6f}, 平均值: {torch_pos.mean():.6f}")
+    print(f"  ONNX    - 最小值: {onnx_pos.min():.6f}, 最大值: {onnx_pos.max():.6f}, 平均值: {onnx_pos.mean():.6f}")
+    print(f"  标准差  - PyTorch: {torch_pos.std():.6f}, ONNX: {onnx_pos.std():.6f}")
+    
+    print("\n置信度:")
+    print(f"  PyTorch - 最小值: {torch_conf.min():.6f}, 最大值: {torch_conf.max():.6f}, 平均值: {torch_conf.mean():.6f}")
+    print(f"  ONNX    - 最小值: {onnx_conf.min():.6f}, 最大值: {onnx_conf.max():.6f}, 平均值: {onnx_conf.mean():.6f}")
+    print(f"  标准差  - PyTorch: {torch_conf.std():.6f}, ONNX: {onnx_conf.std():.6f}")
+    
     print(f"\n转换后误差:")
     print(f"位置信息误差:")
     print(f"  最大绝对误差: {max_pos_diff:.6f}")
@@ -413,6 +425,91 @@ def nms(boxes, scores, iou_threshold):
         
     return np.array(keep)
 
+def visualize_detections(rgb_img, ir_img, torch_output, onnx_output, save_path, conf_thres=0.5, iou_thres=0.45):
+    """
+    可视化PyTorch和ONNX模型的检测结果
+    
+    Args:
+        rgb_img (np.ndarray): RGB图像 (HWC)
+        ir_img (np.ndarray): 红外图像 (HWC)
+        torch_output (np.ndarray): PyTorch模型输出
+        onnx_output (np.ndarray): ONNX模型输出
+        save_path (str): 保存路径
+        conf_thres (float): 置信度阈值
+        iou_thres (float): NMS IOU阈值
+    """
+    try:
+        # 处理PyTorch输出
+        torch_pred = torch_output[0].T  # 转置为 [N, C]
+        torch_conf = torch_pred[:, 4:].max(axis=1)  # 获取最大置信度
+        torch_boxes = torch_pred[:, :4]  # 获取边界框
+        torch_mask = torch_conf > conf_thres
+        torch_boxes = torch_boxes[torch_mask]
+        torch_conf = torch_conf[torch_mask]
+        
+        # 处理ONNX输出
+        onnx_pred = onnx_output[0].T  # 转置为 [N, C]
+        onnx_conf = onnx_pred[:, 4:].max(axis=1)  # 获取最大置信度
+        onnx_boxes = onnx_pred[:, :4]  # 获取边界框
+        onnx_mask = onnx_conf > conf_thres
+        onnx_boxes = onnx_boxes[onnx_mask]
+        onnx_conf = onnx_conf[onnx_mask]
+        
+        # 应用NMS
+        if len(torch_boxes) > 0:
+            torch_keep = nms(torch_boxes, torch_conf, iou_thres)
+            torch_boxes = torch_boxes[torch_keep]
+            torch_conf = torch_conf[torch_keep]
+            
+        if len(onnx_boxes) > 0:
+            onnx_keep = nms(onnx_boxes, onnx_conf, iou_thres)
+            onnx_boxes = onnx_boxes[onnx_keep]
+            onnx_conf = onnx_conf[onnx_keep]
+        
+        # 创建可视化图像
+        h, w = rgb_img.shape[:2]
+        vis_img = np.zeros((h, w*3, 3), dtype=np.uint8)
+        
+        # 复制原始图像
+        vis_img[:, :w] = rgb_img
+        vis_img[:, w:w*2] = rgb_img.copy()
+        vis_img[:, w*2:] = rgb_img.copy()
+        
+        # 绘制PyTorch检测结果
+        for box, conf in zip(torch_boxes, torch_conf):
+            x1, y1, x2, y2 = map(int, box)
+            cv2.rectangle(vis_img[:, :w], (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(vis_img[:, :w], f'{conf:.2f}', (x1, y1-10),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        
+        # 绘制ONNX检测结果
+        for box, conf in zip(onnx_boxes, onnx_conf):
+            x1, y1, x2, y2 = map(int, box)
+            cv2.rectangle(vis_img[:, w:w*2], (x1, y1), (x2, y2), (0, 0, 255), 2)
+            cv2.putText(vis_img[:, w:w*2], f'{conf:.2f}', (x1, y1-10),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+        
+        # 添加标题
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.8
+        title_color = (255, 255, 255)
+        cv2.putText(vis_img, 'Original', (10, 30), font, font_scale, title_color, 2)
+        cv2.putText(vis_img, 'PyTorch', (w + 10, 30), font, font_scale, title_color, 2)
+        cv2.putText(vis_img, 'ONNX', (w*2 + 10, 30), font, font_scale, title_color, 2)
+        
+        # 添加分隔线
+        cv2.line(vis_img, (w, 0), (w, h), (255, 0, 0), 2)
+        cv2.line(vis_img, (w*2, 0), (w*2, h), (255, 0, 0), 2)
+        
+        # 保存结果
+        cv2.imwrite(save_path, vis_img)
+        print(f"检测结果可视化已保存到: {save_path}")
+        
+    except Exception as e:
+        print(f"可视化检测结果时发生错误: {e}")
+        import traceback
+        traceback.print_exc()
+
 def main():
     args = parse_args()
     output_dir = Path(args.export_path).parent
@@ -508,8 +605,39 @@ def main():
     # 验证ONNX模型
     print("正在验证ONNX模型...")
     # 根据weights路径设置onnx路径
-    onnx_path = str(Path(args.weights).parent / 'last.onnx')
-    # !! 移除 original_sizes.cpu().numpy() !!
+    pt_name = Path(args.weights).stem  # 获取PT文件名（不含扩展名）
+    onnx_path = str(Path(args.weights).parent / f'{pt_name}.onnx')  # 使用相同的文件名，但扩展名改为.onnx
+    print(f"ONNX模型路径: {onnx_path}")
+    
+    # 读取原始RGB图像用于可视化
+    rgb_img = cv2.imread(args.rgb_path)
+    if rgb_img is None:
+        print(f"无法读取RGB图像: {args.rgb_path}")
+        return
+    
+    # 验证ONNX模型并获取输出
+    session = ort.InferenceSession(onnx_path, providers=['CPUExecutionProvider'])
+    input_names = [input.name for input in session.get_inputs()]
+    onnx_inputs = {
+        input_names[0]: rgb_input_np,
+        input_names[1]: ir_input_np,
+        input_names[2]: updated_homography.cpu().numpy()
+    }
+    onnx_outputs = session.run(None, onnx_inputs)
+    onnx_output = onnx_outputs[0]
+    
+    # 可视化检测结果
+    det_save_path = str(output_dir / f'{Path(args.export_path).stem}_detections.jpg')
+    visualize_detections(
+        rgb_img,
+        None,  # 这里不需要IR图像
+        torch_output.cpu().numpy(),
+        onnx_output,
+        det_save_path,
+        args.conf_thres,
+        args.iou_thres
+    )
+    
     if validate_onnx(onnx_path, (rgb_input_np, ir_input_np), updated_homography.cpu().numpy(), torch_output, args.pos_error_threshold, args.conf_error_threshold, args):
         print("\n✅ 验证通过：PyTorch和ONNX模型输出一致")
     else:

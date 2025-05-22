@@ -5,7 +5,9 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
-
+#include <chrono>
+// #include "FunctionHub.h"
+#include "GlobalContext.h"
 #include "CAlgResult.h"
 #include "CMultiModalSrcData.h"
 #include "ExportMultiModalFusionAlgLib.h"
@@ -13,6 +15,20 @@
 // 全局变量
 std::string g_rgb_path;
 std::string g_save_dir;
+
+/**
+ * 获取当前ms UTC时间
+ * 参数：
+ * 返回值：ms UTC时间
+ */
+inline int64_t GetTimeStamp()
+{
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> tp =
+        std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+
+    auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
+    return tmp.count();
+}
 
 CMultiModalSrcData loadOfflineData(std::string data_path, int index) 
 {   
@@ -76,7 +92,9 @@ CMultiModalSrcData loadOfflineData(std::string data_path, int index)
     std::vector<CVideoSrcData> video_data = {rgb_data, ir_data};
     data.vecVideoSrcData(video_data);
     data.vecfHomography(homography_matrix);
-    
+    data.mapTimeStamp()[TIMESTAMP_TIME_MATCH] = GetTimeStamp();
+
+    std::cout << " ReadData time_match: " << data.mapTimeStamp()[TIMESTAMP_TIME_MATCH] << std::endl;
     return data;
 }
 

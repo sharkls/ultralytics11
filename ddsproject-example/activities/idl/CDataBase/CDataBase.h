@@ -193,6 +193,26 @@ public:
 
 
     /*!
+     * @brief This function sets a value in member lTimeStamp
+     * @param _lTimeStamp New value for member lTimeStamp
+     */
+    eProsima_user_DllExport void lTimeStamp(
+            uint64_t _lTimeStamp);
+
+    /*!
+     * @brief This function returns the value of member lTimeStamp
+     * @return Value of member lTimeStamp
+     */
+    eProsima_user_DllExport uint64_t lTimeStamp() const;
+
+    /*!
+     * @brief This function returns a reference to member lTimeStamp
+     * @return Reference to member lTimeStamp
+     */
+    eProsima_user_DllExport uint64_t& lTimeStamp();
+
+
+    /*!
      * @brief This function copies the value in member mapTimeStamp
      * @param _mapTimeStamp New value to be copied in member mapTimeStamp
      */
@@ -277,6 +297,7 @@ private:
     uint8_t m_eDataType{0};
     uint8_t m_eDataSourceType{0};
     uint32_t m_unFrameId{0};
+    uint64_t m_lTimeStamp{0};
     std::map<uint8_t, uint64_t> m_mapTimeStamp;
     std::map<uint8_t, uint32_t> m_mapDelay;
     std::map<uint8_t, float> m_mapFps;

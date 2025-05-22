@@ -238,7 +238,7 @@ class MultiModalDetectionValidator(BaseValidator):
             mode (str): `train` mode or `val` mode, users are able to customize different augmentations for each mode.
             batch (int, optional): Size of batches, this is for `rect`. Defaults to None.
         """
-        return build_multimodal_dataset(self.args, img_path, img_path2, batch, self.data, mode=mode, stride=self.stride)  # TODO 增加红外图像
+        return build_multimodal_dataset(self.args, img_path, img_path2, batch, self.data, mode=mode, stride=self.stride, rect=False)  # TODO 增加红外图像
 
     def get_dataloader(self, dataset_path, dataset_path2, batch_size):  # TODO 增加红外图像
         """Construct and return dataloader."""

@@ -488,30 +488,33 @@ eProsima_user_DllExport size_t calculate_serialized_size(
                 data.unFrameId(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(3),
-                data.mapTimeStamp(), current_alignment);
+                data.lTimeStamp(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(4),
-                data.mapDelay(), current_alignment);
+                data.mapTimeStamp(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(5),
-                data.mapFps(), current_alignment);
+                data.mapDelay(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(6),
-                data.ucRadarId(), current_alignment);
+                data.mapFps(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(7),
-                data.tRadarStatus(), current_alignment);
+                data.ucRadarId(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(8),
-                data.vecPoints(), current_alignment);
+                data.tRadarStatus(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(9),
-                data.vecTracks(), current_alignment);
+                data.vecPoints(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(10),
-                data.fNoisePower(), current_alignment);
+                data.vecTracks(), current_alignment);
 
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(11),
+                data.fNoisePower(), current_alignment);
+
+        calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(12),
                 data.fInterference(), current_alignment);
 
 
@@ -535,15 +538,16 @@ eProsima_user_DllExport void serialize(
         << eprosima::fastcdr::MemberId(0) << data.eDataType()
         << eprosima::fastcdr::MemberId(1) << data.eDataSourceType()
         << eprosima::fastcdr::MemberId(2) << data.unFrameId()
-        << eprosima::fastcdr::MemberId(3) << data.mapTimeStamp()
-        << eprosima::fastcdr::MemberId(4) << data.mapDelay()
-        << eprosima::fastcdr::MemberId(5) << data.mapFps()
-        << eprosima::fastcdr::MemberId(6) << data.ucRadarId()
-        << eprosima::fastcdr::MemberId(7) << data.tRadarStatus()
-        << eprosima::fastcdr::MemberId(8) << data.vecPoints()
-        << eprosima::fastcdr::MemberId(9) << data.vecTracks()
-        << eprosima::fastcdr::MemberId(10) << data.fNoisePower()
-        << eprosima::fastcdr::MemberId(11) << data.fInterference()
+        << eprosima::fastcdr::MemberId(3) << data.lTimeStamp()
+        << eprosima::fastcdr::MemberId(4) << data.mapTimeStamp()
+        << eprosima::fastcdr::MemberId(5) << data.mapDelay()
+        << eprosima::fastcdr::MemberId(6) << data.mapFps()
+        << eprosima::fastcdr::MemberId(7) << data.ucRadarId()
+        << eprosima::fastcdr::MemberId(8) << data.tRadarStatus()
+        << eprosima::fastcdr::MemberId(9) << data.vecPoints()
+        << eprosima::fastcdr::MemberId(10) << data.vecTracks()
+        << eprosima::fastcdr::MemberId(11) << data.fNoisePower()
+        << eprosima::fastcdr::MemberId(12) << data.fInterference()
 ;
     scdr.end_serialize_type(current_state);
 }
@@ -574,38 +578,42 @@ eProsima_user_DllExport void deserialize(
                                             break;
 
                                         case 3:
-                                                dcdr >> data.mapTimeStamp();
+                                                dcdr >> data.lTimeStamp();
                                             break;
 
                                         case 4:
-                                                dcdr >> data.mapDelay();
+                                                dcdr >> data.mapTimeStamp();
                                             break;
 
                                         case 5:
-                                                dcdr >> data.mapFps();
+                                                dcdr >> data.mapDelay();
                                             break;
 
                                         case 6:
-                                                dcdr >> data.ucRadarId();
+                                                dcdr >> data.mapFps();
                                             break;
 
                                         case 7:
-                                                dcdr >> data.tRadarStatus();
+                                                dcdr >> data.ucRadarId();
                                             break;
 
                                         case 8:
-                                                dcdr >> data.vecPoints();
+                                                dcdr >> data.tRadarStatus();
                                             break;
 
                                         case 9:
-                                                dcdr >> data.vecTracks();
+                                                dcdr >> data.vecPoints();
                                             break;
 
                                         case 10:
-                                                dcdr >> data.fNoisePower();
+                                                dcdr >> data.vecTracks();
                                             break;
 
                                         case 11:
+                                                dcdr >> data.fNoisePower();
+                                            break;
+
+                                        case 12:
                                                 dcdr >> data.fInterference();
                                             break;
 
