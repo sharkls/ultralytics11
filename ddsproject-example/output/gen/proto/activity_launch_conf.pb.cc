@@ -78,9 +78,9 @@ struct ModuleLaunchConfigDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ModuleLaunchConfigDefaultTypeInternal _ModuleLaunchConfig_default_instance_;
-static constexpr const ::_pb::EnumDescriptor**
+static constexpr const ::_pb::EnumDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_enum_descriptors_activity_5flaunch_5fconf_2eproto = nullptr;
-static constexpr const ::_pb::ServiceDescriptor**
+static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_service_descriptors_activity_5flaunch_5fconf_2eproto = nullptr;
 const ::uint32_t
     TableStruct_activity_5flaunch_5fconf_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
@@ -115,7 +115,7 @@ static const ::_pbi::MigrationSchema
         {0, 11, -1, sizeof(::ActivityLaunchConfig)},
         {14, -1, -1, sizeof(::ModuleLaunchConfig)},
 };
-static const ::_pb::Message* const file_default_instances[] = {
+static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_ActivityLaunchConfig_default_instance_._instance,
     &::_ModuleLaunchConfig_default_instance_._instance,
 };
@@ -157,7 +157,7 @@ class ActivityLaunchConfig::_Internal {
   }
 };
 
-ActivityLaunchConfig::ActivityLaunchConfig(::google::protobuf::Arena* arena)
+ActivityLaunchConfig::ActivityLaunchConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ActivityLaunchConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -167,14 +167,15 @@ ActivityLaunchConfig::ActivityLaunchConfig(::google::protobuf::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:ActivityLaunchConfig)
 }
 PROTOBUF_NDEBUG_INLINE ActivityLaunchConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::ActivityLaunchConfig& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::ActivityLaunchConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         activity_name_(arena, from.activity_name_) {}
 
 ActivityLaunchConfig::ActivityLaunchConfig(
-    ::google::protobuf::Arena* arena,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const ActivityLaunchConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ActivityLaunchConfig_class_data_.base()) {
@@ -198,11 +199,11 @@ ActivityLaunchConfig::ActivityLaunchConfig(
 }
 PROTOBUF_NDEBUG_INLINE ActivityLaunchConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0},
         activity_name_(arena) {}
 
-inline void ActivityLaunchConfig::SharedCtor(::_pb::Arena* arena) {
+inline void ActivityLaunchConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, pause_),
@@ -223,8 +224,9 @@ inline void ActivityLaunchConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* ActivityLaunchConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
+inline void* PROTOBUF_NONNULL ActivityLaunchConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
   return ::new (mem) ActivityLaunchConfig(arena);
 }
 constexpr auto ActivityLaunchConfig::InternalNewImpl_() {
@@ -259,13 +261,14 @@ PROTOBUF_CONSTINIT
         ActivityLaunchConfig_class_data_ =
             ActivityLaunchConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* ActivityLaunchConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL ActivityLaunchConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&ActivityLaunchConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(ActivityLaunchConfig_class_data_.tc_table);
   return ActivityLaunchConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 42, 2> ActivityLaunchConfig::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 0, 42, 2>
+ActivityLaunchConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(ActivityLaunchConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -313,7 +316,6 @@ const ::_pbi::TcParseTable<2, 3, 0, 42, 2> ActivityLaunchConfig::_table_ = {
     "activity_name"
   }},
 };
-
 PROTOBUF_NOINLINE void ActivityLaunchConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:ActivityLaunchConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -322,7 +324,7 @@ PROTOBUF_NOINLINE void ActivityLaunchConfig::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000001u) != 0) {
     _impl_.activity_name_.ClearNonDefaultToEmpty();
   }
   ::memset(&_impl_.pause_, 0, static_cast<::size_t>(
@@ -333,86 +335,79 @@ PROTOBUF_NOINLINE void ActivityLaunchConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ActivityLaunchConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ActivityLaunchConfig& this_ = static_cast<const ActivityLaunchConfig&>(base);
+::uint8_t* PROTOBUF_NONNULL ActivityLaunchConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const ActivityLaunchConfig& this_ = static_cast<const ActivityLaunchConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ActivityLaunchConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ActivityLaunchConfig& this_ = *this;
+::uint8_t* PROTOBUF_NONNULL ActivityLaunchConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const ActivityLaunchConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:ActivityLaunchConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
+  // @@protoc_insertion_point(serialize_to_array_start:ActivityLaunchConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-          cached_has_bits = this_._impl_._has_bits_[0];
-          // required string activity_name = 1;
-          if (cached_has_bits & 0x00000001u) {
-            const std::string& _s = this_._internal_activity_name();
-            ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
-                                        "ActivityLaunchConfig.activity_name");
-            target = stream->WriteStringMaybeAliased(1, _s, target);
-          }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  // required string activity_name = 1;
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    const std::string& _s = this_._internal_activity_name();
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
+                                "ActivityLaunchConfig.activity_name");
+    target = stream->WriteStringMaybeAliased(1, _s, target);
+  }
 
-          // required bool pause = 2;
-          if (cached_has_bits & 0x00000002u) {
-            target = stream->EnsureSpace(target);
-            target = ::_pbi::WireFormatLite::WriteBoolToArray(
-                2, this_._internal_pause(), target);
-          }
+  // required bool pause = 2;
+  if ((cached_has_bits & 0x00000002u) != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(
+        2, this_._internal_pause(), target);
+  }
 
-          // required bool shutdown = 3;
-          if (cached_has_bits & 0x00000004u) {
-            target = stream->EnsureSpace(target);
-            target = ::_pbi::WireFormatLite::WriteBoolToArray(
-                3, this_._internal_shutdown(), target);
-          }
+  // required bool shutdown = 3;
+  if ((cached_has_bits & 0x00000004u) != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(
+        3, this_._internal_shutdown(), target);
+  }
 
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:ActivityLaunchConfig)
-          return target;
-        }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:ActivityLaunchConfig)
+  return target;
+}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ActivityLaunchConfig::ByteSizeLong(const MessageLite& base) {
-          const ActivityLaunchConfig& this_ = static_cast<const ActivityLaunchConfig&>(base);
+::size_t ActivityLaunchConfig::ByteSizeLong(const MessageLite& base) {
+  const ActivityLaunchConfig& this_ = static_cast<const ActivityLaunchConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ActivityLaunchConfig::ByteSizeLong() const {
-          const ActivityLaunchConfig& this_ = *this;
+::size_t ActivityLaunchConfig::ByteSizeLong() const {
+  const ActivityLaunchConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:ActivityLaunchConfig)
-          ::size_t total_size = 0;
+  // @@protoc_insertion_point(message_byte_size_start:ActivityLaunchConfig)
+  ::size_t total_size = 0;
 
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-          cached_has_bits = this_._impl_._has_bits_[0];
-          if (cached_has_bits & 0x00000007u) {
-            // required string activity_name = 1;
-            if (cached_has_bits & 0x00000001u) {
-              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                              this_._internal_activity_name());
-            }
-            // required bool pause = 2;
-            if (cached_has_bits & 0x00000002u) {
-              total_size += 2;
-            }
-            // required bool shutdown = 3;
-            if (cached_has_bits & 0x00000004u) {
-              total_size += 2;
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  total_size += ::absl::popcount(0x00000006u & cached_has_bits) * 2;
+   {
+    // required string activity_name = 1;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                      this_._internal_activity_name());
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
 
 void ActivityLaunchConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<ActivityLaunchConfig*>(&to_msg);
@@ -423,14 +418,14 @@ void ActivityLaunchConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, co
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       _this->_internal_set_activity_name(from._internal_activity_name());
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       _this->_impl_.pause_ = from._impl_.pause_;
     }
-    if (cached_has_bits & 0x00000004u) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       _this->_impl_.shutdown_ = from._impl_.shutdown_;
     }
   }
@@ -454,7 +449,7 @@ PROTOBUF_NOINLINE bool ActivityLaunchConfig::IsInitializedImpl(
   return true;
 }
 
-void ActivityLaunchConfig::InternalSwap(ActivityLaunchConfig* PROTOBUF_RESTRICT other) {
+void ActivityLaunchConfig::InternalSwap(ActivityLaunchConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   auto* arena = GetArena();
   ABSL_DCHECK_EQ(arena, other->GetArena());
@@ -478,7 +473,7 @@ class ModuleLaunchConfig::_Internal {
  public:
 };
 
-ModuleLaunchConfig::ModuleLaunchConfig(::google::protobuf::Arena* arena)
+ModuleLaunchConfig::ModuleLaunchConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ModuleLaunchConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -488,13 +483,14 @@ ModuleLaunchConfig::ModuleLaunchConfig(::google::protobuf::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:ModuleLaunchConfig)
 }
 PROTOBUF_NDEBUG_INLINE ModuleLaunchConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::ModuleLaunchConfig& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::ModuleLaunchConfig& from_msg)
       : activity_launch_config_{visibility, arena, from.activity_launch_config_},
         _cached_size_{0} {}
 
 ModuleLaunchConfig::ModuleLaunchConfig(
-    ::google::protobuf::Arena* arena,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const ModuleLaunchConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ModuleLaunchConfig_class_data_.base()) {
@@ -511,11 +507,11 @@ ModuleLaunchConfig::ModuleLaunchConfig(
 }
 PROTOBUF_NDEBUG_INLINE ModuleLaunchConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : activity_launch_config_{visibility, arena},
         _cached_size_{0} {}
 
-inline void ModuleLaunchConfig::SharedCtor(::_pb::Arena* arena) {
+inline void ModuleLaunchConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
 }
 ModuleLaunchConfig::~ModuleLaunchConfig() {
@@ -529,8 +525,9 @@ inline void ModuleLaunchConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* ModuleLaunchConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
+inline void* PROTOBUF_NONNULL ModuleLaunchConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
   return ::new (mem) ModuleLaunchConfig(arena);
 }
 constexpr auto ModuleLaunchConfig::InternalNewImpl_() {
@@ -577,13 +574,14 @@ PROTOBUF_CONSTINIT
         ModuleLaunchConfig_class_data_ =
             ModuleLaunchConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* ModuleLaunchConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL ModuleLaunchConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&ModuleLaunchConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(ModuleLaunchConfig_class_data_.tc_table);
   return ModuleLaunchConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 1, 0, 2> ModuleLaunchConfig::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 1, 0, 2>
+ModuleLaunchConfig::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -610,12 +608,13 @@ const ::_pbi::TcParseTable<0, 1, 1, 0, 2> ModuleLaunchConfig::_table_ = {
     // repeated .ActivityLaunchConfig activity_launch_config = 1;
     {PROTOBUF_FIELD_OFFSET(ModuleLaunchConfig, _impl_.activity_launch_config_), 0, 0,
     (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
-  }}, {{
-    {::_pbi::TcParser::GetTable<::ActivityLaunchConfig>()},
-  }}, {{
+  }},
+  {{
+      {::_pbi::TcParser::GetTable<::ActivityLaunchConfig>()},
+  }},
+  {{
   }},
 };
-
 PROTOBUF_NOINLINE void ModuleLaunchConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:ModuleLaunchConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -628,67 +627,67 @@ PROTOBUF_NOINLINE void ModuleLaunchConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ModuleLaunchConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ModuleLaunchConfig& this_ = static_cast<const ModuleLaunchConfig&>(base);
+::uint8_t* PROTOBUF_NONNULL ModuleLaunchConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const ModuleLaunchConfig& this_ = static_cast<const ModuleLaunchConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ModuleLaunchConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ModuleLaunchConfig& this_ = *this;
+::uint8_t* PROTOBUF_NONNULL ModuleLaunchConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const ModuleLaunchConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:ModuleLaunchConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
+  // @@protoc_insertion_point(serialize_to_array_start:ModuleLaunchConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-          // repeated .ActivityLaunchConfig activity_launch_config = 1;
-          for (unsigned i = 0, n = static_cast<unsigned>(
-                                   this_._internal_activity_launch_config_size());
-               i < n; i++) {
-            const auto& repfield = this_._internal_activity_launch_config().Get(i);
-            target =
-                ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                    1, repfield, repfield.GetCachedSize(),
-                    target, stream);
-          }
+  // repeated .ActivityLaunchConfig activity_launch_config = 1;
+  for (unsigned i = 0, n = static_cast<unsigned>(
+                           this_._internal_activity_launch_config_size());
+       i < n; i++) {
+    const auto& repfield = this_._internal_activity_launch_config().Get(i);
+    target =
+        ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+            1, repfield, repfield.GetCachedSize(),
+            target, stream);
+  }
 
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:ModuleLaunchConfig)
-          return target;
-        }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:ModuleLaunchConfig)
+  return target;
+}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ModuleLaunchConfig::ByteSizeLong(const MessageLite& base) {
-          const ModuleLaunchConfig& this_ = static_cast<const ModuleLaunchConfig&>(base);
+::size_t ModuleLaunchConfig::ByteSizeLong(const MessageLite& base) {
+  const ModuleLaunchConfig& this_ = static_cast<const ModuleLaunchConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ModuleLaunchConfig::ByteSizeLong() const {
-          const ModuleLaunchConfig& this_ = *this;
+::size_t ModuleLaunchConfig::ByteSizeLong() const {
+  const ModuleLaunchConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:ModuleLaunchConfig)
-          ::size_t total_size = 0;
+  // @@protoc_insertion_point(message_byte_size_start:ModuleLaunchConfig)
+  ::size_t total_size = 0;
 
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-           {
-            // repeated .ActivityLaunchConfig activity_launch_config = 1;
-            {
-              total_size += 1UL * this_._internal_activity_launch_config_size();
-              for (const auto& msg : this_._internal_activity_launch_config()) {
-                total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
-              }
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+   {
+    // repeated .ActivityLaunchConfig activity_launch_config = 1;
+    {
+      total_size += 1UL * this_._internal_activity_launch_config_size();
+      for (const auto& msg : this_._internal_activity_launch_config()) {
+        total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
 
 void ModuleLaunchConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<ModuleLaunchConfig*>(&to_msg);
@@ -718,7 +717,7 @@ PROTOBUF_NOINLINE bool ModuleLaunchConfig::IsInitializedImpl(
   return true;
 }
 
-void ModuleLaunchConfig::InternalSwap(ModuleLaunchConfig* PROTOBUF_RESTRICT other) {
+void ModuleLaunchConfig::InternalSwap(ModuleLaunchConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   _impl_.activity_launch_config_.InternalSwap(&other->_impl_.activity_launch_config_);

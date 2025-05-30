@@ -624,7 +624,9 @@ class PROTOBUF_EXPORT ExtensionSet {
     LazyMessageExtension& operator=(const LazyMessageExtension&) = delete;
     virtual ~LazyMessageExtension() = default;
 
-    virtual LazyMessageExtension* New(Arena* arena) const = 0;
+    virtual LazyMessageExtension* Clone(Arena* arena,
+                                        const LazyMessageExtension& other,
+                                        Arena* other_arena) const = 0;
     virtual const MessageLite& GetMessage(const MessageLite& prototype,
                                           Arena* arena) const = 0;
     virtual const MessageLite& GetMessageIgnoreUnparsed(
@@ -666,6 +668,7 @@ class PROTOBUF_EXPORT ExtensionSet {
     virtual uint8_t* WriteMessageToArray(
         const MessageLite* prototype, int number, uint8_t* target,
         io::EpsCopyOutputStream* stream) const = 0;
+
 
    private:
     virtual void UnusedKeyMethod();  // Dummy key method to avoid weak vtable.
@@ -762,9 +765,10 @@ class PROTOBUF_EXPORT ExtensionSet {
     // For singular types, indicates if the extension is "cleared".  This
     // happens when an extension is set and then later cleared by the caller.
     // We want to keep the Extension object around for reuse, so instead of
-    // removing it from the map, we just set is_cleared = true.  This has no
-    // meaning for repeated types; for those, the size of the RepeatedField
-    // simply becomes zero when cleared.
+    // removing it from the map, we just set is_cleared = true.
+    //
+    // This is always set to false for repeated types.
+    // The size of the RepeatedField simply becomes zero when cleared.
     bool is_cleared : 1;
 
     // For singular message types, indicates whether lazy parsing is enabled
@@ -816,16 +820,27 @@ class PROTOBUF_EXPORT ExtensionSet {
   // finds the already-existing Extension for that key (returns false).
   // The Extension* will point to the new-or-found Extension.
   std::pair<Extension*, bool> Insert(int key);
+  // Same as insert for the large map.
+  std::pair<Extension*, bool> InternalInsertIntoLargeMap(int key);
 
   // Grows the flat_capacity_.
   // If flat_capacity_ > kMaximumFlatCapacity, converts to LargeMap.
   void GrowCapacity(size_t minimum_new_capacity);
+
   static constexpr uint16_t kMaximumFlatCapacity = 256;
+
+  // Reserves capacity for the flat_capacity_ when the ExtensionSet is
+  // IsCompletelyEmpty.
+  // minimum_new_capacity must be <= kMaximumFlatCapacity.
+  void InternalReserveSmallCapacityFromEmpty(size_t minimum_new_capacity);
+
   bool is_large() const { return static_cast<int16_t>(flat_size_) < 0; }
 
   // Removes a key from the ExtensionSet.
   void Erase(int key);
 
+  // Returns the number of elements in the ExtensionSet, including cleared
+  // extensions.
   size_t Size() const {
     return ABSL_PREDICT_FALSE(is_large()) ? map_.large->size() : flat_size_;
   }
@@ -920,10 +935,30 @@ class PROTOBUF_EXPORT ExtensionSet {
     ForEachNoPrefetch(flat_begin(), flat_end(), std::move(func));
   }
 
-  // Merges existing Extension from other_extension
+  // Returns true if nothing is allocated in the ExtensionSet.
+  bool IsCompletelyEmpty() const {
+    return flat_size_ == 0 && flat_capacity_ == 0;
+  }
+
+  // Implementation of MergeFrom into the empty ExtensionSet from a small
+  // `other`.
+  // This is used in all types of copy.
+  // PRECONDITIONs:
+  // 1. `this.IsCompletelyEmpty()`.
+  // 2. `other` is small (!other.is_large()).
+  void InternalMergeFromSmallToEmpty(const MessageLite* extendee,
+                                     const ExtensionSet& other);
+  // Implementation of MergeFrom for general case.
+  void InternalMergeFromSlow(const MessageLite* extendee,
+                             const ExtensionSet& other);
+  // Merges new or existing Extension from other_extension.
   void InternalExtensionMergeFrom(const MessageLite* extendee, int number,
                                   const Extension& other_extension,
                                   Arena* other_arena);
+  // Merges newly created uninitialized Extension from other_extension.
+  void InternalExtensionMergeFromIntoUninitializedExtension(
+      Extension& dst_extension, const MessageLite* extendee, int number,
+      const Extension& other_extension, Arena* other_arena);
 
   inline static bool is_packable(WireFormatLite::WireType type) {
     switch (type) {
@@ -1077,6 +1112,10 @@ class PROTOBUF_EXPORT ExtensionSet {
     return map_.flat + flat_size_;
   }
 
+  static KeyValue* AllocateFlatMap(Arena* arena,
+                                   uint16_t powerof2_flat_capacity);
+  static void DeleteFlatMap(const KeyValue* flat, uint16_t flat_capacity);
+
   Arena* arena_;
 
   // Manual memory-management:
@@ -1091,8 +1130,6 @@ class PROTOBUF_EXPORT ExtensionSet {
     // which guarantees O(n lg n) CPU but larger constant factors.
     LargeMap* large;
   } map_;
-
-  static void DeleteFlatMap(const KeyValue* flat, uint16_t flat_capacity);
 };
 
 constexpr ExtensionSet::ExtensionSet(Arena* arena)

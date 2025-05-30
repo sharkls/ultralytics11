@@ -4,8 +4,14 @@ activiry_conf {
     node_conf {
         name: "MultiModalFusionActivity"
         domain_Id: 80
-        comm_type: UDP
+        comm_type: UDP 
         segment_size: 1000000
-        white_list: "127.0.0.1"
+        white_list: ""
+        reader_qos_cfg{
+            history_depth : 50
+            resource_limits_max_instances : 1
+            resource_limits_max_samples : 10 
+            resource_limits_max_samples_per_instance : 10
+        }
     }
 }

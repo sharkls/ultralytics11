@@ -23,11 +23,11 @@ def process_label_file(file_path):
 
 def main():
     parser = argparse.ArgumentParser(description='处理标签文件，将指定范围内的0和1标签互换')
-    parser.add_argument('--path', type=str, default='/ultralytics/data/Myself-v2/labels/',
+    parser.add_argument('--path', type=str, default='data/Data/0529/0528all/labels/visible1/train',
                       help='标签文件所在的基础路径')
-    parser.add_argument('--start_file', type=str, default='001952.txt',
+    parser.add_argument('--start_file', type=str, default='13668.txt',
                       help='起始文件名')
-    parser.add_argument('--end_file', type=str, default='002071.txt',
+    parser.add_argument('--end_file', type=str, default='15485.txt',
                       help='结束文件名')
     
     args = parser.parse_args()

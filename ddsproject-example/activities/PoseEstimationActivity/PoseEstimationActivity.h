@@ -15,10 +15,13 @@
 #include "include/Interface/ExportPoseEstimationAlgLib.h"
 #include "include/Interface/CSelfAlgParam.h"
 #include "include/Common/Functions.h"
+#include "include/Common/FunctionHub.h"
 #include <fstream>
 
 #include <opencv2/opencv.hpp>
 #include <glog/logging.h>
+#include <atomic>
+#include <mutex>
 
 // CounterTopic是话题，test0_acticity向test1_activity发送数据
 class PoseEstimationActivity : public ActivityBase
@@ -58,13 +61,21 @@ private:
     CSafeDataDeque<std::shared_ptr<CAlgResult>> pose_estimation_result_deque_;  // 多模态融合结果
 
     // 消息发送和消费线程
-    std::thread *message_producer_thread_{nullptr};
-    std::thread *message_consumer_thread_{nullptr};
+    std::unique_ptr<std::thread> message_producer_thread_;
+    std::unique_ptr<std::thread> message_consumer_thread_;
+    std::atomic<bool> is_running_{false};
+    std::mutex thread_mutex_;
 
     // 算法实例
     IPoseEstimationAlg *pose_estimation_alg_{nullptr};
     std::string root_path_;
     CSelfAlgParam alg_param_;
+
+    // 测试
+    int64_t endTimeStamp_{0};
+    int64_t startTimeStamp_{0};
+    int32_t count_{0};
+    int64_t count_time_{0};
 };
 
 #endif // POSEESTIMATIONACTIVITY_H

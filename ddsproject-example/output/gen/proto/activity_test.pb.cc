@@ -79,9 +79,9 @@ struct ActivityTestConfigDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ActivityTestConfigDefaultTypeInternal _ActivityTestConfig_default_instance_;
-static constexpr const ::_pb::EnumDescriptor**
+static constexpr const ::_pb::EnumDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_enum_descriptors_activity_5ftest_2eproto = nullptr;
-static constexpr const ::_pb::ServiceDescriptor**
+static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_service_descriptors_activity_5ftest_2eproto = nullptr;
 const ::uint32_t
     TableStruct_activity_5ftest_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
@@ -115,7 +115,7 @@ static const ::_pbi::MigrationSchema
         {0, 10, -1, sizeof(::ActivityTestTopicConfig)},
         {12, 21, -1, sizeof(::ActivityTestConfig)},
 };
-static const ::_pb::Message* const file_default_instances[] = {
+static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_ActivityTestTopicConfig_default_instance_._instance,
     &::_ActivityTestConfig_default_instance_._instance,
 };
@@ -154,7 +154,7 @@ class ActivityTestTopicConfig::_Internal {
       8 * PROTOBUF_FIELD_OFFSET(ActivityTestTopicConfig, _impl_._has_bits_);
 };
 
-ActivityTestTopicConfig::ActivityTestTopicConfig(::google::protobuf::Arena* arena)
+ActivityTestTopicConfig::ActivityTestTopicConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ActivityTestTopicConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -164,15 +164,16 @@ ActivityTestTopicConfig::ActivityTestTopicConfig(::google::protobuf::Arena* aren
   // @@protoc_insertion_point(arena_constructor:ActivityTestTopicConfig)
 }
 PROTOBUF_NDEBUG_INLINE ActivityTestTopicConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::ActivityTestTopicConfig& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::ActivityTestTopicConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         read_topic1_(arena, from.read_topic1_),
         write_topic2_(arena, from.write_topic2_) {}
 
 ActivityTestTopicConfig::ActivityTestTopicConfig(
-    ::google::protobuf::Arena* arena,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const ActivityTestTopicConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ActivityTestTopicConfig_class_data_.base()) {
@@ -189,12 +190,12 @@ ActivityTestTopicConfig::ActivityTestTopicConfig(
 }
 PROTOBUF_NDEBUG_INLINE ActivityTestTopicConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0},
         read_topic1_(arena),
         write_topic2_(arena) {}
 
-inline void ActivityTestTopicConfig::SharedCtor(::_pb::Arena* arena) {
+inline void ActivityTestTopicConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
 }
 ActivityTestTopicConfig::~ActivityTestTopicConfig() {
@@ -210,8 +211,9 @@ inline void ActivityTestTopicConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* ActivityTestTopicConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
+inline void* PROTOBUF_NONNULL ActivityTestTopicConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
   return ::new (mem) ActivityTestTopicConfig(arena);
 }
 constexpr auto ActivityTestTopicConfig::InternalNewImpl_() {
@@ -246,13 +248,14 @@ PROTOBUF_CONSTINIT
         ActivityTestTopicConfig_class_data_ =
             ActivityTestTopicConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* ActivityTestTopicConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL ActivityTestTopicConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&ActivityTestTopicConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(ActivityTestTopicConfig_class_data_.tc_table);
   return ActivityTestTopicConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 55, 2> ActivityTestTopicConfig::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 0, 55, 2>
+ActivityTestTopicConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(ActivityTestTopicConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -294,7 +297,6 @@ const ::_pbi::TcParseTable<1, 2, 0, 55, 2> ActivityTestTopicConfig::_table_ = {
     "write_topic2"
   }},
 };
-
 PROTOBUF_NOINLINE void ActivityTestTopicConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:ActivityTestTopicConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -303,11 +305,11 @@ PROTOBUF_NOINLINE void ActivityTestTopicConfig::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       _impl_.read_topic1_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       _impl_.write_topic2_.ClearNonDefaultToEmpty();
     }
   }
@@ -316,77 +318,77 @@ PROTOBUF_NOINLINE void ActivityTestTopicConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ActivityTestTopicConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ActivityTestTopicConfig& this_ = static_cast<const ActivityTestTopicConfig&>(base);
+::uint8_t* PROTOBUF_NONNULL ActivityTestTopicConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const ActivityTestTopicConfig& this_ = static_cast<const ActivityTestTopicConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ActivityTestTopicConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ActivityTestTopicConfig& this_ = *this;
+::uint8_t* PROTOBUF_NONNULL ActivityTestTopicConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const ActivityTestTopicConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:ActivityTestTopicConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
+  // @@protoc_insertion_point(serialize_to_array_start:ActivityTestTopicConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-          cached_has_bits = this_._impl_._has_bits_[0];
-          // optional string read_topic1 = 1;
-          if (cached_has_bits & 0x00000001u) {
-            const std::string& _s = this_._internal_read_topic1();
-            ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
-                                        "ActivityTestTopicConfig.read_topic1");
-            target = stream->WriteStringMaybeAliased(1, _s, target);
-          }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  // optional string read_topic1 = 1;
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    const std::string& _s = this_._internal_read_topic1();
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
+                                "ActivityTestTopicConfig.read_topic1");
+    target = stream->WriteStringMaybeAliased(1, _s, target);
+  }
 
-          // optional string write_topic2 = 2;
-          if (cached_has_bits & 0x00000002u) {
-            const std::string& _s = this_._internal_write_topic2();
-            ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
-                                        "ActivityTestTopicConfig.write_topic2");
-            target = stream->WriteStringMaybeAliased(2, _s, target);
-          }
+  // optional string write_topic2 = 2;
+  if ((cached_has_bits & 0x00000002u) != 0) {
+    const std::string& _s = this_._internal_write_topic2();
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
+                                "ActivityTestTopicConfig.write_topic2");
+    target = stream->WriteStringMaybeAliased(2, _s, target);
+  }
 
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:ActivityTestTopicConfig)
-          return target;
-        }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:ActivityTestTopicConfig)
+  return target;
+}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ActivityTestTopicConfig::ByteSizeLong(const MessageLite& base) {
-          const ActivityTestTopicConfig& this_ = static_cast<const ActivityTestTopicConfig&>(base);
+::size_t ActivityTestTopicConfig::ByteSizeLong(const MessageLite& base) {
+  const ActivityTestTopicConfig& this_ = static_cast<const ActivityTestTopicConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ActivityTestTopicConfig::ByteSizeLong() const {
-          const ActivityTestTopicConfig& this_ = *this;
+::size_t ActivityTestTopicConfig::ByteSizeLong() const {
+  const ActivityTestTopicConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:ActivityTestTopicConfig)
-          ::size_t total_size = 0;
+  // @@protoc_insertion_point(message_byte_size_start:ActivityTestTopicConfig)
+  ::size_t total_size = 0;
 
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-          cached_has_bits = this_._impl_._has_bits_[0];
-          if (cached_has_bits & 0x00000003u) {
-            // optional string read_topic1 = 1;
-            if (cached_has_bits & 0x00000001u) {
-              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                              this_._internal_read_topic1());
-            }
-            // optional string write_topic2 = 2;
-            if (cached_has_bits & 0x00000002u) {
-              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                              this_._internal_write_topic2());
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // optional string read_topic1 = 1;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                      this_._internal_read_topic1());
+    }
+    // optional string write_topic2 = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                      this_._internal_write_topic2());
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
 
 void ActivityTestTopicConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<ActivityTestTopicConfig*>(&to_msg);
@@ -397,11 +399,11 @@ void ActivityTestTopicConfig::MergeImpl(::google::protobuf::MessageLite& to_msg,
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       _this->_internal_set_read_topic1(from._internal_read_topic1());
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       _this->_internal_set_write_topic2(from._internal_write_topic2());
     }
   }
@@ -417,7 +419,7 @@ void ActivityTestTopicConfig::CopyFrom(const ActivityTestTopicConfig& from) {
 }
 
 
-void ActivityTestTopicConfig::InternalSwap(ActivityTestTopicConfig* PROTOBUF_RESTRICT other) {
+void ActivityTestTopicConfig::InternalSwap(ActivityTestTopicConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   auto* arena = GetArena();
   ABSL_DCHECK_EQ(arena, other->GetArena());
@@ -440,7 +442,7 @@ class ActivityTestConfig::_Internal {
       8 * PROTOBUF_FIELD_OFFSET(ActivityTestConfig, _impl_._has_bits_);
 };
 
-ActivityTestConfig::ActivityTestConfig(::google::protobuf::Arena* arena)
+ActivityTestConfig::ActivityTestConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ActivityTestConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -450,13 +452,14 @@ ActivityTestConfig::ActivityTestConfig(::google::protobuf::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:ActivityTestConfig)
 }
 PROTOBUF_NDEBUG_INLINE ActivityTestConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::ActivityTestConfig& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::ActivityTestConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0} {}
 
 ActivityTestConfig::ActivityTestConfig(
-    ::google::protobuf::Arena* arena,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const ActivityTestConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ActivityTestConfig_class_data_.base()) {
@@ -469,18 +472,18 @@ ActivityTestConfig::ActivityTestConfig(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.topic_config_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::ActivityTestTopicConfig>(
-                              arena, *from._impl_.topic_config_)
-                        : nullptr;
+  _impl_.topic_config_ = ((cached_has_bits & 0x00000001u) != 0)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.topic_config_)
+                : nullptr;
 
   // @@protoc_insertion_point(copy_constructor:ActivityTestConfig)
 }
 PROTOBUF_NDEBUG_INLINE ActivityTestConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0} {}
 
-inline void ActivityTestConfig::SharedCtor(::_pb::Arena* arena) {
+inline void ActivityTestConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   _impl_.topic_config_ = {};
 }
@@ -496,8 +499,9 @@ inline void ActivityTestConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* ActivityTestConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
+inline void* PROTOBUF_NONNULL ActivityTestConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
   return ::new (mem) ActivityTestConfig(arena);
 }
 constexpr auto ActivityTestConfig::InternalNewImpl_() {
@@ -532,13 +536,14 @@ PROTOBUF_CONSTINIT
         ActivityTestConfig_class_data_ =
             ActivityTestConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* ActivityTestConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL ActivityTestConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&ActivityTestConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(ActivityTestConfig_class_data_.tc_table);
   return ActivityTestConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 1, 0, 2> ActivityTestConfig::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 1, 0, 2>
+ActivityTestConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(ActivityTestConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -565,12 +570,13 @@ const ::_pbi::TcParseTable<0, 1, 1, 0, 2> ActivityTestConfig::_table_ = {
     // optional .ActivityTestTopicConfig topic_config = 1;
     {PROTOBUF_FIELD_OFFSET(ActivityTestConfig, _impl_.topic_config_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
-  }}, {{
-    {::_pbi::TcParser::GetTable<::ActivityTestTopicConfig>()},
-  }}, {{
+  }},
+  {{
+      {::_pbi::TcParser::GetTable<::ActivityTestTopicConfig>()},
+  }},
+  {{
   }},
 };
-
 PROTOBUF_NOINLINE void ActivityTestConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:ActivityTestConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -579,7 +585,7 @@ PROTOBUF_NOINLINE void ActivityTestConfig::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000001u) != 0) {
     ABSL_DCHECK(_impl_.topic_config_ != nullptr);
     _impl_.topic_config_->Clear();
   }
@@ -588,62 +594,62 @@ PROTOBUF_NOINLINE void ActivityTestConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ActivityTestConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ActivityTestConfig& this_ = static_cast<const ActivityTestConfig&>(base);
+::uint8_t* PROTOBUF_NONNULL ActivityTestConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const ActivityTestConfig& this_ = static_cast<const ActivityTestConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ActivityTestConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ActivityTestConfig& this_ = *this;
+::uint8_t* PROTOBUF_NONNULL ActivityTestConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const ActivityTestConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:ActivityTestConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
+  // @@protoc_insertion_point(serialize_to_array_start:ActivityTestConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-          cached_has_bits = this_._impl_._has_bits_[0];
-          // optional .ActivityTestTopicConfig topic_config = 1;
-          if (cached_has_bits & 0x00000001u) {
-            target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                1, *this_._impl_.topic_config_, this_._impl_.topic_config_->GetCachedSize(), target,
-                stream);
-          }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  // optional .ActivityTestTopicConfig topic_config = 1;
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        1, *this_._impl_.topic_config_, this_._impl_.topic_config_->GetCachedSize(), target,
+        stream);
+  }
 
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:ActivityTestConfig)
-          return target;
-        }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:ActivityTestConfig)
+  return target;
+}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ActivityTestConfig::ByteSizeLong(const MessageLite& base) {
-          const ActivityTestConfig& this_ = static_cast<const ActivityTestConfig&>(base);
+::size_t ActivityTestConfig::ByteSizeLong(const MessageLite& base) {
+  const ActivityTestConfig& this_ = static_cast<const ActivityTestConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ActivityTestConfig::ByteSizeLong() const {
-          const ActivityTestConfig& this_ = *this;
+::size_t ActivityTestConfig::ByteSizeLong() const {
+  const ActivityTestConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:ActivityTestConfig)
-          ::size_t total_size = 0;
+  // @@protoc_insertion_point(message_byte_size_start:ActivityTestConfig)
+  ::size_t total_size = 0;
 
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
-           {
-            // optional .ActivityTestTopicConfig topic_config = 1;
-            cached_has_bits = this_._impl_._has_bits_[0];
-            if (cached_has_bits & 0x00000001u) {
-              total_size += 1 +
-                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.topic_config_);
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
+   {
+    // optional .ActivityTestTopicConfig topic_config = 1;
+    cached_has_bits = this_._impl_._has_bits_[0];
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.topic_config_);
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
 
 void ActivityTestConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<ActivityTestConfig*>(&to_msg);
@@ -655,11 +661,10 @@ void ActivityTestConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, cons
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000001u) != 0) {
     ABSL_DCHECK(from._impl_.topic_config_ != nullptr);
     if (_this->_impl_.topic_config_ == nullptr) {
-      _this->_impl_.topic_config_ =
-          ::google::protobuf::Message::CopyConstruct<::ActivityTestTopicConfig>(arena, *from._impl_.topic_config_);
+      _this->_impl_.topic_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.topic_config_);
     } else {
       _this->_impl_.topic_config_->MergeFrom(*from._impl_.topic_config_);
     }
@@ -676,7 +681,7 @@ void ActivityTestConfig::CopyFrom(const ActivityTestConfig& from) {
 }
 
 
-void ActivityTestConfig::InternalSwap(ActivityTestConfig* PROTOBUF_RESTRICT other) {
+void ActivityTestConfig::InternalSwap(ActivityTestConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);

@@ -15,11 +15,14 @@
 #include "include/Interface/ExportObjectLocationAlgLib.h"
 #include "include/Interface/CSelfAlgParam.h"
 #include "include/Common/Functions.h"
+#include "include/Common/FunctionHub.h"
 #include "include/Common/GlobalContext.h"
 #include <fstream>
 
 #include <opencv2/opencv.hpp>
 #include <glog/logging.h>
+#include <mutex>
+#include <atomic>
 
 // CounterTopic是话题，test0_acticity向test1_activity发送数据
 class ObjectLocationActivity : public ActivityBase
@@ -64,15 +67,20 @@ private:
     CSafeDataDeque<std::shared_ptr<CAlgResult>> pose_estimation_result_deque_;  // 姿态估计结果
     CSafeDataDeque<std::shared_ptr<CAlgResult>> object_location_result_deque_;  // 多模态融合结果
 
-
     // 消息发送和消费线程
-    std::thread *message_producer_thread_{nullptr};
-    std::thread *message_consumer_thread_{nullptr};
+    std::unique_ptr<std::thread> message_producer_thread_;
+    std::unique_ptr<std::thread> message_consumer_thread_;
+    std::mutex thread_mutex_;
+    std::atomic<bool> is_running_{false};
     
     // 算法实例
     IObjectLocationAlg *object_location_alg_{nullptr};
     std::string root_path_;
     CSelfAlgParam alg_param_;
+
+    // 测试
+    int64_t endTimeStamp_;
+    int64_t startTimeStamp_;
 };
 
 #endif // OBJECTLOCATIONACTIVITY_H

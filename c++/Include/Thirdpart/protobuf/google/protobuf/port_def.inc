@@ -153,9 +153,7 @@ static_assert(PROTOBUF_ABSL_MIN(20230125, 3),
 #ifdef PROTOBUF_FUTURE_STRING_VIEW_RETURN_TYPE
 #error PROTOBUF_FUTURE_STRING_VIEW_RETURN_TYPE was previously defined
 #endif
-#if defined(PROTOBUF_TEMPORARY_ENABLE_STRING_VIEW_RETURN_TYPE)
 #define PROTOBUF_FUTURE_STRING_VIEW_RETURN_TYPE 1
-#endif
 
 #ifdef PROTOBUF_ALWAYS_INLINE
 #error PROTOBUF_ALWAYS_INLINE was previously defined
@@ -503,56 +501,9 @@ static_assert(PROTOBUF_ABSL_MIN(20230125, 3),
 #define PROTOBUF_HAVE_ATTRIBUTE_WEAK 0
 #endif
 
-// Macros to detect sanitizers.
-#ifdef PROTOBUF_ASAN
-#error PROTOBUF_ASAN was previously defined
-#endif
-#ifdef PROTOBUF_MSAN
-#error PROTOBUF_MSAN was previously defined
-#endif
-#ifdef PROTOBUF_TSAN
-#error PROTOBUF_TSAN was previously defined
-#endif
-#if defined(__clang__)
-#if ABSL_HAVE_FEATURE(address_sanitizer)
-#    define PROTOBUF_ASAN 1
-#  endif
-#if ABSL_HAVE_FEATURE(thread_sanitizer)
-#    define PROTOBUF_TSAN 1
-#  endif
-#if ABSL_HAVE_FEATURE(memory_sanitizer)
-#    define PROTOBUF_MSAN 1
-#  endif
-#elif defined(__GNUC__)
-// Double-guard is needed for -Wundef:
-#  ifdef __SANITIZE_ADDRESS__
-#  if    __SANITIZE_ADDRESS__
-#    define PROTOBUF_ASAN 1
-#  endif
-#  endif
-#  ifdef __SANITIZE_THREAD__
-#  if    __SANITIZE_THREAD__
-#    define PROTOBUF_TSAN 1
-#  endif
-#  endif
-#  ifdef __SANITIZE_MEMORY__
-#  if    __SANITIZE_MEMORY__
-#    define PROTOBUF_ASAN 1
-#  endif
-#  endif
-#endif
-
-#ifdef PROTOBUF_ASAN
-#include <sanitizer/asan_interface.h>
-#define PROTOBUF_POISON_MEMORY_REGION(p, n) ASAN_POISON_MEMORY_REGION(p, n)
-#define PROTOBUF_UNPOISON_MEMORY_REGION(p, n) ASAN_UNPOISON_MEMORY_REGION(p, n)
-#else  // PROTOBUF_ASAN
-#define PROTOBUF_POISON_MEMORY_REGION(p, n)
-#define PROTOBUF_UNPOISON_MEMORY_REGION(p, n)
-#endif  // PROTOBUF_ASAN
-
-#ifdef PROTOBUF_TSAN
-#define PROTOBUF_TSAN_DECLARE_MEMBER ::uint32_t _tsan_detect_race = 0;
+// Variable used to inject artificial language races to detect API level races.
+#if defined(ABSL_HAVE_THREAD_SANITIZER)
+#define PROTOBUF_TSAN_DECLARE_MEMBER char _tsan_detect_race = 0;
 #else
 #define PROTOBUF_TSAN_DECLARE_MEMBER
 #endif
@@ -671,6 +622,13 @@ static_assert(PROTOBUF_ABSL_MIN(20230125, 3),
 #pragma push_macro("linux")
 #undef linux
 #define PROTOBUF_DID_UNDEF_LINUX
+#endif
+
+// netdb.h defines this on some platforms.
+#ifdef NO_DATA
+#pragma push_macro("NO_DATA")
+#undef NO_DATA
+#define PROTOBUF_DID_UNDEF_NO_DATA
 #endif
 
 // Windows declares several inconvenient macro names.  We #undef them and then
@@ -808,6 +766,8 @@ static_assert(PROTOBUF_ABSL_MIN(20230125, 3),
 //   for (int i = 0; i < public_dep->message_type_count(); ++i)
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wextra-semi"
+// Ensure we don't regress nullability annotations (related: b/383569842)
+#pragma clang diagnostic error "-Wnullability-completeness"
 #endif
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -928,6 +888,20 @@ namespace internal {
 #endif  // !NDEBUG
 #endif  // has_builtin(__builtin_assume)
 
+// PROTOBUF_EXPECT_TRUE_WITH_PROBABILITY(expr, prob) tells the compiler that
+// the expression expr is likely to be true with probability prob. This is
+// helpful for the compiler to make better optimization decisions when we know
+// the probability of a certain branch (e.g. from a profile).
+#ifdef PROTOBUF_EXPECT_TRUE_WITH_PROBABILITY
+#error PROTOBUF_EXPECT_TRUE_WITH_PROBABILITY was previously defined
+#endif
+#if ABSL_HAVE_BUILTIN(__builtin_expect_with_probability)
+#define PROTOBUF_EXPECT_TRUE_WITH_PROBABILITY(expr, prob) \
+  __builtin_expect_with_probability((expr), 1, (prob))
+#else
+#define PROTOBUF_EXPECT_TRUE_WITH_PROBABILITY(expr, prob) (expr)
+#endif
+
 #ifdef PROTOBUF_DEPRECATE_AND_INLINE
 #error PROTOBUF_DEPRECATE_AND_INLINE was previously defined
 #endif
@@ -935,6 +909,14 @@ namespace internal {
 #define PROTOBUF_DEPRECATE_AND_INLINE() ABSL_DEPRECATE_AND_INLINE()
 #else
 #define PROTOBUF_DEPRECATE_AND_INLINE() [[deprecated]]
+#endif
+
+#ifdef PROTOBUF_NONNULL
+#error PROTOBUF_NONNULL was previously defined
+#endif
+#ifndef PROTOBUF_NONNULL
+#define PROTOBUF_NONNULL
+#define PROTOBUF_NULLABLE
 #endif
 
 namespace google {

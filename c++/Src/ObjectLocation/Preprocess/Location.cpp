@@ -65,6 +65,14 @@ void Location::execute()
         const auto& depth_map = multiModalResult.tCameraSupplement().vecDistanceInfo();
         int depth_width = multiModalResult.tCameraSupplement().usWidth();
         int depth_height = multiModalResult.tCameraSupplement().usHeight();
+        
+        // // 打印(320,320)处的深度值
+        // if (depth_width > 320 && depth_height > 320) {
+        //     float d_320_320 = get_depth(depth_map, depth_width, depth_height, 320, 320);
+        //     LOG(INFO) << "Depth at (320,320): " << d_320_320;
+        // } else {
+        //     LOG(INFO) << "Depth map size too small for (320,320), width=" << depth_width << ", height=" << depth_height;
+        // }
 
         const auto& det_objs = multiModalResult.vecObjectResult();
         const auto& pose_objs = poseResult.vecObjectResult();
@@ -158,7 +166,7 @@ float Location::calc_iou(const CObjectResult& a, const CObjectResult& b) const
 }
 
 // 根据中心点获取深度
-float Location::get_depth(const std::vector<float>& depth_map, int width, int height, float x, float y) const 
+float Location::get_depth(const std::vector<short>& depth_map, int width, int height, float x, float y) const 
 {
     // 越界保护
     if (x < 0 || x >= width || y < 0 || y >= height) {
@@ -166,7 +174,7 @@ float Location::get_depth(const std::vector<float>& depth_map, int width, int he
     }
     int ix = static_cast<int>(std::round(x));
     int iy = static_cast<int>(std::round(y));
-    return depth_map[iy * width + ix];
+    return static_cast<float>(depth_map[iy * width + ix]);
 }
 
 // 根据桶分布获取深度

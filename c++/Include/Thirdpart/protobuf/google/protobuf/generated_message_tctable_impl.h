@@ -800,25 +800,19 @@ class PROTOBUF_EXPORT TcParser final {
       PROTOBUF_TC_PARAM_DECL);
 
   // For `map` mini parsing generate a type card for the key/value.
-  template <typename MapField>
   static constexpr MapAuxInfo GetMapAuxInfo(bool fail_on_utf8_failure,
                                             bool log_debug_utf8_failure,
                                             bool validated_enum_value,
-                                            int key_type, int value_type) {
-    using MapType = typename MapField::MapType;
-    using Node = typename MapType::Node;
-    static_assert(alignof(Node) == alignof(NodeBase), "");
-    // Verify the assumption made in MpMap, guaranteed by Map<>.
-    assert(PROTOBUF_FIELD_OFFSET(Node, kv.first) == sizeof(NodeBase));
+                                            int key_type, int value_type,
+                                            bool is_lite) {
     return {
-        MakeMapTypeCard(static_cast<WireFormatLite::FieldType>(key_type)),
-        MakeMapTypeCard(static_cast<WireFormatLite::FieldType>(value_type)),
+        MakeMapTypeCard(1, static_cast<WireFormatLite::FieldType>(key_type)),
+        MakeMapTypeCard(2, static_cast<WireFormatLite::FieldType>(value_type)),
         true,
-        !std::is_base_of<MapFieldBaseForParse, MapField>::value,
+        is_lite,
         fail_on_utf8_failure,
         log_debug_utf8_failure,
         validated_enum_value,
-        Node::size_info(),
     };
   }
 
@@ -1007,22 +1001,15 @@ class PROTOBUF_EXPORT TcParser final {
 
   static void WriteMapEntryAsUnknown(MessageLite* msg,
                                      const TcParseTableBase* table,
-                                     uint32_t tag, NodeBase* node,
-                                     MapAuxInfo map_info);
+                                     UntypedMapBase& map, uint32_t tag,
+                                     NodeBase* node, MapAuxInfo map_info);
 
-  static void InitializeMapNodeEntry(void* obj, MapTypeCard type_card,
-                                     UntypedMapBase& map,
-                                     const TcParseTableBase::FieldAux* aux,
-                                     bool is_key);
-  PROTOBUF_NOINLINE
-  static void DestroyMapNode(NodeBase* node, MapAuxInfo map_info,
-                             UntypedMapBase& map);
   static const char* ParseOneMapEntry(NodeBase* node, const char* ptr,
                                       ParseContext* ctx,
                                       const TcParseTableBase::FieldAux* aux,
                                       const TcParseTableBase* table,
                                       const TcParseTableBase::FieldEntry& entry,
-                                      Arena* arena);
+                                      UntypedMapBase& map);
 
   // Mini field lookup:
   static const TcParseTableBase::FieldEntry* FindFieldEntry(

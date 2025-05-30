@@ -50,8 +50,8 @@ import argparse
 # results = model.train(data="multimodal_llvip_raw_test.yaml", batch=16, epochs=300, imgsz=640, device=0)
 
 # # # 使用自定义数据训练单模态（YOLO）-2025.5.21
-model = YOLO("yolo11s.yaml", task="detect") # build a new model from YAML
-results = model.train(data="multimodal-Myself-v2.yaml", batch=32, epochs=300, imgsz=640, device=0)
+# model = YOLO("yolo11s.yaml", task="detect") # build a new model from YAML
+# results = model.train(data="multimodal-Myself-v2.yaml", batch=32, epochs=300, imgsz=640, device=0)
 
 # # # 使用自定义数据集训练多模态（EFDEAYOLO）-2025.5.21
 # model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal") # build a new model from YAML
@@ -65,6 +65,15 @@ results = model.train(data="multimodal-Myself-v2.yaml", batch=32, epochs=300, im
 # # # # 使用自定义数据集Myself-v2训练多模态（EFDEAYOLO）-2025.5.21
 # model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal") # build a new model from YAML
 # results = model.train(data="multimodal-Myself-v2.yaml", batch=32, epochs=300, imgsz=640, device=0)
+
+# # 使用自定义数据集Myself-v3训练多模态（EFDEAYOLO）-2025.5.26
+model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal") # build a new model from YAML
+results = model.train(data="multimodal-Myself-clean-0529.yaml", batch=32, epochs=300, imgsz=640, device=0)
+
+# # # 使用自定义数据训练单模态（YOLO）-2025.5.27
+# model = YOLO("yolo11s.yaml", task="detect") # build a new model from YAML
+# results = model.train(data="multimodal-Myself-v3.yaml", batch=32, epochs=300, imgsz=640, device=0)
+
 
 # 断点续训
 # 2. 断点续训 - 从最后一个检查点继续训练

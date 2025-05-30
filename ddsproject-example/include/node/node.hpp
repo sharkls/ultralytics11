@@ -7,7 +7,7 @@
 #include "include/common/log.hpp"
 #include "include/node/reader.hpp"
 #include "include/node/writer.hpp"
-#include "proto/node_conf.pb.h"
+#include "proto/activity_cfg/node_conf.pb.h"
 
 using eprosima::fastdds::dds::TypeSupport;
 
@@ -144,6 +144,9 @@ private:
     eprosima::fastdds::dds::DomainParticipant *participant_;
     eprosima::fastdds::dds::Publisher *publisher_;
     eprosima::fastdds::dds::Subscriber *subscriber_;
+
+    ReaderQosConfig reader_qos_cfg_;
+    WriterQosConfig writer_qos_cfg_;
 };
 
 template <typename MessageT>

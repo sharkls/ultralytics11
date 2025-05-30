@@ -60,10 +60,10 @@ def process_all_images(images_root, labels_root, output_root, subdirs, class_nam
 
 def main():
     parser = argparse.ArgumentParser(description='批量绘制YOLO标签到图片并保存')
-    parser.add_argument('--images_root', type=str, default='data/Myself-v2/images/visible', help='图片根目录')
-    parser.add_argument('--labels_root', type=str, default='data/Myself-v2/labels/visible', help='标签根目录')
-    parser.add_argument('--output_root', type=str, default='runs/plot_labels', help='输出保存目录')
-    parser.add_argument('--subdirs', type=str, nargs='+', default=['train', 'val', 'test'], help='处理的子目录')
+    parser.add_argument('--images_root', type=str, default='data/Data/0529/Myself-v3-clean/images/visible', help='图片根目录')
+    parser.add_argument('--labels_root', type=str, default='data/Data/0529/Myself-v3-clean/labels/visible', help='标签根目录')
+    parser.add_argument('--output_root', type=str, default='data/Data/plot/0529-check', help='输出保存目录')
+    parser.add_argument('--subdirs', type=str, nargs='+', default=['train', 'test', 'val'], help='处理的子目录')
     parser.add_argument('--class_names', type=str, default=None, help='类别名txt文件路径（可选）')
     args = parser.parse_args()
 

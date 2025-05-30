@@ -1,0 +1,5 @@
+struct CounterResponseMessage
+{
+    long cnt;
+    string response;
+};

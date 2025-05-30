@@ -14,21 +14,21 @@ def parse_args():
     parser = argparse.ArgumentParser(description='YOLO Multimodal ONNX Model Validation')
     
     # 模型相关参数
-    parser.add_argument('--onnx-path', type=str, default='runs/multimodal/train64/weights/best.onnx',
+    parser.add_argument('--onnx-path', type=str, default='runs/multimodal/train76/weights/best0529.onnx',
                       help='ONNX模型路径')
     parser.add_argument('--imgsz', nargs='+', type=int, default=[640, 640],
                       help='输入图像尺寸 [height, width]')
     
     # 数据集相关参数
-    parser.add_argument('--data-dir', type=str, default='./data/Myself-v2',
+    parser.add_argument('--data-dir', type=str, default='./data/Myself-v3-clean-0529',
                       help='数据集根目录')
-    parser.add_argument('--split', type=str, default='test',
+    parser.add_argument('--split', type=str, default='train',
                       help='数据集划分 (train/val/test)')
     
     # 检测相关参数
     parser.add_argument('--conf-thres', type=float, default=0.5,
                       help='检测置信度阈值')
-    parser.add_argument('--iou-thres', type=float, default=0.001,
+    parser.add_argument('--iou-thres', type=float, default=0.7,
                       help='NMS IOU阈值')
     parser.add_argument('--nc', type=int, default=2,
                       help='目标类别数量')
@@ -40,7 +40,7 @@ def parse_args():
     # 其他参数
     parser.add_argument('--device', type=str, default='cuda',
                       help='运行设备 cuda/cpu')
-    parser.add_argument('--save-dir', type=str, default='runs/onnx_val-meselfv2-0522',
+    parser.add_argument('--save-dir', type=str, default='runs/onnx_val-meselfv3-clean-0529-val',
                       help='结果保存目录')
     parser.add_argument('--visualize', type=bool, default=True,
                       help='是否可视化检测结果')
@@ -234,6 +234,12 @@ def process_output(output, conf_thres=0.25, iou_thres=0.45, scale_factor=None, n
         return np.zeros((0, 6))
     
     final_results = np.vstack(results)
+    # ====== 新增：全局NMS（类间NMS） ======
+    global_boxes = final_results[:, :4]
+    global_scores = final_results[:, 4]
+    keep = nms(global_boxes, global_scores, iou_thres)
+    final_results = final_results[keep]
+    # ====================================
     return final_results
 
 def nms(boxes, scores, iou_threshold):
@@ -515,29 +521,33 @@ def evaluate_onnx(args):
                 # 可视化结果
                 if args.visualize:
                     rgb_img = cv2.imread(str(rgb_paths[i]))
-                    
-                    # 绘制原始标签框（红色）
+                    # 原有可视化
                     gt_boxes = annotations[img_name]
                     for gt_box in gt_boxes:
                         x1, y1, x2, y2, cls_id = gt_box
                         cv2.rectangle(rgb_img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 2)
                         cv2.putText(rgb_img, f'GT cls{int(cls_id)}', (int(x1), int(y1)-10), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-                    
-                    # 绘制检测结果框（绿色）
                     for det in detections:
                         x1, y1, x2, y2, conf, cls_id = det
                         cv2.rectangle(rgb_img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
                         cv2.putText(rgb_img, f'Det cls{int(cls_id)} {conf:.2f}', (int(x1), int(y1)-10), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    
-                    # 添加图例
                     cv2.putText(rgb_img, 'Red: Ground Truth', (10, 30), 
                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                     cv2.putText(rgb_img, 'Green: Detection', (10, 60), 
                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    
-                    cv2.imwrite(str(save_dir / f"{img_name}_det.jpg"), rgb_img)
+                    # cv2.imwrite(str(save_dir / f"{img_name}_det.jpg"), rgb_img)
+
+                    # 新增：只保存推理结果，类别0红色，类别1绿色
+                    vis_img = cv2.imread(str(rgb_paths[i]))
+                    for det in detections:
+                        x1, y1, x2, y2, conf, cls_id = det
+                        color = (0, 0, 255) if int(cls_id) == 0 else (0, 255, 0)
+                        cv2.rectangle(vis_img, (int(x1), int(y1)), (int(x2), int(y2)), color, 2)
+                        cv2.putText(vis_img, f'cls{int(cls_id)} {conf:.2f}', (int(x1), int(y1)-10), 
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                    cv2.imwrite(str(save_dir / f"{img_name}_onnx_only.jpg"), vis_img)
                     
         except Exception as e:
             print(f"ONNX推理失败: {e}")

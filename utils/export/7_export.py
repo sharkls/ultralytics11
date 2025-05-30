@@ -12,13 +12,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description='YOLO Multimodal Model Export and Validation')
     
     # 模型相关参数
-    parser.add_argument('--weights', type=str, default='/ultralytics/runs/multimodal/train64/weights/best.pt',
+    parser.add_argument('--weights', type=str, default='/ultralytics/runs/multimodal/train76/weights/best.pt',
                       help='训练好的模型权重路径')
     parser.add_argument('--imgsz', nargs='+', type=int, default=[640, 640],
                       help='输入图像尺寸 [height, width]')
     
     # 导出相关参数
-    parser.add_argument('--export-path', type=str, default='/ultralytics/runs/export/EFDE-YOLO-Myslef-v2',
+    parser.add_argument('--export-path', type=str, default='/ultralytics/runs/export/EFDE-YOLO-Myslef-v3',
                       help='ONNX模型导出路径')
     parser.add_argument('--opset', type=int, default=16,
                       help='ONNX opset版本')
@@ -28,11 +28,11 @@ def parse_args():
                       help='是否简化ONNX模型')
     
     # 验证相关参数
-    parser.add_argument('--extrinsics', type=str, default='/ultralytics/data/Myself-v2/extrinsics/test/000020.txt',
+    parser.add_argument('--extrinsics', type=str, default='/ultralytics/data/Myself-v3-clean/extrinsics/test/001624.txt',
                       help='RGB图像路径')
-    parser.add_argument('--rgb-path', type=str, default='/ultralytics/data/Myself-v2/images/visible/test/000020.jpg',
+    parser.add_argument('--rgb-path', type=str, default='/ultralytics/data/Myself-v3-clean/images/visible/test/001624.jpg',
                       help='RGB图像路径')
-    parser.add_argument('--ir-path', type=str, default='/ultralytics/data/Myself-v2/images/infrared/test/000020.jpg',
+    parser.add_argument('--ir-path', type=str, default='/ultralytics/data/Myself-v3-clean/images/infrared/test/001624.jpg',
                       help='红外图像路径')
     parser.add_argument('--pos-error-threshold', type=float, default=10.0,
                       help='位置误差阈值（像素）')

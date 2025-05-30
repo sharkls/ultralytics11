@@ -50,8 +50,9 @@ template <typename T>
 struct TableStruct_dag_5fconf_2eproto {
   static const ::uint32_t offsets[];
 };
-extern const ::google::protobuf::internal::DescriptorTable
-    descriptor_table_dag_5fconf_2eproto;
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_dag_5fconf_2eproto;
+}  // extern "C"
 class DagConfig;
 struct DagConfigDefaultTypeInternal;
 extern DagConfigDefaultTypeInternal _DagConfig_default_instance_;
@@ -71,23 +72,21 @@ namespace protobuf {
 
 // -------------------------------------------------------------------
 
-class ModuleConfig final
-    : public ::google::protobuf::Message
+class ModuleConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:ModuleConfig) */ {
  public:
   inline ModuleConfig() : ModuleConfig(nullptr) {}
   ~ModuleConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ModuleConfig* msg, std::destroying_delete_t) {
+  void operator delete(ModuleConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(ModuleConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ModuleConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR ModuleConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline ModuleConfig(const ModuleConfig& from) : ModuleConfig(nullptr, from) {}
   inline ModuleConfig(ModuleConfig&& from) noexcept
@@ -110,30 +109,27 @@ class ModuleConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const ModuleConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ModuleConfig* internal_default_instance() {
-    return reinterpret_cast<const ModuleConfig*>(
+    return *reinterpret_cast<const ModuleConfig*>(
         &_ModuleConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 0;
   friend void swap(ModuleConfig& a, ModuleConfig& b) { a.Swap(&b); }
-  inline void Swap(ModuleConfig* other) {
+  inline void Swap(ModuleConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -141,7 +137,7 @@ class ModuleConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ModuleConfig* other) {
+  void UnsafeArenaSwap(ModuleConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -149,7 +145,7 @@ class ModuleConfig final
 
   // implements Message ----------------------------------------------
 
-  ModuleConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  ModuleConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<ModuleConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -158,9 +154,8 @@ class ModuleConfig final
   void MergeFrom(const ModuleConfig& from) { ModuleConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -175,45 +170,46 @@ class ModuleConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(ModuleConfig* other);
+  void InternalSwap(ModuleConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "ModuleConfig"; }
 
  protected:
-  explicit ModuleConfig(::google::protobuf::Arena* arena);
-  ModuleConfig(::google::protobuf::Arena* arena, const ModuleConfig& from);
-  ModuleConfig(::google::protobuf::Arena* arena, ModuleConfig&& from) noexcept
+  explicit ModuleConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  ModuleConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ModuleConfig& from);
+  ModuleConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ModuleConfig&& from) noexcept
       : ModuleConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -234,15 +230,15 @@ class ModuleConfig final
 
   public:
   void clear_activity_info() ;
-  ::ActivityInfo* mutable_activity_info(int index);
-  ::google::protobuf::RepeatedPtrField<::ActivityInfo>* mutable_activity_info();
+  ::ActivityInfo* PROTOBUF_NONNULL mutable_activity_info(int index);
+  ::google::protobuf::RepeatedPtrField<::ActivityInfo>* PROTOBUF_NONNULL mutable_activity_info();
 
   private:
   const ::google::protobuf::RepeatedPtrField<::ActivityInfo>& _internal_activity_info() const;
-  ::google::protobuf::RepeatedPtrField<::ActivityInfo>* _internal_mutable_activity_info();
+  ::google::protobuf::RepeatedPtrField<::ActivityInfo>* PROTOBUF_NONNULL _internal_mutable_activity_info();
   public:
   const ::ActivityInfo& activity_info(int index) const;
-  ::ActivityInfo* add_activity_info();
+  ::ActivityInfo* PROTOBUF_NONNULL add_activity_info();
   const ::google::protobuf::RepeatedPtrField<::ActivityInfo>& activity_info() const;
   // optional string module_library = 1;
   bool has_module_library() const;
@@ -250,23 +246,23 @@ class ModuleConfig final
   const std::string& module_library() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_module_library(Arg_&& arg, Args_... args);
-  std::string* mutable_module_library();
-  [[nodiscard]] std::string* release_module_library();
-  void set_allocated_module_library(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_module_library();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_module_library();
+  void set_allocated_module_library(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_module_library() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_module_library(const std::string& value);
-  std::string* _internal_mutable_module_library();
+  std::string* PROTOBUF_NONNULL _internal_mutable_module_library();
 
   public:
   // @@protoc_insertion_point(class_scope:ModuleConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 1,
-      35, 2>
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   1, 35,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -276,13 +272,14 @@ class ModuleConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ModuleConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const ModuleConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::RepeatedPtrField< ::ActivityInfo > activity_info_;
@@ -296,23 +293,21 @@ class ModuleConfig final
 extern const ::google::protobuf::internal::ClassDataFull ModuleConfig_class_data_;
 // -------------------------------------------------------------------
 
-class DagConfig final
-    : public ::google::protobuf::Message
+class DagConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:DagConfig) */ {
  public:
   inline DagConfig() : DagConfig(nullptr) {}
   ~DagConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(DagConfig* msg, std::destroying_delete_t) {
+  void operator delete(DagConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(DagConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR DagConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR DagConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline DagConfig(const DagConfig& from) : DagConfig(nullptr, from) {}
   inline DagConfig(DagConfig&& from) noexcept
@@ -335,30 +330,27 @@ class DagConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const DagConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const DagConfig* internal_default_instance() {
-    return reinterpret_cast<const DagConfig*>(
+    return *reinterpret_cast<const DagConfig*>(
         &_DagConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 1;
   friend void swap(DagConfig& a, DagConfig& b) { a.Swap(&b); }
-  inline void Swap(DagConfig* other) {
+  inline void Swap(DagConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -366,7 +358,7 @@ class DagConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(DagConfig* other) {
+  void UnsafeArenaSwap(DagConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -374,7 +366,7 @@ class DagConfig final
 
   // implements Message ----------------------------------------------
 
-  DagConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  DagConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<DagConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -383,9 +375,8 @@ class DagConfig final
   void MergeFrom(const DagConfig& from) { DagConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -400,45 +391,46 @@ class DagConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(DagConfig* other);
+  void InternalSwap(DagConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "DagConfig"; }
 
  protected:
-  explicit DagConfig(::google::protobuf::Arena* arena);
-  DagConfig(::google::protobuf::Arena* arena, const DagConfig& from);
-  DagConfig(::google::protobuf::Arena* arena, DagConfig&& from) noexcept
+  explicit DagConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  DagConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const DagConfig& from);
+  DagConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, DagConfig&& from) noexcept
       : DagConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -458,23 +450,23 @@ class DagConfig final
 
   public:
   void clear_module_config() ;
-  ::ModuleConfig* mutable_module_config(int index);
-  ::google::protobuf::RepeatedPtrField<::ModuleConfig>* mutable_module_config();
+  ::ModuleConfig* PROTOBUF_NONNULL mutable_module_config(int index);
+  ::google::protobuf::RepeatedPtrField<::ModuleConfig>* PROTOBUF_NONNULL mutable_module_config();
 
   private:
   const ::google::protobuf::RepeatedPtrField<::ModuleConfig>& _internal_module_config() const;
-  ::google::protobuf::RepeatedPtrField<::ModuleConfig>* _internal_mutable_module_config();
+  ::google::protobuf::RepeatedPtrField<::ModuleConfig>* PROTOBUF_NONNULL _internal_mutable_module_config();
   public:
   const ::ModuleConfig& module_config(int index) const;
-  ::ModuleConfig* add_module_config();
+  ::ModuleConfig* PROTOBUF_NONNULL add_module_config();
   const ::google::protobuf::RepeatedPtrField<::ModuleConfig>& module_config() const;
   // @@protoc_insertion_point(class_scope:DagConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 1,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
+                                   1, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -484,13 +476,14 @@ class DagConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const DagConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const DagConfig& from_msg);
     ::google::protobuf::RepeatedPtrField< ::ModuleConfig > module_config_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -533,14 +526,14 @@ inline const std::string& ModuleConfig::module_library() const
   return _internal_module_library();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void ModuleConfig::set_module_library(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void ModuleConfig::set_module_library(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.module_library_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:ModuleConfig.module_library)
 }
-inline std::string* ModuleConfig::mutable_module_library() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL ModuleConfig::mutable_module_library()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_module_library();
   // @@protoc_insertion_point(field_mutable:ModuleConfig.module_library)
   return _s;
@@ -554,12 +547,12 @@ inline void ModuleConfig::_internal_set_module_library(const std::string& value)
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.module_library_.Set(value, GetArena());
 }
-inline std::string* ModuleConfig::_internal_mutable_module_library() {
+inline std::string* PROTOBUF_NONNULL ModuleConfig::_internal_mutable_module_library() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.module_library_.Mutable( GetArena());
 }
-inline std::string* ModuleConfig::release_module_library() {
+inline std::string* PROTOBUF_NULLABLE ModuleConfig::release_module_library() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:ModuleConfig.module_library)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
@@ -572,7 +565,7 @@ inline std::string* ModuleConfig::release_module_library() {
   }
   return released;
 }
-inline void ModuleConfig::set_allocated_module_library(std::string* value) {
+inline void ModuleConfig::set_allocated_module_library(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
@@ -593,12 +586,12 @@ inline int ModuleConfig::_internal_activity_info_size() const {
 inline int ModuleConfig::activity_info_size() const {
   return _internal_activity_info_size();
 }
-inline ::ActivityInfo* ModuleConfig::mutable_activity_info(int index)
+inline ::ActivityInfo* PROTOBUF_NONNULL ModuleConfig::mutable_activity_info(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_mutable:ModuleConfig.activity_info)
   return _internal_mutable_activity_info()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::ActivityInfo>* ModuleConfig::mutable_activity_info()
+inline ::google::protobuf::RepeatedPtrField<::ActivityInfo>* PROTOBUF_NONNULL ModuleConfig::mutable_activity_info()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_mutable_list:ModuleConfig.activity_info)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -609,7 +602,8 @@ inline const ::ActivityInfo& ModuleConfig::activity_info(int index) const
   // @@protoc_insertion_point(field_get:ModuleConfig.activity_info)
   return _internal_activity_info().Get(index);
 }
-inline ::ActivityInfo* ModuleConfig::add_activity_info() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::ActivityInfo* PROTOBUF_NONNULL ModuleConfig::add_activity_info()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::ActivityInfo* _add = _internal_mutable_activity_info()->Add();
   // @@protoc_insertion_point(field_add:ModuleConfig.activity_info)
@@ -625,7 +619,7 @@ ModuleConfig::_internal_activity_info() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.activity_info_;
 }
-inline ::google::protobuf::RepeatedPtrField<::ActivityInfo>*
+inline ::google::protobuf::RepeatedPtrField<::ActivityInfo>* PROTOBUF_NONNULL
 ModuleConfig::_internal_mutable_activity_info() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.activity_info_;
@@ -646,12 +640,12 @@ inline void DagConfig::clear_module_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.module_config_.Clear();
 }
-inline ::ModuleConfig* DagConfig::mutable_module_config(int index)
+inline ::ModuleConfig* PROTOBUF_NONNULL DagConfig::mutable_module_config(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_mutable:DagConfig.module_config)
   return _internal_mutable_module_config()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::ModuleConfig>* DagConfig::mutable_module_config()
+inline ::google::protobuf::RepeatedPtrField<::ModuleConfig>* PROTOBUF_NONNULL DagConfig::mutable_module_config()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_mutable_list:DagConfig.module_config)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -662,7 +656,8 @@ inline const ::ModuleConfig& DagConfig::module_config(int index) const
   // @@protoc_insertion_point(field_get:DagConfig.module_config)
   return _internal_module_config().Get(index);
 }
-inline ::ModuleConfig* DagConfig::add_module_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::ModuleConfig* PROTOBUF_NONNULL DagConfig::add_module_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::ModuleConfig* _add = _internal_mutable_module_config()->Add();
   // @@protoc_insertion_point(field_add:DagConfig.module_config)
@@ -678,7 +673,7 @@ DagConfig::_internal_module_config() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.module_config_;
 }
-inline ::google::protobuf::RepeatedPtrField<::ModuleConfig>*
+inline ::google::protobuf::RepeatedPtrField<::ModuleConfig>* PROTOBUF_NONNULL
 DagConfig::_internal_mutable_module_config() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.module_config_;

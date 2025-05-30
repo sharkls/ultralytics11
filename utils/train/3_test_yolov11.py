@@ -10,8 +10,8 @@
 
 from ultralytics import YOLOMultimodal, YOLO
 
-model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train64/weights/best.pt')  # load an official model
-metrics = model.val(data="multimodal-Myself-v2-test.yaml", batch=16, imgsz=640, device=0, show=True)  # no arguments needed, dataset and settings remembered
+model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal").load('/ultralytics/runs/multimodal/train66/weights/best.pt')  # load an official model
+metrics = model.val(data="multimodal-Myself-v3-test.yaml", batch=16, imgsz=640, device=0, show=True)  # no arguments needed, dataset and settings remembered
 
 # model = YOLO("yolo11s.yaml", task="detect").load('/ultralytics/runs/detect/train8/weights/best.pt')  # load an official model
 # metrics = model.val(data="multimodal-Myself-v2-test.yaml", batch=16, imgsz=640, device=0, show=True) 

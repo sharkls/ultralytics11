@@ -8,8 +8,8 @@
 #include "include/node/node.hpp"
 #include "include/common/state.hpp"
 
-#include "proto/activity_conf.pb.h"
-#include "proto/master_activity_communicate_conf.pb.h"
+#include "proto/activity_cfg/activity_conf.pb.h"
+#include "proto/activity_cfg/master_activity_communicate_conf.pb.h"
 #include "idl/master_activity_message/master_activity_messagePubSubTypes.h"
 #include "idl/master_activity_message/master_activity_message.h"
 

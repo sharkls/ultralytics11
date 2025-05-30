@@ -1,0 +1,5 @@
+struct MessageWaitForDeal
+{
+    string data_name;
+    unsigned long data;
+};

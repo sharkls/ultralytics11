@@ -19,8 +19,8 @@ public:
     uint64_t Tail();
     uint64_t Size();
 
-    const T& Front() const;
-    const T& Back() const;
+    const T& Front();
+    const T& Back();
 
     bool Full() const;
     bool Empty() const;
@@ -85,13 +85,13 @@ inline uint64_t CacheBuffer<T>::Size()
 }
 
 template <typename T>
-const T &CacheBuffer<T>::Front() const
+const T &CacheBuffer<T>::Front()
 {
     return buffer_[GetIndex(head_ + 1)] ;   
 }
 
 template <typename T>
-const T &CacheBuffer<T>::Back() const
+const T &CacheBuffer<T>::Back()
 {
     return buffer_[GetIndex(tail_)];
 }

@@ -11,6 +11,8 @@ struct CDataBase
     octet                                         eDataType;           // 数据类型 (根据枚举类型设定)
     octet                                         eDataSourceType;     // 数据体来源类型（0：双目  1：红外  2：毫米波雷达）
     unsigned long                                 unFrameId;           // 帧号
+
+    unsigned long long                            lTimeStamp;
     
     //存放各个阶段各种数据的时间戳：ms
     map<octet, unsigned long long>                mapTimeStamp;

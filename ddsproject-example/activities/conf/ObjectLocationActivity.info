@@ -6,6 +6,6 @@ activiry_conf {
         domain_Id: 80
         comm_type: UDP
         segment_size: 1000000
-        white_list: "127.0.0.1"
+        white_list: ""
     }
 }

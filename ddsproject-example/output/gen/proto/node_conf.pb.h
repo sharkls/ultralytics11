@@ -50,10 +50,10 @@ template <typename T>
 struct TableStruct_node_5fconf_2eproto {
   static const ::uint32_t offsets[];
 };
-extern const ::google::protobuf::internal::DescriptorTable
-    descriptor_table_node_5fconf_2eproto;
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_node_5fconf_2eproto;
+}  // extern "C"
 enum CommType : int;
-bool CommType_IsValid(int value);
 extern const uint32_t CommType_internal_data_[];
 class NodeConfig;
 struct NodeConfigDefaultTypeInternal;
@@ -77,15 +77,16 @@ enum CommType : int {
   DEFAULT = 2,
 };
 
-bool CommType_IsValid(int value);
 extern const uint32_t CommType_internal_data_[];
 inline constexpr CommType CommType_MIN =
     static_cast<CommType>(0);
 inline constexpr CommType CommType_MAX =
     static_cast<CommType>(2);
+inline bool CommType_IsValid(int value) {
+  return 0 <= value && value <= 2;
+}
 inline constexpr int CommType_ARRAYSIZE = 2 + 1;
-const ::google::protobuf::EnumDescriptor*
-CommType_descriptor();
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL CommType_descriptor();
 template <typename T>
 const std::string& CommType_Name(T value) {
   static_assert(std::is_same<T, CommType>::value ||
@@ -95,13 +96,13 @@ const std::string& CommType_Name(T value) {
 }
 template <>
 inline const std::string& CommType_Name(CommType value) {
-  return ::google::protobuf::internal::NameOfDenseEnum<CommType_descriptor,
-                                                 0, 2>(
+  return ::google::protobuf::internal::NameOfDenseEnum<CommType_descriptor, 0, 2>(
       static_cast<int>(value));
 }
-inline bool CommType_Parse(absl::string_view name, CommType* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<CommType>(
-      CommType_descriptor(), name, value);
+inline bool CommType_Parse(
+    absl::string_view name, CommType* PROTOBUF_NONNULL value) {
+  return ::google::protobuf::internal::ParseNamedEnum<CommType>(CommType_descriptor(), name,
+                                           value);
 }
 
 // ===================================================================
@@ -109,23 +110,21 @@ inline bool CommType_Parse(absl::string_view name, CommType* value) {
 
 // -------------------------------------------------------------------
 
-class NodeConfig final
-    : public ::google::protobuf::Message
+class NodeConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:NodeConfig) */ {
  public:
   inline NodeConfig() : NodeConfig(nullptr) {}
   ~NodeConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(NodeConfig* msg, std::destroying_delete_t) {
+  void operator delete(NodeConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(NodeConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR NodeConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR NodeConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline NodeConfig(const NodeConfig& from) : NodeConfig(nullptr, from) {}
   inline NodeConfig(NodeConfig&& from) noexcept
@@ -148,30 +147,27 @@ class NodeConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const NodeConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const NodeConfig* internal_default_instance() {
-    return reinterpret_cast<const NodeConfig*>(
+    return *reinterpret_cast<const NodeConfig*>(
         &_NodeConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 0;
   friend void swap(NodeConfig& a, NodeConfig& b) { a.Swap(&b); }
-  inline void Swap(NodeConfig* other) {
+  inline void Swap(NodeConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -179,7 +175,7 @@ class NodeConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(NodeConfig* other) {
+  void UnsafeArenaSwap(NodeConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -187,7 +183,7 @@ class NodeConfig final
 
   // implements Message ----------------------------------------------
 
-  NodeConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  NodeConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<NodeConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -196,9 +192,8 @@ class NodeConfig final
   void MergeFrom(const NodeConfig& from) { NodeConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -213,45 +208,46 @@ class NodeConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(NodeConfig* other);
+  void InternalSwap(NodeConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "NodeConfig"; }
 
  protected:
-  explicit NodeConfig(::google::protobuf::Arena* arena);
-  NodeConfig(::google::protobuf::Arena* arena, const NodeConfig& from);
-  NodeConfig(::google::protobuf::Arena* arena, NodeConfig&& from) noexcept
+  explicit NodeConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  NodeConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const NodeConfig& from);
+  NodeConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, NodeConfig&& from) noexcept
       : NodeConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -274,14 +270,14 @@ class NodeConfig final
   const std::string& name() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_name(Arg_&& arg, Args_... args);
-  std::string* mutable_name();
-  [[nodiscard]] std::string* release_name();
-  void set_allocated_name(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_name();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_name();
+  void set_allocated_name(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_name() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
-  std::string* _internal_mutable_name();
+  std::string* PROTOBUF_NONNULL _internal_mutable_name();
 
   public:
   // optional string white_list = 5 [default = ""];
@@ -290,14 +286,14 @@ class NodeConfig final
   const std::string& white_list() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_white_list(Arg_&& arg, Args_... args);
-  std::string* mutable_white_list();
-  [[nodiscard]] std::string* release_white_list();
-  void set_allocated_white_list(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_white_list();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_white_list();
+  void set_allocated_white_list(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_white_list() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_white_list(const std::string& value);
-  std::string* _internal_mutable_white_list();
+  std::string* PROTOBUF_NONNULL _internal_mutable_white_list();
 
   public:
   // optional uint32 segment_size = 4;
@@ -337,9 +333,9 @@ class NodeConfig final
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      3, 5, 1,
-      33, 2>
+  static const ::google::protobuf::internal::TcParseTable<3, 5,
+                                   1, 33,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -349,13 +345,14 @@ class NodeConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const NodeConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const NodeConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr name_;
@@ -372,23 +369,21 @@ class NodeConfig final
 extern const ::google::protobuf::internal::ClassDataFull NodeConfig_class_data_;
 // -------------------------------------------------------------------
 
-class NodeConfs final
-    : public ::google::protobuf::Message
+class NodeConfs final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:NodeConfs) */ {
  public:
   inline NodeConfs() : NodeConfs(nullptr) {}
   ~NodeConfs() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(NodeConfs* msg, std::destroying_delete_t) {
+  void operator delete(NodeConfs* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(NodeConfs));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR NodeConfs(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR NodeConfs(::google::protobuf::internal::ConstantInitialized);
 
   inline NodeConfs(const NodeConfs& from) : NodeConfs(nullptr, from) {}
   inline NodeConfs(NodeConfs&& from) noexcept
@@ -411,30 +406,27 @@ class NodeConfs final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const NodeConfs& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const NodeConfs* internal_default_instance() {
-    return reinterpret_cast<const NodeConfs*>(
+    return *reinterpret_cast<const NodeConfs*>(
         &_NodeConfs_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 1;
   friend void swap(NodeConfs& a, NodeConfs& b) { a.Swap(&b); }
-  inline void Swap(NodeConfs* other) {
+  inline void Swap(NodeConfs* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -442,7 +434,7 @@ class NodeConfs final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(NodeConfs* other) {
+  void UnsafeArenaSwap(NodeConfs* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -450,7 +442,7 @@ class NodeConfs final
 
   // implements Message ----------------------------------------------
 
-  NodeConfs* New(::google::protobuf::Arena* arena = nullptr) const {
+  NodeConfs* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<NodeConfs>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -459,9 +451,8 @@ class NodeConfs final
   void MergeFrom(const NodeConfs& from) { NodeConfs::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -476,45 +467,46 @@ class NodeConfs final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(NodeConfs* other);
+  void InternalSwap(NodeConfs* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "NodeConfs"; }
 
  protected:
-  explicit NodeConfs(::google::protobuf::Arena* arena);
-  NodeConfs(::google::protobuf::Arena* arena, const NodeConfs& from);
-  NodeConfs(::google::protobuf::Arena* arena, NodeConfs&& from) noexcept
+  explicit NodeConfs(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  NodeConfs(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const NodeConfs& from);
+  NodeConfs(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, NodeConfs&& from) noexcept
       : NodeConfs(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -534,23 +526,23 @@ class NodeConfs final
 
   public:
   void clear_node_conf() ;
-  ::NodeConfig* mutable_node_conf(int index);
-  ::google::protobuf::RepeatedPtrField<::NodeConfig>* mutable_node_conf();
+  ::NodeConfig* PROTOBUF_NONNULL mutable_node_conf(int index);
+  ::google::protobuf::RepeatedPtrField<::NodeConfig>* PROTOBUF_NONNULL mutable_node_conf();
 
   private:
   const ::google::protobuf::RepeatedPtrField<::NodeConfig>& _internal_node_conf() const;
-  ::google::protobuf::RepeatedPtrField<::NodeConfig>* _internal_mutable_node_conf();
+  ::google::protobuf::RepeatedPtrField<::NodeConfig>* PROTOBUF_NONNULL _internal_mutable_node_conf();
   public:
   const ::NodeConfig& node_conf(int index) const;
-  ::NodeConfig* add_node_conf();
+  ::NodeConfig* PROTOBUF_NONNULL add_node_conf();
   const ::google::protobuf::RepeatedPtrField<::NodeConfig>& node_conf() const;
   // @@protoc_insertion_point(class_scope:NodeConfs)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 1,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
+                                   1, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -560,13 +552,14 @@ class NodeConfs final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const NodeConfs& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const NodeConfs& from_msg);
     ::google::protobuf::RepeatedPtrField< ::NodeConfig > node_conf_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -609,14 +602,14 @@ inline const std::string& NodeConfig::name() const
   return _internal_name();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void NodeConfig::set_name(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void NodeConfig::set_name(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:NodeConfig.name)
 }
-inline std::string* NodeConfig::mutable_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL NodeConfig::mutable_name()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_name();
   // @@protoc_insertion_point(field_mutable:NodeConfig.name)
   return _s;
@@ -630,12 +623,12 @@ inline void NodeConfig::_internal_set_name(const std::string& value) {
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.name_.Set(value, GetArena());
 }
-inline std::string* NodeConfig::_internal_mutable_name() {
+inline std::string* PROTOBUF_NONNULL NodeConfig::_internal_mutable_name() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.name_.Mutable( GetArena());
 }
-inline std::string* NodeConfig::release_name() {
+inline std::string* PROTOBUF_NULLABLE NodeConfig::release_name() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:NodeConfig.name)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
@@ -648,7 +641,7 @@ inline std::string* NodeConfig::release_name() {
   }
   return released;
 }
-inline void NodeConfig::set_allocated_name(std::string* value) {
+inline void NodeConfig::set_allocated_name(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
@@ -715,8 +708,10 @@ inline ::CommType NodeConfig::_internal_comm_type() const {
 }
 inline void NodeConfig::_internal_set_comm_type(::CommType value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  assert(::CommType_IsValid(value));
-  _impl_.comm_type_ = value;
+
+                                          assert(::google::protobuf::internal::ValidateEnum(
+                                              value, ::CommType_internal_data_));
+                                          _impl_.comm_type_ = value;
 }
 
 // optional uint32 segment_size = 4;
@@ -763,14 +758,14 @@ inline const std::string& NodeConfig::white_list() const
   return _internal_white_list();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void NodeConfig::set_white_list(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void NodeConfig::set_white_list(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.white_list_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:NodeConfig.white_list)
 }
-inline std::string* NodeConfig::mutable_white_list() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL NodeConfig::mutable_white_list()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_white_list();
   // @@protoc_insertion_point(field_mutable:NodeConfig.white_list)
   return _s;
@@ -784,12 +779,12 @@ inline void NodeConfig::_internal_set_white_list(const std::string& value) {
   _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.white_list_.Set(value, GetArena());
 }
-inline std::string* NodeConfig::_internal_mutable_white_list() {
+inline std::string* PROTOBUF_NONNULL NodeConfig::_internal_mutable_white_list() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
   return _impl_.white_list_.Mutable( GetArena());
 }
-inline std::string* NodeConfig::release_white_list() {
+inline std::string* PROTOBUF_NULLABLE NodeConfig::release_white_list() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:NodeConfig.white_list)
   if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
@@ -802,7 +797,7 @@ inline std::string* NodeConfig::release_white_list() {
   }
   return released;
 }
-inline void NodeConfig::set_allocated_white_list(std::string* value) {
+inline void NodeConfig::set_allocated_white_list(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000002u;
@@ -831,12 +826,12 @@ inline void NodeConfs::clear_node_conf() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.node_conf_.Clear();
 }
-inline ::NodeConfig* NodeConfs::mutable_node_conf(int index)
+inline ::NodeConfig* PROTOBUF_NONNULL NodeConfs::mutable_node_conf(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_mutable:NodeConfs.node_conf)
   return _internal_mutable_node_conf()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::NodeConfig>* NodeConfs::mutable_node_conf()
+inline ::google::protobuf::RepeatedPtrField<::NodeConfig>* PROTOBUF_NONNULL NodeConfs::mutable_node_conf()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_mutable_list:NodeConfs.node_conf)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -847,7 +842,8 @@ inline const ::NodeConfig& NodeConfs::node_conf(int index) const
   // @@protoc_insertion_point(field_get:NodeConfs.node_conf)
   return _internal_node_conf().Get(index);
 }
-inline ::NodeConfig* NodeConfs::add_node_conf() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::NodeConfig* PROTOBUF_NONNULL NodeConfs::add_node_conf()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::NodeConfig* _add = _internal_mutable_node_conf()->Add();
   // @@protoc_insertion_point(field_add:NodeConfs.node_conf)
@@ -863,7 +859,7 @@ NodeConfs::_internal_node_conf() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.node_conf_;
 }
-inline ::google::protobuf::RepeatedPtrField<::NodeConfig>*
+inline ::google::protobuf::RepeatedPtrField<::NodeConfig>* PROTOBUF_NONNULL
 NodeConfs::_internal_mutable_node_conf() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.node_conf_;
@@ -882,7 +878,7 @@ namespace protobuf {
 template <>
 struct is_proto_enum<::CommType> : std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor<::CommType>() {
+inline const EnumDescriptor* PROTOBUF_NONNULL GetEnumDescriptor<::CommType>() {
   return ::CommType_descriptor();
 }
 

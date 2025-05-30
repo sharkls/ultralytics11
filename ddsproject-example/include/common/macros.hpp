@@ -45,6 +45,7 @@ typename std::enable_if<!HasShutdown<T>::value>::type CallShutdown(T *instance)
 
 #define UNUSED(param) (void)param
 
+// 禁止拷贝构造和复制构造
 #define DISALLOW_COPY_AND_ASSIGN(classname) \
     classname(const classname &) = delete;  \
     classname &operator=(const classname &) = delete;
@@ -75,4 +76,16 @@ private:                                                                        
     classname();                                                                      \
     DISALLOW_COPY_AND_ASSIGN(classname)
 
+
+// cpu pause,汇编语言，将当前cpu休眠，用于日志系统的写入与刷新
+inline static void cpu_relax()
+{
+#if defined(__aarch64__)
+    asm volatile("rep; ");
+#else
+    asm volatile("rep; nop" ::: "memory");
 #endif
+}
+
+#endif
+

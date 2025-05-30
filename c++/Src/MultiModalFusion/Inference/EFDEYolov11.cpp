@@ -57,7 +57,7 @@ bool EFDEYolo11::init(void* p_pAlgParam)
     // LOG(INFO) << "new_unpad_h_ = " << new_unpad_h_ << ", new_unpad_w_ = " << new_unpad_w_;
     // LOG(INFO) << "dw_ = " << dw_ << ", dh_ = " << dh_;
     // LOG(INFO) << "ratio_ = " << ratio_;
-    // LOG(INFO) << "num_anchors_ = " << num_anchors_;
+    LOG(INFO) << "num_anchors_ = " << num_anchors_;
 
     // 初始化TensorRT相关配置
     initTensorRT();
@@ -127,7 +127,11 @@ void EFDEYolo11::initTensorRT()
         throw std::runtime_error("设置映射矩阵输入形状失败");
     }
     output_name_ = engine_->getIOTensorName(3); // output
-    output_dims_ = context_->getTensorShape(output_name_);
+    nvinfer1::Dims out_dims = engine_->getTensorShape(output_name_);
+    LOG(INFO) << "engine_->getTensorShape: nbDims=" << out_dims.nbDims;
+    for (int i = 0; i < out_dims.nbDims; ++i) {
+        LOG(INFO) << "  dim[" << i << "] = " << out_dims.d[i];
+    }
 
     // 5. 分配输入输出buffer
     size_t img_size = batch_size_ * channels_ * target_size_ * target_size_ * sizeof(float);
@@ -150,6 +154,7 @@ void EFDEYolo11::initTensorRT()
     }
     // 输出buffer
     size_t output_size = batch_size_ * (4 + num_classes_) * num_anchors_ * sizeof(float);
+    LOG(INFO) << "init TensorRT : output_size = " << output_size << ", num_anchors_ = " << num_anchors_ << "num_classes_ = " << num_classes_;
     void* output_buffer = nullptr;
     cuda_status = cudaMalloc(&output_buffer, output_size);
     if (cuda_status != cudaSuccess) {
@@ -323,7 +328,7 @@ std::vector<float> EFDEYolo11::inference()
     if (!context_->setTensorAddress(output_name_, output_buffers_[0])) {
         throw std::runtime_error("设置输出张量地址失败");
     }
-    LOG(INFO) << "已绑定所有输入张量: " << input_name_rgb << ", " << input_name_ir << ", " << input_name_homo;
+    // LOG(INFO) << "已绑定所有输入张量: " << input_name_rgb << ", " << input_name_ir << ", " << input_name_homo;
 
     // 3. 拷贝输入数据到GPU
     cudaError_t cuda_status = cudaMemcpyAsync(input_buffers_[0], m_inputImage[0].data(),
@@ -358,10 +363,14 @@ std::vector<float> EFDEYolo11::inference()
     cudaStreamSynchronize(stream_);
 
     // 5. 获取输出 shape
-    nvinfer1::Dims output_dims = context_->getTensorShape(output_name_);
+    nvinfer1::Dims out_dims2 = context_->getTensorShape(output_name_);
+    // LOG(INFO) << "context_->getTensorShape: nbDims=" << out_dims2.nbDims;
+    // for (int i = 0; i < out_dims2.nbDims; ++i) {
+    //     LOG(INFO) << "  dim[" << i << "] = " << out_dims2.d[i];
+    // }
     size_t output_size = 1;
-    for (int i = 0; i < output_dims.nbDims; ++i) {
-        output_size *= output_dims.d[i];
+    for (int i = 0; i < out_dims2.nbDims; ++i) {
+        output_size *= out_dims2.d[i];
     }
     std::vector<float> output(output_size);
 
@@ -369,6 +378,7 @@ std::vector<float> EFDEYolo11::inference()
     cuda_status = cudaMemcpyAsync(output.data(), output_buffers_[0],
                                   output_size * sizeof(float),
                                   cudaMemcpyDeviceToHost, stream_);
+    // LOG(INFO) << "output_size = " << output_size;
     if (cuda_status != cudaSuccess) {
         LOG(ERROR) << "CUDA输出内存拷贝失败: " << cudaGetErrorString(cuda_status);
         return {};
@@ -376,9 +386,9 @@ std::vector<float> EFDEYolo11::inference()
     cudaStreamSynchronize(stream_);
 
     // 7. 保存推理输出为bin文件
-    if (status_) {
-        save_bin(output, "./Save_Data/multimodal/result/output_EFDEYolo11.bin"); // EFDEYolo11/Inference
-    }
+    // if (status_) {
+    //     save_bin(output, "./Save_Data/multimodal/result/output_EFDEYolo11.bin"); // EFDEYolo11/Inference
+    // }
 
     // LOG(INFO) << "推理输出 shape: " << output.size();
     LOG(INFO) << "EFDEYolo11::inference status: success ";
@@ -460,19 +470,28 @@ std::vector<std::vector<float>> EFDEYolo11::process_output(const std::vector<flo
         }
     }
 
-    std::cout << "results.size(): " << results.size() << std::endl;
+    // 全局NMS
+    std::vector<float> global_scores;
+    for (const auto& res : results) {
+        global_scores.push_back(res[4]); // 置信度
+    }
+    std::vector<int> keep = nms(results, global_scores); // 用现有nms函数
+    std::vector<std::vector<float>> final_results;
+    for (int idx : keep) {
+        final_results.push_back(results[idx]);
+    }
 
-    // 4. 按置信度排序，截断最大检测数
-    std::sort(results.begin(), results.end(), [](const std::vector<float>& a, const std::vector<float>& b) {
+    // 排序和截断
+    std::sort(final_results.begin(), final_results.end(), [](const std::vector<float>& a, const std::vector<float>& b) {
         return a[4] > b[4];
     });
-    if (results.size() > max_dets_) results.resize(max_dets_);
+    if (final_results.size() > max_dets_) final_results.resize(max_dets_);
 
-    if(status_)
-    {
-        save_bin(results, "./Save_Data/multimodal/result/processed_output_EFDEYolo11.bin"); // EFDEYolo11/Inference
-    }
-    return results;
+    // if(status_)
+    // {
+    //     save_bin(results, "./Save_Data/multimodal/result/processed_output_EFDEYolo11.bin"); // EFDEYolo11/Inference
+    // }
+    return final_results;
 }
 
 std::vector<int> EFDEYolo11::nms(const std::vector<std::vector<float>>& boxes, const std::vector<float>& scores) 

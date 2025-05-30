@@ -7,14 +7,9 @@ PoseEstimationActivity::PoseEstimationActivity()
 {
 }
 
-PoseEstimationActivity::~PoseEstimationActivity()
+PoseEstimationActivity::~PoseEstimationActivity() 
 {
-    if ((message_producer_thread_ != nullptr) && (message_producer_thread_->joinable()))
-    {
-        message_producer_thread_->join();
-        delete message_producer_thread_;
-        message_producer_thread_ = nullptr;
-    }
+    PauseClear();
 }
 
 bool PoseEstimationActivity::Init()
@@ -65,7 +60,16 @@ bool PoseEstimationActivity::Init()
 // 处理camera_merged_topic中的数据
 void PoseEstimationActivity::ReadCallbackFunc(const CMultiModalSrcData &message,
         void *data_handle, std::string node_name, std::string topic_name)
-{
+{   
+    startTimeStamp_ = GetTimeStamp();
+    if(startTimeStamp_ - count_time_ > 1000)
+    {
+        count_time_ = startTimeStamp_;
+        LOG(INFO) << "MultiModalFusionActivity FPS =================================: " << count_;
+        count_ = 0;
+    }
+    count_++;
+
     std::shared_ptr<CMultiModalSrcData> message_ptr = std::make_shared<CMultiModalSrcData>(message);
     camera_merged_data_deque_.PushBack(message_ptr);
 }
@@ -77,38 +81,50 @@ void PoseEstimationActivity::GetPoseEstimationResultResponseMessageCallbackFunc(
     pose_estimation_result_deque_.PushBack(res_ptr);
 }
 
-void PoseEstimationActivity::Start()
+
+void PoseEstimationActivity::Start() 
 {
     TINFO << "PoseEstimationActivity running";
-    message_producer_thread_ = new std::thread(&PoseEstimationActivity::MessageProducerThreadFunc, this);
-    message_consumer_thread_ = new std::thread(&PoseEstimationActivity::MessageConsumerThreadFunc, this);
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    if (is_running_) return;
+    is_running_ = true;
+    message_producer_thread_ = std::make_unique<std::thread>(&PoseEstimationActivity::MessageProducerThreadFunc, this);
+    message_consumer_thread_ = std::make_unique<std::thread>(&PoseEstimationActivity::MessageConsumerThreadFunc, this);
 }
 
 // 当收到master节点的PAUSE指令，则执行一些清除工作，比如delete线程
-void PoseEstimationActivity::PauseClear()
+void PoseEstimationActivity::PauseClear() 
 {
-    if ((message_producer_thread_ != nullptr) && (message_producer_thread_->joinable()))
-    {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    if (!is_running_) return;
+    is_running_ = false;
+    if (message_producer_thread_ && message_producer_thread_->joinable()) {
         message_producer_thread_->join();
-        delete message_producer_thread_;
-        message_producer_thread_ = nullptr;
+        message_producer_thread_.reset();
+    }
+    if (message_consumer_thread_ && message_consumer_thread_->joinable()) {
+        message_consumer_thread_->join();
+        message_consumer_thread_.reset();
     }
 }
 
 void PoseEstimationActivity::MessageProducerThreadFunc()
 {
     // 向CounterTopic中循环发送数据
+    // LOG(INFO) << "is_running : " << is_running_;
     // is_running_是线程结束的标志位，通过master的指令进行控制
     while (is_running_.load())
     {   
-        LOG(INFO) << "Waiting ...";
-        std::shared_ptr<CMultiModalSrcData> message;
-        if (!camera_merged_data_deque_.PopFront(message, 1))
+        // LOG(INFO) << "Waiting ...";
+        std::shared_ptr<CAlgResult> message;
+        if (!pose_estimation_result_deque_.PopFront(message, 1))
         {
             // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             continue;
         }
-        LOG(INFO) << "Get CMultiModalSrcData!!";
+        LOG(INFO) << "Get CAlgResult!!";
+        endTimeStamp_ = GetTimeStamp();
+        LOG(INFO) << "PoseEstimationActivity MessageProducerThreadFunc time:----------------------------------- " << endTimeStamp_ - startTimeStamp_;
         writer_->SendMessage((void*)message.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }

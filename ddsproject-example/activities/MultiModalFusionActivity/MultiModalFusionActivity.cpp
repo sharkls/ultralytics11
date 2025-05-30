@@ -15,13 +15,9 @@ MultiModalFusionActivity::MultiModalFusionActivity()
 
 MultiModalFusionActivity::~MultiModalFusionActivity()
 {
-    if ((message_producer_thread_ != nullptr) && (message_producer_thread_->joinable()))
-    {
-        message_producer_thread_->join();
-        delete message_producer_thread_;
-        message_producer_thread_ = nullptr;
-    }
+    PauseClear();
 }
+
 
 bool MultiModalFusionActivity::Init()
 {
@@ -65,13 +61,24 @@ bool MultiModalFusionActivity::Init()
     LOG(INFO) << "root_path: " << root_path_;
     multi_modal_fusion_alg_ = CreateMultiModalFusionAlgObj(root_path_);
     multi_modal_fusion_alg_->initAlgorithm(&alg_param_, std::bind(&MultiModalFusionActivity::GetMultiModalFusionResultResponseMessageCallbackFunc, this, std::placeholders::_1, std::placeholders::_2), nullptr);
+    LOG(INFO) << "MultiModalFusionActivity::Init() status:  success!";
     return true;
 }
 
 // 处理camera_merged_topic中的数据
 void MultiModalFusionActivity::ReadCallbackFunc(const CMultiModalSrcData &message,
         void *data_handle, std::string node_name, std::string topic_name)
-{
+{   
+    // LOG(INFO) << "____READCALLBACK";
+    startTimeStamp_ = GetTimeStamp();
+    // LOG(INFO) << "MultiModalFusionActivity FPS =================================: " << count_ << " " <<  startTimeStamp_ << " " << count_time_;
+    if(startTimeStamp_ - count_time_ > 1000)
+    {
+        count_time_ = startTimeStamp_;
+        LOG(INFO) << "MultiModalFusionActivity FPS =================================: " << count_ << " " <<  startTimeStamp_ << " " << count_time_;
+        count_ = 0;
+    }
+    count_++;
     std::shared_ptr<CMultiModalSrcData> message_ptr = std::make_shared<CMultiModalSrcData>(message);
     camera_merged_data_deque_.PushBack(message_ptr);
 }
@@ -85,19 +92,32 @@ void MultiModalFusionActivity::GetMultiModalFusionResultResponseMessageCallbackF
 
 void MultiModalFusionActivity::Start()
 {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    if (is_running_) return;
     TINFO << "MultiModalFusionActivity running";
-    message_producer_thread_ = new std::thread(&MultiModalFusionActivity::MessageProducerThreadFunc, this);
-    message_consumer_thread_ = new std::thread(&MultiModalFusionActivity::MessageConsumerThreadFunc, this);
+    is_running_ = true;
+    message_producer_thread_ = std::make_unique<std::thread>(&MultiModalFusionActivity::MessageProducerThreadFunc, this);
+    message_consumer_thread_ = std::make_unique<std::thread>(&MultiModalFusionActivity::MessageConsumerThreadFunc, this);
+    // vis_thread_ = std::make_unique<std::thread>(&MultiModalFusionActivity::VisThreadFunc, this);
 }
 
 // 当收到master节点的PAUSE指令，则执行一些清除工作，比如delete线程
 void MultiModalFusionActivity::PauseClear()
 {
-    if ((message_producer_thread_ != nullptr) && (message_producer_thread_->joinable()))
-    {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    if (!is_running_) return;
+    is_running_ = false;
+    if (message_producer_thread_ && message_producer_thread_->joinable()) {
         message_producer_thread_->join();
-        delete message_producer_thread_;
-        message_producer_thread_ = nullptr;
+        message_producer_thread_.reset();
+    }
+    if (message_consumer_thread_ && message_consumer_thread_->joinable()) {
+        message_consumer_thread_->join();
+        message_consumer_thread_.reset();
+    }
+    if (vis_thread_ && vis_thread_->joinable()) {
+        vis_thread_->join();
+        vis_thread_.reset();
     }
 }
 
@@ -107,12 +127,15 @@ void MultiModalFusionActivity::MessageProducerThreadFunc()
     // is_running_是线程结束的标志位，通过master的指令进行控制
     while (is_running_.load())
     {
-        std::shared_ptr<CMultiModalSrcData> message;
-        if (!camera_merged_data_deque_.PopFront(message, 1))
+        std::shared_ptr<CAlgResult> message;
+        if (!multi_modal_fusion_result_deque_.PopFront(message, 1))
         {
             // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             continue;
         }
+        endTimeStamp_ = GetTimeStamp();
+
+        LOG(INFO) << "MultiModalFusionActivity MessageProducerThreadFunc time:----------------------------------- " << endTimeStamp_ - startTimeStamp_;
         writer_->SendMessage((void*)message.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
@@ -138,6 +161,11 @@ void MultiModalFusionActivity::MessageConsumerThreadFunc()
         multi_modal_fusion_alg_->runAlgorithm(l_pMultiModalSrcData.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
+}
+
+void MultiModalFusionActivity::VisThreadFunc()
+{
+    ;
 }
 
 // 启动activity方法1：写main函数，可通过命令行传参，int main(int argc, char*argv[]),需自行解析

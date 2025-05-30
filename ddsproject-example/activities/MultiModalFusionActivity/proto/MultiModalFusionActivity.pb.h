@@ -49,8 +49,9 @@ template <typename T>
 struct TableStruct_MultiModalFusionActivity_2eproto {
   static const ::uint32_t offsets[];
 };
-extern const ::google::protobuf::internal::DescriptorTable
-    descriptor_table_MultiModalFusionActivity_2eproto;
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_MultiModalFusionActivity_2eproto;
+}  // extern "C"
 class Config;
 struct ConfigDefaultTypeInternal;
 extern ConfigDefaultTypeInternal _Config_default_instance_;
@@ -70,23 +71,21 @@ namespace protobuf {
 
 // -------------------------------------------------------------------
 
-class TopicConfig final
-    : public ::google::protobuf::Message
+class TopicConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:TopicConfig) */ {
  public:
   inline TopicConfig() : TopicConfig(nullptr) {}
   ~TopicConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(TopicConfig* msg, std::destroying_delete_t) {
+  void operator delete(TopicConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(TopicConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR TopicConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR TopicConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline TopicConfig(const TopicConfig& from) : TopicConfig(nullptr, from) {}
   inline TopicConfig(TopicConfig&& from) noexcept
@@ -109,30 +108,27 @@ class TopicConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const TopicConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const TopicConfig* internal_default_instance() {
-    return reinterpret_cast<const TopicConfig*>(
+    return *reinterpret_cast<const TopicConfig*>(
         &_TopicConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 0;
   friend void swap(TopicConfig& a, TopicConfig& b) { a.Swap(&b); }
-  inline void Swap(TopicConfig* other) {
+  inline void Swap(TopicConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -140,7 +136,7 @@ class TopicConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(TopicConfig* other) {
+  void UnsafeArenaSwap(TopicConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -148,7 +144,7 @@ class TopicConfig final
 
   // implements Message ----------------------------------------------
 
-  TopicConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  TopicConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<TopicConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -157,9 +153,8 @@ class TopicConfig final
   void MergeFrom(const TopicConfig& from) { TopicConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -169,45 +164,46 @@ class TopicConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(TopicConfig* other);
+  void InternalSwap(TopicConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "TopicConfig"; }
 
  protected:
-  explicit TopicConfig(::google::protobuf::Arena* arena);
-  TopicConfig(::google::protobuf::Arena* arena, const TopicConfig& from);
-  TopicConfig(::google::protobuf::Arena* arena, TopicConfig&& from) noexcept
+  explicit TopicConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  TopicConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const TopicConfig& from);
+  TopicConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, TopicConfig&& from) noexcept
       : TopicConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -227,14 +223,14 @@ class TopicConfig final
   const std::string& camera_merged_topic() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_camera_merged_topic(Arg_&& arg, Args_... args);
-  std::string* mutable_camera_merged_topic();
-  [[nodiscard]] std::string* release_camera_merged_topic();
-  void set_allocated_camera_merged_topic(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_camera_merged_topic();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_camera_merged_topic();
+  void set_allocated_camera_merged_topic(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_camera_merged_topic() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_camera_merged_topic(const std::string& value);
-  std::string* _internal_mutable_camera_merged_topic();
+  std::string* PROTOBUF_NONNULL _internal_mutable_camera_merged_topic();
 
   public:
   // optional string multi_modal_fusion_result_topic = 4;
@@ -243,23 +239,23 @@ class TopicConfig final
   const std::string& multi_modal_fusion_result_topic() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_multi_modal_fusion_result_topic(Arg_&& arg, Args_... args);
-  std::string* mutable_multi_modal_fusion_result_topic();
-  [[nodiscard]] std::string* release_multi_modal_fusion_result_topic();
-  void set_allocated_multi_modal_fusion_result_topic(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_multi_modal_fusion_result_topic();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_multi_modal_fusion_result_topic();
+  void set_allocated_multi_modal_fusion_result_topic(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_multi_modal_fusion_result_topic() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_multi_modal_fusion_result_topic(const std::string& value);
-  std::string* _internal_mutable_multi_modal_fusion_result_topic();
+  std::string* PROTOBUF_NONNULL _internal_mutable_multi_modal_fusion_result_topic();
 
   public:
   // @@protoc_insertion_point(class_scope:TopicConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
-      70, 2>
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   0, 70,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -269,13 +265,14 @@ class TopicConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const TopicConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const TopicConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr camera_merged_topic_;
@@ -289,23 +286,21 @@ class TopicConfig final
 extern const ::google::protobuf::internal::ClassDataFull TopicConfig_class_data_;
 // -------------------------------------------------------------------
 
-class Config final
-    : public ::google::protobuf::Message
+class Config final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:Config) */ {
  public:
   inline Config() : Config(nullptr) {}
   ~Config() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(Config* msg, std::destroying_delete_t) {
+  void operator delete(Config* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(Config));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR Config(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR Config(::google::protobuf::internal::ConstantInitialized);
 
   inline Config(const Config& from) : Config(nullptr, from) {}
   inline Config(Config&& from) noexcept
@@ -328,30 +323,27 @@ class Config final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const Config& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const Config* internal_default_instance() {
-    return reinterpret_cast<const Config*>(
+    return *reinterpret_cast<const Config*>(
         &_Config_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 1;
   friend void swap(Config& a, Config& b) { a.Swap(&b); }
-  inline void Swap(Config* other) {
+  inline void Swap(Config* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -359,7 +351,7 @@ class Config final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(Config* other) {
+  void UnsafeArenaSwap(Config* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -367,7 +359,7 @@ class Config final
 
   // implements Message ----------------------------------------------
 
-  Config* New(::google::protobuf::Arena* arena = nullptr) const {
+  Config* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<Config>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -376,9 +368,8 @@ class Config final
   void MergeFrom(const Config& from) { Config::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -388,45 +379,46 @@ class Config final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(Config* other);
+  void InternalSwap(Config* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "Config"; }
 
  protected:
-  explicit Config(::google::protobuf::Arena* arena);
-  Config(::google::protobuf::Arena* arena, const Config& from);
-  Config(::google::protobuf::Arena* arena, Config&& from) noexcept
+  explicit Config(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  Config(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Config& from);
+  Config(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Config&& from) noexcept
       : Config(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -443,24 +435,24 @@ class Config final
   bool has_topic_config() const;
   void clear_topic_config() ;
   const ::TopicConfig& topic_config() const;
-  [[nodiscard]] ::TopicConfig* release_topic_config();
-  ::TopicConfig* mutable_topic_config();
-  void set_allocated_topic_config(::TopicConfig* value);
-  void unsafe_arena_set_allocated_topic_config(::TopicConfig* value);
-  ::TopicConfig* unsafe_arena_release_topic_config();
+  [[nodiscard]] ::TopicConfig* PROTOBUF_NULLABLE release_topic_config();
+  ::TopicConfig* PROTOBUF_NONNULL mutable_topic_config();
+  void set_allocated_topic_config(::TopicConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_topic_config(::TopicConfig* PROTOBUF_NULLABLE value);
+  ::TopicConfig* PROTOBUF_NULLABLE unsafe_arena_release_topic_config();
 
   private:
   const ::TopicConfig& _internal_topic_config() const;
-  ::TopicConfig* _internal_mutable_topic_config();
+  ::TopicConfig* PROTOBUF_NONNULL _internal_mutable_topic_config();
 
   public:
   // @@protoc_insertion_point(class_scope:Config)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 1,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
+                                   1, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -470,16 +462,17 @@ class Config final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const Config& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const Config& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::TopicConfig* topic_config_;
+    ::TopicConfig* PROTOBUF_NULLABLE topic_config_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -520,14 +513,14 @@ inline const std::string& TopicConfig::camera_merged_topic() const
   return _internal_camera_merged_topic();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void TopicConfig::set_camera_merged_topic(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void TopicConfig::set_camera_merged_topic(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.camera_merged_topic_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:TopicConfig.camera_merged_topic)
 }
-inline std::string* TopicConfig::mutable_camera_merged_topic() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL TopicConfig::mutable_camera_merged_topic()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_camera_merged_topic();
   // @@protoc_insertion_point(field_mutable:TopicConfig.camera_merged_topic)
   return _s;
@@ -541,12 +534,12 @@ inline void TopicConfig::_internal_set_camera_merged_topic(const std::string& va
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.camera_merged_topic_.Set(value, GetArena());
 }
-inline std::string* TopicConfig::_internal_mutable_camera_merged_topic() {
+inline std::string* PROTOBUF_NONNULL TopicConfig::_internal_mutable_camera_merged_topic() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.camera_merged_topic_.Mutable( GetArena());
 }
-inline std::string* TopicConfig::release_camera_merged_topic() {
+inline std::string* PROTOBUF_NULLABLE TopicConfig::release_camera_merged_topic() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:TopicConfig.camera_merged_topic)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
@@ -559,7 +552,7 @@ inline std::string* TopicConfig::release_camera_merged_topic() {
   }
   return released;
 }
-inline void TopicConfig::set_allocated_camera_merged_topic(std::string* value) {
+inline void TopicConfig::set_allocated_camera_merged_topic(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
@@ -589,14 +582,14 @@ inline const std::string& TopicConfig::multi_modal_fusion_result_topic() const
   return _internal_multi_modal_fusion_result_topic();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void TopicConfig::set_multi_modal_fusion_result_topic(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void TopicConfig::set_multi_modal_fusion_result_topic(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.multi_modal_fusion_result_topic_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:TopicConfig.multi_modal_fusion_result_topic)
 }
-inline std::string* TopicConfig::mutable_multi_modal_fusion_result_topic() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL TopicConfig::mutable_multi_modal_fusion_result_topic()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_multi_modal_fusion_result_topic();
   // @@protoc_insertion_point(field_mutable:TopicConfig.multi_modal_fusion_result_topic)
   return _s;
@@ -610,12 +603,12 @@ inline void TopicConfig::_internal_set_multi_modal_fusion_result_topic(const std
   _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.multi_modal_fusion_result_topic_.Set(value, GetArena());
 }
-inline std::string* TopicConfig::_internal_mutable_multi_modal_fusion_result_topic() {
+inline std::string* PROTOBUF_NONNULL TopicConfig::_internal_mutable_multi_modal_fusion_result_topic() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
   return _impl_.multi_modal_fusion_result_topic_.Mutable( GetArena());
 }
-inline std::string* TopicConfig::release_multi_modal_fusion_result_topic() {
+inline std::string* PROTOBUF_NULLABLE TopicConfig::release_multi_modal_fusion_result_topic() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:TopicConfig.multi_modal_fusion_result_topic)
   if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
@@ -628,7 +621,7 @@ inline std::string* TopicConfig::release_multi_modal_fusion_result_topic() {
   }
   return released;
 }
-inline void TopicConfig::set_allocated_multi_modal_fusion_result_topic(std::string* value) {
+inline void TopicConfig::set_allocated_multi_modal_fusion_result_topic(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000002u;
@@ -666,7 +659,8 @@ inline const ::TopicConfig& Config::topic_config() const ABSL_ATTRIBUTE_LIFETIME
   // @@protoc_insertion_point(field_get:Config.topic_config)
   return _internal_topic_config();
 }
-inline void Config::unsafe_arena_set_allocated_topic_config(::TopicConfig* value) {
+inline void Config::unsafe_arena_set_allocated_topic_config(
+    ::TopicConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.topic_config_);
@@ -679,7 +673,7 @@ inline void Config::unsafe_arena_set_allocated_topic_config(::TopicConfig* value
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Config.topic_config)
 }
-inline ::TopicConfig* Config::release_topic_config() {
+inline ::TopicConfig* PROTOBUF_NULLABLE Config::release_topic_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
@@ -698,7 +692,7 @@ inline ::TopicConfig* Config::release_topic_config() {
   }
   return released;
 }
-inline ::TopicConfig* Config::unsafe_arena_release_topic_config() {
+inline ::TopicConfig* PROTOBUF_NULLABLE Config::unsafe_arena_release_topic_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:Config.topic_config)
 
@@ -707,7 +701,7 @@ inline ::TopicConfig* Config::unsafe_arena_release_topic_config() {
   _impl_.topic_config_ = nullptr;
   return temp;
 }
-inline ::TopicConfig* Config::_internal_mutable_topic_config() {
+inline ::TopicConfig* PROTOBUF_NONNULL Config::_internal_mutable_topic_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.topic_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::TopicConfig>(GetArena());
@@ -715,21 +709,22 @@ inline ::TopicConfig* Config::_internal_mutable_topic_config() {
   }
   return _impl_.topic_config_;
 }
-inline ::TopicConfig* Config::mutable_topic_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::TopicConfig* PROTOBUF_NONNULL Config::mutable_topic_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
   ::TopicConfig* _msg = _internal_mutable_topic_config();
   // @@protoc_insertion_point(field_mutable:Config.topic_config)
   return _msg;
 }
-inline void Config::set_allocated_topic_config(::TopicConfig* value) {
+inline void Config::set_allocated_topic_config(::TopicConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.topic_config_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.topic_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }

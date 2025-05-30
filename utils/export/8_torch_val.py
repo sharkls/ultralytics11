@@ -21,7 +21,7 @@ def parse_args():
     # 数据集相关参数
     parser.add_argument('--data-dir', type=str, default='./data/LLVIP',
                       help='数据集根目录')
-    parser.add_argument('--split', type=str, default='val',
+    parser.add_argument('--split', type=str, default='train',
                       help='数据集划分 (train/val/test)')
     
     # 检测相关参数

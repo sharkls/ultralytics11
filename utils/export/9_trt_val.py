@@ -15,9 +15,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description='YOLO Multimodal TensorRT Model Validation')
     
     # 模型相关参数
-    parser.add_argument('--engine-path-fp32', type=str, default='runs/multimodal/train6/weights/last.engine',
+    parser.add_argument('--engine-path-fp32', type=str, default='runs/multimodal/train76/weights/best32.engine',
                       help='FP32 TensorRT engine文件路径')
-    parser.add_argument('--engine-path-fp16', type=str, default='runs/multimodal/train6/weights/last.engine',
+    parser.add_argument('--engine-path-fp16', type=str, default='runs/multimodal/train76/weights/best32.engine',
                       help='FP16 TensorRT engine文件路径')
     parser.add_argument('--imgsz', nargs='+', type=int, default=[640, 640],
                       help='输入图像尺寸 [height, width]')
@@ -25,17 +25,17 @@ def parse_args():
                       help='推理精度 (fp32/fp16)')
     
     # 数据集相关参数
-    parser.add_argument('--data-dir', type=str, default='./data/LLVIP',
+    parser.add_argument('--data-dir', type=str, default='./data/Myself-v3-clean-0529',
                       help='数据集根目录')
-    parser.add_argument('--split', type=str, default='test',
+    parser.add_argument('--split', type=str, default='val',
                       help='数据集划分 (train/val/test)')
     
     # 检测相关参数
     parser.add_argument('--conf-thres', type=float, default=0.5,
                       help='检测置信度阈值')
-    parser.add_argument('--iou-thres', type=float, default=0.001,
+    parser.add_argument('--iou-thres', type=float, default=0.7,
                       help='NMS IOU阈值')
-    parser.add_argument('--nc', type=int, default=1,
+    parser.add_argument('--nc', type=int, default=2,
                       help='目标类别数量')
     
     # 批处理参数
@@ -43,7 +43,7 @@ def parse_args():
                       help='批处理大小')
     
     # 其他参数
-    parser.add_argument('--save-dir', type=str, default='runs/trt_val',
+    parser.add_argument('--save-dir', type=str, default='runs/trt_val-meselfv3-clean-0529-val',
                       help='结果保存目录')
     parser.add_argument('--visualize', type=bool, default=True,
                       help='是否可视化检测结果')
@@ -575,6 +575,14 @@ def process_output(output, conf_thres=0.25, iou_thres=0.45, scale_factor=None, n
         return np.zeros((0, 6))
     
     final_results = np.vstack(results)
+    
+    # ====== 新增：全局NMS（类间NMS） ======
+    global_boxes = final_results[:, :4]
+    global_scores = final_results[:, 4]
+    keep = nms(global_boxes, global_scores, iou_thres)
+    final_results = final_results[keep]
+    # ====================================
+    
     return final_results
 
 def nms(boxes, scores, iou_threshold):
@@ -714,28 +722,33 @@ def evaluate_trt(args):
                     
                     # 可视化结果
                     if args.visualize:
-                        # 绘制原始标签框（红色）
+                        # 原有可视化：绘制GT和检测框
                         for gt_box in gt_boxes:
                             x1, y1, x2, y2, cls_id = gt_box
                             cv2.rectangle(rgb_img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 2)
                             cv2.putText(rgb_img, f'GT cls{int(cls_id)}', (int(x1), int(y1)-10), 
                                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-                        
-                        # 绘制检测结果框（绿色）
                         for det in detections:
                             x1, y1, x2, y2, conf, cls_id = det
                             cv2.rectangle(rgb_img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
                             cv2.putText(rgb_img, f'Det cls{int(cls_id)} {conf:.2f}', (int(x1), int(y1)-10), 
                                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                        
-                        # 添加图例
                         cv2.putText(rgb_img, 'Red: Ground Truth', (10, 30), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                         cv2.putText(rgb_img, 'Green: Detection', (10, 60), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                        
                         cv2.imwrite(str(save_dir / f"{img_name}_det.jpg"), rgb_img)
-                        
+
+                        # 新增：只绘制trt推理最终结果，类别0红框，类别1绿框
+                        vis_img = cv2.imread(str(rgb_paths[i]))  # 重新读取原图，避免叠加
+                        for det in detections:
+                            x1, y1, x2, y2, conf, cls_id = det
+                            color = (0, 0, 255) if int(cls_id) == 0 else (0, 255, 0)
+                            cv2.rectangle(vis_img, (int(x1), int(y1)), (int(x2), int(y2)), color, 2)
+                            cv2.putText(vis_img, f'cls{int(cls_id)} {conf:.2f}', (int(x1), int(y1)-10), 
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        cv2.imwrite(str(save_dir / f"{img_name}_trt_only.jpg"), vis_img)
+
                 except Exception as e:
                     print(f"推理失败: {e}")
                     continue

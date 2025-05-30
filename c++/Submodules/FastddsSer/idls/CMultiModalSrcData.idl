@@ -22,7 +22,7 @@ struct CVideoSrcData : CDataBase
 struct CDisparityResult {
     unsigned short          usWidth;                // 视差图宽度
     unsigned short          usHeight;               // 视差图高度
-    sequence<float>         vecDistanceInfo;        // 所有像素的位置信息
+    sequence<unsigned short>         vecDistanceInfo;        // 所有像素的位置信息
 };
 
 // 时间匹配好的视频数据结构体

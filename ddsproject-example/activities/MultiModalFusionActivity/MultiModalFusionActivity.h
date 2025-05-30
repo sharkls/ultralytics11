@@ -15,7 +15,11 @@
 #include "include/Interface/ExportMultiModalFusionAlgLib.h"
 #include "include/Interface/CSelfAlgParam.h"
 #include "include/Common/Functions.h"
+#include "include/Common/FunctionHub.h"
 #include <fstream>
+#include <atomic>
+#include <mutex>
+
 
 #include <opencv2/opencv.hpp>
 #include <glog/logging.h>
@@ -43,6 +47,8 @@ private:
     void MessageProducerThreadFunc();
     // 处理camera_merged_topic中的数据
     void MessageConsumerThreadFunc();
+
+    void VisThreadFunc();
     
     void ReadCallbackFunc(const CMultiModalSrcData &message,
         void *data_handle, std::string node_name, std::string topic_name);
@@ -58,8 +64,10 @@ private:
     CSafeDataDeque<std::shared_ptr<CAlgResult>> multi_modal_fusion_result_deque_;  // 多模态融合结果
 
     // 消息生产线程
-    std::thread *message_producer_thread_{nullptr};
-    std::thread *message_consumer_thread_{nullptr};
+    std::unique_ptr<std::thread> message_producer_thread_;
+    std::unique_ptr<std::thread> message_consumer_thread_;
+    std::atomic<bool> is_running_{false};
+    std::mutex thread_mutex_;
 
     // 算法实例
     IMultiModalFusionAlg *multi_modal_fusion_alg_{nullptr};
@@ -68,6 +76,15 @@ private:
 
     // 单应性矩阵
     std::vector<float> homography_;
+
+    // 测试
+    int64_t endTimeStamp_;
+    int64_t startTimeStamp_;
+    int32_t count_;
+    int64_t count_time_{0};
+
+    // vis
+    std::unique_ptr<std::thread> vis_thread_{nullptr};
 };
 
 #endif // MULTIMODALFUSIONACTIVITY_H

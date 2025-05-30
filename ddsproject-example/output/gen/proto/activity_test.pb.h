@@ -49,8 +49,9 @@ template <typename T>
 struct TableStruct_activity_5ftest_2eproto {
   static const ::uint32_t offsets[];
 };
-extern const ::google::protobuf::internal::DescriptorTable
-    descriptor_table_activity_5ftest_2eproto;
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_activity_5ftest_2eproto;
+}  // extern "C"
 class ActivityTestConfig;
 struct ActivityTestConfigDefaultTypeInternal;
 extern ActivityTestConfigDefaultTypeInternal _ActivityTestConfig_default_instance_;
@@ -70,23 +71,21 @@ namespace protobuf {
 
 // -------------------------------------------------------------------
 
-class ActivityTestTopicConfig final
-    : public ::google::protobuf::Message
+class ActivityTestTopicConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:ActivityTestTopicConfig) */ {
  public:
   inline ActivityTestTopicConfig() : ActivityTestTopicConfig(nullptr) {}
   ~ActivityTestTopicConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ActivityTestTopicConfig* msg, std::destroying_delete_t) {
+  void operator delete(ActivityTestTopicConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(ActivityTestTopicConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ActivityTestTopicConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR ActivityTestTopicConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline ActivityTestTopicConfig(const ActivityTestTopicConfig& from) : ActivityTestTopicConfig(nullptr, from) {}
   inline ActivityTestTopicConfig(ActivityTestTopicConfig&& from) noexcept
@@ -109,30 +108,27 @@ class ActivityTestTopicConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const ActivityTestTopicConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ActivityTestTopicConfig* internal_default_instance() {
-    return reinterpret_cast<const ActivityTestTopicConfig*>(
+    return *reinterpret_cast<const ActivityTestTopicConfig*>(
         &_ActivityTestTopicConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 0;
   friend void swap(ActivityTestTopicConfig& a, ActivityTestTopicConfig& b) { a.Swap(&b); }
-  inline void Swap(ActivityTestTopicConfig* other) {
+  inline void Swap(ActivityTestTopicConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -140,7 +136,7 @@ class ActivityTestTopicConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ActivityTestTopicConfig* other) {
+  void UnsafeArenaSwap(ActivityTestTopicConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -148,7 +144,7 @@ class ActivityTestTopicConfig final
 
   // implements Message ----------------------------------------------
 
-  ActivityTestTopicConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  ActivityTestTopicConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<ActivityTestTopicConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -157,9 +153,8 @@ class ActivityTestTopicConfig final
   void MergeFrom(const ActivityTestTopicConfig& from) { ActivityTestTopicConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -169,45 +164,46 @@ class ActivityTestTopicConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(ActivityTestTopicConfig* other);
+  void InternalSwap(ActivityTestTopicConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "ActivityTestTopicConfig"; }
 
  protected:
-  explicit ActivityTestTopicConfig(::google::protobuf::Arena* arena);
-  ActivityTestTopicConfig(::google::protobuf::Arena* arena, const ActivityTestTopicConfig& from);
-  ActivityTestTopicConfig(::google::protobuf::Arena* arena, ActivityTestTopicConfig&& from) noexcept
+  explicit ActivityTestTopicConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  ActivityTestTopicConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ActivityTestTopicConfig& from);
+  ActivityTestTopicConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ActivityTestTopicConfig&& from) noexcept
       : ActivityTestTopicConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -227,14 +223,14 @@ class ActivityTestTopicConfig final
   const std::string& read_topic1() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_read_topic1(Arg_&& arg, Args_... args);
-  std::string* mutable_read_topic1();
-  [[nodiscard]] std::string* release_read_topic1();
-  void set_allocated_read_topic1(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_read_topic1();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_read_topic1();
+  void set_allocated_read_topic1(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_read_topic1() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_read_topic1(const std::string& value);
-  std::string* _internal_mutable_read_topic1();
+  std::string* PROTOBUF_NONNULL _internal_mutable_read_topic1();
 
   public:
   // optional string write_topic2 = 2;
@@ -243,23 +239,23 @@ class ActivityTestTopicConfig final
   const std::string& write_topic2() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_write_topic2(Arg_&& arg, Args_... args);
-  std::string* mutable_write_topic2();
-  [[nodiscard]] std::string* release_write_topic2();
-  void set_allocated_write_topic2(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_write_topic2();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_write_topic2();
+  void set_allocated_write_topic2(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_write_topic2() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_write_topic2(const std::string& value);
-  std::string* _internal_mutable_write_topic2();
+  std::string* PROTOBUF_NONNULL _internal_mutable_write_topic2();
 
   public:
   // @@protoc_insertion_point(class_scope:ActivityTestTopicConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
-      55, 2>
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   0, 55,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -269,13 +265,14 @@ class ActivityTestTopicConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ActivityTestTopicConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const ActivityTestTopicConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr read_topic1_;
@@ -289,23 +286,21 @@ class ActivityTestTopicConfig final
 extern const ::google::protobuf::internal::ClassDataFull ActivityTestTopicConfig_class_data_;
 // -------------------------------------------------------------------
 
-class ActivityTestConfig final
-    : public ::google::protobuf::Message
+class ActivityTestConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:ActivityTestConfig) */ {
  public:
   inline ActivityTestConfig() : ActivityTestConfig(nullptr) {}
   ~ActivityTestConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ActivityTestConfig* msg, std::destroying_delete_t) {
+  void operator delete(ActivityTestConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(ActivityTestConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ActivityTestConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR ActivityTestConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline ActivityTestConfig(const ActivityTestConfig& from) : ActivityTestConfig(nullptr, from) {}
   inline ActivityTestConfig(ActivityTestConfig&& from) noexcept
@@ -328,30 +323,27 @@ class ActivityTestConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const ActivityTestConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ActivityTestConfig* internal_default_instance() {
-    return reinterpret_cast<const ActivityTestConfig*>(
+    return *reinterpret_cast<const ActivityTestConfig*>(
         &_ActivityTestConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 1;
   friend void swap(ActivityTestConfig& a, ActivityTestConfig& b) { a.Swap(&b); }
-  inline void Swap(ActivityTestConfig* other) {
+  inline void Swap(ActivityTestConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -359,7 +351,7 @@ class ActivityTestConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ActivityTestConfig* other) {
+  void UnsafeArenaSwap(ActivityTestConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -367,7 +359,7 @@ class ActivityTestConfig final
 
   // implements Message ----------------------------------------------
 
-  ActivityTestConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  ActivityTestConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<ActivityTestConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -376,9 +368,8 @@ class ActivityTestConfig final
   void MergeFrom(const ActivityTestConfig& from) { ActivityTestConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -388,45 +379,46 @@ class ActivityTestConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(ActivityTestConfig* other);
+  void InternalSwap(ActivityTestConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "ActivityTestConfig"; }
 
  protected:
-  explicit ActivityTestConfig(::google::protobuf::Arena* arena);
-  ActivityTestConfig(::google::protobuf::Arena* arena, const ActivityTestConfig& from);
-  ActivityTestConfig(::google::protobuf::Arena* arena, ActivityTestConfig&& from) noexcept
+  explicit ActivityTestConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  ActivityTestConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ActivityTestConfig& from);
+  ActivityTestConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ActivityTestConfig&& from) noexcept
       : ActivityTestConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -443,24 +435,24 @@ class ActivityTestConfig final
   bool has_topic_config() const;
   void clear_topic_config() ;
   const ::ActivityTestTopicConfig& topic_config() const;
-  [[nodiscard]] ::ActivityTestTopicConfig* release_topic_config();
-  ::ActivityTestTopicConfig* mutable_topic_config();
-  void set_allocated_topic_config(::ActivityTestTopicConfig* value);
-  void unsafe_arena_set_allocated_topic_config(::ActivityTestTopicConfig* value);
-  ::ActivityTestTopicConfig* unsafe_arena_release_topic_config();
+  [[nodiscard]] ::ActivityTestTopicConfig* PROTOBUF_NULLABLE release_topic_config();
+  ::ActivityTestTopicConfig* PROTOBUF_NONNULL mutable_topic_config();
+  void set_allocated_topic_config(::ActivityTestTopicConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_topic_config(::ActivityTestTopicConfig* PROTOBUF_NULLABLE value);
+  ::ActivityTestTopicConfig* PROTOBUF_NULLABLE unsafe_arena_release_topic_config();
 
   private:
   const ::ActivityTestTopicConfig& _internal_topic_config() const;
-  ::ActivityTestTopicConfig* _internal_mutable_topic_config();
+  ::ActivityTestTopicConfig* PROTOBUF_NONNULL _internal_mutable_topic_config();
 
   public:
   // @@protoc_insertion_point(class_scope:ActivityTestConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 1,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
+                                   1, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -470,16 +462,17 @@ class ActivityTestConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ActivityTestConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const ActivityTestConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::ActivityTestTopicConfig* topic_config_;
+    ::ActivityTestTopicConfig* PROTOBUF_NULLABLE topic_config_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -520,14 +513,14 @@ inline const std::string& ActivityTestTopicConfig::read_topic1() const
   return _internal_read_topic1();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void ActivityTestTopicConfig::set_read_topic1(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void ActivityTestTopicConfig::set_read_topic1(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.read_topic1_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:ActivityTestTopicConfig.read_topic1)
 }
-inline std::string* ActivityTestTopicConfig::mutable_read_topic1() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL ActivityTestTopicConfig::mutable_read_topic1()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_read_topic1();
   // @@protoc_insertion_point(field_mutable:ActivityTestTopicConfig.read_topic1)
   return _s;
@@ -541,12 +534,12 @@ inline void ActivityTestTopicConfig::_internal_set_read_topic1(const std::string
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.read_topic1_.Set(value, GetArena());
 }
-inline std::string* ActivityTestTopicConfig::_internal_mutable_read_topic1() {
+inline std::string* PROTOBUF_NONNULL ActivityTestTopicConfig::_internal_mutable_read_topic1() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.read_topic1_.Mutable( GetArena());
 }
-inline std::string* ActivityTestTopicConfig::release_read_topic1() {
+inline std::string* PROTOBUF_NULLABLE ActivityTestTopicConfig::release_read_topic1() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:ActivityTestTopicConfig.read_topic1)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
@@ -559,7 +552,7 @@ inline std::string* ActivityTestTopicConfig::release_read_topic1() {
   }
   return released;
 }
-inline void ActivityTestTopicConfig::set_allocated_read_topic1(std::string* value) {
+inline void ActivityTestTopicConfig::set_allocated_read_topic1(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
@@ -589,14 +582,14 @@ inline const std::string& ActivityTestTopicConfig::write_topic2() const
   return _internal_write_topic2();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void ActivityTestTopicConfig::set_write_topic2(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void ActivityTestTopicConfig::set_write_topic2(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.write_topic2_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:ActivityTestTopicConfig.write_topic2)
 }
-inline std::string* ActivityTestTopicConfig::mutable_write_topic2() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL ActivityTestTopicConfig::mutable_write_topic2()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_write_topic2();
   // @@protoc_insertion_point(field_mutable:ActivityTestTopicConfig.write_topic2)
   return _s;
@@ -610,12 +603,12 @@ inline void ActivityTestTopicConfig::_internal_set_write_topic2(const std::strin
   _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.write_topic2_.Set(value, GetArena());
 }
-inline std::string* ActivityTestTopicConfig::_internal_mutable_write_topic2() {
+inline std::string* PROTOBUF_NONNULL ActivityTestTopicConfig::_internal_mutable_write_topic2() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
   return _impl_.write_topic2_.Mutable( GetArena());
 }
-inline std::string* ActivityTestTopicConfig::release_write_topic2() {
+inline std::string* PROTOBUF_NULLABLE ActivityTestTopicConfig::release_write_topic2() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:ActivityTestTopicConfig.write_topic2)
   if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
@@ -628,7 +621,7 @@ inline std::string* ActivityTestTopicConfig::release_write_topic2() {
   }
   return released;
 }
-inline void ActivityTestTopicConfig::set_allocated_write_topic2(std::string* value) {
+inline void ActivityTestTopicConfig::set_allocated_write_topic2(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000002u;
@@ -666,7 +659,8 @@ inline const ::ActivityTestTopicConfig& ActivityTestConfig::topic_config() const
   // @@protoc_insertion_point(field_get:ActivityTestConfig.topic_config)
   return _internal_topic_config();
 }
-inline void ActivityTestConfig::unsafe_arena_set_allocated_topic_config(::ActivityTestTopicConfig* value) {
+inline void ActivityTestConfig::unsafe_arena_set_allocated_topic_config(
+    ::ActivityTestTopicConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.topic_config_);
@@ -679,7 +673,7 @@ inline void ActivityTestConfig::unsafe_arena_set_allocated_topic_config(::Activi
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:ActivityTestConfig.topic_config)
 }
-inline ::ActivityTestTopicConfig* ActivityTestConfig::release_topic_config() {
+inline ::ActivityTestTopicConfig* PROTOBUF_NULLABLE ActivityTestConfig::release_topic_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
@@ -698,7 +692,7 @@ inline ::ActivityTestTopicConfig* ActivityTestConfig::release_topic_config() {
   }
   return released;
 }
-inline ::ActivityTestTopicConfig* ActivityTestConfig::unsafe_arena_release_topic_config() {
+inline ::ActivityTestTopicConfig* PROTOBUF_NULLABLE ActivityTestConfig::unsafe_arena_release_topic_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:ActivityTestConfig.topic_config)
 
@@ -707,7 +701,7 @@ inline ::ActivityTestTopicConfig* ActivityTestConfig::unsafe_arena_release_topic
   _impl_.topic_config_ = nullptr;
   return temp;
 }
-inline ::ActivityTestTopicConfig* ActivityTestConfig::_internal_mutable_topic_config() {
+inline ::ActivityTestTopicConfig* PROTOBUF_NONNULL ActivityTestConfig::_internal_mutable_topic_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.topic_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::ActivityTestTopicConfig>(GetArena());
@@ -715,21 +709,22 @@ inline ::ActivityTestTopicConfig* ActivityTestConfig::_internal_mutable_topic_co
   }
   return _impl_.topic_config_;
 }
-inline ::ActivityTestTopicConfig* ActivityTestConfig::mutable_topic_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::ActivityTestTopicConfig* PROTOBUF_NONNULL ActivityTestConfig::mutable_topic_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
   ::ActivityTestTopicConfig* _msg = _internal_mutable_topic_config();
   // @@protoc_insertion_point(field_mutable:ActivityTestConfig.topic_config)
   return _msg;
 }
-inline void ActivityTestConfig::set_allocated_topic_config(::ActivityTestTopicConfig* value) {
+inline void ActivityTestConfig::set_allocated_topic_config(::ActivityTestTopicConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.topic_config_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.topic_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }

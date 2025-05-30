@@ -4,7 +4,7 @@ message TopicConfig {
     optional string camera_merged_topic = 3;
     optional string multi_modal_fusion_result_topic = 4;
 }
-
+  
 message Config {
     optional TopicConfig topic_config = 1;
 }

@@ -16,6 +16,7 @@
 #include <fstream>
 #include "log.h"
 #include <google/protobuf/text_format.h>    // 解析prototext格式文本
+#include <opencv2/opencv.hpp>
 #include "ExportPoseEstimationAlgLib.h"
 #include "IBaseModule.h"
 #include "AlgorithmConfig.h"
@@ -55,6 +56,9 @@ private:
     // 执行模块链
     bool executeModuleChain();
 
+    // 可视化检测结果
+    void visualizationResult();
+
 private:
     std::string m_exePath;                                    // 工程路径
     std::shared_ptr<PoseEstimationConfig> m_pConfig;          // 配置对象
@@ -63,4 +67,7 @@ private:
     void* m_callbackHandle;                                   // 回调函数句柄
     CMultiModalSrcData* m_currentInput;                       // 当前输入数据
     CAlgResult m_currentOutput;                               // 当前输出数据
+
+    // 离线测试配置
+    bool m_run_status{false};
 }; 

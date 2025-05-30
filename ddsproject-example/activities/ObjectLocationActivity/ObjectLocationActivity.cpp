@@ -9,12 +9,7 @@ ObjectLocationActivity::ObjectLocationActivity()
 
 ObjectLocationActivity::~ObjectLocationActivity()
 {
-    if ((message_producer_thread_ != nullptr) && (message_producer_thread_->joinable()))
-    {
-        message_producer_thread_->join();
-        delete message_producer_thread_;
-        message_producer_thread_ = nullptr;
-    }
+    PauseClear();
 }
 
 bool ObjectLocationActivity::Init()
@@ -87,43 +82,40 @@ void ObjectLocationActivity::ReadPoseEstimationCallbackFunc(const CAlgResult &me
         void *data_handle, std::string node_name, std::string topic_name)
 {
     std::shared_ptr<CAlgResult> message_ptr = std::make_shared<CAlgResult>(message);
-    object_location_result_deque_.PushBack(message_ptr);
+    pose_estimation_result_deque_.PushBack(message_ptr);
 }
 
 // 处理算法返回的感知数据
 void ObjectLocationActivity::GetObjectLocationResultResponseMessageCallbackFunc(const CAlgResult& res_message, void* data_handle)
 {
     std::shared_ptr<CAlgResult> res_ptr = std::make_shared<CAlgResult>(res_message);
-    pose_estimation_result_deque_.PushBack(res_ptr);
+    object_location_result_deque_.PushBack(res_ptr);
 }
 
 void ObjectLocationActivity::Start()
 {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    if (is_running_) return;
     TINFO << "ObjectLocationActivity running";
-    message_producer_thread_ = new std::thread(&ObjectLocationActivity::MessageProducerThreadFunc, this);
-    message_consumer_thread_ = new std::thread(&ObjectLocationActivity::MessageConsumerThreadFunc, this);
-
+    is_running_ = true;
+    message_producer_thread_ = std::make_unique<std::thread>(&ObjectLocationActivity::MessageProducerThreadFunc, this);
+    message_consumer_thread_ = std::make_unique<std::thread>(&ObjectLocationActivity::MessageConsumerThreadFunc, this);
 }
 
 // 当收到master节点的PAUSE指令，则执行一些清除工作，比如delete线程
 void ObjectLocationActivity::PauseClear()
 {   
-    // 停止消息生产者线程
-    if ((message_producer_thread_ != nullptr) && (message_producer_thread_->joinable()))
-    {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    if (!is_running_) return;
+    is_running_ = false;
+    if (message_producer_thread_ && message_producer_thread_->joinable()) {
         message_producer_thread_->join();
-        delete message_producer_thread_;
-        message_producer_thread_ = nullptr;
+        message_producer_thread_.reset();
     }
-
-    // 停止消息消费者线程
-    if ((message_consumer_thread_ != nullptr) && (message_consumer_thread_->joinable()))
-    {
+    if (message_consumer_thread_ && message_consumer_thread_->joinable()) {
         message_consumer_thread_->join();
-        delete message_consumer_thread_;
-        message_consumer_thread_ = nullptr;
+        message_consumer_thread_.reset();
     }
-
 }
 
 void ObjectLocationActivity::MessageProducerThreadFunc()
@@ -133,11 +125,13 @@ void ObjectLocationActivity::MessageProducerThreadFunc()
     while (is_running_.load())
     {
         std::shared_ptr<CAlgResult> message;
-        if (!pose_estimation_result_deque_.PopFront(message, 1))
+        if (!object_location_result_deque_.PopFront(message, 1))
         {
             // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             continue;
         }
+        endTimeStamp_ = GetTimeStamp();
+        LOG(INFO) << "ObjectLocationActivity MessageProducerThreadFunc time:----------------------------------- " << endTimeStamp_ - startTimeStamp_;
         writer_object_location_result_->SendMessage((void*)message.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
@@ -145,11 +139,12 @@ void ObjectLocationActivity::MessageProducerThreadFunc()
 
 void ObjectLocationActivity::MessageConsumerThreadFunc()
 {
+    startTimeStamp_ = GetTimeStamp();
     // 输入到融合算法的数据
     std::shared_ptr<CAlgResult> l_pMultiModalResult = std::make_shared<CAlgResult>(); 
     std::shared_ptr<CAlgResult> l_pPoseEstimationResult = std::make_shared<CAlgResult>(); 
     std::shared_ptr<CAlgResult> l_pObjectLocationInputData = std::make_shared<CAlgResult>(); 
-
+    LOG(INFO) << "MessageConsumerThreadFunc start : " << is_running_.load();
     while (is_running_.load())
     {      
         // 清空之前的数据
@@ -160,6 +155,7 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
         // 获取多模态融合结果
         if (!multi_modal_fusion_result_deque_.PopFront(l_pMultiModalResult, 1))
         {
+            // LOG(INFO) << "MessageConsumerThreadFunc multi_modal_fusion_result_deque_ PopFront failed";
             continue;
         }
 
@@ -172,9 +168,11 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
 
         // 深拷贝多模态融合结果
         *l_pObjectLocationInputData = *l_pMultiModalResult;
+        // LOG(INFO) << "MessageConsumerThreadFunc multi_modal_fusion_result_deque_ PopFront success";
 
         // 获取多模态数据的时间戳
-        auto multiModalTime = l_pMultiModalResult->vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_TIME_MATCH];
+        // auto multiModalTime = l_pMultiModalResult->vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_TIME_MATCH];
+        auto multiModalTime = l_pMultiModalResult->lTimeStamp();
         bool foundMatch = false;
 
         // 尝试匹配姿态估计结果
@@ -187,7 +185,8 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
                 continue;
             }
 
-            auto poseTime = l_pPoseEstimationResult->vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_TIME_MATCH];
+            // auto poseTime = l_pPoseEstimationResult->vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_TIME_MATCH];
+            auto poseTime = l_pPoseEstimationResult->lTimeStamp();
             
             if (multiModalTime == poseTime)
             {
@@ -209,15 +208,17 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
         if (!foundMatch)
         {
             LOG(WARNING) << "No matching pose estimation result found for timestamp: " << multiModalTime;
+            continue;
         }
 
         // 执行目标定位算法
         try
         {
             // 直接调用runAlgorithm，不检查返回值
+            // LOG(INFO) << "runAlgorithm InputData TimeStamp : " << l_pObjectLocationInputData->lTimeStamp();
             object_location_alg_->runAlgorithm(l_pObjectLocationInputData.get());
-            LOG(INFO) << "ObjectLocationActivity Algorithm InputData processed successfully. "
-                    << "Frame count: " << l_pObjectLocationInputData->vecFrameResult().size();
+            // LOG(INFO) << "ObjectLocationActivity Algorithm InputData processed successfully. "
+            //         << "Frame count: " << l_pObjectLocationInputData->vecFrameResult().size();
         }
         catch (const std::exception& e)
         {

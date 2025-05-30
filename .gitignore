@@ -184,3 +184,25 @@ deploy/Output/
 
 # ddsproject-example
 ddsproject-example/submodules/ddsproject-thirdparty/
+ddsproject-example/output/
+ddsproject-example/Output/
+ddsproject-example/build/
+ddsproject-example/lib-backup/
+ddsproject-example/lib_backup
+ddsproject-example/include-backup/
+ddsproject-example/activities-backup/
+ddsproject-bakcup/
+ddsproject-example/activities-backorin/
+
+
+# Other
+ddsproject-backup/
+ddsproject/
+
+runs/
+
+ddsproject/
+*.zip
+
+*.log
+*.mp4

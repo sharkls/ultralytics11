@@ -161,19 +161,42 @@ bool CObjectLocationAlg::executeModuleChain()
     m_currentOutput = *static_cast<CAlgResult *>(currentData);
     int64_t endTimeStamp = GetTimeStamp();
 
+    
+
     // 结果穿透
     if(m_currentOutput.vecFrameResult().size() > 0) 
     {   
         // 输入数据常规信息穿透
-        m_currentOutput.vecFrameResult()[0].unFrameId() = m_currentInput->unFrameId();
-        m_currentOutput.vecFrameResult()[0].mapTimeStamp() = m_currentInput->mapTimeStamp();
-        m_currentOutput.vecFrameResult()[0].mapDelay() = m_currentInput->mapDelay();
-        m_currentOutput.vecFrameResult()[0].mapFps() = m_currentInput->mapFps();
+        m_currentOutput.vecFrameResult()[0].unFrameId() = m_currentInput->vecFrameResult()[0].unFrameId();
+        m_currentOutput.vecFrameResult()[0].mapTimeStamp() = m_currentInput->vecFrameResult()[0].mapTimeStamp();
+        m_currentOutput.vecFrameResult()[0].mapDelay() = m_currentInput->vecFrameResult()[0].mapDelay();
+        m_currentOutput.vecFrameResult()[0].mapFps() = m_currentInput->vecFrameResult()[0].mapFps();
+
+        m_currentOutput.lTimeStamp() = m_currentInput->lTimeStamp();
+        LOG(INFO) << "原有信息穿透完毕： FrameId : " << m_currentOutput.vecFrameResult()[0].unFrameId() << ", lTimeStamp : " << m_currentOutput.lTimeStamp();
 
         // 独有数据填充
         m_currentOutput.vecFrameResult()[0].eDataType(DATA_TYPE_LOCALG_RESULT);                                 // 数据类型赋值
         m_currentOutput.vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_LOCALG_END] = endTimeStamp;                // 目标定位算法结束时间戳
         m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_LOCALG] = endTimeStamp - m_currentOutput.mapTimeStamp()[TIMESTAMP_LOCALG_BEGIN];    // 目标定位算法耗时计算
+    }
+
+    if(m_currentOutput.vecFrameResult().size() > 0)
+    {   
+        // float distance = m_currentInput->
+        for(auto& frameResult : m_currentOutput.vecFrameResult())
+        {
+            for(auto& objectResult : frameResult.vecObjectResult())
+            {
+                // 获取目标类别
+                std::string strClass = objectResult.strClass();
+                // 获取目标距离
+                float fDistance = objectResult.fDistance();
+
+                LOG(INFO) << "打印结果 ---- 目标类别: " << strClass << ", 目标距离: " << fDistance;
+            }
+        }
+        LOG(INFO) << "所有数据完成穿透! vecFrameResult()[0].vecObjectResult().size(): " << m_currentOutput.vecFrameResult()[0].vecObjectResult().size();
     }
     return true;
 } 

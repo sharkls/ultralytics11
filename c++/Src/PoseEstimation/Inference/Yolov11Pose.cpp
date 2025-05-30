@@ -178,6 +178,8 @@ void Yolov11Pose::execute()
 
     // 3、输出格式转换
     m_outputResult = formatConverted(results);
+    LOG(INFO) << "Yolov11Pose::execute status: success " << m_outputResult.vecFrameResult().size();
+
 }
 
 
@@ -229,6 +231,10 @@ CAlgResult Yolov11Pose::formatConverted(std::vector<std::vector<float>> results)
     }
 
     alg_result.vecFrameResult({frame_result});
+
+    LOG(INFO) << "formatConverted: alg_result.vecFrameResult().size() = " << alg_result.vecFrameResult().size();
+    if (alg_result.vecFrameResult().size() > 0)
+        LOG(INFO) << "formatConverted: frame_result.vecObjectResult().size() = " << alg_result.vecFrameResult()[0].vecObjectResult().size();
     return alg_result;
 }
 
@@ -339,6 +345,7 @@ std::vector<std::vector<float>> Yolov11Pose::process_keypoints(const std::vector
 
 std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<float>& output) 
 {   
+    LOG(INFO) << "Yolov11Pose::process_output status: start ";
     // 1. TensorRT输出数据转置
     // [batch_size, 4 + num_classes + num_keys * 3, num_anchors] -> [num_anchors, 4 + num_classes + num_keys * 3]
     int num_anchors = num_anchors_; 
@@ -439,6 +446,7 @@ std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<fl
     {
         save_bin(results, "./Save_Data/pose/result/processed_output_yolov11pose.bin"); // Yolov11Pose/Inference
     }
+    LOG(INFO) << "Yolov11Pose::process_output status: success ";
     return results;
 }
 

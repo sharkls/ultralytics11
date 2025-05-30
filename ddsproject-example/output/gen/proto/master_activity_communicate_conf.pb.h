@@ -50,8 +50,9 @@ template <typename T>
 struct TableStruct_master_5factivity_5fcommunicate_5fconf_2eproto {
   static const ::uint32_t offsets[];
 };
-extern const ::google::protobuf::internal::DescriptorTable
-    descriptor_table_master_5factivity_5fcommunicate_5fconf_2eproto;
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_master_5factivity_5fcommunicate_5fconf_2eproto;
+}  // extern "C"
 class CommunicateConfig;
 struct CommunicateConfigDefaultTypeInternal;
 extern CommunicateConfigDefaultTypeInternal _CommunicateConfig_default_instance_;
@@ -71,23 +72,21 @@ namespace protobuf {
 
 // -------------------------------------------------------------------
 
-class CommunicateTopicConfig final
-    : public ::google::protobuf::Message
+class CommunicateTopicConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:CommunicateTopicConfig) */ {
  public:
   inline CommunicateTopicConfig() : CommunicateTopicConfig(nullptr) {}
   ~CommunicateTopicConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(CommunicateTopicConfig* msg, std::destroying_delete_t) {
+  void operator delete(CommunicateTopicConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(CommunicateTopicConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR CommunicateTopicConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR CommunicateTopicConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline CommunicateTopicConfig(const CommunicateTopicConfig& from) : CommunicateTopicConfig(nullptr, from) {}
   inline CommunicateTopicConfig(CommunicateTopicConfig&& from) noexcept
@@ -110,30 +109,27 @@ class CommunicateTopicConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const CommunicateTopicConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const CommunicateTopicConfig* internal_default_instance() {
-    return reinterpret_cast<const CommunicateTopicConfig*>(
+    return *reinterpret_cast<const CommunicateTopicConfig*>(
         &_CommunicateTopicConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 0;
   friend void swap(CommunicateTopicConfig& a, CommunicateTopicConfig& b) { a.Swap(&b); }
-  inline void Swap(CommunicateTopicConfig* other) {
+  inline void Swap(CommunicateTopicConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -141,7 +137,7 @@ class CommunicateTopicConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(CommunicateTopicConfig* other) {
+  void UnsafeArenaSwap(CommunicateTopicConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -149,7 +145,7 @@ class CommunicateTopicConfig final
 
   // implements Message ----------------------------------------------
 
-  CommunicateTopicConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  CommunicateTopicConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<CommunicateTopicConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -158,9 +154,8 @@ class CommunicateTopicConfig final
   void MergeFrom(const CommunicateTopicConfig& from) { CommunicateTopicConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -175,45 +170,46 @@ class CommunicateTopicConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(CommunicateTopicConfig* other);
+  void InternalSwap(CommunicateTopicConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "CommunicateTopicConfig"; }
 
  protected:
-  explicit CommunicateTopicConfig(::google::protobuf::Arena* arena);
-  CommunicateTopicConfig(::google::protobuf::Arena* arena, const CommunicateTopicConfig& from);
-  CommunicateTopicConfig(::google::protobuf::Arena* arena, CommunicateTopicConfig&& from) noexcept
+  explicit CommunicateTopicConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  CommunicateTopicConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const CommunicateTopicConfig& from);
+  CommunicateTopicConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, CommunicateTopicConfig&& from) noexcept
       : CommunicateTopicConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -233,14 +229,14 @@ class CommunicateTopicConfig final
   const std::string& activity_cmd_ctrl() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_activity_cmd_ctrl(Arg_&& arg, Args_... args);
-  std::string* mutable_activity_cmd_ctrl();
-  [[nodiscard]] std::string* release_activity_cmd_ctrl();
-  void set_allocated_activity_cmd_ctrl(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_activity_cmd_ctrl();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_activity_cmd_ctrl();
+  void set_allocated_activity_cmd_ctrl(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_activity_cmd_ctrl() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_activity_cmd_ctrl(const std::string& value);
-  std::string* _internal_mutable_activity_cmd_ctrl();
+  std::string* PROTOBUF_NONNULL _internal_mutable_activity_cmd_ctrl();
 
   public:
   // required string activity_status_feedback = 2;
@@ -249,23 +245,23 @@ class CommunicateTopicConfig final
   const std::string& activity_status_feedback() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_activity_status_feedback(Arg_&& arg, Args_... args);
-  std::string* mutable_activity_status_feedback();
-  [[nodiscard]] std::string* release_activity_status_feedback();
-  void set_allocated_activity_status_feedback(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_activity_status_feedback();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_activity_status_feedback();
+  void set_allocated_activity_status_feedback(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_activity_status_feedback() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_activity_status_feedback(const std::string& value);
-  std::string* _internal_mutable_activity_status_feedback();
+  std::string* PROTOBUF_NONNULL _internal_mutable_activity_status_feedback();
 
   public:
   // @@protoc_insertion_point(class_scope:CommunicateTopicConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
-      72, 2>
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   0, 72,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -275,13 +271,14 @@ class CommunicateTopicConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const CommunicateTopicConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const CommunicateTopicConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr activity_cmd_ctrl_;
@@ -295,23 +292,21 @@ class CommunicateTopicConfig final
 extern const ::google::protobuf::internal::ClassDataFull CommunicateTopicConfig_class_data_;
 // -------------------------------------------------------------------
 
-class CommunicateConfig final
-    : public ::google::protobuf::Message
+class CommunicateConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:CommunicateConfig) */ {
  public:
   inline CommunicateConfig() : CommunicateConfig(nullptr) {}
   ~CommunicateConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(CommunicateConfig* msg, std::destroying_delete_t) {
+  void operator delete(CommunicateConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(CommunicateConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR CommunicateConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR CommunicateConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline CommunicateConfig(const CommunicateConfig& from) : CommunicateConfig(nullptr, from) {}
   inline CommunicateConfig(CommunicateConfig&& from) noexcept
@@ -334,30 +329,27 @@ class CommunicateConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const CommunicateConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const CommunicateConfig* internal_default_instance() {
-    return reinterpret_cast<const CommunicateConfig*>(
+    return *reinterpret_cast<const CommunicateConfig*>(
         &_CommunicateConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 1;
   friend void swap(CommunicateConfig& a, CommunicateConfig& b) { a.Swap(&b); }
-  inline void Swap(CommunicateConfig* other) {
+  inline void Swap(CommunicateConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -365,7 +357,7 @@ class CommunicateConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(CommunicateConfig* other) {
+  void UnsafeArenaSwap(CommunicateConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -373,7 +365,7 @@ class CommunicateConfig final
 
   // implements Message ----------------------------------------------
 
-  CommunicateConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  CommunicateConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<CommunicateConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -382,9 +374,8 @@ class CommunicateConfig final
   void MergeFrom(const CommunicateConfig& from) { CommunicateConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -399,45 +390,46 @@ class CommunicateConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(CommunicateConfig* other);
+  void InternalSwap(CommunicateConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "CommunicateConfig"; }
 
  protected:
-  explicit CommunicateConfig(::google::protobuf::Arena* arena);
-  CommunicateConfig(::google::protobuf::Arena* arena, const CommunicateConfig& from);
-  CommunicateConfig(::google::protobuf::Arena* arena, CommunicateConfig&& from) noexcept
+  explicit CommunicateConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  CommunicateConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const CommunicateConfig& from);
+  CommunicateConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, CommunicateConfig&& from) noexcept
       : CommunicateConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -455,39 +447,39 @@ class CommunicateConfig final
   bool has_node_config() const;
   void clear_node_config() ;
   const ::NodeConfig& node_config() const;
-  [[nodiscard]] ::NodeConfig* release_node_config();
-  ::NodeConfig* mutable_node_config();
-  void set_allocated_node_config(::NodeConfig* value);
-  void unsafe_arena_set_allocated_node_config(::NodeConfig* value);
-  ::NodeConfig* unsafe_arena_release_node_config();
+  [[nodiscard]] ::NodeConfig* PROTOBUF_NULLABLE release_node_config();
+  ::NodeConfig* PROTOBUF_NONNULL mutable_node_config();
+  void set_allocated_node_config(::NodeConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_node_config(::NodeConfig* PROTOBUF_NULLABLE value);
+  ::NodeConfig* PROTOBUF_NULLABLE unsafe_arena_release_node_config();
 
   private:
   const ::NodeConfig& _internal_node_config() const;
-  ::NodeConfig* _internal_mutable_node_config();
+  ::NodeConfig* PROTOBUF_NONNULL _internal_mutable_node_config();
 
   public:
   // required .CommunicateTopicConfig topic_config = 2;
   bool has_topic_config() const;
   void clear_topic_config() ;
   const ::CommunicateTopicConfig& topic_config() const;
-  [[nodiscard]] ::CommunicateTopicConfig* release_topic_config();
-  ::CommunicateTopicConfig* mutable_topic_config();
-  void set_allocated_topic_config(::CommunicateTopicConfig* value);
-  void unsafe_arena_set_allocated_topic_config(::CommunicateTopicConfig* value);
-  ::CommunicateTopicConfig* unsafe_arena_release_topic_config();
+  [[nodiscard]] ::CommunicateTopicConfig* PROTOBUF_NULLABLE release_topic_config();
+  ::CommunicateTopicConfig* PROTOBUF_NONNULL mutable_topic_config();
+  void set_allocated_topic_config(::CommunicateTopicConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_topic_config(::CommunicateTopicConfig* PROTOBUF_NULLABLE value);
+  ::CommunicateTopicConfig* PROTOBUF_NULLABLE unsafe_arena_release_topic_config();
 
   private:
   const ::CommunicateTopicConfig& _internal_topic_config() const;
-  ::CommunicateTopicConfig* _internal_mutable_topic_config();
+  ::CommunicateTopicConfig* PROTOBUF_NONNULL _internal_mutable_topic_config();
 
   public:
   // @@protoc_insertion_point(class_scope:CommunicateConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 2,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   2, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -497,17 +489,18 @@ class CommunicateConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const CommunicateConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const CommunicateConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::NodeConfig* node_config_;
-    ::CommunicateTopicConfig* topic_config_;
+    ::NodeConfig* PROTOBUF_NULLABLE node_config_;
+    ::CommunicateTopicConfig* PROTOBUF_NULLABLE topic_config_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -548,14 +541,14 @@ inline const std::string& CommunicateTopicConfig::activity_cmd_ctrl() const
   return _internal_activity_cmd_ctrl();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void CommunicateTopicConfig::set_activity_cmd_ctrl(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void CommunicateTopicConfig::set_activity_cmd_ctrl(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.activity_cmd_ctrl_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:CommunicateTopicConfig.activity_cmd_ctrl)
 }
-inline std::string* CommunicateTopicConfig::mutable_activity_cmd_ctrl() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL CommunicateTopicConfig::mutable_activity_cmd_ctrl()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_activity_cmd_ctrl();
   // @@protoc_insertion_point(field_mutable:CommunicateTopicConfig.activity_cmd_ctrl)
   return _s;
@@ -569,12 +562,12 @@ inline void CommunicateTopicConfig::_internal_set_activity_cmd_ctrl(const std::s
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.activity_cmd_ctrl_.Set(value, GetArena());
 }
-inline std::string* CommunicateTopicConfig::_internal_mutable_activity_cmd_ctrl() {
+inline std::string* PROTOBUF_NONNULL CommunicateTopicConfig::_internal_mutable_activity_cmd_ctrl() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.activity_cmd_ctrl_.Mutable( GetArena());
 }
-inline std::string* CommunicateTopicConfig::release_activity_cmd_ctrl() {
+inline std::string* PROTOBUF_NULLABLE CommunicateTopicConfig::release_activity_cmd_ctrl() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:CommunicateTopicConfig.activity_cmd_ctrl)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
@@ -587,7 +580,7 @@ inline std::string* CommunicateTopicConfig::release_activity_cmd_ctrl() {
   }
   return released;
 }
-inline void CommunicateTopicConfig::set_allocated_activity_cmd_ctrl(std::string* value) {
+inline void CommunicateTopicConfig::set_allocated_activity_cmd_ctrl(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
@@ -617,14 +610,14 @@ inline const std::string& CommunicateTopicConfig::activity_status_feedback() con
   return _internal_activity_status_feedback();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void CommunicateTopicConfig::set_activity_status_feedback(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void CommunicateTopicConfig::set_activity_status_feedback(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.activity_status_feedback_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:CommunicateTopicConfig.activity_status_feedback)
 }
-inline std::string* CommunicateTopicConfig::mutable_activity_status_feedback() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL CommunicateTopicConfig::mutable_activity_status_feedback()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_activity_status_feedback();
   // @@protoc_insertion_point(field_mutable:CommunicateTopicConfig.activity_status_feedback)
   return _s;
@@ -638,12 +631,12 @@ inline void CommunicateTopicConfig::_internal_set_activity_status_feedback(const
   _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.activity_status_feedback_.Set(value, GetArena());
 }
-inline std::string* CommunicateTopicConfig::_internal_mutable_activity_status_feedback() {
+inline std::string* PROTOBUF_NONNULL CommunicateTopicConfig::_internal_mutable_activity_status_feedback() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
   return _impl_.activity_status_feedback_.Mutable( GetArena());
 }
-inline std::string* CommunicateTopicConfig::release_activity_status_feedback() {
+inline std::string* PROTOBUF_NULLABLE CommunicateTopicConfig::release_activity_status_feedback() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:CommunicateTopicConfig.activity_status_feedback)
   if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
@@ -656,7 +649,7 @@ inline std::string* CommunicateTopicConfig::release_activity_status_feedback() {
   }
   return released;
 }
-inline void CommunicateTopicConfig::set_allocated_activity_status_feedback(std::string* value) {
+inline void CommunicateTopicConfig::set_allocated_activity_status_feedback(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000002u;
@@ -689,7 +682,8 @@ inline const ::NodeConfig& CommunicateConfig::node_config() const ABSL_ATTRIBUTE
   // @@protoc_insertion_point(field_get:CommunicateConfig.node_config)
   return _internal_node_config();
 }
-inline void CommunicateConfig::unsafe_arena_set_allocated_node_config(::NodeConfig* value) {
+inline void CommunicateConfig::unsafe_arena_set_allocated_node_config(
+    ::NodeConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.node_config_);
@@ -702,7 +696,7 @@ inline void CommunicateConfig::unsafe_arena_set_allocated_node_config(::NodeConf
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CommunicateConfig.node_config)
 }
-inline ::NodeConfig* CommunicateConfig::release_node_config() {
+inline ::NodeConfig* PROTOBUF_NULLABLE CommunicateConfig::release_node_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
@@ -721,7 +715,7 @@ inline ::NodeConfig* CommunicateConfig::release_node_config() {
   }
   return released;
 }
-inline ::NodeConfig* CommunicateConfig::unsafe_arena_release_node_config() {
+inline ::NodeConfig* PROTOBUF_NULLABLE CommunicateConfig::unsafe_arena_release_node_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:CommunicateConfig.node_config)
 
@@ -730,7 +724,7 @@ inline ::NodeConfig* CommunicateConfig::unsafe_arena_release_node_config() {
   _impl_.node_config_ = nullptr;
   return temp;
 }
-inline ::NodeConfig* CommunicateConfig::_internal_mutable_node_config() {
+inline ::NodeConfig* PROTOBUF_NONNULL CommunicateConfig::_internal_mutable_node_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.node_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::NodeConfig>(GetArena());
@@ -738,13 +732,14 @@ inline ::NodeConfig* CommunicateConfig::_internal_mutable_node_config() {
   }
   return _impl_.node_config_;
 }
-inline ::NodeConfig* CommunicateConfig::mutable_node_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::NodeConfig* PROTOBUF_NONNULL CommunicateConfig::mutable_node_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
   ::NodeConfig* _msg = _internal_mutable_node_config();
   // @@protoc_insertion_point(field_mutable:CommunicateConfig.node_config)
   return _msg;
 }
-inline void CommunicateConfig::set_allocated_node_config(::NodeConfig* value) {
+inline void CommunicateConfig::set_allocated_node_config(::NodeConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
@@ -752,7 +747,7 @@ inline void CommunicateConfig::set_allocated_node_config(::NodeConfig* value) {
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::Message*>(value)->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
@@ -785,7 +780,8 @@ inline const ::CommunicateTopicConfig& CommunicateConfig::topic_config() const A
   // @@protoc_insertion_point(field_get:CommunicateConfig.topic_config)
   return _internal_topic_config();
 }
-inline void CommunicateConfig::unsafe_arena_set_allocated_topic_config(::CommunicateTopicConfig* value) {
+inline void CommunicateConfig::unsafe_arena_set_allocated_topic_config(
+    ::CommunicateTopicConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.topic_config_);
@@ -798,7 +794,7 @@ inline void CommunicateConfig::unsafe_arena_set_allocated_topic_config(::Communi
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CommunicateConfig.topic_config)
 }
-inline ::CommunicateTopicConfig* CommunicateConfig::release_topic_config() {
+inline ::CommunicateTopicConfig* PROTOBUF_NULLABLE CommunicateConfig::release_topic_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000002u;
@@ -817,7 +813,7 @@ inline ::CommunicateTopicConfig* CommunicateConfig::release_topic_config() {
   }
   return released;
 }
-inline ::CommunicateTopicConfig* CommunicateConfig::unsafe_arena_release_topic_config() {
+inline ::CommunicateTopicConfig* PROTOBUF_NULLABLE CommunicateConfig::unsafe_arena_release_topic_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:CommunicateConfig.topic_config)
 
@@ -826,7 +822,7 @@ inline ::CommunicateTopicConfig* CommunicateConfig::unsafe_arena_release_topic_c
   _impl_.topic_config_ = nullptr;
   return temp;
 }
-inline ::CommunicateTopicConfig* CommunicateConfig::_internal_mutable_topic_config() {
+inline ::CommunicateTopicConfig* PROTOBUF_NONNULL CommunicateConfig::_internal_mutable_topic_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.topic_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::CommunicateTopicConfig>(GetArena());
@@ -834,21 +830,22 @@ inline ::CommunicateTopicConfig* CommunicateConfig::_internal_mutable_topic_conf
   }
   return _impl_.topic_config_;
 }
-inline ::CommunicateTopicConfig* CommunicateConfig::mutable_topic_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::CommunicateTopicConfig* PROTOBUF_NONNULL CommunicateConfig::mutable_topic_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000002u;
   ::CommunicateTopicConfig* _msg = _internal_mutable_topic_config();
   // @@protoc_insertion_point(field_mutable:CommunicateConfig.topic_config)
   return _msg;
 }
-inline void CommunicateConfig::set_allocated_topic_config(::CommunicateTopicConfig* value) {
+inline void CommunicateConfig::set_allocated_topic_config(::CommunicateTopicConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.topic_config_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.topic_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }

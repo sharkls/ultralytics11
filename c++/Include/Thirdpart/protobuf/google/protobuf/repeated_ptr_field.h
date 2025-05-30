@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <iterator>
 #include <limits>
 #include <new>
@@ -61,7 +62,6 @@ namespace internal {
 
 class MergePartialFromCodedStreamHelper;
 class SwapFieldHelper;
-
 
 }  // namespace internal
 
@@ -117,6 +117,8 @@ class GenericTypeHandler;
 //
 //     // Only needs to be implemented if SpaceUsedExcludingSelf() is called.
 //     static int SpaceUsedLong(const Type&);
+//
+//     static const Type& default_instance();
 //   };
 class PROTOBUF_EXPORT RepeatedPtrFieldBase {
   template <typename TypeHandler>
@@ -238,6 +240,8 @@ class PROTOBUF_EXPORT RepeatedPtrFieldBase {
     // allocated Rep.
     return tagged_rep_or_elem_ != nullptr;
   }
+
+  // Pre-condition: NeedsDestroy() returns true.
   void DestroyProtos();
 
  public:
@@ -571,7 +575,6 @@ class PROTOBUF_EXPORT RepeatedPtrFieldBase {
   // subclass.
   friend class google::protobuf::Reflection;
   friend class internal::SwapFieldHelper;
-  friend class LazyRepeatedPtrField;
 
   friend class RustRepeatedMessageHelper;
 
@@ -839,6 +842,11 @@ class GenericTypeHandler {
   static inline size_t SpaceUsedLong(const Type& value) {
     return value.SpaceUsedLong();
   }
+
+  static const Type& default_instance() {
+    return *static_cast<const GenericType*>(
+        MessageTraits<Type>::default_instance());
+  }
 };
 
 template <>
@@ -875,6 +883,10 @@ class GenericTypeHandler<std::string> {
   static size_t SpaceUsedLong(const Type& value) {
     return sizeof(value) + StringSpaceUsedExcludingSelfLong(value);
   }
+
+  static const Type& default_instance() {
+    return GetEmptyStringAlreadyInited();
+  }
 };
 
 }  // namespace internal
@@ -897,6 +909,8 @@ class RepeatedPtrField final : private internal::RepeatedPtrFieldBase {
             internal::is_supported_string_type<Element>,
             internal::is_supported_message_type<Element>>::value,
         "We only support string and Message types in RepeatedPtrField.");
+    static_assert(alignof(Element) <= internal::ArenaAlignDefault::align,
+                  "Overaligned types are not supported");
   }
 
  public:
@@ -1178,7 +1192,6 @@ class RepeatedPtrField final : private internal::RepeatedPtrFieldBase {
 
   using RepeatedPtrFieldBase::InternalGetArenaOffset;
 
-
  private:
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
@@ -1310,7 +1323,6 @@ inline Element& RepeatedPtrField<Element>::at(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   return RepeatedPtrFieldBase::at<TypeHandler>(index);
 }
-
 
 template <typename Element>
 inline Element* RepeatedPtrField<Element>::Mutable(int index)
@@ -1549,7 +1561,9 @@ class RustRepeatedMessageHelper {
   static RepeatedPtrFieldBase* New() { return new RepeatedPtrFieldBase; }
 
   static void Delete(RepeatedPtrFieldBase* field) {
-    field->DestroyProtos();
+    if (field->NeedsDestroy()) {
+      field->DestroyProtos();
+    }
     delete field;
   }
 
@@ -1722,7 +1736,7 @@ class RepeatedPtrOverPtrsIterator {
       typename OtherElement, typename OtherVoidPtr,
       typename std::enable_if<
           std::is_convertible<OtherElement*, pointer>::value &&
-          std::is_convertible<OtherVoidPtr*, VoidPtr>::value>::type* = nullptr>
+          std::is_convertible<OtherVoidPtr, VoidPtr>::value>::type* = nullptr>
   RepeatedPtrOverPtrsIterator(
       const RepeatedPtrOverPtrsIterator<OtherElement, OtherVoidPtr>& other)
       : it_(other.it_) {}
@@ -1966,6 +1980,44 @@ class UnsafeArenaAllocatedRepeatedPtrFieldBackInsertIterator {
  private:
   RepeatedPtrField<T>* field_;
 };
+
+// A utility function for logging that doesn't need any template types.
+PROTOBUF_EXPORT void LogIndexOutOfBounds(int index, int size);
+
+// A utility function for logging that doesn't need any template types. Same as
+// LogIndexOutOfBounds, but aborts the program in all cases by logging to FATAL
+// instead of DFATAL.
+[[noreturn]] PROTOBUF_EXPORT void LogIndexOutOfBoundsAndAbort(int index,
+                                                              int size);
+
+template <typename T>
+const T& CheckedGetOrDefault(const RepeatedPtrField<T>& field, int index) {
+  if (ABSL_PREDICT_FALSE(index < 0 || index >= field.size())) {
+    LogIndexOutOfBounds(index, field.size());
+    return GenericTypeHandler<T>::default_instance();
+  }
+  return field.Get(index);
+}
+
+template <typename T>
+inline void CheckIndexInBoundsOrAbort(const RepeatedPtrField<T>& field,
+                                      int index) {
+  if (ABSL_PREDICT_FALSE(index < 0 || index >= field.size())) {
+    LogIndexOutOfBoundsAndAbort(index, field.size());
+  }
+}
+
+template <typename T>
+const T& CheckedGetOrAbort(const RepeatedPtrField<T>& field, int index) {
+  CheckIndexInBoundsOrAbort(field, index);
+  return field.Get(index);
+}
+
+template <typename T>
+inline T* CheckedMutableOrAbort(RepeatedPtrField<T>* field, int index) {
+  CheckIndexInBoundsOrAbort(*field, index);
+  return field->Mutable(index);
+}
 
 }  // namespace internal
 
