@@ -10,6 +10,16 @@ message TaskConfig {
     float bucket_size = 3;      // 桶大小
     float max_distance = 4;     // 最大距离
     bool run_status = 5;        // 代码运行方式
+
+    float track_high_thresh = 6;   // 高置信度阈值
+    float track_low_thresh = 7;    // 低置信度阈值
+    float match_thresh = 8;        // 关联距离阈值
+    float new_track_thresh = 9;    // 新track激活阈值
+    int32 tracker_buffer_size = 10; // 跟踪缓冲区大小
+    int32 class_history_len = 11;   // 类别平滑窗口长度
+    int32 max_time_lost = 12;       // 最大丢失帧数
+    float conf_thres = 13;       // 置信度阈值
+    int32 max_dets = 14;        // 最大检测目标数量
 }
 
 // 姿态估计任务配置参数

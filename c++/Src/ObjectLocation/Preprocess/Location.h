@@ -44,6 +44,7 @@ private:
     float calc_iou(const CObjectResult& a, const CObjectResult& b) const;
     float get_depth(const std::vector<short>& depth_map, int width, int height, float x, float y) const;
     float get_bucket_depth(const std::vector<float>& depths, float bucket_size = 5.0f) const;
+    std::string update_class(const std::string& pose_class, const std::string& multi_class) const;
 
     objectlocation::TaskConfig m_config;            // 目标定位任务配置参数
     CAlgResult m_inputdata;                                   // 预处理输入数据

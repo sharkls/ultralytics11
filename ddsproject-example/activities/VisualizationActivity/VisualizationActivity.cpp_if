@@ -287,77 +287,85 @@ void VisualizationActivity::MessageConsumerThreadFunc()
 
         
         // 尝试匹配姿态估计结果
-        while(object_location_result_deque_.PopFront(l_pObjectLocationResult, 30))
-        {
+        if (object_location_result_deque_.PopFront(l_pObjectLocationResult, 50))
+        {   
             std::cout << "==========21" << std::endl;
+            
             // 检查姿态估计结果是否有效
             if (l_pObjectLocationResult->vecFrameResult().empty())
             {
+                std::cout << "==========211" << std::endl;
                 LOG(WARNING) << "Empty pose estimation result";
-                continue;
-            }
-
-            // auto poseTime = l_pPoseEstimationResult->vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_TIME_MATCH];
-            auto poseTime = l_pObjectLocationResult->lTimeStamp();
-            
-            std::cout << multiModalTime << " vs " << poseTime << std::endl;
-            if (multiModalTime == poseTime)
-            {
-                // 时间戳匹配，添加姿态估计结果
-                l_pObjectLocationResult->vecFrameResult().push_back(l_pObjectLocationResult->vecFrameResult()[0]);
-                foundMatch = true;
-
+                // continue;
+            } else {
+                std::cout << "==========212" << std::endl;
+                // auto poseTime = l_pPoseEstimationResult->vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_TIME_MATCH];
+                auto poseTime = l_pObjectLocationResult->lTimeStamp();
                 
-                
-                for (const auto& item: l_pObjectLocationResult->vecFrameResult())
+                std::cout << "------------" << multiModalTime << " " << poseTime << std::endl;
+                if (multiModalTime == poseTime)
                 {
-                    for (const auto& obRes: item.vecObjectResult())
+                    std::cout << "==========213" << std::endl;
+                    // 时间戳匹配，添加姿态估计结果
+                    l_pObjectLocationResult->vecFrameResult().push_back(l_pObjectLocationResult->vecFrameResult()[0]);
+                    foundMatch = true;
+
+                    std::cout << "size: " << l_pObjectLocationResult->vecFrameResult().size() << std::endl;
+                    
+                    
+                    for (const auto& item: l_pObjectLocationResult->vecFrameResult())
                     {
-                        std::cout << " " << obRes.fTopLeftX() << " " << obRes.fTopLeftY() << " " <<obRes.fBottomRightX() << " " << obRes.fBottomRightY() << std::endl;
-
-                        cv::Scalar sc = cv::Scalar(0, 0, 255);
-                        if (obRes.strClass() != "0")
+                        for (const auto& obRes: item.vecObjectResult())
                         {
-                            sc = cv::Scalar(0, 255, 0);
+                            std::cout << " " << obRes.fTopLeftX() << " " << obRes.fTopLeftY() << " " <<obRes.fBottomRightX() << " " << obRes.fBottomRightY() << std::endl;
+
+                            cv::Scalar sc = cv::Scalar(0, 0, 255);
+                            if (obRes.strClass() != "0")
+                            {
+                                sc = cv::Scalar(0, 255, 0);
+                            }
+
+                            cv::rectangle(mat, cv::Point(obRes.fTopLeftX(), obRes.fTopLeftY()), cv::Point(obRes.fBottomRightX(), obRes.fBottomRightY()), sc, 3);
+                            cv::putText(mat, obRes.strClass() + ", " + std::to_string(obRes.fDistance()), cv::Point(obRes.fTopLeftX(), obRes.fTopLeftY()),
+                                cv::FONT_HERSHEY_SIMPLEX, 1.0, sc);
                         }
-
-                        cv::rectangle(mat, cv::Point(obRes.fTopLeftX(), obRes.fTopLeftY()), cv::Point(obRes.fBottomRightX(), obRes.fBottomRightY()), sc, 3);
-                        cv::putText(mat, obRes.strClass() + ", " + std::to_string(obRes.fDistance()), cv::Point(obRes.fTopLeftX(), obRes.fTopLeftY()),
-                            cv::FONT_HERSHEY_SIMPLEX, 1.0, sc);
                     }
-                }
 
-                count_inner++;
-                if (getTimeStamp() - tmpTimeStamp_inner > 1000)
+                    count_inner++;
+                    if (getTimeStamp() - tmpTimeStamp_inner > 1000)
+                    {
+                        std::cout << "==========fps_inner: " << count_inner << std::endl;
+
+                        tmpTimeStamp_inner = getTimeStamp();
+                        count_inner = 0;
+                    }
+
+                    ////////////////////////////////////////
+                    ;;;;;
+                    ////////////////////////////////////////
+
+                    // cv::imwrite(std::to_string(i) +  ".png", mat);
+                    // if (-1 != clnt_sock)
+                    // {
+                    //     int nSize = write(clnt_sock, mat.data, length * width * 3);
+                    //     std::cout << "=-=-=-=-=-= " << clnt_sock << " " << width << " " << length << " " << nSize << std::endl;
+                    // } else {
+                    //     std::cout << "clnt_sock is -1" << std::endl;
+                    // }
+                    // std::cout << "=-=-=-=-=-= " << clnt_sock << " " << width << " " << length << " " << nSize << std::endl;
+                    // break;
+                }
+                else if (multiModalTime < poseTime)
                 {
-                    std::cout << "==========fps_inner: " << count_inner << std::endl;
-
-                    tmpTimeStamp_inner = getTimeStamp();
-                    count_inner = 0;
+                    std::cout << "==========214" << std::endl;
+                    // 当前姿态估计结果时间戳更大，放回队列
+                    object_location_result_deque_.PushFront(l_pObjectLocationResult);
+                    // break;
                 }
-
-                ////////////////////////////////////////
-                ;;;;;
-                ////////////////////////////////////////
-
-                // cv::imwrite(std::to_string(i) +  ".png", mat);
-                // if (-1 != clnt_sock)
-                // {
-                //     int nSize = write(clnt_sock, mat.data, length * width * 3);
-                //     std::cout << "=-=-=-=-=-= " << clnt_sock << " " << width << " " << length << " " << nSize << std::endl;
-                // } else {
-                //     std::cout << "clnt_sock is -1" << std::endl;
-                // }
-                // std::cout << "=-=-=-=-=-= " << clnt_sock << " " << width << " " << length << " " << nSize << std::endl;
-                break;
-            }
-            else if (multiModalTime < poseTime)
-            {
-                // 当前姿态估计结果时间戳更大，放回队列
-                object_location_result_deque_.PushFront(l_pObjectLocationResult);
-
-                std::cout << "------------break directly. " << multiModalTime << " " << poseTime << std::endl;
-                break;
+                
+                else {
+                    multi_modal_src_data_deque_.PushFront(l_pMultiModalSrcData);
+                }
             }
             // 如果时间戳更小，继续循环查找匹配项
         }

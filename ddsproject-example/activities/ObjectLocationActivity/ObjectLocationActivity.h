@@ -79,8 +79,22 @@ private:
     CSelfAlgParam alg_param_;
 
     // 测试
-    int64_t endTimeStamp_;
-    int64_t startTimeStamp_;
+    int64_t endTimeStamp_{0};
+    int64_t startTimeStamp_{0};
+
+    // 帧率统计
+    int64_t multimodalresult_time_{0};
+    int64_t count_time1_{0};
+    int32_t count1_{0};
+
+    int64_t poseestimationresult_time_{0};
+    int64_t count_time2_{0};
+    int32_t count2_{0};
+
+    int64_t locationresult_time_{0};
+    int64_t count_time3_{0};
+    int32_t count3_{0};
+
 };
 
 #endif // OBJECTLOCATIONACTIVITY_H

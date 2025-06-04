@@ -116,6 +116,8 @@ void Location::execute()
                 // 5. 填入新目标
                 CObjectResult obj = det;
                 obj.fDistance(final_depth);
+                // 更新类别
+                obj.strClass(update_class(pose_objs[best_j].strClass(), det.strClass()));
                 outputResult.vecObjectResult().push_back(obj);
             }
         }
@@ -198,4 +200,34 @@ float Location::get_bucket_depth(const std::vector<float>& depths, float bucket_
     std::vector<float> vals = buckets[max_bucket];
     std::sort(vals.begin(), vals.end());
     return vals[vals.size() / 2];
+}
+
+std::string Location::update_class(const std::string& pose_class, const std::string& multi_class) const 
+{
+    std::cout << "update_class : " << pose_class << ", " << multi_class << std::endl;
+    // 将字符串转换为整数进行比较
+    int pose_cls = std::stoi(pose_class);
+    int multi_cls = std::stoi(multi_class);
+
+    // 根据规则更新类别
+    if (pose_cls == 0) {
+        // pose类别为0时
+        if (multi_cls == 1) {
+            return "1";  // 保持multi类别不变
+        } else {
+            return "0";  // multi类别为0或2时，更改为0
+        }
+    } else if (pose_cls == 1) {
+        // pose类别为1时
+        if (multi_cls == 0) {
+            return "2";  // multi类别为0时，更改为2
+        } else {
+            return multi_class;  // 其他情况保持multi类别不变
+        }
+        return multi_class;
+    }
+
+    // 默认返回multi类别
+    std::cout << "multi_class : " << pose_class << ", " << multi_class << std::endl;
+    return multi_class;
 }

@@ -14,18 +14,18 @@ public:
         // std::vector<int16_t> result;
         // result.resize(m_width * m_height);
 
-        // for (int i = 0; i < m_width; ++i)
-        // {
-        //     for (int j = 0; j < m_height; ++j)
-        //     {
-        //         getValue(result, i, j) = process(input, i, j);
-        //     }
-        // }
-
-        for (int i = 0; i < m_width * m_height; ++i)
+        for (int i = 0; i < m_width; ++i)
         {
-            result[i] = process(input[i]);
+            for (int j = 0; j < m_height; ++j)
+            {
+                getValue(result, i, j) = process(input, i, j);
+            }
         }
+
+        // for (int i = 0; i < m_width * m_height; ++i)
+        // {
+        //     result[i] = process(input[i]);
+        // }
 
         return result;
     }
@@ -34,27 +34,27 @@ private:
     int process(const std::vector<uint8_t>& input, const int x, const int y)
     {
         
-        std::array<int, 25> arr;
-        int count = 0;
-        for (int i = x - 2; i <= x + 2; ++i)
-        {
-            for (int j = y - 2; j <= y + 2; ++j)
-            {
-                arr[count++] = getValue(input, i, j);
-            }
-        }
+        // std::array<int, 25> arr;
+        // int count = 0;
+        // for (int i = x - 2; i <= x + 2; ++i)
+        // {
+        //     for (int j = y - 2; j <= y + 2; ++j)
+        //     {
+        //         arr[count++] = getValue(input, i, j);
+        //     }
+        // }
 
-        std::sort(arr.begin(), arr.end());
+        // std::sort(arr.begin(), arr.end());
 
-        int avg = std::accumulate(arr.begin() + 10, arr.begin() + 15, 0) / 5;
+        // int avg = std::accumulate(arr.begin() + 10, arr.begin() + 15, 0) / 5;
 
-        return process(avg);
+        // return process(avg);
         
 
-        // return process(getValue(input, x, y));
+        return process(getValue(input, x, y));
     }
 
-    int process(int Pos_z)
+    int process(ushort Pos_z)
     {
         if (0 == Pos_z)
             return 0;
@@ -71,9 +71,13 @@ private:
         return Pos_z;
     }
 
-    uint8_t getValue(const std::vector<uint8_t>& vec, int x, int y)
+    ushort getValue(const std::vector<uint8_t>& vec, int x, int y)
     {
-        return vec[y * m_width + x];
+        int index = 2 * (y * m_width + x);
+        ushort *p = (ushort *)&vec[index];
+
+        return *p;
+        // return vec[y * m_width + x];
     }
 
     int32_t& getValue(std::vector<int32_t>& vec, int x, int y)

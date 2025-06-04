@@ -55,9 +55,9 @@ bool ObjectLocationActivity::Init()
     writer_object_location_result_->Init();
 
     // 4. 初始化消息队列
-    multi_modal_fusion_result_deque_.SetMaxSize(100);  // 通过SetMaxSize方法设置队列长度
-    pose_estimation_result_deque_.SetMaxSize(100);
-    object_location_result_deque_.SetMaxSize(100);
+    multi_modal_fusion_result_deque_.SetMaxSize(10);  // 通过SetMaxSize方法设置队列长度
+    pose_estimation_result_deque_.SetMaxSize(10);
+    object_location_result_deque_.SetMaxSize(10);
 
     // 5.实例化算法节点并初始化
     std::string root_path = GetRootPath();
@@ -75,6 +75,15 @@ void ObjectLocationActivity::ReadMultiModalFusionCallbackFunc(const CAlgResult &
 {
     std::shared_ptr<CAlgResult> message_ptr = std::make_shared<CAlgResult>(message);
     multi_modal_fusion_result_deque_.PushBack(message_ptr);
+
+    multimodalresult_time_ = GetTimeStamp();
+    if(multimodalresult_time_ - count_time1_ > 1000)
+    {
+        count_time1_ = multimodalresult_time_;
+        LOG(INFO) << "MultiModalFusionActivity FPS =================================: " << count1_;
+        count1_ = 0;
+    }
+    count1_++;
 }
 
 // 处理multi_modal_fusion_result_topic中的数据
@@ -83,6 +92,15 @@ void ObjectLocationActivity::ReadPoseEstimationCallbackFunc(const CAlgResult &me
 {
     std::shared_ptr<CAlgResult> message_ptr = std::make_shared<CAlgResult>(message);
     pose_estimation_result_deque_.PushBack(message_ptr);
+
+    poseestimationresult_time_ = GetTimeStamp();
+    if(poseestimationresult_time_ - count_time2_ > 1000)
+    {
+        count_time2_ = poseestimationresult_time_;
+        LOG(INFO) << "PoseEstimationActivity FPS ----------------------------------: " << count2_;
+        count2_ = 0;
+    }
+    count2_++;
 }
 
 // 处理算法返回的感知数据
@@ -123,15 +141,24 @@ void ObjectLocationActivity::MessageProducerThreadFunc()
     // 向CounterTopic中循环发送数据
     // is_running_是线程结束的标志位，通过master的指令进行控制
     while (is_running_.load())
-    {
+    {   
         std::shared_ptr<CAlgResult> message;
         if (!object_location_result_deque_.PopFront(message, 1))
         {
             // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             continue;
         }
-        endTimeStamp_ = GetTimeStamp();
-        LOG(INFO) << "ObjectLocationActivity MessageProducerThreadFunc time:----------------------------------- " << endTimeStamp_ - startTimeStamp_;
+        
+        // 只在成功发送消息时统计帧率
+        locationresult_time_ = GetTimeStamp();
+        if(locationresult_time_ - count_time3_ > 1000)
+        {
+            count_time3_ = locationresult_time_;
+            LOG(INFO) << "ObjectLocationActivity Writer FPS +++++++++++++++++++++++++++++++++++++: " << count3_;
+            count3_ = 0;
+        }
+        count3_++;
+        
         writer_object_location_result_->SendMessage((void*)message.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
@@ -139,7 +166,6 @@ void ObjectLocationActivity::MessageProducerThreadFunc()
 
 void ObjectLocationActivity::MessageConsumerThreadFunc()
 {
-    startTimeStamp_ = GetTimeStamp();
     // 输入到融合算法的数据
     std::shared_ptr<CAlgResult> l_pMultiModalResult = std::make_shared<CAlgResult>(); 
     std::shared_ptr<CAlgResult> l_pPoseEstimationResult = std::make_shared<CAlgResult>(); 
@@ -176,7 +202,7 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
         bool foundMatch = false;
 
         // 尝试匹配姿态估计结果
-        while(pose_estimation_result_deque_.PopFront(l_pPoseEstimationResult, 1))
+        while(pose_estimation_result_deque_.PopFront(l_pPoseEstimationResult, 10))
         {   
             // 检查姿态估计结果是否有效
             if (l_pPoseEstimationResult->vecFrameResult().empty())
@@ -184,10 +210,10 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
                 LOG(WARNING) << "Empty pose estimation result";
                 continue;
             }
-
             // auto poseTime = l_pPoseEstimationResult->vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_TIME_MATCH];
             auto poseTime = l_pPoseEstimationResult->lTimeStamp();
-            
+            std::cout << "multiModalTime :" << multiModalTime << ", poseTime : " << poseTime << std::endl;
+
             if (multiModalTime == poseTime)
             {
                 // 时间戳匹配，添加姿态估计结果
@@ -216,7 +242,10 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
         {
             // 直接调用runAlgorithm，不检查返回值
             // LOG(INFO) << "runAlgorithm InputData TimeStamp : " << l_pObjectLocationInputData->lTimeStamp();
+            startTimeStamp_ = GetTimeStamp();
             object_location_alg_->runAlgorithm(l_pObjectLocationInputData.get());
+            endTimeStamp_ = GetTimeStamp();
+            LOG(INFO) << "ObjectLocationActivity runAlgorithm time:----------------------------------- " << endTimeStamp_ - startTimeStamp_;
             // LOG(INFO) << "ObjectLocationActivity Algorithm InputData processed successfully. "
             //         << "Frame count: " << l_pObjectLocationInputData->vecFrameResult().size();
         }

@@ -185,10 +185,10 @@ bool CPoseEstimationAlg::executeModuleChain()
         m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_POSEALG] = endTimeStamp - m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN];    // 姿态估计算法耗时计算
     }
 
-    // if(m_run_status)
-    // {
-    //     visualizationResult();
-    // }
+    if(m_run_status)
+    {
+        visualizationResult();
+    }
 
     if(m_currentOutput.vecFrameResult().size() > 0)
     {

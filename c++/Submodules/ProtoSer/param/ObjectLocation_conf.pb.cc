@@ -33,7 +33,16 @@ inline constexpr TaskConfig::Impl_::Impl_(
         num_keys_{0},
         bucket_size_{0},
         max_distance_{0},
-        run_status_{false} {}
+        run_status_{false},
+        track_high_thresh_{0},
+        track_low_thresh_{0},
+        match_thresh_{0},
+        new_track_thresh_{0},
+        tracker_buffer_size_{0},
+        class_history_len_{0},
+        max_time_lost_{0},
+        conf_thres_{0},
+        max_dets_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR TaskConfig::TaskConfig(::_pbi::ConstantInitialized)
@@ -101,11 +110,29 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.bucket_size_),
         PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.max_distance_),
         PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.run_status_),
+        PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.track_high_thresh_),
+        PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.track_low_thresh_),
+        PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.match_thresh_),
+        PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.new_track_thresh_),
+        PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.tracker_buffer_size_),
+        PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.class_history_len_),
+        PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.max_time_lost_),
+        PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.conf_thres_),
+        PROTOBUF_FIELD_OFFSET(::objectlocation::TaskConfig, _impl_.max_dets_),
         0,
         1,
         2,
         3,
         4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
         PROTOBUF_FIELD_OFFSET(::objectlocation::ObjectLocationConfig, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::objectlocation::ObjectLocationConfig, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -122,8 +149,8 @@ const ::uint32_t
 
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-        {0, 13, -1, sizeof(::objectlocation::TaskConfig)},
-        {18, 28, -1, sizeof(::objectlocation::ObjectLocationConfig)},
+        {0, 22, -1, sizeof(::objectlocation::TaskConfig)},
+        {36, 46, -1, sizeof(::objectlocation::ObjectLocationConfig)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::objectlocation::_TaskConfig_default_instance_._instance,
@@ -132,13 +159,19 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
 const char descriptor_table_protodef_ObjectLocation_5fconf_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
     "\n\031ObjectLocation_conf.proto\022\016objectlocat"
-    "ion\032\032AlgorithmConfig_conf.proto\"p\n\nTaskC"
-    "onfig\022\021\n\tiou_thres\030\001 \001(\002\022\020\n\010num_keys\030\002 \001"
-    "(\005\022\023\n\013bucket_size\030\003 \001(\002\022\024\n\014max_distance\030"
-    "\004 \001(\002\022\022\n\nrun_status\030\005 \001(\010\"v\n\024ObjectLocat"
-    "ionConfig\022/\n\013task_config\030\001 \001(\0132\032.objectl"
-    "ocation.TaskConfig\022-\n\016modules_config\030\002 \001"
-    "(\0132\025.common.ModulesConfigb\006proto3"
+    "ion\032\032AlgorithmConfig_conf.proto\"\312\002\n\nTask"
+    "Config\022\021\n\tiou_thres\030\001 \001(\002\022\020\n\010num_keys\030\002 "
+    "\001(\005\022\023\n\013bucket_size\030\003 \001(\002\022\024\n\014max_distance"
+    "\030\004 \001(\002\022\022\n\nrun_status\030\005 \001(\010\022\031\n\021track_high"
+    "_thresh\030\006 \001(\002\022\030\n\020track_low_thresh\030\007 \001(\002\022"
+    "\024\n\014match_thresh\030\010 \001(\002\022\030\n\020new_track_thres"
+    "h\030\t \001(\002\022\033\n\023tracker_buffer_size\030\n \001(\005\022\031\n\021"
+    "class_history_len\030\013 \001(\005\022\025\n\rmax_time_lost"
+    "\030\014 \001(\005\022\022\n\nconf_thres\030\r \001(\002\022\020\n\010max_dets\030\016"
+    " \001(\005\"v\n\024ObjectLocationConfig\022/\n\013task_con"
+    "fig\030\001 \001(\0132\032.objectlocation.TaskConfig\022-\n"
+    "\016modules_config\030\002 \001(\0132\025.common.ModulesCo"
+    "nfigb\006proto3"
 };
 static const ::_pbi::DescriptorTable* PROTOBUF_NONNULL const
     descriptor_table_ObjectLocation_5fconf_2eproto_deps[1] = {
@@ -148,7 +181,7 @@ static ::absl::once_flag descriptor_table_ObjectLocation_5fconf_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_ObjectLocation_5fconf_2eproto = {
     false,
     false,
-    313,
+    532,
     descriptor_table_protodef_ObjectLocation_5fconf_2eproto,
     "ObjectLocation_conf.proto",
     &descriptor_table_ObjectLocation_5fconf_2eproto_once,
@@ -202,9 +235,9 @@ inline void TaskConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, iou_thres_),
            0,
-           offsetof(Impl_, run_status_) -
+           offsetof(Impl_, max_dets_) -
                offsetof(Impl_, iou_thres_) +
-               sizeof(Impl_::run_status_));
+               sizeof(Impl_::max_dets_));
 }
 TaskConfig::~TaskConfig() {
   // @@protoc_insertion_point(destructor:objectlocation.TaskConfig)
@@ -260,16 +293,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL TaskConfig::GetC
   return TaskConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 0, 2>
+const ::_pbi::TcParseTable<4, 14, 0, 0, 2>
 TaskConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_._has_bits_),
     0, // no _extensions_
-    5, 56,  // max_field_number, fast_idx_mask
+    14, 120,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967264,  // skipmap
+    4294950912,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    5,  // num_field_entries
+    14,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     TaskConfig_class_data_.base(),
@@ -295,7 +328,33 @@ TaskConfig::_table_ = {
     // bool run_status = 5;
     {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(TaskConfig, _impl_.run_status_), 4>(),
      {40, 4, 0, PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.run_status_)}},
-    {::_pbi::TcParser::MiniParse, {}},
+    // float track_high_thresh = 6;
+    {::_pbi::TcParser::FastF32S1,
+     {53, 5, 0, PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.track_high_thresh_)}},
+    // float track_low_thresh = 7;
+    {::_pbi::TcParser::FastF32S1,
+     {61, 6, 0, PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.track_low_thresh_)}},
+    // float match_thresh = 8;
+    {::_pbi::TcParser::FastF32S1,
+     {69, 7, 0, PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.match_thresh_)}},
+    // float new_track_thresh = 9;
+    {::_pbi::TcParser::FastF32S1,
+     {77, 8, 0, PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.new_track_thresh_)}},
+    // int32 tracker_buffer_size = 10;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TaskConfig, _impl_.tracker_buffer_size_), 9>(),
+     {80, 9, 0, PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.tracker_buffer_size_)}},
+    // int32 class_history_len = 11;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TaskConfig, _impl_.class_history_len_), 10>(),
+     {88, 10, 0, PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.class_history_len_)}},
+    // int32 max_time_lost = 12;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TaskConfig, _impl_.max_time_lost_), 11>(),
+     {96, 11, 0, PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.max_time_lost_)}},
+    // float conf_thres = 13;
+    {::_pbi::TcParser::FastF32S1,
+     {109, 12, 0, PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.conf_thres_)}},
+    // int32 max_dets = 14;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TaskConfig, _impl_.max_dets_), 13>(),
+     {112, 13, 0, PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.max_dets_)}},
     {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
@@ -315,6 +374,33 @@ TaskConfig::_table_ = {
     // bool run_status = 5;
     {PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.run_status_), _Internal::kHasBitsOffset + 4, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // float track_high_thresh = 6;
+    {PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.track_high_thresh_), _Internal::kHasBitsOffset + 5, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float track_low_thresh = 7;
+    {PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.track_low_thresh_), _Internal::kHasBitsOffset + 6, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float match_thresh = 8;
+    {PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.match_thresh_), _Internal::kHasBitsOffset + 7, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float new_track_thresh = 9;
+    {PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.new_track_thresh_), _Internal::kHasBitsOffset + 8, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // int32 tracker_buffer_size = 10;
+    {PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.tracker_buffer_size_), _Internal::kHasBitsOffset + 9, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 class_history_len = 11;
+    {PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.class_history_len_), _Internal::kHasBitsOffset + 10, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 max_time_lost = 12;
+    {PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.max_time_lost_), _Internal::kHasBitsOffset + 11, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // float conf_thres = 13;
+    {PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.conf_thres_), _Internal::kHasBitsOffset + 12, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // int32 max_dets = 14;
+    {PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.max_dets_), _Internal::kHasBitsOffset + 13, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }},
   // no aux_entries
   {{
@@ -328,10 +414,15 @@ PROTOBUF_NOINLINE void TaskConfig::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000001fu) != 0) {
+  if ((cached_has_bits & 0x000000ffu) != 0) {
     ::memset(&_impl_.iou_thres_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.run_status_) -
-        reinterpret_cast<char*>(&_impl_.iou_thres_)) + sizeof(_impl_.run_status_));
+        reinterpret_cast<char*>(&_impl_.match_thresh_) -
+        reinterpret_cast<char*>(&_impl_.iou_thres_)) + sizeof(_impl_.match_thresh_));
+  }
+  if ((cached_has_bits & 0x00003f00u) != 0) {
+    ::memset(&_impl_.new_track_thresh_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.max_dets_) -
+        reinterpret_cast<char*>(&_impl_.new_track_thresh_)) + sizeof(_impl_.max_dets_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -397,6 +488,87 @@ PROTOBUF_NOINLINE void TaskConfig::Clear() {
     }
   }
 
+  // float track_high_thresh = 6;
+  if ((this_._impl_._has_bits_[0] & 0x00000020u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          6, this_._internal_track_high_thresh(), target);
+    }
+  }
+
+  // float track_low_thresh = 7;
+  if ((this_._impl_._has_bits_[0] & 0x00000040u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          7, this_._internal_track_low_thresh(), target);
+    }
+  }
+
+  // float match_thresh = 8;
+  if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          8, this_._internal_match_thresh(), target);
+    }
+  }
+
+  // float new_track_thresh = 9;
+  if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          9, this_._internal_new_track_thresh(), target);
+    }
+  }
+
+  // int32 tracker_buffer_size = 10;
+  if ((this_._impl_._has_bits_[0] & 0x00000200u) != 0) {
+    if (this_._internal_tracker_buffer_size() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<10>(
+              stream, this_._internal_tracker_buffer_size(), target);
+    }
+  }
+
+  // int32 class_history_len = 11;
+  if ((this_._impl_._has_bits_[0] & 0x00000400u) != 0) {
+    if (this_._internal_class_history_len() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<11>(
+              stream, this_._internal_class_history_len(), target);
+    }
+  }
+
+  // int32 max_time_lost = 12;
+  if ((this_._impl_._has_bits_[0] & 0x00000800u) != 0) {
+    if (this_._internal_max_time_lost() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<12>(
+              stream, this_._internal_max_time_lost(), target);
+    }
+  }
+
+  // float conf_thres = 13;
+  if ((this_._impl_._has_bits_[0] & 0x00001000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          13, this_._internal_conf_thres(), target);
+    }
+  }
+
+  // int32 max_dets = 14;
+  if ((this_._impl_._has_bits_[0] & 0x00002000u) != 0) {
+    if (this_._internal_max_dets() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<14>(
+              stream, this_._internal_max_dets(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -422,7 +594,7 @@ PROTOBUF_NOINLINE void TaskConfig::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000001fu) != 0) {
+  if ((cached_has_bits & 0x000000ffu) != 0) {
     // float iou_thres = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
@@ -454,6 +626,66 @@ PROTOBUF_NOINLINE void TaskConfig::Clear() {
         total_size += 2;
       }
     }
+    // float track_high_thresh = 6;
+    if ((cached_has_bits & 0x00000020u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
+        total_size += 5;
+      }
+    }
+    // float track_low_thresh = 7;
+    if ((cached_has_bits & 0x00000040u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
+        total_size += 5;
+      }
+    }
+    // float match_thresh = 8;
+    if ((cached_has_bits & 0x00000080u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
+        total_size += 5;
+      }
+    }
+  }
+  if ((cached_has_bits & 0x00003f00u) != 0) {
+    // float new_track_thresh = 9;
+    if ((cached_has_bits & 0x00000100u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
+        total_size += 5;
+      }
+    }
+    // int32 tracker_buffer_size = 10;
+    if ((cached_has_bits & 0x00000200u) != 0) {
+      if (this_._internal_tracker_buffer_size() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_tracker_buffer_size());
+      }
+    }
+    // int32 class_history_len = 11;
+    if ((cached_has_bits & 0x00000400u) != 0) {
+      if (this_._internal_class_history_len() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_class_history_len());
+      }
+    }
+    // int32 max_time_lost = 12;
+    if ((cached_has_bits & 0x00000800u) != 0) {
+      if (this_._internal_max_time_lost() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_max_time_lost());
+      }
+    }
+    // float conf_thres = 13;
+    if ((cached_has_bits & 0x00001000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
+        total_size += 5;
+      }
+    }
+    // int32 max_dets = 14;
+    if ((cached_has_bits & 0x00002000u) != 0) {
+      if (this_._internal_max_dets() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_max_dets());
+      }
+    }
   }
   return this_.MaybeComputeUnknownFieldsSize(total_size,
                                              &this_._impl_._cached_size_);
@@ -468,7 +700,7 @@ void TaskConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goog
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000001fu) != 0) {
+  if ((cached_has_bits & 0x000000ffu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_iou_thres()) != 0) {
         _this->_impl_.iou_thres_ = from._impl_.iou_thres_;
@@ -494,6 +726,53 @@ void TaskConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goog
         _this->_impl_.run_status_ = from._impl_.run_status_;
       }
     }
+    if ((cached_has_bits & 0x00000020u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_track_high_thresh()) != 0) {
+        _this->_impl_.track_high_thresh_ = from._impl_.track_high_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x00000040u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_track_low_thresh()) != 0) {
+        _this->_impl_.track_low_thresh_ = from._impl_.track_low_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x00000080u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_match_thresh()) != 0) {
+        _this->_impl_.match_thresh_ = from._impl_.match_thresh_;
+      }
+    }
+  }
+  if ((cached_has_bits & 0x00003f00u) != 0) {
+    if ((cached_has_bits & 0x00000100u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_new_track_thresh()) != 0) {
+        _this->_impl_.new_track_thresh_ = from._impl_.new_track_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x00000200u) != 0) {
+      if (from._internal_tracker_buffer_size() != 0) {
+        _this->_impl_.tracker_buffer_size_ = from._impl_.tracker_buffer_size_;
+      }
+    }
+    if ((cached_has_bits & 0x00000400u) != 0) {
+      if (from._internal_class_history_len() != 0) {
+        _this->_impl_.class_history_len_ = from._impl_.class_history_len_;
+      }
+    }
+    if ((cached_has_bits & 0x00000800u) != 0) {
+      if (from._internal_max_time_lost() != 0) {
+        _this->_impl_.max_time_lost_ = from._impl_.max_time_lost_;
+      }
+    }
+    if ((cached_has_bits & 0x00001000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_conf_thres()) != 0) {
+        _this->_impl_.conf_thres_ = from._impl_.conf_thres_;
+      }
+    }
+    if ((cached_has_bits & 0x00002000u) != 0) {
+      if (from._internal_max_dets() != 0) {
+        _this->_impl_.max_dets_ = from._impl_.max_dets_;
+      }
+    }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
@@ -512,8 +791,8 @@ void TaskConfig::InternalSwap(TaskConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL oth
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.run_status_)
-      + sizeof(TaskConfig::_impl_.run_status_)
+      PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.max_dets_)
+      + sizeof(TaskConfig::_impl_.max_dets_)
       - PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_.iou_thres_)>(
           reinterpret_cast<char*>(&_impl_.iou_thres_),
           reinterpret_cast<char*>(&other->_impl_.iou_thres_));

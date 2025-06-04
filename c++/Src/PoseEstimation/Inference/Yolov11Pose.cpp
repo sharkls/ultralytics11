@@ -240,8 +240,10 @@ CAlgResult Yolov11Pose::formatConverted(std::vector<std::vector<float>> results)
         std::cout << "pose_state: " << pose_state << std::endl;
         if (pose_state == "躺着" || pose_state == "坐着或佝偻" || pose_state == "未知") {
             obj_result.strClass("0");
+            std::cout << "PoseEstimation Change strClass:------------------- " << obj_result.strClass() << std::endl;
         } else {
             obj_result.strClass("1");
+            std::cout << "PoseEstimation Change strClass:-------------------" << obj_result.strClass() << std::endl;
         }
         // 可选：也可将状态写入日志
         // LOG(INFO) << "Pose state: " << pose_state;
@@ -549,11 +551,11 @@ std::string Yolov11Pose::classify_pose(const std::vector<float>& keypoints) cons
     // std::cout << "trunk_angle: " << trunk_angle << std::endl;
 
     // 判断
-    if (axis_angle < 30 && trunk_angle > 150)
+    if (axis_angle < 30 && trunk_angle > 160)
         return "站立/行走";
     else if (axis_angle > 60)
         return "躺着";
-    else if (trunk_angle < 120)
+    else if (trunk_angle < 160)
         return "坐着或佝偻";
     else
         return "未知";

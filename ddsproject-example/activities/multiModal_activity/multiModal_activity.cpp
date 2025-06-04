@@ -473,7 +473,7 @@ void ActivityMultiModal::ImgProducerThreadFunc()
 
 
             cv::Mat mat_C(ptr_XYZ_Color->height, ptr_XYZ_Color->width, CV_8UC3, videoSrcData_XYZ.vecImageBuf().data());
-            cv::imwrite(std::string("/share/tmpimage/Depth/a_C") + std::to_string(index) + ".jpg", mat_C);
+            // cv::imwrite(std::string("/share/tmpimage/Depth/a_C") + std::to_string(index) + ".jpg", mat_C);
         
 
 
@@ -502,23 +502,46 @@ void ActivityMultiModal::ImgProducerThreadFunc()
             disparityResult.usWidth(ptr_XYZ_Depth->width);
             disparityResult.usHeight(ptr_XYZ_Depth->height);
 
+            std::vector<uint8_t> tmpSrcVec;
+            tmpSrcVec.resize(1280 * 720 * 2);
+            for (int i = 0; i < 1280 * 720; ++i)
+            {
+                tmpSrcVec[i*2 + 0] = ptr_XYZ_Depth->vecBuf[i*3 + 0];
+                tmpSrcVec[i*2 + 1] = ptr_XYZ_Depth->vecBuf[i*3 + 1];
+            }
+
+            std::cout << (int)ptr_XYZ_Depth->vecBuf[60*3 + 1] << std::endl;
+            std::cout << (int)ptr_XYZ_Depth->vecBuf[61*3 + 1] << std::endl;
+            std::cout << (int)ptr_XYZ_Depth->vecBuf[62*3 + 1] << std::endl;
+
+            std::cout << (int)ptr_XYZ_Depth->vecBuf[60*3 + 2] << std::endl;
+            std::cout << (int)ptr_XYZ_Depth->vecBuf[61*3 + 2] << std::endl;
+            std::cout << (int)ptr_XYZ_Depth->vecBuf[62*3 + 2] << std::endl;
+
             std::vector<int32_t> tmpVec;
             tmpVec.resize(1280 * 720);
-            depthConverter.process(ptr_XYZ_Depth->vecBuf, tmpVec);
+            depthConverter.process(tmpSrcVec, tmpVec);
+            // depthConverter.process(ptr_XYZ_Depth->vecBuf, tmpVec);
 
             disparityResult.vecDistanceInfo(tmpVec);
 
-            std::cout << tmpVec[1280 * 720 / 2 - 2] << " "
-                << tmpVec[1280 * 720 / 2 - 1] << " "
-                << tmpVec[1280 * 720 / 2] << " "
-                << tmpVec[1280 * 720 / 2 + 1] << " "
-                << tmpVec[1280 * 720 / 2 + 2] << " "
+            int center = 1280 * 720 / 2;
+            int center_a1 = center - 1280;
+            int center_a2 = center - 2 * 1280;
+            int center_b1 = center + 1280;
+            int center_b2 = center + 2 *1280;
+            std::cout
+                << tmpVec[center_a2 - 2] << " " << tmpVec[center_a2 - 1] << " " << tmpVec[center_a2] << " " << tmpVec[center_a2 + 1] << " " << tmpVec[center_a2 + 2] << "\n"
+                << tmpVec[center_a1 - 2] << " " << tmpVec[center_a1 - 1] << " " << tmpVec[center_a1] << " " << tmpVec[center_a1 + 1] << " " << tmpVec[center_a1 + 2] << "\n"
+                << tmpVec[center - 2] << " " << tmpVec[center - 1] << " " << tmpVec[center] << " " << tmpVec[center + 1] << " " << tmpVec[center + 2] << "\n"
+                << tmpVec[center_b1 - 2] << " " << tmpVec[center_b1 - 1] << " " << tmpVec[center_b1] << " " << tmpVec[center_b1 + 1] << " " << tmpVec[center_b1 + 2] << "\n"
+                << tmpVec[center_b2 - 2] << " " << tmpVec[center_b2 - 1] << " " << tmpVec[center_b2] << " " << tmpVec[center_b2 + 1] << " " << tmpVec[center_b2 + 2] << "\n"
                 << std::endl;
 
 
 
             cv::Mat mat_0(ptr_XYZ_Depth->height, ptr_XYZ_Depth->width, CV_8UC3, ptr_XYZ_Depth->vecBuf.data());
-            cv::imwrite(std::string("/share/tmpimage/Depth/a0") + std::to_string(index) + ".jpg", mat_0);
+            // cv::imwrite(std::string("/share/tmpimage/Depth/a0") + std::to_string(index) + ".jpg", mat_0);
         
 
 
@@ -529,7 +552,7 @@ void ActivityMultiModal::ImgProducerThreadFunc()
                 tmptmptmp[i] = tmpVec[i] / 256;
             }
             cv::Mat mat(ptr_XYZ_Depth->height, ptr_XYZ_Depth->width, CV_8UC1, tmptmptmp.data());
-            cv::imwrite(std::string("/share/tmpimage/Depth/a") + std::to_string(index) + ".jpg", mat);
+            // cv::imwrite(std::string("/share/tmpimage/Depth/a") + std::to_string(index) + ".jpg", mat);
 
 
             index++;
