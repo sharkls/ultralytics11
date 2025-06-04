@@ -237,6 +237,13 @@ class YOLOModelConfig final : public ::google::protobuf::Message
     kNumKeysFieldNumber = 17,
     kChannelsFieldNumber = 18,
     kRunStatusFieldNumber = 19,
+    kTrackHighThreshFieldNumber = 20,
+    kTrackLowThreshFieldNumber = 21,
+    kMatchThreshFieldNumber = 22,
+    kNewTrackThreshFieldNumber = 23,
+    kTrackerBufferSizeFieldNumber = 24,
+    kClassHistoryLenFieldNumber = 25,
+    kMaxTimeLostFieldNumber = 26,
   };
   // repeated int32 stride = 8;
   int stride_size() const;
@@ -441,12 +448,82 @@ class YOLOModelConfig final : public ::google::protobuf::Message
   void _internal_set_run_status(bool value);
 
   public:
+  // float track_high_thresh = 20;
+  void clear_track_high_thresh() ;
+  float track_high_thresh() const;
+  void set_track_high_thresh(float value);
+
+  private:
+  float _internal_track_high_thresh() const;
+  void _internal_set_track_high_thresh(float value);
+
+  public:
+  // float track_low_thresh = 21;
+  void clear_track_low_thresh() ;
+  float track_low_thresh() const;
+  void set_track_low_thresh(float value);
+
+  private:
+  float _internal_track_low_thresh() const;
+  void _internal_set_track_low_thresh(float value);
+
+  public:
+  // float match_thresh = 22;
+  void clear_match_thresh() ;
+  float match_thresh() const;
+  void set_match_thresh(float value);
+
+  private:
+  float _internal_match_thresh() const;
+  void _internal_set_match_thresh(float value);
+
+  public:
+  // float new_track_thresh = 23;
+  void clear_new_track_thresh() ;
+  float new_track_thresh() const;
+  void set_new_track_thresh(float value);
+
+  private:
+  float _internal_new_track_thresh() const;
+  void _internal_set_new_track_thresh(float value);
+
+  public:
+  // int32 tracker_buffer_size = 24;
+  void clear_tracker_buffer_size() ;
+  ::int32_t tracker_buffer_size() const;
+  void set_tracker_buffer_size(::int32_t value);
+
+  private:
+  ::int32_t _internal_tracker_buffer_size() const;
+  void _internal_set_tracker_buffer_size(::int32_t value);
+
+  public:
+  // int32 class_history_len = 25;
+  void clear_class_history_len() ;
+  ::int32_t class_history_len() const;
+  void set_class_history_len(::int32_t value);
+
+  private:
+  ::int32_t _internal_class_history_len() const;
+  void _internal_set_class_history_len(::int32_t value);
+
+  public:
+  // int32 max_time_lost = 26;
+  void clear_max_time_lost() ;
+  ::int32_t max_time_lost() const;
+  void set_max_time_lost(::int32_t value);
+
+  private:
+  ::int32_t _internal_max_time_lost() const;
+  void _internal_set_max_time_lost(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:objectdetection.YOLOModelConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<5, 19,
-                                   0, 67,
+  static const ::google::protobuf::internal::TcParseTable<5, 26,
+                                   0, 75,
                                    2>
       _table_;
 
@@ -487,6 +564,13 @@ class YOLOModelConfig final : public ::google::protobuf::Message
     ::int32_t num_keys_;
     ::int32_t channels_;
     bool run_status_;
+    float track_high_thresh_;
+    float track_low_thresh_;
+    float match_thresh_;
+    float new_track_thresh_;
+    ::int32_t tracker_buffer_size_;
+    ::int32_t class_history_len_;
+    ::int32_t max_time_lost_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1241,6 +1325,174 @@ inline bool YOLOModelConfig::_internal_run_status() const {
 inline void YOLOModelConfig::_internal_set_run_status(bool value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.run_status_ = value;
+}
+
+// float track_high_thresh = 20;
+inline void YOLOModelConfig::clear_track_high_thresh() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.track_high_thresh_ = 0;
+  _impl_._has_bits_[0] &= ~0x00040000u;
+}
+inline float YOLOModelConfig::track_high_thresh() const {
+  // @@protoc_insertion_point(field_get:objectdetection.YOLOModelConfig.track_high_thresh)
+  return _internal_track_high_thresh();
+}
+inline void YOLOModelConfig::set_track_high_thresh(float value) {
+  _internal_set_track_high_thresh(value);
+  _impl_._has_bits_[0] |= 0x00040000u;
+  // @@protoc_insertion_point(field_set:objectdetection.YOLOModelConfig.track_high_thresh)
+}
+inline float YOLOModelConfig::_internal_track_high_thresh() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.track_high_thresh_;
+}
+inline void YOLOModelConfig::_internal_set_track_high_thresh(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.track_high_thresh_ = value;
+}
+
+// float track_low_thresh = 21;
+inline void YOLOModelConfig::clear_track_low_thresh() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.track_low_thresh_ = 0;
+  _impl_._has_bits_[0] &= ~0x00080000u;
+}
+inline float YOLOModelConfig::track_low_thresh() const {
+  // @@protoc_insertion_point(field_get:objectdetection.YOLOModelConfig.track_low_thresh)
+  return _internal_track_low_thresh();
+}
+inline void YOLOModelConfig::set_track_low_thresh(float value) {
+  _internal_set_track_low_thresh(value);
+  _impl_._has_bits_[0] |= 0x00080000u;
+  // @@protoc_insertion_point(field_set:objectdetection.YOLOModelConfig.track_low_thresh)
+}
+inline float YOLOModelConfig::_internal_track_low_thresh() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.track_low_thresh_;
+}
+inline void YOLOModelConfig::_internal_set_track_low_thresh(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.track_low_thresh_ = value;
+}
+
+// float match_thresh = 22;
+inline void YOLOModelConfig::clear_match_thresh() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.match_thresh_ = 0;
+  _impl_._has_bits_[0] &= ~0x00100000u;
+}
+inline float YOLOModelConfig::match_thresh() const {
+  // @@protoc_insertion_point(field_get:objectdetection.YOLOModelConfig.match_thresh)
+  return _internal_match_thresh();
+}
+inline void YOLOModelConfig::set_match_thresh(float value) {
+  _internal_set_match_thresh(value);
+  _impl_._has_bits_[0] |= 0x00100000u;
+  // @@protoc_insertion_point(field_set:objectdetection.YOLOModelConfig.match_thresh)
+}
+inline float YOLOModelConfig::_internal_match_thresh() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.match_thresh_;
+}
+inline void YOLOModelConfig::_internal_set_match_thresh(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.match_thresh_ = value;
+}
+
+// float new_track_thresh = 23;
+inline void YOLOModelConfig::clear_new_track_thresh() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.new_track_thresh_ = 0;
+  _impl_._has_bits_[0] &= ~0x00200000u;
+}
+inline float YOLOModelConfig::new_track_thresh() const {
+  // @@protoc_insertion_point(field_get:objectdetection.YOLOModelConfig.new_track_thresh)
+  return _internal_new_track_thresh();
+}
+inline void YOLOModelConfig::set_new_track_thresh(float value) {
+  _internal_set_new_track_thresh(value);
+  _impl_._has_bits_[0] |= 0x00200000u;
+  // @@protoc_insertion_point(field_set:objectdetection.YOLOModelConfig.new_track_thresh)
+}
+inline float YOLOModelConfig::_internal_new_track_thresh() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.new_track_thresh_;
+}
+inline void YOLOModelConfig::_internal_set_new_track_thresh(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.new_track_thresh_ = value;
+}
+
+// int32 tracker_buffer_size = 24;
+inline void YOLOModelConfig::clear_tracker_buffer_size() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.tracker_buffer_size_ = 0;
+  _impl_._has_bits_[0] &= ~0x00400000u;
+}
+inline ::int32_t YOLOModelConfig::tracker_buffer_size() const {
+  // @@protoc_insertion_point(field_get:objectdetection.YOLOModelConfig.tracker_buffer_size)
+  return _internal_tracker_buffer_size();
+}
+inline void YOLOModelConfig::set_tracker_buffer_size(::int32_t value) {
+  _internal_set_tracker_buffer_size(value);
+  _impl_._has_bits_[0] |= 0x00400000u;
+  // @@protoc_insertion_point(field_set:objectdetection.YOLOModelConfig.tracker_buffer_size)
+}
+inline ::int32_t YOLOModelConfig::_internal_tracker_buffer_size() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.tracker_buffer_size_;
+}
+inline void YOLOModelConfig::_internal_set_tracker_buffer_size(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.tracker_buffer_size_ = value;
+}
+
+// int32 class_history_len = 25;
+inline void YOLOModelConfig::clear_class_history_len() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.class_history_len_ = 0;
+  _impl_._has_bits_[0] &= ~0x00800000u;
+}
+inline ::int32_t YOLOModelConfig::class_history_len() const {
+  // @@protoc_insertion_point(field_get:objectdetection.YOLOModelConfig.class_history_len)
+  return _internal_class_history_len();
+}
+inline void YOLOModelConfig::set_class_history_len(::int32_t value) {
+  _internal_set_class_history_len(value);
+  _impl_._has_bits_[0] |= 0x00800000u;
+  // @@protoc_insertion_point(field_set:objectdetection.YOLOModelConfig.class_history_len)
+}
+inline ::int32_t YOLOModelConfig::_internal_class_history_len() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.class_history_len_;
+}
+inline void YOLOModelConfig::_internal_set_class_history_len(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.class_history_len_ = value;
+}
+
+// int32 max_time_lost = 26;
+inline void YOLOModelConfig::clear_max_time_lost() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.max_time_lost_ = 0;
+  _impl_._has_bits_[0] &= ~0x01000000u;
+}
+inline ::int32_t YOLOModelConfig::max_time_lost() const {
+  // @@protoc_insertion_point(field_get:objectdetection.YOLOModelConfig.max_time_lost)
+  return _internal_max_time_lost();
+}
+inline void YOLOModelConfig::set_max_time_lost(::int32_t value) {
+  _internal_set_max_time_lost(value);
+  _impl_._has_bits_[0] |= 0x01000000u;
+  // @@protoc_insertion_point(field_set:objectdetection.YOLOModelConfig.max_time_lost)
+}
+inline ::int32_t YOLOModelConfig::_internal_max_time_lost() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.max_time_lost_;
+}
+inline void YOLOModelConfig::_internal_set_max_time_lost(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.max_time_lost_ = value;
 }
 
 // -------------------------------------------------------------------

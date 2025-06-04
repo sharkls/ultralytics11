@@ -24,6 +24,14 @@ message YOLOModelConfig {
     int32 num_keys = 17;        // 关键点数量
     int32 channels = 18;        // 图像数据通道数
     bool run_status = 19;       // 代码运行方式
+
+    float track_high_thresh = 20;   // 高置信度阈值
+    float track_low_thresh = 21;    // 低置信度阈值
+    float match_thresh = 22;        // 关联距离阈值
+    float new_track_thresh = 23;    // 新track激活阈值
+    int32 tracker_buffer_size = 24; // 跟踪缓冲区大小
+    int32 class_history_len = 25;   // 类别平滑窗口长度
+    int32 max_time_lost = 26;       // 最大丢失帧数
 }
 
 // 姿态估计任务配置参数

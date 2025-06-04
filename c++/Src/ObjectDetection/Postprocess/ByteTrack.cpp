@@ -34,14 +34,42 @@ bool ByteTrack::init(void* p_pAlgParam)
     m_config_ = *cfg;
     status_ = cfg->run_status();
 
-    // 3. 读取所有可调参数（如无则用默认值）
-    tracker_buffer_size_ = cfg->has_tracker_buffer_size() ? cfg->tracker_buffer_size() : 30;
-    track_high_thresh_   = cfg->has_track_high_thresh()   ? cfg->track_high_thresh()   : 0.6f;
-    track_low_thresh_    = cfg->has_track_low_thresh()    ? cfg->track_low_thresh()    : 0.1f;
-    match_thresh_        = cfg->has_match_thresh()        ? cfg->match_thresh()        : 0.8f;
-    new_track_thresh_    = cfg->has_new_track_thresh()    ? cfg->new_track_thresh()    : 0.7f;
-    class_history_len_   = cfg->has_class_history_len()   ? cfg->class_history_len()   : 5;
-    max_time_lost_       = cfg->has_max_time_lost()       ? cfg->max_time_lost()       : 30;
+    // 3. 读取所有参数（带默认值）
+    if (!cfg) {
+        LOG(ERROR) << "Invalid configuration pointer";
+        return false;
+    }
+
+    // 设置默认值
+    tracker_buffer_size_ = 30;
+    track_high_thresh_   = 0.6f;
+    track_low_thresh_    = 0.1f;
+    match_thresh_        = 0.8f;
+    new_track_thresh_    = 0.7f;
+    class_history_len_   = 5;
+    max_time_lost_       = 30;
+    min_confidence_      = 0.5f;
+    nms_threshold_       = 0.5f;
+    max_tracks_          = 100;
+
+    // 尝试从配置中读取值
+    try {
+        tracker_buffer_size_ = cfg->tracker_buffer_size();
+        track_high_thresh_   = cfg->track_high_thresh();
+        track_low_thresh_    = cfg->track_low_thresh();
+        match_thresh_        = cfg->match_thresh();
+        new_track_thresh_    = cfg->new_track_thresh();
+        class_history_len_   = cfg->class_history_len();
+        max_time_lost_       = cfg->max_time_lost();
+        min_confidence_      = cfg->conf_thres();
+        nms_threshold_       = cfg->iou_thres();
+        max_tracks_          = cfg->max_dets();
+    } catch (const std::exception& e) {
+        LOG(WARNING) << "Failed to read some configuration values, using defaults: " << e.what();
+    }
+
+    save_result_         = false;
+    result_path_         = "bytetrack_multimodalfusion_output.bin";
 
     // 4. 初始化跟踪器（所有参数可调）
     m_tracker_ = std::make_shared<BYTETracker>(

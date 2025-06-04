@@ -305,6 +305,7 @@ void VisualizationActivity::MessageConsumerThreadFunc()
                     l_pObjectLocationResult->vecFrameResult().push_back(l_pObjectLocationResult->vecFrameResult()[0]);
                     foundMatch = true;
 
+                    std::cout << l_pObjectLocationResult->vecFrameResult().size() << std::endl;
                     
                     
                     for (const auto& item: l_pObjectLocationResult->vecFrameResult())

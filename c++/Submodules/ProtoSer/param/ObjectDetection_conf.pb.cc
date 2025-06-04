@@ -50,7 +50,14 @@ inline constexpr YOLOModelConfig::Impl_::Impl_(
         max_dets_{0},
         num_keys_{0},
         channels_{0},
-        run_status_{false} {}
+        run_status_{false},
+        track_high_thresh_{0},
+        track_low_thresh_{0},
+        match_thresh_{0},
+        new_track_thresh_{0},
+        tracker_buffer_size_{0},
+        class_history_len_{0},
+        max_time_lost_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR YOLOModelConfig::YOLOModelConfig(::_pbi::ConstantInitialized)
@@ -132,6 +139,13 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::objectdetection::YOLOModelConfig, _impl_.num_keys_),
         PROTOBUF_FIELD_OFFSET(::objectdetection::YOLOModelConfig, _impl_.channels_),
         PROTOBUF_FIELD_OFFSET(::objectdetection::YOLOModelConfig, _impl_.run_status_),
+        PROTOBUF_FIELD_OFFSET(::objectdetection::YOLOModelConfig, _impl_.track_high_thresh_),
+        PROTOBUF_FIELD_OFFSET(::objectdetection::YOLOModelConfig, _impl_.track_low_thresh_),
+        PROTOBUF_FIELD_OFFSET(::objectdetection::YOLOModelConfig, _impl_.match_thresh_),
+        PROTOBUF_FIELD_OFFSET(::objectdetection::YOLOModelConfig, _impl_.new_track_thresh_),
+        PROTOBUF_FIELD_OFFSET(::objectdetection::YOLOModelConfig, _impl_.tracker_buffer_size_),
+        PROTOBUF_FIELD_OFFSET(::objectdetection::YOLOModelConfig, _impl_.class_history_len_),
+        PROTOBUF_FIELD_OFFSET(::objectdetection::YOLOModelConfig, _impl_.max_time_lost_),
         0,
         1,
         2,
@@ -151,6 +165,13 @@ const ::uint32_t
         15,
         16,
         17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
         PROTOBUF_FIELD_OFFSET(::objectdetection::ObjectDetectionConfig, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::objectdetection::ObjectDetectionConfig, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -167,8 +188,8 @@ const ::uint32_t
 
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-        {0, 27, -1, sizeof(::objectdetection::YOLOModelConfig)},
-        {46, 56, -1, sizeof(::objectdetection::ObjectDetectionConfig)},
+        {0, 34, -1, sizeof(::objectdetection::YOLOModelConfig)},
+        {60, 70, -1, sizeof(::objectdetection::ObjectDetectionConfig)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::objectdetection::_YOLOModelConfig_default_instance_._instance,
@@ -177,7 +198,7 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
 const char descriptor_table_protodef_ObjectDetection_5fconf_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
     "\n\032ObjectDetection_conf.proto\022\017objectdete"
-    "ction\032\032AlgorithmConfig_conf.proto\"\354\002\n\017YO"
+    "ction\032\032AlgorithmConfig_conf.proto\"\240\004\n\017YO"
     "LOModelConfig\022\023\n\013engine_path\030\001 \001(\t\022\021\n\tnu"
     "m_class\030\002 \001(\005\022\022\n\nbatch_size\030\003 \001(\005\022\r\n\005wid"
     "th\030\004 \001(\005\022\016\n\006height\030\005 \001(\005\022\022\n\nconf_thres\030\006"
@@ -187,10 +208,15 @@ const char descriptor_table_protodef_ObjectDetection_5fconf_2eproto[] ABSL_ATTRI
     " \001(\005\022\023\n\013new_unpad_w\030\016 \001(\005\022\023\n\013new_unpad_h"
     "\030\017 \001(\005\022\020\n\010max_dets\030\020 \001(\005\022\020\n\010num_keys\030\021 \001"
     "(\005\022\020\n\010channels\030\022 \001(\005\022\022\n\nrun_status\030\023 \001(\010"
-    "\"\203\001\n\025ObjectDetectionConfig\022;\n\021yolo_model"
-    "_config\030\001 \001(\0132 .objectdetection.YOLOMode"
-    "lConfig\022-\n\016modules_config\030\002 \001(\0132\025.common"
-    ".ModulesConfigb\006proto3"
+    "\022\031\n\021track_high_thresh\030\024 \001(\002\022\030\n\020track_low"
+    "_thresh\030\025 \001(\002\022\024\n\014match_thresh\030\026 \001(\002\022\030\n\020n"
+    "ew_track_thresh\030\027 \001(\002\022\033\n\023tracker_buffer_"
+    "size\030\030 \001(\005\022\031\n\021class_history_len\030\031 \001(\005\022\025\n"
+    "\rmax_time_lost\030\032 \001(\005\"\203\001\n\025ObjectDetection"
+    "Config\022;\n\021yolo_model_config\030\001 \001(\0132 .obje"
+    "ctdetection.YOLOModelConfig\022-\n\016modules_c"
+    "onfig\030\002 \001(\0132\025.common.ModulesConfigb\006prot"
+    "o3"
 };
 static const ::_pbi::DescriptorTable* PROTOBUF_NONNULL const
     descriptor_table_ObjectDetection_5fconf_2eproto_deps[1] = {
@@ -200,7 +226,7 @@ static ::absl::once_flag descriptor_table_ObjectDetection_5fconf_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_ObjectDetection_5fconf_2eproto = {
     false,
     false,
-    582,
+    762,
     descriptor_table_protodef_ObjectDetection_5fconf_2eproto,
     "ObjectDetection_conf.proto",
     &descriptor_table_ObjectDetection_5fconf_2eproto_once,
@@ -260,9 +286,9 @@ YOLOModelConfig::YOLOModelConfig(
                offsetof(Impl_, num_class_),
            reinterpret_cast<const char *>(&from._impl_) +
                offsetof(Impl_, num_class_),
-           offsetof(Impl_, run_status_) -
+           offsetof(Impl_, max_time_lost_) -
                offsetof(Impl_, num_class_) +
-               sizeof(Impl_::run_status_));
+               sizeof(Impl_::max_time_lost_));
 
   // @@protoc_insertion_point(copy_constructor:objectdetection.YOLOModelConfig)
 }
@@ -279,9 +305,9 @@ inline void YOLOModelConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, num_class_),
            0,
-           offsetof(Impl_, run_status_) -
+           offsetof(Impl_, max_time_lost_) -
                offsetof(Impl_, num_class_) +
-               sizeof(Impl_::run_status_));
+               sizeof(Impl_::max_time_lost_));
 }
 YOLOModelConfig::~YOLOModelConfig() {
   // @@protoc_insertion_point(destructor:objectdetection.YOLOModelConfig)
@@ -350,16 +376,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL YOLOModelConfig:
   return YOLOModelConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<5, 19, 0, 67, 2>
+const ::_pbi::TcParseTable<5, 26, 0, 75, 2>
 YOLOModelConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_._has_bits_),
     0, // no _extensions_
-    19, 248,  // max_field_number, fast_idx_mask
+    26, 248,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294443008,  // skipmap
+    4227858432,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    19,  // num_field_entries
+    26,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     YOLOModelConfig_class_data_.base(),
@@ -427,13 +453,27 @@ YOLOModelConfig::_table_ = {
     // bool run_status = 19;
     {::_pbi::TcParser::FastV8S2,
      {408, 17, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.run_status_)}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
+    // float track_high_thresh = 20;
+    {::_pbi::TcParser::FastF32S2,
+     {421, 18, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.track_high_thresh_)}},
+    // float track_low_thresh = 21;
+    {::_pbi::TcParser::FastF32S2,
+     {429, 19, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.track_low_thresh_)}},
+    // float match_thresh = 22;
+    {::_pbi::TcParser::FastF32S2,
+     {437, 20, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.match_thresh_)}},
+    // float new_track_thresh = 23;
+    {::_pbi::TcParser::FastF32S2,
+     {445, 21, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_track_thresh_)}},
+    // int32 tracker_buffer_size = 24;
+    {::_pbi::TcParser::FastV32S2,
+     {448, 22, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.tracker_buffer_size_)}},
+    // int32 class_history_len = 25;
+    {::_pbi::TcParser::FastV32S2,
+     {456, 23, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.class_history_len_)}},
+    // int32 max_time_lost = 26;
+    {::_pbi::TcParser::FastV32S2,
+     {464, 24, 0, PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.max_time_lost_)}},
     {::_pbi::TcParser::MiniParse, {}},
     {::_pbi::TcParser::MiniParse, {}},
     {::_pbi::TcParser::MiniParse, {}},
@@ -499,10 +539,31 @@ YOLOModelConfig::_table_ = {
     // bool run_status = 19;
     {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.run_status_), _Internal::kHasBitsOffset + 17, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // float track_high_thresh = 20;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.track_high_thresh_), _Internal::kHasBitsOffset + 18, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float track_low_thresh = 21;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.track_low_thresh_), _Internal::kHasBitsOffset + 19, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float match_thresh = 22;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.match_thresh_), _Internal::kHasBitsOffset + 20, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float new_track_thresh = 23;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.new_track_thresh_), _Internal::kHasBitsOffset + 21, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // int32 tracker_buffer_size = 24;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.tracker_buffer_size_), _Internal::kHasBitsOffset + 22, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 class_history_len = 25;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.class_history_len_), _Internal::kHasBitsOffset + 23, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 max_time_lost = 26;
+    {PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.max_time_lost_), _Internal::kHasBitsOffset + 24, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }},
   // no aux_entries
   {{
-    "\37\13\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+    "\37\13\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
     "objectdetection.YOLOModelConfig"
     "engine_path"
   }},
@@ -529,11 +590,12 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
         reinterpret_cast<char*>(&_impl_.num_keys_) -
         reinterpret_cast<char*>(&_impl_.src_height_)) + sizeof(_impl_.num_keys_));
   }
-  if ((cached_has_bits & 0x00030000u) != 0) {
+  if ((cached_has_bits & 0x00ff0000u) != 0) {
     ::memset(&_impl_.channels_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.run_status_) -
-        reinterpret_cast<char*>(&_impl_.channels_)) + sizeof(_impl_.run_status_));
+        reinterpret_cast<char*>(&_impl_.class_history_len_) -
+        reinterpret_cast<char*>(&_impl_.channels_)) + sizeof(_impl_.class_history_len_));
   }
+  _impl_.max_time_lost_ = 0;
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -725,6 +787,69 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
     }
   }
 
+  // float track_high_thresh = 20;
+  if ((this_._impl_._has_bits_[0] & 0x00040000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          20, this_._internal_track_high_thresh(), target);
+    }
+  }
+
+  // float track_low_thresh = 21;
+  if ((this_._impl_._has_bits_[0] & 0x00080000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          21, this_._internal_track_low_thresh(), target);
+    }
+  }
+
+  // float match_thresh = 22;
+  if ((this_._impl_._has_bits_[0] & 0x00100000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          22, this_._internal_match_thresh(), target);
+    }
+  }
+
+  // float new_track_thresh = 23;
+  if ((this_._impl_._has_bits_[0] & 0x00200000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          23, this_._internal_new_track_thresh(), target);
+    }
+  }
+
+  // int32 tracker_buffer_size = 24;
+  if ((this_._impl_._has_bits_[0] & 0x00400000u) != 0) {
+    if (this_._internal_tracker_buffer_size() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          24, this_._internal_tracker_buffer_size(), target);
+    }
+  }
+
+  // int32 class_history_len = 25;
+  if ((this_._impl_._has_bits_[0] & 0x00800000u) != 0) {
+    if (this_._internal_class_history_len() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          25, this_._internal_class_history_len(), target);
+    }
+  }
+
+  // int32 max_time_lost = 26;
+  if ((this_._impl_._has_bits_[0] & 0x01000000u) != 0) {
+    if (this_._internal_max_time_lost() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          26, this_._internal_max_time_lost(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -872,7 +997,7 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
       }
     }
   }
-  if ((cached_has_bits & 0x00030000u) != 0) {
+  if ((cached_has_bits & 0x00ff0000u) != 0) {
     // int32 channels = 18;
     if ((cached_has_bits & 0x00010000u) != 0) {
       if (this_._internal_channels() != 0) {
@@ -884,6 +1009,53 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
     if ((cached_has_bits & 0x00020000u) != 0) {
       if (this_._internal_run_status() != 0) {
         total_size += 3;
+      }
+    }
+    // float track_high_thresh = 20;
+    if ((cached_has_bits & 0x00040000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
+        total_size += 6;
+      }
+    }
+    // float track_low_thresh = 21;
+    if ((cached_has_bits & 0x00080000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
+        total_size += 6;
+      }
+    }
+    // float match_thresh = 22;
+    if ((cached_has_bits & 0x00100000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
+        total_size += 6;
+      }
+    }
+    // float new_track_thresh = 23;
+    if ((cached_has_bits & 0x00200000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
+        total_size += 6;
+      }
+    }
+    // int32 tracker_buffer_size = 24;
+    if ((cached_has_bits & 0x00400000u) != 0) {
+      if (this_._internal_tracker_buffer_size() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_tracker_buffer_size());
+      }
+    }
+    // int32 class_history_len = 25;
+    if ((cached_has_bits & 0x00800000u) != 0) {
+      if (this_._internal_class_history_len() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_class_history_len());
+      }
+    }
+  }
+   {
+    // int32 max_time_lost = 26;
+    if ((cached_has_bits & 0x01000000u) != 0) {
+      if (this_._internal_max_time_lost() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_max_time_lost());
       }
     }
   }
@@ -989,7 +1161,7 @@ void YOLOModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
       }
     }
   }
-  if ((cached_has_bits & 0x00030000u) != 0) {
+  if ((cached_has_bits & 0x00ff0000u) != 0) {
     if ((cached_has_bits & 0x00010000u) != 0) {
       if (from._internal_channels() != 0) {
         _this->_impl_.channels_ = from._impl_.channels_;
@@ -999,6 +1171,41 @@ void YOLOModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
       if (from._internal_run_status() != 0) {
         _this->_impl_.run_status_ = from._impl_.run_status_;
       }
+    }
+    if ((cached_has_bits & 0x00040000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_track_high_thresh()) != 0) {
+        _this->_impl_.track_high_thresh_ = from._impl_.track_high_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x00080000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_track_low_thresh()) != 0) {
+        _this->_impl_.track_low_thresh_ = from._impl_.track_low_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x00100000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_match_thresh()) != 0) {
+        _this->_impl_.match_thresh_ = from._impl_.match_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x00200000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_new_track_thresh()) != 0) {
+        _this->_impl_.new_track_thresh_ = from._impl_.new_track_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x00400000u) != 0) {
+      if (from._internal_tracker_buffer_size() != 0) {
+        _this->_impl_.tracker_buffer_size_ = from._impl_.tracker_buffer_size_;
+      }
+    }
+    if ((cached_has_bits & 0x00800000u) != 0) {
+      if (from._internal_class_history_len() != 0) {
+        _this->_impl_.class_history_len_ = from._impl_.class_history_len_;
+      }
+    }
+  }
+  if ((cached_has_bits & 0x01000000u) != 0) {
+    if (from._internal_max_time_lost() != 0) {
+      _this->_impl_.max_time_lost_ = from._impl_.max_time_lost_;
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -1022,8 +1229,8 @@ void YOLOModelConfig::InternalSwap(YOLOModelConfig* PROTOBUF_RESTRICT PROTOBUF_N
   _impl_.stride_.InternalSwap(&other->_impl_.stride_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.engine_path_, &other->_impl_.engine_path_, arena);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.run_status_)
-      + sizeof(YOLOModelConfig::_impl_.run_status_)
+      PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.max_time_lost_)
+      + sizeof(YOLOModelConfig::_impl_.max_time_lost_)
       - PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_.num_class_)>(
           reinterpret_cast<char*>(&_impl_.num_class_),
           reinterpret_cast<char*>(&other->_impl_.num_class_));

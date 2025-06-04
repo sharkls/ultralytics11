@@ -65,15 +65,11 @@ private:
     float new_track_thresh_;
     int class_history_len_;
     int max_time_lost_;
-
-    // 常用可调参数（init中赋默认值，可后续支持配置化）
-    float iou_threshold_;       // IOU匹配阈值
-    float min_confidence_;      // 最小检测置信度
-    int max_lost_frames_;       // 最大丢失帧数
-    float nms_threshold_;       // NMS阈值
-    int max_tracks_;            // 最大track数量
-    bool save_result_;          // 是否保存结果
-    std::string result_path_;   // 结果保存路径
+    float min_confidence_;
+    float nms_threshold_;
+    int max_tracks_;
+    bool save_result_;
+    std::string result_path_;
 
     // 处理单帧数据
     void processFrame(const CFrameResult& frame);
