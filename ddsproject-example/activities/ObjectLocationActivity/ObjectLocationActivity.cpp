@@ -55,9 +55,9 @@ bool ObjectLocationActivity::Init()
     writer_object_location_result_->Init();
 
     // 4. 初始化消息队列
-    multi_modal_fusion_result_deque_.SetMaxSize(10);  // 通过SetMaxSize方法设置队列长度
-    pose_estimation_result_deque_.SetMaxSize(10);
-    object_location_result_deque_.SetMaxSize(10);
+    multi_modal_fusion_result_deque_.SetMaxSize(100);  // 通过SetMaxSize方法设置队列长度
+    pose_estimation_result_deque_.SetMaxSize(100);
+    object_location_result_deque_.SetMaxSize(100);
 
     // 5.实例化算法节点并初始化
     std::string root_path = GetRootPath();
@@ -176,7 +176,7 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
         bool foundMatch = false;
 
         // 尝试匹配姿态估计结果
-        while(pose_estimation_result_deque_.PopFront(l_pPoseEstimationResult, 100))
+        while(pose_estimation_result_deque_.PopFront(l_pPoseEstimationResult, 1))
         {   
             // 检查姿态估计结果是否有效
             if (l_pPoseEstimationResult->vecFrameResult().empty())
@@ -198,7 +198,7 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
             else if (multiModalTime < poseTime)
             {
                 // 当前姿态估计结果时间戳更大，放回队列
-                pose_estimation_result_deque_.PushBack(l_pPoseEstimationResult);
+                pose_estimation_result_deque_.PushFront(l_pPoseEstimationResult);
                 break;
             }
             // 如果时间戳更小，继续循环查找匹配项

@@ -1,0 +1,58 @@
+/*******************************************************
+ 文件：CDataBase.idl
+ 作者：
+ 描述：数据基础类，需要做时间匹配的各种数据体都要继承该结构
+ 版本：v1.0
+ 日期：2025-04-18
+ *******************************************************/
+
+#include "CDataBase.idl"
+
+// 毫米波雷达目标点信息
+struct CRadarPoint {
+    float               fRange;          // 径向距离(m)
+    float               fAzimuth;        // 方位角(度)
+    float               fElevation;      // 俯仰角(度)
+    float               fDopplerVel;     // 多普勒速度(m/s)
+    float               fRCS;            // 雷达散射截面积(dBsm)
+    float               fSNR;            // 信噪比(dB)
+    octet               ucPowerLevel;    // 信号强度等级
+};
+
+// 毫米波雷达目标跟踪信息
+struct CRadarTrack {
+    unsigned short      usTrackId;       // 目标跟踪ID
+    float               fPosX;           // X坐标(m)
+    float               fPosY;           // Y坐标(m)
+    float               fPosZ;           // Z坐标(m)
+    float               fVelX;           // X方向速度(m/s)
+    float               fVelY;           // Y方向速度(m/s)
+    float               fVelZ;           // Z方向速度(m/s)
+    float               fAccX;           // X方向加速度(m/s²)
+    float               fAccY;           // Y方向加速度(m/s²)
+    float               fAccZ;           // Z方向加速度(m/s²)
+    float               fLength;         // 目标长度(m)
+    float               fWidth;          // 目标宽度(m)
+    float               fHeight;         // 目标高度(m)
+    float               fOrientation;    // 目标朝向角(度)
+    float               fConfidence;    // 跟踪置信度
+    octet               ucClassification;// 目标分类
+};
+
+// 毫米波雷达状态信息
+struct CRadarStatus {
+    octet               ucRadarState;    // 雷达工作状态
+    float               fTemperature;    // 雷达温度
+    octet               ucBlockage;      // 雷达遮挡状态
+    octet               ucAlignment;     // 雷达对准状态
+};
+
+// 时间匹配好的毫米波数据结构体
+struct CRadarSrcDataTimematch : CDataBase {
+    octet                        ucRadarId;           // 雷达ID
+    CRadarStatus                 tRadarStatus;        // 雷达状态信息
+    sequence<CRadarPoint>        vecPoints;           // 原始点云数据
+    sequence<CRadarTrack>        vecTracks;           // 目标跟踪数据
+    float                        fNoisePower;         // 噪声功率
+    float                        fInterference;       // 干扰水平
+};

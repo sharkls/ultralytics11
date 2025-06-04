@@ -118,7 +118,7 @@ void Yolov11Pose::initTensorRT()
     // 5. 计算输入输出大小
     input_size_ = batch_size_ * channels_ * new_unpad_h_ * new_unpad_w_;
     output_size_ = batch_size_ * (4 + num_classes_ + num_keys_ * 3) * num_anchors_;
-    LOG(INFO) << "input_size_ = " << input_size_ << ", output_size_ = " << output_size_;
+    LOG(INFO) << "input_size_ = " << input_size_ << ", output_size_ = " << output_size_ << ", num_anchors_ : " << num_anchors_;
 
     // 6.1 分配输入GPU内存
     void* input_buffer = nullptr;
@@ -214,19 +214,39 @@ CAlgResult Yolov11Pose::formatConverted(std::vector<std::vector<float>> results)
         // 置信度
         obj_result.fVideoConfidence(result[4]);
         // 类别
-        obj_result.strClass(std::to_string(static_cast<int>(result[5])));
+        // obj_result.strClass(std::to_string(static_cast<int>(result[5]))); // 注释原有类别设置
 
         // 关键点
         std::vector<Keypoint> keypoints;
+        std::vector<float> keypoints_vec;
         for (int j = 0; j < num_keys_; ++j) 
         {
             Keypoint kp;
-            kp.x(result[6 + j * 3]);                // 6（box + class_id + conf） + 3(kpt1_x, kpt1_y, kpt1_conf) * j
-            kp.y(result[6 + j * 3 + 1]);
-            kp.confidence(result[6 + j * 3 + 2]);
+            float x = result[6 + j * 3];
+            float y = result[6 + j * 3 + 1];
+            float conf = result[6 + j * 3 + 2];
+            kp.x(x);
+            kp.y(y);
+            kp.confidence(conf);
             keypoints.push_back(kp);
+            keypoints_vec.push_back(x);
+            keypoints_vec.push_back(y);
+            keypoints_vec.push_back(conf);
         }
         obj_result.vecKeypoints(keypoints);
+
+        // --- 新增：根据关键点分类并设置类别 ---
+        std::string pose_state = classify_pose(keypoints_vec);
+        std::cout << "pose_state: " << pose_state << std::endl;
+        if (pose_state == "躺着" || pose_state == "坐着或佝偻" || pose_state == "未知") {
+            obj_result.strClass("0");
+        } else {
+            obj_result.strClass("1");
+        }
+        // 可选：也可将状态写入日志
+        // LOG(INFO) << "Pose state: " << pose_state;
+        // --- 新增结束 ---
+
         frame_result.vecObjectResult().push_back(obj_result);
     }
 
@@ -296,9 +316,9 @@ std::vector<float> Yolov11Pose::inference()
     cudaStreamSynchronize(stream_);
 
     // 7. 保存推理输出为bin文件
-    if (status_) {
-        save_bin(output, "./Save_Data/pose/result/inference_output_yolov11pose.bin"); // Yolov11Pose/Inference
-    }
+    // if (status_) {
+    //     save_bin(output, "./Save_Data/pose/result/inference_output_yolov11pose.bin"); // Yolov11Pose/Inference
+    // }
 
     // LOG(INFO) << "推理输出 shape: " << output.size();
     LOG(INFO) << "Yolov11Pose::inference status: success ";
@@ -489,4 +509,52 @@ std::vector<int> Yolov11Pose::nms(const std::vector<std::vector<float>>& boxes, 
         indices = tmp_indices;
     }
     return keep;
+}
+
+std::string Yolov11Pose::classify_pose(const std::vector<float>& keypoints) const
+{
+    if (keypoints.size() < num_keys_ * 3) return "未知";
+    // std::cout << "keypoints.size(): " << keypoints.size() << std::endl;
+
+    // 关键点下标（COCO格式）
+    int LShoulder = 5, RShoulder = 6, LHip = 11, RHip = 12, LKnee = 13, RKnee = 14, Nose = 0;
+
+    auto get_pt = [&](int idx) {
+        return cv::Point2f(keypoints[idx * 3], keypoints[idx * 3 + 1]);
+    };
+
+    cv::Point2f shoulder_mid = (get_pt(LShoulder) + get_pt(RShoulder)) * 0.5f;
+    cv::Point2f hip_mid = (get_pt(LHip) + get_pt(RHip)) * 0.5f;
+    cv::Point2f knee_mid = (get_pt(LKnee) + get_pt(RKnee)) * 0.5f;
+
+    // 主轴角度（修正：与y轴夹角，站立为0°，躺着为90°）
+    cv::Point2f axis = shoulder_mid - hip_mid;
+    float axis_angle = std::atan2(axis.x, axis.y) * 180.0f / CV_PI;
+    axis_angle = std::abs(axis_angle);
+    if (axis_angle > 90.0f) axis_angle = 180.0f - axis_angle;
+
+    // 躯干夹角
+    auto angle = [](cv::Point2f a, cv::Point2f b, cv::Point2f c) {
+        cv::Point2f v1 = a - b, v2 = c - b;
+        float dot = v1.dot(v2);
+        float norm = cv::norm(v1) * cv::norm(v2);
+        if (norm < 1e-3f) return 180.0f;
+        float cos_theta = dot / norm;
+        cos_theta = std::max(-1.0f, std::min(1.0f, cos_theta));
+        return static_cast<float>(std::acos(cos_theta) * 180.0 / CV_PI);
+    };
+    float trunk_angle = angle(shoulder_mid, hip_mid, knee_mid);
+
+    // std::cout << "axis_angle: " << axis_angle << std::endl;
+    // std::cout << "trunk_angle: " << trunk_angle << std::endl;
+
+    // 判断
+    if (axis_angle < 30 && trunk_angle > 150)
+        return "站立/行走";
+    else if (axis_angle > 60)
+        return "躺着";
+    else if (trunk_angle < 120)
+        return "坐着或佝偻";
+    else
+        return "未知";
 }

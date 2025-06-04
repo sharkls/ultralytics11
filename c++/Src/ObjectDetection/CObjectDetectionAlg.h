@@ -16,6 +16,7 @@
 #include <fstream>
 #include "log.h"
 #include <google/protobuf/text_format.h>    // 解析prototext格式文本
+#include <opencv2/opencv.hpp>
 #include "ExportObjectDetectionAlgLib.h"
 #include "IBaseModule.h"
 #include "AlgorithmConfig.h"
@@ -55,12 +56,15 @@ private:
     // 执行模块链
     bool executeModuleChain();
 
+    void visualizationResult();
+
 private:
     std::string m_exePath;                                    // 工程路径
-    std::shared_ptr<ObjectDetectionConfig> m_pConfig;          // 配置对象
-    std::vector<std::shared_ptr<IBaseModule>> m_moduleChain;  // 模块执行链
-    AlgCallback m_algCallback;                                // 算法回调函数
-    void* m_callbackHandle;                                   // 回调函数句柄
+    std::shared_ptr<ObjectDetectionConfig> m_pConfig;         // 配置对象
     CMultiModalSrcData* m_currentInput;                       // 当前输入数据
+    void* m_callbackHandle;                                   // 回调函数句柄
+    AlgCallback m_algCallback;                                // 算法回调函数
+    std::vector<std::shared_ptr<IBaseModule>> m_moduleChain;  // 模块执行链
     CAlgResult m_currentOutput;                               // 当前输出数据
+    bool m_run_status;                                        // 运行状态
 }; 

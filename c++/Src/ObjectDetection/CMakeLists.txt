@@ -19,6 +19,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Include/Thirdpart/av_opencv
     ${CMAKE_SOURCE_DIR}/Include/Thirdpart/glog
     ${CMAKE_SOURCE_DIR}/Include/Thirdpart/fastdds
+    ${CMAKE_SOURCE_DIR}/Include/Thirdpart/eigen3
     ${CMAKE_SOURCE_DIR}/Src/Common
     ${CMAKE_SOURCE_DIR}/Src/ObjectDetection
     ${CMAKE_SOURCE_DIR}/Src/ObjectDetection/Preprocess

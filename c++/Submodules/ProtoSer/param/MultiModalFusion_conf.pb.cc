@@ -105,9 +105,9 @@ struct MultiModalFusionConfigDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 MultiModalFusionConfigDefaultTypeInternal _MultiModalFusionConfig_default_instance_;
 }  // namespace multimodalfusion
-static constexpr const ::_pb::EnumDescriptor**
+static constexpr const ::_pb::EnumDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_enum_descriptors_MultiModalFusion_5fconf_2eproto = nullptr;
-static constexpr const ::_pb::ServiceDescriptor**
+static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_service_descriptors_MultiModalFusion_5fconf_2eproto = nullptr;
 const ::uint32_t
     TableStruct_MultiModalFusion_5fconf_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
@@ -191,7 +191,7 @@ static const ::_pbi::MigrationSchema
         {0, 34, -1, sizeof(::multimodalfusion::MultiModalFusionModelConfig)},
         {60, 70, -1, sizeof(::multimodalfusion::MultiModalFusionConfig)},
 };
-static const ::_pb::Message* const file_default_instances[] = {
+static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::multimodalfusion::_MultiModalFusionModelConfig_default_instance_._instance,
     &::multimodalfusion::_MultiModalFusionConfig_default_instance_._instance,
 };
@@ -218,8 +218,8 @@ const char descriptor_table_protodef_MultiModalFusion_5fconf_2eproto[] ABSL_ATTR
     "Config\022-\n\016modules_config\030\002 \001(\0132\025.common."
     "ModulesConfigb\006proto3"
 };
-static const ::_pbi::DescriptorTable* const descriptor_table_MultiModalFusion_5fconf_2eproto_deps[1] =
-    {
+static const ::_pbi::DescriptorTable* PROTOBUF_NONNULL const
+    descriptor_table_MultiModalFusion_5fconf_2eproto_deps[1] = {
         &::descriptor_table_AlgorithmConfig_5fconf_2eproto,
 };
 static ::absl::once_flag descriptor_table_MultiModalFusion_5fconf_2eproto_once;
@@ -250,7 +250,7 @@ class MultiModalFusionModelConfig::_Internal {
       8 * PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_._has_bits_);
 };
 
-MultiModalFusionModelConfig::MultiModalFusionModelConfig(::google::protobuf::Arena* arena)
+MultiModalFusionModelConfig::MultiModalFusionModelConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, MultiModalFusionModelConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -260,8 +260,9 @@ MultiModalFusionModelConfig::MultiModalFusionModelConfig(::google::protobuf::Are
   // @@protoc_insertion_point(arena_constructor:multimodalfusion.MultiModalFusionModelConfig)
 }
 PROTOBUF_NDEBUG_INLINE MultiModalFusionModelConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::multimodalfusion::MultiModalFusionModelConfig& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::multimodalfusion::MultiModalFusionModelConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         stride_{visibility, arena, from.stride_},
@@ -269,7 +270,7 @@ PROTOBUF_NDEBUG_INLINE MultiModalFusionModelConfig::Impl_::Impl_(
         engine_path_(arena, from.engine_path_) {}
 
 MultiModalFusionModelConfig::MultiModalFusionModelConfig(
-    ::google::protobuf::Arena* arena,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const MultiModalFusionModelConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, MultiModalFusionModelConfig_class_data_.base()) {
@@ -293,13 +294,13 @@ MultiModalFusionModelConfig::MultiModalFusionModelConfig(
 }
 PROTOBUF_NDEBUG_INLINE MultiModalFusionModelConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0},
         stride_{visibility, arena},
         _stride_cached_byte_size_{0},
         engine_path_(arena) {}
 
-inline void MultiModalFusionModelConfig::SharedCtor(::_pb::Arena* arena) {
+inline void MultiModalFusionModelConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, num_class_),
@@ -320,8 +321,9 @@ inline void MultiModalFusionModelConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* MultiModalFusionModelConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
+inline void* PROTOBUF_NONNULL MultiModalFusionModelConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
   return ::new (mem) MultiModalFusionModelConfig(arena);
 }
 constexpr auto MultiModalFusionModelConfig::InternalNewImpl_() {
@@ -368,13 +370,14 @@ PROTOBUF_CONSTINIT
         MultiModalFusionModelConfig_class_data_ =
             MultiModalFusionModelConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* MultiModalFusionModelConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL MultiModalFusionModelConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&MultiModalFusionModelConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(MultiModalFusionModelConfig_class_data_.tc_table);
   return MultiModalFusionModelConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<5, 26, 0, 88, 2> MultiModalFusionModelConfig::_table_ = {
+const ::_pbi::TcParseTable<5, 26, 0, 88, 2>
+MultiModalFusionModelConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -565,7 +568,6 @@ const ::_pbi::TcParseTable<5, 26, 0, 88, 2> MultiModalFusionModelConfig::_table_
     "engine_path"
   }},
 };
-
 PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:multimodalfusion.MultiModalFusionModelConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -575,20 +577,20 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
 
   _impl_.stride_.Clear();
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000001u) != 0) {
     _impl_.engine_path_.ClearNonDefaultToEmpty();
   }
-  if (cached_has_bits & 0x000000feu) {
+  if ((cached_has_bits & 0x000000feu) != 0) {
     ::memset(&_impl_.num_class_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.src_width_rgb_) -
         reinterpret_cast<char*>(&_impl_.num_class_)) + sizeof(_impl_.src_width_rgb_));
   }
-  if (cached_has_bits & 0x0000ff00u) {
+  if ((cached_has_bits & 0x0000ff00u) != 0) {
     ::memset(&_impl_.src_height_rgb_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.num_keys_) -
         reinterpret_cast<char*>(&_impl_.src_height_rgb_)) + sizeof(_impl_.num_keys_));
   }
-  if (cached_has_bits & 0x00ff0000u) {
+  if ((cached_has_bits & 0x00ff0000u) != 0) {
     ::memset(&_impl_.channels_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.new_unpad_w_ir_) -
         reinterpret_cast<char*>(&_impl_.channels_)) + sizeof(_impl_.new_unpad_w_ir_));
@@ -599,470 +601,470 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* MultiModalFusionModelConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const MultiModalFusionModelConfig& this_ = static_cast<const MultiModalFusionModelConfig&>(base);
+::uint8_t* PROTOBUF_NONNULL MultiModalFusionModelConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const MultiModalFusionModelConfig& this_ = static_cast<const MultiModalFusionModelConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* MultiModalFusionModelConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const MultiModalFusionModelConfig& this_ = *this;
+::uint8_t* PROTOBUF_NONNULL MultiModalFusionModelConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const MultiModalFusionModelConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:multimodalfusion.MultiModalFusionModelConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
+  // @@protoc_insertion_point(serialize_to_array_start:multimodalfusion.MultiModalFusionModelConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-          // string engine_path = 1;
-          if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-            if (!this_._internal_engine_path().empty()) {
-              const std::string& _s = this_._internal_engine_path();
-              ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "multimodalfusion.MultiModalFusionModelConfig.engine_path");
-              target = stream->WriteStringMaybeAliased(1, _s, target);
-            }
-          }
+  // string engine_path = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (!this_._internal_engine_path().empty()) {
+      const std::string& _s = this_._internal_engine_path();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "multimodalfusion.MultiModalFusionModelConfig.engine_path");
+      target = stream->WriteStringMaybeAliased(1, _s, target);
+    }
+  }
 
-          // int32 num_class = 2;
-          if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
-            if (this_._internal_num_class() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<2>(
-                      stream, this_._internal_num_class(), target);
-            }
-          }
+  // int32 num_class = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_num_class() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<2>(
+              stream, this_._internal_num_class(), target);
+    }
+  }
 
-          // int32 batch_size = 3;
-          if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
-            if (this_._internal_batch_size() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<3>(
-                      stream, this_._internal_batch_size(), target);
-            }
-          }
+  // int32 batch_size = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_batch_size() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<3>(
+              stream, this_._internal_batch_size(), target);
+    }
+  }
 
-          // int32 width = 4;
-          if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
-            if (this_._internal_width() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<4>(
-                      stream, this_._internal_width(), target);
-            }
-          }
+  // int32 width = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (this_._internal_width() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<4>(
+              stream, this_._internal_width(), target);
+    }
+  }
 
-          // int32 height = 5;
-          if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
-            if (this_._internal_height() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<5>(
-                      stream, this_._internal_height(), target);
-            }
-          }
+  // int32 height = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
+    if (this_._internal_height() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<5>(
+              stream, this_._internal_height(), target);
+    }
+  }
 
-          // float conf_thres = 6;
-          if ((this_._impl_._has_bits_[0] & 0x00000020u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  6, this_._internal_conf_thres(), target);
-            }
-          }
+  // float conf_thres = 6;
+  if ((this_._impl_._has_bits_[0] & 0x00000020u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          6, this_._internal_conf_thres(), target);
+    }
+  }
 
-          // float iou_thres = 7;
-          if ((this_._impl_._has_bits_[0] & 0x00000040u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  7, this_._internal_iou_thres(), target);
-            }
-          }
+  // float iou_thres = 7;
+  if ((this_._impl_._has_bits_[0] & 0x00000040u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          7, this_._internal_iou_thres(), target);
+    }
+  }
 
-          // repeated int32 stride = 8;
-          {
-            int byte_size = this_._impl_._stride_cached_byte_size_.Get();
-            if (byte_size > 0) {
-              target = stream->WriteInt32Packed(
-                  8, this_._internal_stride(), byte_size, target);
-            }
-          }
+  // repeated int32 stride = 8;
+  {
+    int byte_size = this_._impl_._stride_cached_byte_size_.Get();
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          8, this_._internal_stride(), byte_size, target);
+    }
+  }
 
-          // int32 src_width_rgb = 9;
-          if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
-            if (this_._internal_src_width_rgb() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<9>(
-                      stream, this_._internal_src_width_rgb(), target);
-            }
-          }
+  // int32 src_width_rgb = 9;
+  if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
+    if (this_._internal_src_width_rgb() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<9>(
+              stream, this_._internal_src_width_rgb(), target);
+    }
+  }
 
-          // int32 src_height_rgb = 10;
-          if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
-            if (this_._internal_src_height_rgb() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<10>(
-                      stream, this_._internal_src_height_rgb(), target);
-            }
-          }
+  // int32 src_height_rgb = 10;
+  if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
+    if (this_._internal_src_height_rgb() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<10>(
+              stream, this_._internal_src_height_rgb(), target);
+    }
+  }
 
-          // float resize_ratio_rgb = 11;
-          if ((this_._impl_._has_bits_[0] & 0x00000200u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_rgb()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  11, this_._internal_resize_ratio_rgb(), target);
-            }
-          }
+  // float resize_ratio_rgb = 11;
+  if ((this_._impl_._has_bits_[0] & 0x00000200u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_rgb()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          11, this_._internal_resize_ratio_rgb(), target);
+    }
+  }
 
-          // int32 dw_rgb = 12;
-          if ((this_._impl_._has_bits_[0] & 0x00000400u) != 0) {
-            if (this_._internal_dw_rgb() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<12>(
-                      stream, this_._internal_dw_rgb(), target);
-            }
-          }
+  // int32 dw_rgb = 12;
+  if ((this_._impl_._has_bits_[0] & 0x00000400u) != 0) {
+    if (this_._internal_dw_rgb() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<12>(
+              stream, this_._internal_dw_rgb(), target);
+    }
+  }
 
-          // int32 dh_rgb = 13;
-          if ((this_._impl_._has_bits_[0] & 0x00000800u) != 0) {
-            if (this_._internal_dh_rgb() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<13>(
-                      stream, this_._internal_dh_rgb(), target);
-            }
-          }
+  // int32 dh_rgb = 13;
+  if ((this_._impl_._has_bits_[0] & 0x00000800u) != 0) {
+    if (this_._internal_dh_rgb() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<13>(
+              stream, this_._internal_dh_rgb(), target);
+    }
+  }
 
-          // int32 new_unpad_w_rgb = 14;
-          if ((this_._impl_._has_bits_[0] & 0x00001000u) != 0) {
-            if (this_._internal_new_unpad_w_rgb() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<14>(
-                      stream, this_._internal_new_unpad_w_rgb(), target);
-            }
-          }
+  // int32 new_unpad_w_rgb = 14;
+  if ((this_._impl_._has_bits_[0] & 0x00001000u) != 0) {
+    if (this_._internal_new_unpad_w_rgb() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<14>(
+              stream, this_._internal_new_unpad_w_rgb(), target);
+    }
+  }
 
-          // int32 new_unpad_h_rgb = 15;
-          if ((this_._impl_._has_bits_[0] & 0x00002000u) != 0) {
-            if (this_._internal_new_unpad_h_rgb() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<15>(
-                      stream, this_._internal_new_unpad_h_rgb(), target);
-            }
-          }
+  // int32 new_unpad_h_rgb = 15;
+  if ((this_._impl_._has_bits_[0] & 0x00002000u) != 0) {
+    if (this_._internal_new_unpad_h_rgb() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<15>(
+              stream, this_._internal_new_unpad_h_rgb(), target);
+    }
+  }
 
-          // int32 max_dets = 16;
-          if ((this_._impl_._has_bits_[0] & 0x00004000u) != 0) {
-            if (this_._internal_max_dets() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-                  16, this_._internal_max_dets(), target);
-            }
-          }
+  // int32 max_dets = 16;
+  if ((this_._impl_._has_bits_[0] & 0x00004000u) != 0) {
+    if (this_._internal_max_dets() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          16, this_._internal_max_dets(), target);
+    }
+  }
 
-          // int32 num_keys = 17;
-          if ((this_._impl_._has_bits_[0] & 0x00008000u) != 0) {
-            if (this_._internal_num_keys() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-                  17, this_._internal_num_keys(), target);
-            }
-          }
+  // int32 num_keys = 17;
+  if ((this_._impl_._has_bits_[0] & 0x00008000u) != 0) {
+    if (this_._internal_num_keys() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          17, this_._internal_num_keys(), target);
+    }
+  }
 
-          // int32 channels = 18;
-          if ((this_._impl_._has_bits_[0] & 0x00010000u) != 0) {
-            if (this_._internal_channels() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-                  18, this_._internal_channels(), target);
-            }
-          }
+  // int32 channels = 18;
+  if ((this_._impl_._has_bits_[0] & 0x00010000u) != 0) {
+    if (this_._internal_channels() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          18, this_._internal_channels(), target);
+    }
+  }
 
-          // bool run_status = 19;
-          if ((this_._impl_._has_bits_[0] & 0x00020000u) != 0) {
-            if (this_._internal_run_status() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteBoolToArray(
-                  19, this_._internal_run_status(), target);
-            }
-          }
+  // bool run_status = 19;
+  if ((this_._impl_._has_bits_[0] & 0x00020000u) != 0) {
+    if (this_._internal_run_status() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          19, this_._internal_run_status(), target);
+    }
+  }
 
-          // int32 src_width_ir = 20;
-          if ((this_._impl_._has_bits_[0] & 0x00040000u) != 0) {
-            if (this_._internal_src_width_ir() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-                  20, this_._internal_src_width_ir(), target);
-            }
-          }
+  // int32 src_width_ir = 20;
+  if ((this_._impl_._has_bits_[0] & 0x00040000u) != 0) {
+    if (this_._internal_src_width_ir() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          20, this_._internal_src_width_ir(), target);
+    }
+  }
 
-          // int32 src_height_ir = 21;
-          if ((this_._impl_._has_bits_[0] & 0x00080000u) != 0) {
-            if (this_._internal_src_height_ir() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-                  21, this_._internal_src_height_ir(), target);
-            }
-          }
+  // int32 src_height_ir = 21;
+  if ((this_._impl_._has_bits_[0] & 0x00080000u) != 0) {
+    if (this_._internal_src_height_ir() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          21, this_._internal_src_height_ir(), target);
+    }
+  }
 
-          // float resize_ratio_ir = 22;
-          if ((this_._impl_._has_bits_[0] & 0x00100000u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_ir()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  22, this_._internal_resize_ratio_ir(), target);
-            }
-          }
+  // float resize_ratio_ir = 22;
+  if ((this_._impl_._has_bits_[0] & 0x00100000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_ir()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          22, this_._internal_resize_ratio_ir(), target);
+    }
+  }
 
-          // int32 dw_ir = 23;
-          if ((this_._impl_._has_bits_[0] & 0x00200000u) != 0) {
-            if (this_._internal_dw_ir() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-                  23, this_._internal_dw_ir(), target);
-            }
-          }
+  // int32 dw_ir = 23;
+  if ((this_._impl_._has_bits_[0] & 0x00200000u) != 0) {
+    if (this_._internal_dw_ir() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          23, this_._internal_dw_ir(), target);
+    }
+  }
 
-          // int32 dh_ir = 24;
-          if ((this_._impl_._has_bits_[0] & 0x00400000u) != 0) {
-            if (this_._internal_dh_ir() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-                  24, this_._internal_dh_ir(), target);
-            }
-          }
+  // int32 dh_ir = 24;
+  if ((this_._impl_._has_bits_[0] & 0x00400000u) != 0) {
+    if (this_._internal_dh_ir() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          24, this_._internal_dh_ir(), target);
+    }
+  }
 
-          // int32 new_unpad_w_ir = 25;
-          if ((this_._impl_._has_bits_[0] & 0x00800000u) != 0) {
-            if (this_._internal_new_unpad_w_ir() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-                  25, this_._internal_new_unpad_w_ir(), target);
-            }
-          }
+  // int32 new_unpad_w_ir = 25;
+  if ((this_._impl_._has_bits_[0] & 0x00800000u) != 0) {
+    if (this_._internal_new_unpad_w_ir() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          25, this_._internal_new_unpad_w_ir(), target);
+    }
+  }
 
-          // int32 new_unpad_h_ir = 26;
-          if ((this_._impl_._has_bits_[0] & 0x01000000u) != 0) {
-            if (this_._internal_new_unpad_h_ir() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-                  26, this_._internal_new_unpad_h_ir(), target);
-            }
-          }
+  // int32 new_unpad_h_ir = 26;
+  if ((this_._impl_._has_bits_[0] & 0x01000000u) != 0) {
+    if (this_._internal_new_unpad_h_ir() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          26, this_._internal_new_unpad_h_ir(), target);
+    }
+  }
 
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:multimodalfusion.MultiModalFusionModelConfig)
-          return target;
-        }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:multimodalfusion.MultiModalFusionModelConfig)
+  return target;
+}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t MultiModalFusionModelConfig::ByteSizeLong(const MessageLite& base) {
-          const MultiModalFusionModelConfig& this_ = static_cast<const MultiModalFusionModelConfig&>(base);
+::size_t MultiModalFusionModelConfig::ByteSizeLong(const MessageLite& base) {
+  const MultiModalFusionModelConfig& this_ = static_cast<const MultiModalFusionModelConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t MultiModalFusionModelConfig::ByteSizeLong() const {
-          const MultiModalFusionModelConfig& this_ = *this;
+::size_t MultiModalFusionModelConfig::ByteSizeLong() const {
+  const MultiModalFusionModelConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:multimodalfusion.MultiModalFusionModelConfig)
-          ::size_t total_size = 0;
+  // @@protoc_insertion_point(message_byte_size_start:multimodalfusion.MultiModalFusionModelConfig)
+  ::size_t total_size = 0;
 
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-           {
-            // repeated int32 stride = 8;
-            {
-              total_size +=
-                  ::_pbi::WireFormatLite::Int32SizeWithPackedTagSize(
-                      this_._internal_stride(), 1,
-                      this_._impl_._stride_cached_byte_size_);
-            }
-          }
-          cached_has_bits = this_._impl_._has_bits_[0];
-          if (cached_has_bits & 0x000000ffu) {
-            // string engine_path = 1;
-            if (cached_has_bits & 0x00000001u) {
-              if (!this_._internal_engine_path().empty()) {
-                total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                                this_._internal_engine_path());
-              }
-            }
-            // int32 num_class = 2;
-            if (cached_has_bits & 0x00000002u) {
-              if (this_._internal_num_class() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_num_class());
-              }
-            }
-            // int32 batch_size = 3;
-            if (cached_has_bits & 0x00000004u) {
-              if (this_._internal_batch_size() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_batch_size());
-              }
-            }
-            // int32 width = 4;
-            if (cached_has_bits & 0x00000008u) {
-              if (this_._internal_width() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_width());
-              }
-            }
-            // int32 height = 5;
-            if (cached_has_bits & 0x00000010u) {
-              if (this_._internal_height() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_height());
-              }
-            }
-            // float conf_thres = 6;
-            if (cached_has_bits & 0x00000020u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
-                total_size += 5;
-              }
-            }
-            // float iou_thres = 7;
-            if (cached_has_bits & 0x00000040u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
-                total_size += 5;
-              }
-            }
-            // int32 src_width_rgb = 9;
-            if (cached_has_bits & 0x00000080u) {
-              if (this_._internal_src_width_rgb() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_src_width_rgb());
-              }
-            }
-          }
-          if (cached_has_bits & 0x0000ff00u) {
-            // int32 src_height_rgb = 10;
-            if (cached_has_bits & 0x00000100u) {
-              if (this_._internal_src_height_rgb() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_src_height_rgb());
-              }
-            }
-            // float resize_ratio_rgb = 11;
-            if (cached_has_bits & 0x00000200u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_rgb()) != 0) {
-                total_size += 5;
-              }
-            }
-            // int32 dw_rgb = 12;
-            if (cached_has_bits & 0x00000400u) {
-              if (this_._internal_dw_rgb() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_dw_rgb());
-              }
-            }
-            // int32 dh_rgb = 13;
-            if (cached_has_bits & 0x00000800u) {
-              if (this_._internal_dh_rgb() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_dh_rgb());
-              }
-            }
-            // int32 new_unpad_w_rgb = 14;
-            if (cached_has_bits & 0x00001000u) {
-              if (this_._internal_new_unpad_w_rgb() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_new_unpad_w_rgb());
-              }
-            }
-            // int32 new_unpad_h_rgb = 15;
-            if (cached_has_bits & 0x00002000u) {
-              if (this_._internal_new_unpad_h_rgb() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_new_unpad_h_rgb());
-              }
-            }
-            // int32 max_dets = 16;
-            if (cached_has_bits & 0x00004000u) {
-              if (this_._internal_max_dets() != 0) {
-                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                                this_._internal_max_dets());
-              }
-            }
-            // int32 num_keys = 17;
-            if (cached_has_bits & 0x00008000u) {
-              if (this_._internal_num_keys() != 0) {
-                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                                this_._internal_num_keys());
-              }
-            }
-          }
-          if (cached_has_bits & 0x00ff0000u) {
-            // int32 channels = 18;
-            if (cached_has_bits & 0x00010000u) {
-              if (this_._internal_channels() != 0) {
-                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                                this_._internal_channels());
-              }
-            }
-            // bool run_status = 19;
-            if (cached_has_bits & 0x00020000u) {
-              if (this_._internal_run_status() != 0) {
-                total_size += 3;
-              }
-            }
-            // int32 src_width_ir = 20;
-            if (cached_has_bits & 0x00040000u) {
-              if (this_._internal_src_width_ir() != 0) {
-                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                                this_._internal_src_width_ir());
-              }
-            }
-            // int32 src_height_ir = 21;
-            if (cached_has_bits & 0x00080000u) {
-              if (this_._internal_src_height_ir() != 0) {
-                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                                this_._internal_src_height_ir());
-              }
-            }
-            // float resize_ratio_ir = 22;
-            if (cached_has_bits & 0x00100000u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_ir()) != 0) {
-                total_size += 6;
-              }
-            }
-            // int32 dw_ir = 23;
-            if (cached_has_bits & 0x00200000u) {
-              if (this_._internal_dw_ir() != 0) {
-                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                                this_._internal_dw_ir());
-              }
-            }
-            // int32 dh_ir = 24;
-            if (cached_has_bits & 0x00400000u) {
-              if (this_._internal_dh_ir() != 0) {
-                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                                this_._internal_dh_ir());
-              }
-            }
-            // int32 new_unpad_w_ir = 25;
-            if (cached_has_bits & 0x00800000u) {
-              if (this_._internal_new_unpad_w_ir() != 0) {
-                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                                this_._internal_new_unpad_w_ir());
-              }
-            }
-          }
-           {
-            // int32 new_unpad_h_ir = 26;
-            if (cached_has_bits & 0x01000000u) {
-              if (this_._internal_new_unpad_h_ir() != 0) {
-                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                                this_._internal_new_unpad_h_ir());
-              }
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+   {
+    // repeated int32 stride = 8;
+    {
+      total_size +=
+          ::_pbi::WireFormatLite::Int32SizeWithPackedTagSize(
+              this_._internal_stride(), 1,
+              this_._impl_._stride_cached_byte_size_);
+    }
+  }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x000000ffu) != 0) {
+    // string engine_path = 1;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!this_._internal_engine_path().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                        this_._internal_engine_path());
+      }
+    }
+    // int32 num_class = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (this_._internal_num_class() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_num_class());
+      }
+    }
+    // int32 batch_size = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_batch_size() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_batch_size());
+      }
+    }
+    // int32 width = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_width() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_width());
+      }
+    }
+    // int32 height = 5;
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (this_._internal_height() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_height());
+      }
+    }
+    // float conf_thres = 6;
+    if ((cached_has_bits & 0x00000020u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
+        total_size += 5;
+      }
+    }
+    // float iou_thres = 7;
+    if ((cached_has_bits & 0x00000040u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
+        total_size += 5;
+      }
+    }
+    // int32 src_width_rgb = 9;
+    if ((cached_has_bits & 0x00000080u) != 0) {
+      if (this_._internal_src_width_rgb() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_src_width_rgb());
+      }
+    }
+  }
+  if ((cached_has_bits & 0x0000ff00u) != 0) {
+    // int32 src_height_rgb = 10;
+    if ((cached_has_bits & 0x00000100u) != 0) {
+      if (this_._internal_src_height_rgb() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_src_height_rgb());
+      }
+    }
+    // float resize_ratio_rgb = 11;
+    if ((cached_has_bits & 0x00000200u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_rgb()) != 0) {
+        total_size += 5;
+      }
+    }
+    // int32 dw_rgb = 12;
+    if ((cached_has_bits & 0x00000400u) != 0) {
+      if (this_._internal_dw_rgb() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_dw_rgb());
+      }
+    }
+    // int32 dh_rgb = 13;
+    if ((cached_has_bits & 0x00000800u) != 0) {
+      if (this_._internal_dh_rgb() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_dh_rgb());
+      }
+    }
+    // int32 new_unpad_w_rgb = 14;
+    if ((cached_has_bits & 0x00001000u) != 0) {
+      if (this_._internal_new_unpad_w_rgb() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_new_unpad_w_rgb());
+      }
+    }
+    // int32 new_unpad_h_rgb = 15;
+    if ((cached_has_bits & 0x00002000u) != 0) {
+      if (this_._internal_new_unpad_h_rgb() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_new_unpad_h_rgb());
+      }
+    }
+    // int32 max_dets = 16;
+    if ((cached_has_bits & 0x00004000u) != 0) {
+      if (this_._internal_max_dets() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_max_dets());
+      }
+    }
+    // int32 num_keys = 17;
+    if ((cached_has_bits & 0x00008000u) != 0) {
+      if (this_._internal_num_keys() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_num_keys());
+      }
+    }
+  }
+  if ((cached_has_bits & 0x00ff0000u) != 0) {
+    // int32 channels = 18;
+    if ((cached_has_bits & 0x00010000u) != 0) {
+      if (this_._internal_channels() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_channels());
+      }
+    }
+    // bool run_status = 19;
+    if ((cached_has_bits & 0x00020000u) != 0) {
+      if (this_._internal_run_status() != 0) {
+        total_size += 3;
+      }
+    }
+    // int32 src_width_ir = 20;
+    if ((cached_has_bits & 0x00040000u) != 0) {
+      if (this_._internal_src_width_ir() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_src_width_ir());
+      }
+    }
+    // int32 src_height_ir = 21;
+    if ((cached_has_bits & 0x00080000u) != 0) {
+      if (this_._internal_src_height_ir() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_src_height_ir());
+      }
+    }
+    // float resize_ratio_ir = 22;
+    if ((cached_has_bits & 0x00100000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio_ir()) != 0) {
+        total_size += 6;
+      }
+    }
+    // int32 dw_ir = 23;
+    if ((cached_has_bits & 0x00200000u) != 0) {
+      if (this_._internal_dw_ir() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_dw_ir());
+      }
+    }
+    // int32 dh_ir = 24;
+    if ((cached_has_bits & 0x00400000u) != 0) {
+      if (this_._internal_dh_ir() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_dh_ir());
+      }
+    }
+    // int32 new_unpad_w_ir = 25;
+    if ((cached_has_bits & 0x00800000u) != 0) {
+      if (this_._internal_new_unpad_w_ir() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_new_unpad_w_ir());
+      }
+    }
+  }
+   {
+    // int32 new_unpad_h_ir = 26;
+    if ((cached_has_bits & 0x01000000u) != 0) {
+      if (this_._internal_new_unpad_h_ir() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_new_unpad_h_ir());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
 
 void MultiModalFusionModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<MultiModalFusionModelConfig*>(&to_msg);
@@ -1074,8 +1076,8 @@ void MultiModalFusionModelConfig::MergeImpl(::google::protobuf::MessageLite& to_
 
   _this->_internal_mutable_stride()->MergeFrom(from._internal_stride());
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x000000ffu) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x000000ffu) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       if (!from._internal_engine_path().empty()) {
         _this->_internal_set_engine_path(from._internal_engine_path());
       } else {
@@ -1084,127 +1086,127 @@ void MultiModalFusionModelConfig::MergeImpl(::google::protobuf::MessageLite& to_
         }
       }
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_num_class() != 0) {
         _this->_impl_.num_class_ = from._impl_.num_class_;
       }
     }
-    if (cached_has_bits & 0x00000004u) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_batch_size() != 0) {
         _this->_impl_.batch_size_ = from._impl_.batch_size_;
       }
     }
-    if (cached_has_bits & 0x00000008u) {
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (from._internal_width() != 0) {
         _this->_impl_.width_ = from._impl_.width_;
       }
     }
-    if (cached_has_bits & 0x00000010u) {
+    if ((cached_has_bits & 0x00000010u) != 0) {
       if (from._internal_height() != 0) {
         _this->_impl_.height_ = from._impl_.height_;
       }
     }
-    if (cached_has_bits & 0x00000020u) {
+    if ((cached_has_bits & 0x00000020u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_conf_thres()) != 0) {
         _this->_impl_.conf_thres_ = from._impl_.conf_thres_;
       }
     }
-    if (cached_has_bits & 0x00000040u) {
+    if ((cached_has_bits & 0x00000040u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_iou_thres()) != 0) {
         _this->_impl_.iou_thres_ = from._impl_.iou_thres_;
       }
     }
-    if (cached_has_bits & 0x00000080u) {
+    if ((cached_has_bits & 0x00000080u) != 0) {
       if (from._internal_src_width_rgb() != 0) {
         _this->_impl_.src_width_rgb_ = from._impl_.src_width_rgb_;
       }
     }
   }
-  if (cached_has_bits & 0x0000ff00u) {
-    if (cached_has_bits & 0x00000100u) {
+  if ((cached_has_bits & 0x0000ff00u) != 0) {
+    if ((cached_has_bits & 0x00000100u) != 0) {
       if (from._internal_src_height_rgb() != 0) {
         _this->_impl_.src_height_rgb_ = from._impl_.src_height_rgb_;
       }
     }
-    if (cached_has_bits & 0x00000200u) {
+    if ((cached_has_bits & 0x00000200u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_resize_ratio_rgb()) != 0) {
         _this->_impl_.resize_ratio_rgb_ = from._impl_.resize_ratio_rgb_;
       }
     }
-    if (cached_has_bits & 0x00000400u) {
+    if ((cached_has_bits & 0x00000400u) != 0) {
       if (from._internal_dw_rgb() != 0) {
         _this->_impl_.dw_rgb_ = from._impl_.dw_rgb_;
       }
     }
-    if (cached_has_bits & 0x00000800u) {
+    if ((cached_has_bits & 0x00000800u) != 0) {
       if (from._internal_dh_rgb() != 0) {
         _this->_impl_.dh_rgb_ = from._impl_.dh_rgb_;
       }
     }
-    if (cached_has_bits & 0x00001000u) {
+    if ((cached_has_bits & 0x00001000u) != 0) {
       if (from._internal_new_unpad_w_rgb() != 0) {
         _this->_impl_.new_unpad_w_rgb_ = from._impl_.new_unpad_w_rgb_;
       }
     }
-    if (cached_has_bits & 0x00002000u) {
+    if ((cached_has_bits & 0x00002000u) != 0) {
       if (from._internal_new_unpad_h_rgb() != 0) {
         _this->_impl_.new_unpad_h_rgb_ = from._impl_.new_unpad_h_rgb_;
       }
     }
-    if (cached_has_bits & 0x00004000u) {
+    if ((cached_has_bits & 0x00004000u) != 0) {
       if (from._internal_max_dets() != 0) {
         _this->_impl_.max_dets_ = from._impl_.max_dets_;
       }
     }
-    if (cached_has_bits & 0x00008000u) {
+    if ((cached_has_bits & 0x00008000u) != 0) {
       if (from._internal_num_keys() != 0) {
         _this->_impl_.num_keys_ = from._impl_.num_keys_;
       }
     }
   }
-  if (cached_has_bits & 0x00ff0000u) {
-    if (cached_has_bits & 0x00010000u) {
+  if ((cached_has_bits & 0x00ff0000u) != 0) {
+    if ((cached_has_bits & 0x00010000u) != 0) {
       if (from._internal_channels() != 0) {
         _this->_impl_.channels_ = from._impl_.channels_;
       }
     }
-    if (cached_has_bits & 0x00020000u) {
+    if ((cached_has_bits & 0x00020000u) != 0) {
       if (from._internal_run_status() != 0) {
         _this->_impl_.run_status_ = from._impl_.run_status_;
       }
     }
-    if (cached_has_bits & 0x00040000u) {
+    if ((cached_has_bits & 0x00040000u) != 0) {
       if (from._internal_src_width_ir() != 0) {
         _this->_impl_.src_width_ir_ = from._impl_.src_width_ir_;
       }
     }
-    if (cached_has_bits & 0x00080000u) {
+    if ((cached_has_bits & 0x00080000u) != 0) {
       if (from._internal_src_height_ir() != 0) {
         _this->_impl_.src_height_ir_ = from._impl_.src_height_ir_;
       }
     }
-    if (cached_has_bits & 0x00100000u) {
+    if ((cached_has_bits & 0x00100000u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_resize_ratio_ir()) != 0) {
         _this->_impl_.resize_ratio_ir_ = from._impl_.resize_ratio_ir_;
       }
     }
-    if (cached_has_bits & 0x00200000u) {
+    if ((cached_has_bits & 0x00200000u) != 0) {
       if (from._internal_dw_ir() != 0) {
         _this->_impl_.dw_ir_ = from._impl_.dw_ir_;
       }
     }
-    if (cached_has_bits & 0x00400000u) {
+    if ((cached_has_bits & 0x00400000u) != 0) {
       if (from._internal_dh_ir() != 0) {
         _this->_impl_.dh_ir_ = from._impl_.dh_ir_;
       }
     }
-    if (cached_has_bits & 0x00800000u) {
+    if ((cached_has_bits & 0x00800000u) != 0) {
       if (from._internal_new_unpad_w_ir() != 0) {
         _this->_impl_.new_unpad_w_ir_ = from._impl_.new_unpad_w_ir_;
       }
     }
   }
-  if (cached_has_bits & 0x01000000u) {
+  if ((cached_has_bits & 0x01000000u) != 0) {
     if (from._internal_new_unpad_h_ir() != 0) {
       _this->_impl_.new_unpad_h_ir_ = from._impl_.new_unpad_h_ir_;
     }
@@ -1221,7 +1223,7 @@ void MultiModalFusionModelConfig::CopyFrom(const MultiModalFusionModelConfig& fr
 }
 
 
-void MultiModalFusionModelConfig::InternalSwap(MultiModalFusionModelConfig* PROTOBUF_RESTRICT other) {
+void MultiModalFusionModelConfig::InternalSwap(MultiModalFusionModelConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   auto* arena = GetArena();
   ABSL_DCHECK_EQ(arena, other->GetArena());
@@ -1255,7 +1257,7 @@ void MultiModalFusionConfig::clear_modules_config() {
   if (_impl_.modules_config_ != nullptr) _impl_.modules_config_->Clear();
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
-MultiModalFusionConfig::MultiModalFusionConfig(::google::protobuf::Arena* arena)
+MultiModalFusionConfig::MultiModalFusionConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, MultiModalFusionConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -1265,13 +1267,14 @@ MultiModalFusionConfig::MultiModalFusionConfig(::google::protobuf::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:multimodalfusion.MultiModalFusionConfig)
 }
 PROTOBUF_NDEBUG_INLINE MultiModalFusionConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::multimodalfusion::MultiModalFusionConfig& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::multimodalfusion::MultiModalFusionConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0} {}
 
 MultiModalFusionConfig::MultiModalFusionConfig(
-    ::google::protobuf::Arena* arena,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const MultiModalFusionConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, MultiModalFusionConfig_class_data_.base()) {
@@ -1284,21 +1287,21 @@ MultiModalFusionConfig::MultiModalFusionConfig(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.model_config_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::multimodalfusion::MultiModalFusionModelConfig>(
-                              arena, *from._impl_.model_config_)
-                        : nullptr;
-  _impl_.modules_config_ = (cached_has_bits & 0x00000002u) ? ::google::protobuf::Message::CopyConstruct<::common::ModulesConfig>(
-                              arena, *from._impl_.modules_config_)
-                        : nullptr;
+  _impl_.model_config_ = ((cached_has_bits & 0x00000001u) != 0)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.model_config_)
+                : nullptr;
+  _impl_.modules_config_ = ((cached_has_bits & 0x00000002u) != 0)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.modules_config_)
+                : nullptr;
 
   // @@protoc_insertion_point(copy_constructor:multimodalfusion.MultiModalFusionConfig)
 }
 PROTOBUF_NDEBUG_INLINE MultiModalFusionConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0} {}
 
-inline void MultiModalFusionConfig::SharedCtor(::_pb::Arena* arena) {
+inline void MultiModalFusionConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, model_config_),
@@ -1320,8 +1323,9 @@ inline void MultiModalFusionConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* MultiModalFusionConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
+inline void* PROTOBUF_NONNULL MultiModalFusionConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
   return ::new (mem) MultiModalFusionConfig(arena);
 }
 constexpr auto MultiModalFusionConfig::InternalNewImpl_() {
@@ -1356,13 +1360,14 @@ PROTOBUF_CONSTINIT
         MultiModalFusionConfig_class_data_ =
             MultiModalFusionConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* MultiModalFusionConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL MultiModalFusionConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&MultiModalFusionConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(MultiModalFusionConfig_class_data_.tc_table);
   return MultiModalFusionConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 2, 0, 2> MultiModalFusionConfig::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 2, 0, 2>
+MultiModalFusionConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(MultiModalFusionConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -1395,13 +1400,14 @@ const ::_pbi::TcParseTable<1, 2, 2, 0, 2> MultiModalFusionConfig::_table_ = {
     // .common.ModulesConfig modules_config = 2;
     {PROTOBUF_FIELD_OFFSET(MultiModalFusionConfig, _impl_.modules_config_), _Internal::kHasBitsOffset + 1, 1,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
-  }}, {{
-    {::_pbi::TcParser::GetTable<::multimodalfusion::MultiModalFusionModelConfig>()},
-    {::_pbi::TcParser::GetTable<::common::ModulesConfig>()},
-  }}, {{
+  }},
+  {{
+      {::_pbi::TcParser::GetTable<::multimodalfusion::MultiModalFusionModelConfig>()},
+      {::_pbi::TcParser::GetTable<::common::ModulesConfig>()},
+  }},
+  {{
   }},
 };
-
 PROTOBUF_NOINLINE void MultiModalFusionConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:multimodalfusion.MultiModalFusionConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -1410,12 +1416,12 @@ PROTOBUF_NOINLINE void MultiModalFusionConfig::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       ABSL_DCHECK(_impl_.model_config_ != nullptr);
       _impl_.model_config_->Clear();
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       ABSL_DCHECK(_impl_.modules_config_ != nullptr);
       _impl_.modules_config_->Clear();
     }
@@ -1425,75 +1431,75 @@ PROTOBUF_NOINLINE void MultiModalFusionConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* MultiModalFusionConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const MultiModalFusionConfig& this_ = static_cast<const MultiModalFusionConfig&>(base);
+::uint8_t* PROTOBUF_NONNULL MultiModalFusionConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const MultiModalFusionConfig& this_ = static_cast<const MultiModalFusionConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* MultiModalFusionConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const MultiModalFusionConfig& this_ = *this;
+::uint8_t* PROTOBUF_NONNULL MultiModalFusionConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const MultiModalFusionConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:multimodalfusion.MultiModalFusionConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
+  // @@protoc_insertion_point(serialize_to_array_start:multimodalfusion.MultiModalFusionConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-          cached_has_bits = this_._impl_._has_bits_[0];
-          // .multimodalfusion.MultiModalFusionModelConfig model_config = 1;
-          if (cached_has_bits & 0x00000001u) {
-            target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                1, *this_._impl_.model_config_, this_._impl_.model_config_->GetCachedSize(), target,
-                stream);
-          }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  // .multimodalfusion.MultiModalFusionModelConfig model_config = 1;
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        1, *this_._impl_.model_config_, this_._impl_.model_config_->GetCachedSize(), target,
+        stream);
+  }
 
-          // .common.ModulesConfig modules_config = 2;
-          if (cached_has_bits & 0x00000002u) {
-            target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                2, *this_._impl_.modules_config_, this_._impl_.modules_config_->GetCachedSize(), target,
-                stream);
-          }
+  // .common.ModulesConfig modules_config = 2;
+  if ((cached_has_bits & 0x00000002u) != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        2, *this_._impl_.modules_config_, this_._impl_.modules_config_->GetCachedSize(), target,
+        stream);
+  }
 
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:multimodalfusion.MultiModalFusionConfig)
-          return target;
-        }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:multimodalfusion.MultiModalFusionConfig)
+  return target;
+}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t MultiModalFusionConfig::ByteSizeLong(const MessageLite& base) {
-          const MultiModalFusionConfig& this_ = static_cast<const MultiModalFusionConfig&>(base);
+::size_t MultiModalFusionConfig::ByteSizeLong(const MessageLite& base) {
+  const MultiModalFusionConfig& this_ = static_cast<const MultiModalFusionConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t MultiModalFusionConfig::ByteSizeLong() const {
-          const MultiModalFusionConfig& this_ = *this;
+::size_t MultiModalFusionConfig::ByteSizeLong() const {
+  const MultiModalFusionConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:multimodalfusion.MultiModalFusionConfig)
-          ::size_t total_size = 0;
+  // @@protoc_insertion_point(message_byte_size_start:multimodalfusion.MultiModalFusionConfig)
+  ::size_t total_size = 0;
 
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-          cached_has_bits = this_._impl_._has_bits_[0];
-          if (cached_has_bits & 0x00000003u) {
-            // .multimodalfusion.MultiModalFusionModelConfig model_config = 1;
-            if (cached_has_bits & 0x00000001u) {
-              total_size += 1 +
-                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.model_config_);
-            }
-            // .common.ModulesConfig modules_config = 2;
-            if (cached_has_bits & 0x00000002u) {
-              total_size += 1 +
-                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.modules_config_);
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // .multimodalfusion.MultiModalFusionModelConfig model_config = 1;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.model_config_);
+    }
+    // .common.ModulesConfig modules_config = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.modules_config_);
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
 
 void MultiModalFusionConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<MultiModalFusionConfig*>(&to_msg);
@@ -1505,21 +1511,19 @@ void MultiModalFusionConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, 
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       ABSL_DCHECK(from._impl_.model_config_ != nullptr);
       if (_this->_impl_.model_config_ == nullptr) {
-        _this->_impl_.model_config_ =
-            ::google::protobuf::Message::CopyConstruct<::multimodalfusion::MultiModalFusionModelConfig>(arena, *from._impl_.model_config_);
+        _this->_impl_.model_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.model_config_);
       } else {
         _this->_impl_.model_config_->MergeFrom(*from._impl_.model_config_);
       }
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       ABSL_DCHECK(from._impl_.modules_config_ != nullptr);
       if (_this->_impl_.modules_config_ == nullptr) {
-        _this->_impl_.modules_config_ =
-            ::google::protobuf::Message::CopyConstruct<::common::ModulesConfig>(arena, *from._impl_.modules_config_);
+        _this->_impl_.modules_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.modules_config_);
       } else {
         _this->_impl_.modules_config_->MergeFrom(*from._impl_.modules_config_);
       }
@@ -1537,7 +1541,7 @@ void MultiModalFusionConfig::CopyFrom(const MultiModalFusionConfig& from) {
 }
 
 
-void MultiModalFusionConfig::InternalSwap(MultiModalFusionConfig* PROTOBUF_RESTRICT other) {
+void MultiModalFusionConfig::InternalSwap(MultiModalFusionConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);

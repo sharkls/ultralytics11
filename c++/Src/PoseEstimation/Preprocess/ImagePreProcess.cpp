@@ -85,7 +85,7 @@ void* ImagePreProcess::getOutput()
 
 void ImagePreProcess::execute()
 {
-    LOG(INFO) << "ImagePreProcess::execute status: start ";
+    // LOG(INFO) << "ImagePreProcess::execute status: start ";
     if (m_inputImage.vecVideoSrcData().empty()) {
         LOG(ERROR) << "Input image is empty";
         return;
@@ -124,10 +124,10 @@ void ImagePreProcess::execute()
             m_outputImage.insert(m_outputImage.end(), (float*)channels[c].datastart, (float*)channels[c].dataend);
         }
 
-        LOG(INFO) << "ImagePreProcess::execute status: success!";
-        if (status_) {
-            save_bin(m_outputImage, "./Save_Data/pose/result/preprocess_yolov11pose.bin"); // Yolov11Pose/Preprocess
-        }
+        // LOG(INFO) << "ImagePreProcess::execute status: success!";
+        // if (status_) {
+        //     save_bin(m_outputImage, "./Save_Data/pose/result/preprocess_yolov11pose.bin"); // Yolov11Pose/Preprocess
+        // }
     }
     catch (const std::exception& e) {
         LOG(ERROR) << "Preprocessing failed: " << e.what();

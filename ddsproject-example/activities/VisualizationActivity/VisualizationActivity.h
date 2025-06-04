@@ -53,8 +53,8 @@ private:
         void *data_handle, std::string node_name, std::string topic_name);
 
     // socket
-    void openSocket();
-    void closeSocket();
+    // void openSocket();
+    // void closeSocket();
 
 private:
     // DDS 读取和写出节点
@@ -74,8 +74,8 @@ private:
     std::mutex thread_mutex_;
 
     // socket
-    int serv_sock{-1};
-    int clnt_sock{-1};
+    // int serv_sock{-1};
+    // int clnt_sock{-1};
 };
 
 #endif // VisualizationACTIVITY_H

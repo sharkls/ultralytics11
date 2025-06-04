@@ -1,9 +1,0 @@
-syntax = "proto2";
-
-message TopicConfig {
-    optional string camera_merged_topic = 3;
-}
-
-message Config {
-    optional TopicConfig topic_config = 1;
-}

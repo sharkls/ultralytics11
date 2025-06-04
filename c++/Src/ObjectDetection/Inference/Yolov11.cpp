@@ -117,8 +117,12 @@ void Yolov11::initTensorRT()
 
     // 5. 计算输入输出大小
     input_size_ = batch_size_ * channels_ * new_unpad_h_ * new_unpad_w_;
-    output_size_ = batch_size_ * (4 + num_classes_ + num_keys_ * 3) * num_anchors_;
+    output_size_ = 1;
+    for (int i = 0; i < output_dims_.nbDims; ++i) {
+        output_size_ *= output_dims_.d[i];
+    }
     LOG(INFO) << "input_size_ = " << input_size_ << ", output_size_ = " << output_size_;
+    std::cout << "[initTensorRT] input_size_ = " << input_size_ << ", output_size_ = " << output_size_ << std::endl << "num_anchors_ : " << num_anchors_ << std::endl;
 
     // 6.1 分配输入GPU内存
     void* input_buffer = nullptr;
@@ -178,6 +182,8 @@ void Yolov11::execute()
 
     // 3、输出格式转换
     m_outputResult = formatConverted(results);
+    // LOG(INFO) << "Yolov11::execute status: success " << m_outputResult.vecFrameResult().size();
+
 }
 
 
@@ -198,6 +204,7 @@ void Yolov11::cleanup()
 // 将模型输出结果转换为CAlgResult
 CAlgResult Yolov11::formatConverted(std::vector<std::vector<float>> results)
 {
+    // std::cout << "Yolov11::formatConverted status: start " << results.size() << std::endl;
     CAlgResult alg_result;
     CFrameResult frame_result;
 
@@ -229,12 +236,16 @@ CAlgResult Yolov11::formatConverted(std::vector<std::vector<float>> results)
     }
 
     alg_result.vecFrameResult({frame_result});
+
+    // LOG(INFO) << "formatConverted: alg_result.vecFrameResult().size() = " << alg_result.vecFrameResult().size();
+    if (alg_result.vecFrameResult().size() > 0)
+        LOG(INFO) << "formatConverted: frame_result.vecObjectResult().size() = " << alg_result.vecFrameResult()[0].vecObjectResult().size();
     return alg_result;
 }
 
 std::vector<float> Yolov11::inference()
 {
-    LOG(INFO) << "Yolov11::inference status: start ";
+    // LOG(INFO) << "Yolov11::inference status: start ";
     // LOG(INFO) << "推理输入 shape: " << batch_size_ << "x" << channels_ << "x" << new_unpad_h_ << "x" << new_unpad_w_;
 
     // 1. 设置动态输入尺寸
@@ -278,6 +289,10 @@ std::vector<float> Yolov11::inference()
     for (int i = 0; i < output_dims.nbDims; ++i) {
         output_size *= output_dims.d[i];
     }
+    // std::cout << "[inference] output_dims: ";
+    // for (int i = 0; i < output_dims.nbDims; ++i) std::cout << output_dims.d[i] << " ";
+    // std::cout << " output_size: " << output_size << std::endl;
+    // std::cout << "[inference] input_size: " << input_size_ << ", output_size: " << output_size_ << std::endl;
     std::vector<float> output(output_size);
 
     // 6. 拷贝输出数据到CPU
@@ -290,12 +305,12 @@ std::vector<float> Yolov11::inference()
     cudaStreamSynchronize(stream_);
 
     // 7. 保存推理输出为bin文件
-    if (status_) {
-        save_bin(output, "./Save_Data/pose/result/inference_output_yolov11pose.bin"); // Yolov11/Inference
-    }
+    // if (status_) {
+    //     save_bin(output, "./Save_Data/detection/result/inference_output_Yolov11.bin"); // Yolov11/Inference
+    // }
 
     // LOG(INFO) << "推理输出 shape: " << output.size();
-    LOG(INFO) << "Yolov11::inference status: success ";
+    // LOG(INFO) << "Yolov11::inference status: success ";
     return output;
 }
 
@@ -339,6 +354,7 @@ std::vector<std::vector<float>> Yolov11::process_keypoints(const std::vector<flo
 
 std::vector<std::vector<float>> Yolov11::process_output(const std::vector<float>& output) 
 {   
+    // LOG(INFO) << "Yolov11::process_output status: start " << output.size();
     // 1. TensorRT输出数据转置
     // [batch_size, 4 + num_classes + num_keys * 3, num_anchors] -> [num_anchors, 4 + num_classes + num_keys * 3]
     int num_anchors = num_anchors_; 
@@ -406,28 +422,21 @@ std::vector<std::vector<float>> Yolov11::process_output(const std::vector<float>
         keypoints.push_back(kpts);
     }
 
-    // 3. 按类别分组做NMS
-    for (int cls = 0; cls < num_classes_; ++cls) {
-        std::vector<std::vector<float>> cls_boxes;
-        std::vector<float> cls_scores;
-        std::vector<std::vector<float>> cls_keypoints;
-        for (size_t i = 0; i < class_ids.size(); ++i) {
-            if (class_ids[i] == cls) {
-                cls_boxes.push_back(boxes[i]);
-                cls_scores.push_back(scores[i]);
-                cls_keypoints.push_back(keypoints[i]);
-            }
-        }
-        if (cls_boxes.empty()) continue;
-        std::vector<int> keep = nms(cls_boxes, cls_scores);
+    // std::cout << "Yolov11::process_output confthres: success " << results.size() << std::endl;
+
+    // 3. 类间NMS（所有类别一起做NMS）
+    if (!boxes.empty()) {
+        std::vector<int> keep = nms(boxes, scores); // 不分类别，直接对所有boxes做NMS
         for (int idx : keep) {
-            std::vector<float> result = cls_boxes[idx];
-            result.push_back(cls_scores[idx]);
-            result.push_back(static_cast<float>(cls));
-            result.insert(result.end(), cls_keypoints[idx].begin(), cls_keypoints[idx].end());
+            std::vector<float> result = boxes[idx];
+            result.push_back(scores[idx]);
+            result.push_back(static_cast<float>(class_ids[idx]));
+            result.insert(result.end(), keypoints[idx].begin(), keypoints[idx].end());
             results.push_back(result);
         }
     }
+
+    // std::cout << "Yolov11::process_output nms: success " << results.size() << std::endl;
 
     // 4. 按置信度排序，截断最大检测数
     std::sort(results.begin(), results.end(), [](const std::vector<float>& a, const std::vector<float>& b) {
@@ -435,10 +444,7 @@ std::vector<std::vector<float>> Yolov11::process_output(const std::vector<float>
     });
     if (results.size() > max_dets_) results.resize(max_dets_);
 
-    if(status_)
-    {
-        save_bin(results, "./Save_Data/pose/result/processed_output_yolov11pose.bin"); // Yolov11/Inference
-    }
+    // LOG(INFO) << "Yolov11::process_output status: success ";
     return results;
 }
 

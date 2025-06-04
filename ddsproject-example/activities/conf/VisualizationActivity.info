@@ -4,7 +4,7 @@ activiry_conf {
     node_conf {
         name: "VisualizationActivity"
         domain_Id: 80
-        comm_type: UDP
+        comm_type: SHM
         segment_size: 1000000
         white_list: ""
     }

@@ -13,6 +13,8 @@
 #include "include/Common/GlobalContext.h"
 #include "include/queue/CSafeDataDeque.h"
 
+#include "pullFromStream.h"
+#include "DepthConverter.h"
 
 long long getTimestamp()
 {
@@ -20,6 +22,15 @@ long long getTimestamp()
     auto duration = now.time_since_epoch();
     return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 }
+
+class FrameFromStream
+{
+public:
+    int width;
+    int height;
+    long long timestamp;
+    std::vector<uint8_t> vecBuf;
+};
 
 class ActivityMultiModal : public ActivityBase
 {
@@ -36,6 +47,10 @@ protected:
     virtual void PauseClear();
 
 private:
+    void PullStreamThreadFunc_M3J();
+    void PullStreamThreadFunc_XYZ_Color();
+    void PullStreamThreadFunc_XYZ_Depth();
+
     // 向test1_activity发送数据的线程，向CounterTopic中发送消息
     void ImgProducerThreadFunc();
 
@@ -53,11 +68,30 @@ private:
     std::shared_ptr<Reader<CVideoSrcData>> reader_M3JUVC;
     std::shared_ptr<Writer> writer_;
 
+    std::thread *pull_stream_thread_M3J_{nullptr};
+    std::thread *pull_stream_thread_XYZ_Color{nullptr};
+    std::thread *pull_stream_thread_XYZ_Depth{nullptr};
+
     std::thread *counter_message_producer_thread_{nullptr};
     std::shared_ptr<std::thread> message_producer_thread_{nullptr};
 
+    CSafeDataDeque<std::shared_ptr<FrameFromStream>> frame_safeDeque_M3J;
+    CSafeDataDeque<std::shared_ptr<FrameFromStream>> frame_safeDeque_XYZ_Color;
+    CSafeDataDeque<std::shared_ptr<FrameFromStream>> frame_safeDeque_XYZ_Depth;
 
 
+    int index{0};
+
+    int count_M3J = 0;
+    long long tmpTimeStamp_M3J = getTimestamp();
+
+    int count_XYZ_Color = 0;
+    long long tmpTimeStamp_XYZ_Color = getTimestamp();
+
+    int count_XYZ_Depth = 0;
+    long long tmpTimeStamp_XYZ_Depth = getTimestamp();
+
+    long long frameId{0};
 
     DataQueue<CMultiModalSrcData>* XYZ_queue_;
     DataQueue<CVideoSrcData>* M3JUVC_queue_;
@@ -72,6 +106,9 @@ private:
     void MessageProducerThreadFunc();
 
 
+    PullFromStream pullM3J;
+    PullFromStream pullXYZ_Color;
+    PullFromStream pullXYZ_Depth;
 
 
     int count_readXYZ = 0;
@@ -91,18 +128,6 @@ ActivityMultiModal::ActivityMultiModal()
 
 ActivityMultiModal::~ActivityMultiModal()
 {
-    if ((counter_message_producer_thread_ != nullptr) && (counter_message_producer_thread_->joinable()))
-    {
-        counter_message_producer_thread_->join();
-        delete counter_message_producer_thread_;
-        counter_message_producer_thread_ = nullptr;
-    }
-
-    if (message_producer_thread_ && message_producer_thread_->joinable()) {
-        message_producer_thread_->join();
-        message_producer_thread_.reset();
-    }
-
     stopAndDeleteThreads();
 
     delete XYZ_queue_;
@@ -120,31 +145,31 @@ bool ActivityMultiModal::Init()
     }
 
     // 添加CounterTopic
-    eprosima::fastdds::dds::TypeSupport deal_data_type(new CMultiModalSrcDataPubSubType());
-    if (!node_->AddTopic(topic_config.camera_xyz_topic(), deal_data_type))
-    {
-        return false;
-    }
-    // 创建CounterTopic对应的reader，接收数据
-    reader_XYZ = node_->CreateReader<CMultiModalSrcData>(topic_config.camera_xyz_topic(),
-        std::bind(&ActivityMultiModal::ReadXYZCallbackFunc,
-            this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), this);
-    reader_XYZ->Init();
+    // eprosima::fastdds::dds::TypeSupport deal_data_type(new CMultiModalSrcDataPubSubType());
+    // if (!node_->AddTopic(topic_config.camera_xyz_topic(), deal_data_type))
+    // {
+    //     return false;
+    // }
+    // // 创建CounterTopic对应的reader，接收数据
+    // reader_XYZ = node_->CreateReader<CMultiModalSrcData>(topic_config.camera_xyz_topic(),
+    //     std::bind(&ActivityMultiModal::ReadXYZCallbackFunc,
+    //         this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), this);
+    // reader_XYZ->Init();
 
 
 
 
     // 添加CounterTopic
-    eprosima::fastdds::dds::TypeSupport deal_data_type1(new CVideoSrcDataPubSubType());
-    if (!node_->AddTopic(topic_config.camera_m3juvc_topic(), deal_data_type1))
-    {
-        return false;
-    }
-    // 创建CounterTopic对应的reader，接收数据
-    reader_M3JUVC = node_->CreateReader<CVideoSrcData>(topic_config.camera_m3juvc_topic(),
-        std::bind(&ActivityMultiModal::ReadM3JUVCCallbackFunc,
-            this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), this);
-    reader_M3JUVC->Init();
+    // eprosima::fastdds::dds::TypeSupport deal_data_type1(new CVideoSrcDataPubSubType());
+    // if (!node_->AddTopic(topic_config.camera_m3juvc_topic(), deal_data_type1))
+    // {
+    //     return false;
+    // }
+    // // 创建CounterTopic对应的reader，接收数据
+    // reader_M3JUVC = node_->CreateReader<CVideoSrcData>(topic_config.camera_m3juvc_topic(),
+    //     std::bind(&ActivityMultiModal::ReadM3JUVCCallbackFunc,
+    //         this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), this);
+    // reader_M3JUVC->Init();
 
 
 
@@ -166,6 +191,14 @@ bool ActivityMultiModal::Init()
 
     XYZ_safeDeque.SetMaxSize(5);
     M3JUVC_safeDeque.SetMaxSize(5);
+
+
+
+    frame_safeDeque_M3J.SetMaxSize(5);
+    frame_safeDeque_XYZ_Color.SetMaxSize(5);
+    frame_safeDeque_XYZ_Depth.SetMaxSize(5);
+
+    
     // counter_response_message_queue_ = new DataQueue<CounterResponseMessage>(10);
 
     safeDeque.SetMaxSize(10);
@@ -217,7 +250,34 @@ void ActivityMultiModal::Start()
 {
     TINFO << "ActivityMultiModal running";
 
+    bool bInitM3J = pullM3J.init("rtsp://192.168.3.56:8554/camera/M3J");
+    if (!bInitM3J)
+    {
+        TINFO << "can not open stream M3J";
 
+        return;
+    }
+
+    bool bInitXYZ_Color = pullXYZ_Color.init("rtsp://192.168.3.56:8554/camera/XYZ_Color"); // 6
+    if (!bInitXYZ_Color)
+    {
+        TINFO << "can not open stream XYZ_Color";
+
+        return;
+    }
+
+    bool bInitXYZ_Depth = pullXYZ_Depth.init("rtsp://192.168.3.56:8554/camera/XYZ_Depth"); // 7
+    if (!bInitXYZ_Depth)
+    {
+        TINFO << "can not open stream XYZ_Depth";
+
+        return;
+    }
+
+
+    pull_stream_thread_M3J_ = new std::thread(&ActivityMultiModal::PullStreamThreadFunc_M3J, this);
+    pull_stream_thread_XYZ_Color = new std::thread(&ActivityMultiModal::PullStreamThreadFunc_XYZ_Color, this);
+    pull_stream_thread_XYZ_Depth = new std::thread(&ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth, this);
 
     counter_message_producer_thread_ = new std::thread(&ActivityMultiModal::ImgProducerThreadFunc, this);
 
@@ -244,10 +304,101 @@ void saveToDisk_M3JUVC(const int serial, const std::vector<uint8_t>& img)
     free(p);
 }
 
+
+void ActivityMultiModal::PullStreamThreadFunc_M3J()
+{
+    pullM3J.pull(
+        [this](char* data, const int width, const int height){
+            FrameFromStream frame;
+            frame.width = width;
+            frame.height = height;
+            frame.timestamp = getTimestamp();
+            frame.vecBuf.resize(width * height * 3);
+            memcpy(&frame.vecBuf[0], data, width * height * 3);
+
+            frame_safeDeque_M3J.PushBack(std::make_shared<FrameFromStream>(frame));
+
+
+            // cv::Mat mat(512, 640, CV_8UC3, data);
+            // cv::imwrite(std::string("/share/tmpimage/M3J/a") + std::to_string(index++) + ".jpg", mat);
+
+
+            count_M3J++;
+            if (getTimestamp() - tmpTimeStamp_M3J > 1000)
+            {
+                std::cout << "==========fps_M3J: " << count_M3J << std::endl;
+
+                tmpTimeStamp_M3J = getTimestamp();
+                count_M3J = 0;
+            }
+
+        }
+    );
+}
+
+void ActivityMultiModal::PullStreamThreadFunc_XYZ_Color()
+{
+    pullXYZ_Color.pull(
+        [this](char* data, const int width, const int height){
+            FrameFromStream frame;
+            frame.width = width;
+            frame.height = height;
+            frame.timestamp = getTimestamp();
+            frame.vecBuf.resize(width * height * 3);
+            memcpy(&frame.vecBuf[0], data, width * height * 3);
+
+            frame_safeDeque_XYZ_Color.PushBack(std::make_shared<FrameFromStream>(frame));
+
+            
+
+            count_XYZ_Color++;
+            if (getTimestamp() - tmpTimeStamp_XYZ_Color > 1000)
+            {
+                std::cout << "==========fps_Color: " << count_XYZ_Color << std::endl;
+
+                tmpTimeStamp_XYZ_Color = getTimestamp();
+                count_XYZ_Color = 0;
+            }
+        }
+    );
+}
+
+void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
+{
+    pullXYZ_Depth.pull(
+        [this](char* data, const int width, const int height){
+            FrameFromStream frame;
+            frame.width = width;
+            frame.height = height;
+            frame.timestamp = getTimestamp();
+            frame.vecBuf.resize(width * height * 3);
+            memcpy(&frame.vecBuf[0], data, width * height * 3);
+
+            frame_safeDeque_XYZ_Depth.PushBack(std::make_shared<FrameFromStream>(frame));
+
+            count_XYZ_Depth++;
+            if (getTimestamp() - tmpTimeStamp_XYZ_Depth > 1000)
+            {
+                std::cout << "==========fps_Depth: " << count_XYZ_Depth << std::endl;
+
+                tmpTimeStamp_XYZ_Depth = getTimestamp();
+                count_XYZ_Depth = 0;
+            }
+        }
+    );
+}
+
 void ActivityMultiModal::ImgProducerThreadFunc()
 {
-    std::shared_ptr<CVideoSrcData> img_M3JUVC;
-    std::shared_ptr<CMultiModalSrcData> img_XYZ;
+
+    DepthConverter depthConverter(1280, 720);
+
+    std::shared_ptr<FrameFromStream> ptr_M3J;
+    std::shared_ptr<FrameFromStream> ptr_XYZ_Color;
+    std::shared_ptr<FrameFromStream> ptr_XYZ_Depth;
+
+
+
 
     TINFO << "is_running_: " << is_running_;
     
@@ -256,66 +407,42 @@ void ActivityMultiModal::ImgProducerThreadFunc()
     
     while (is_running_.load())
     {
-        
-
-        if (nullptr == img_XYZ)
+        if (nullptr == ptr_M3J)
         {
-            int retry_XYZ = 0;
-            while(!XYZ_safeDeque.PopFront(img_XYZ, 1))
+            while(!frame_safeDeque_M3J.PopFront(ptr_M3J, 1))
             {
-                // std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                if (++retry_XYZ > 1000)
-                {
-                    std::cout << "There has been no data from XYZ for " << retry_XYZ / 1000 << " second." << std::endl;
-                    // break;
-                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
 
-
-        if (nullptr == img_M3JUVC)
+        if (nullptr == ptr_XYZ_Color)
         {
-            int retry_M3JUVC = 0;
-            while(!M3JUVC_safeDeque.PopFront(img_M3JUVC, 1))
+            while(!frame_safeDeque_XYZ_Color.PopFront(ptr_XYZ_Color, 1))
             {
-                // std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                if (++retry_M3JUVC > 1000)
-                {
-                    std::cout << "There has been no data from M3JUVC for " << retry_M3JUVC / 1000 << " second." << std::endl;
-                    // break;
-                };
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
 
-        long long timestamp_M3JUVC = img_M3JUVC->lTimeStamp();//[TIMESTAMP_IR_ARRIVE];
-        long long timestamp_XYZ = img_XYZ->lTimeStamp();//[TIMESTAMP_RGB_ARRIVE];
-
-        if (abs(timestamp_M3JUVC - timestamp_XYZ) < 20)
+        if (nullptr == ptr_XYZ_Depth)
         {
-            CMultiModalSrcData multiModalSrcData;
+            while(!frame_safeDeque_XYZ_Depth.PopFront(ptr_XYZ_Depth, 1))
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+        }
 
+        long long timestamp_M3J = ptr_M3J->timestamp;
+        long long timestamp_XYZ_Color = ptr_XYZ_Color->timestamp;
+        long long timestamp_XYZ_Depth = ptr_XYZ_Depth->timestamp;
+
+        if (abs(timestamp_M3J - timestamp_XYZ_Color) < 50 && abs(timestamp_XYZ_Color - timestamp_XYZ_Depth) < 50)
+        {
             std::cout << "=====matched: "
-                << "M3JUVC: " << timestamp_M3JUVC << " " << img_M3JUVC->unFrameId() << " " << img_M3JUVC->lTimeStamp() << " ========== "
-                << "XYZ: " << timestamp_XYZ << " " << img_XYZ->unFrameId() << " " << img_XYZ->lTimeStamp() << std::endl;
+                << "M3J: " << timestamp_M3J << " ========== "
+                << "XYZ_Color: " << timestamp_XYZ_Color << " ========== "
+                << "XYZ_Depth: " << timestamp_XYZ_Depth << " ========== "
+                << std::endl;
 
-
-            img_M3JUVC->unFrameId(img_XYZ->unFrameId());
-            img_XYZ->mapTimeStamp()[TIMESTAMP_TIME_MATCH] = timestamp_XYZ;
-            img_M3JUVC->mapTimeStamp()[TIMESTAMP_TIME_MATCH] = timestamp_XYZ;
-
-            multiModalSrcData.vecVideoSrcData().push_back(CVideoSrcData( img_XYZ->vecVideoSrcData()[0]));
-            multiModalSrcData.vecVideoSrcData().push_back(*img_M3JUVC);
-            multiModalSrcData.tDisparityResult(img_XYZ->tDisparityResult());
-
-
-
-
-
-            // saveToDisk_M3JUVC(img_M3JUVC->unFrameId(), img_M3JUVC->vecImageBuf());
-
-
-
-            
             count++;
             if (getTimestamp() - tmpTimeStamp > 1000)
             {
@@ -325,40 +452,89 @@ void ActivityMultiModal::ImgProducerThreadFunc()
                 count = 0;
             }
 
-            // std::cout << "aaaaaaaaaaaaa: " << multiModalSrcData.tDisparityResult().vecDistanceInfo()[100] << std::endl;
+            
+
+            CMultiModalSrcData multiModalSrcData;
+            // will set timestamp_XYZ_Color to all timestamps
+
+            // XYZ_Color
+            CVideoSrcData videoSrcData_XYZ;
+            videoSrcData_XYZ.eDataSourceType(0);
+            videoSrcData_XYZ.unFrameId(frameId);
+            videoSrcData_XYZ.mapTimeStamp()[TIMESTAMP_RGB_ARRIVE] = timestamp_XYZ_Color;
+            videoSrcData_XYZ.lTimeStamp(timestamp_XYZ_Color);
+            videoSrcData_XYZ.ucCameraId(0);
+            videoSrcData_XYZ.usBmpLength(ptr_XYZ_Color->height);
+            videoSrcData_XYZ.usBmpWidth(ptr_XYZ_Color->width);
+            videoSrcData_XYZ.unBmpBytes(3 * ptr_XYZ_Color->height * ptr_XYZ_Color->width);
+            videoSrcData_XYZ.vecImageBuf(std::move(ptr_XYZ_Color->vecBuf));
+
+            multiModalSrcData.vecVideoSrcData().push_back(videoSrcData_XYZ);
+
+
+            cv::Mat mat_C(ptr_XYZ_Color->height, ptr_XYZ_Color->width, CV_8UC3, videoSrcData_XYZ.vecImageBuf().data());
+            cv::imwrite(std::string("/share/tmpimage/Depth/a_C") + std::to_string(index) + ".jpg", mat_C);
+        
 
 
 
-            /*
-            std::vector<uint8_t> tmp;
-            CDisparityResult dr = multiModalSrcData.tDisparityResult();
-            tmp.resize(dr.usWidth() * dr.usHeight());
-            for (int i = 0; i < tmp.size(); ++i)
+
+
+
+
+
+            // M3J
+            CVideoSrcData videoSrcData_M3J;
+            videoSrcData_M3J.eDataSourceType(1);
+            videoSrcData_M3J.unFrameId(frameId);
+            videoSrcData_M3J.mapTimeStamp()[TIMESTAMP_RGB_ARRIVE] = timestamp_XYZ_Color;
+            videoSrcData_M3J.lTimeStamp(timestamp_XYZ_Color);
+            videoSrcData_M3J.ucCameraId(1);
+            videoSrcData_M3J.usBmpLength(ptr_M3J->height);
+            videoSrcData_M3J.usBmpWidth(ptr_M3J->width);
+            videoSrcData_M3J.unBmpBytes(3 * ptr_M3J->height * ptr_M3J->width);
+            videoSrcData_M3J.vecImageBuf(std::move(ptr_M3J->vecBuf));
+
+            multiModalSrcData.vecVideoSrcData().push_back(videoSrcData_M3J);
+
+            // Disparity
+            CDisparityResult disparityResult;
+            disparityResult.usWidth(ptr_XYZ_Depth->width);
+            disparityResult.usHeight(ptr_XYZ_Depth->height);
+
+            std::vector<int32_t> tmpVec;
+            tmpVec.resize(1280 * 720);
+            depthConverter.process(ptr_XYZ_Depth->vecBuf, tmpVec);
+
+            disparityResult.vecDistanceInfo(tmpVec);
+
+            std::cout << tmpVec[1280 * 720 / 2 - 2] << " "
+                << tmpVec[1280 * 720 / 2 - 1] << " "
+                << tmpVec[1280 * 720 / 2] << " "
+                << tmpVec[1280 * 720 / 2 + 1] << " "
+                << tmpVec[1280 * 720 / 2 + 2] << " "
+                << std::endl;
+
+
+
+            cv::Mat mat_0(ptr_XYZ_Depth->height, ptr_XYZ_Depth->width, CV_8UC3, ptr_XYZ_Depth->vecBuf.data());
+            cv::imwrite(std::string("/share/tmpimage/Depth/a0") + std::to_string(index) + ".jpg", mat_0);
+        
+
+
+            std::vector<uint8_t> tmptmptmp;
+            tmptmptmp.resize(1280 * 720);
+            for (int i = 0; i < 1280 * 720; ++i)
             {
-                tmp[i] = (uint8_t)dr.vecDistanceInfo()[i];
-                // if (0!=tmp[i])
-                // {
-                //     std::cout << "99999999999999999999999999999999999999999" << std::endl;
-                // }
+                tmptmptmp[i] = tmpVec[i] / 256;
             }
-
-            // cv::Mat px_depth(Size(dr.usWidth(), dr.usHeight()), CV_16UC1, gDepthImgBuf);//
-            cv::Mat px_depth_temp(cv::Size(dr.usWidth(), dr.usHeight()), CV_8UC1, tmp.data());//
-            cv::imwrite("aaaaaaa.png", px_depth_temp);
-
-            // for (int y = 0; y < gColorHeight; y++) {
-            //     for (int x = 0; x < gColorWidth; x++) {
-            //         px_depth_temp.at<uchar>(y, x) = px_depth.at<ushort>(y, x)>>3;
-            //     }
-            // }
-*/
+            cv::Mat mat(ptr_XYZ_Depth->height, ptr_XYZ_Depth->width, CV_8UC1, tmptmptmp.data());
+            cv::imwrite(std::string("/share/tmpimage/Depth/a") + std::to_string(index) + ".jpg", mat);
 
 
+            index++;
 
-
-
-
-
+            multiModalSrcData.tDisparityResult(disparityResult);
 
 
 
@@ -367,23 +543,41 @@ void ActivityMultiModal::ImgProducerThreadFunc()
             // writer_->SendMessage((void*)&multiModalSrcData);
 
             
-            img_M3JUVC = nullptr;
-            img_XYZ = nullptr;
+            ptr_M3J = nullptr;
+            ptr_XYZ_Color = nullptr;
+            ptr_XYZ_Depth = nullptr;
+
+            frameId++;
         } else {
             std::cout << "=====mismatched: "
-                << "M3JUVC: " << timestamp_M3JUVC << " " << img_M3JUVC->unFrameId() << " " << img_M3JUVC->lTimeStamp() << " ========== "
-                << "XYZ: " << timestamp_XYZ << " " << img_XYZ->unFrameId() << " " << img_XYZ->lTimeStamp() << std::endl;
+                << "M3J: " << timestamp_M3J << " ========== "
+                << "XYZ_Color: " << timestamp_XYZ_Color << " ========== "
+                << "XYZ_Depth: " << timestamp_XYZ_Depth << " ========== "
+                << std::endl;
             
 
-
-            if (timestamp_M3JUVC < timestamp_XYZ)
+            // only keep the max
+            if (timestamp_M3J < timestamp_XYZ_Color)
             {
-                img_M3JUVC = nullptr;
+                ptr_M3J = nullptr;
+
+                if (timestamp_XYZ_Color < timestamp_XYZ_Depth)
+                {
+                    ptr_XYZ_Color = nullptr;
+                } else {
+                    ptr_XYZ_Depth = nullptr;
+                }
             } else {
-                img_XYZ = nullptr;
+                ptr_XYZ_Color = nullptr;
+                
+                if (timestamp_M3J < timestamp_XYZ_Depth)
+                {
+                    ptr_M3J = nullptr;
+                } else {
+                    ptr_XYZ_Depth = nullptr;
+                }
             }
         }
-        
 
         // std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -402,37 +596,15 @@ void ActivityMultiModal::MessageProducerThreadFunc()
             continue;
         }
 
+        //-----test-----
+        ;;;;;
+
         writer_->SendMessage((void*)message.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
 }
 
 void ActivityMultiModal::stopAndDeleteThreads()
-{
-    // if (color_thread_ != nullptr)
-    // {
-    //     if (color_thread_->joinable())
-    //     {
-    //         color_thread_->join();
-    //     }
-        
-    //     delete color_thread_;
-    //     color_thread_ = nullptr;
-    // }
-
-    // if (depth_thread_ != nullptr)
-    // {
-    //     if (depth_thread_->joinable())
-    //     {
-    //         depth_thread_->join();
-    //     }
-        
-    //     delete depth_thread_;
-    //     depth_thread_ = nullptr;
-    // }
-}
-
-void ActivityMultiModal::PauseClear()
 {
     if ((counter_message_producer_thread_ != nullptr) && (counter_message_producer_thread_->joinable()))
     {
@@ -441,6 +613,35 @@ void ActivityMultiModal::PauseClear()
         counter_message_producer_thread_ = nullptr;
     }
 
+    if ((pull_stream_thread_M3J_ != nullptr) && (pull_stream_thread_M3J_->joinable()))
+    {
+        pull_stream_thread_M3J_->join();
+        delete pull_stream_thread_M3J_;
+        pull_stream_thread_M3J_ = nullptr;
+    }
+
+    if ((pull_stream_thread_XYZ_Color != nullptr) && (pull_stream_thread_XYZ_Color->joinable()))
+    {
+        pull_stream_thread_XYZ_Color->join();
+        delete pull_stream_thread_XYZ_Color;
+        pull_stream_thread_XYZ_Color = nullptr;
+    }
+
+    if ((pull_stream_thread_XYZ_Depth != nullptr) && (pull_stream_thread_XYZ_Depth->joinable()))
+    {
+        pull_stream_thread_XYZ_Depth->join();
+        delete pull_stream_thread_XYZ_Depth;
+        pull_stream_thread_XYZ_Depth = nullptr;
+    }
+
+    if (message_producer_thread_ && message_producer_thread_->joinable()) {
+        message_producer_thread_->join();
+        message_producer_thread_.reset();
+    }
+}
+
+void ActivityMultiModal::PauseClear()
+{
     stopAndDeleteThreads();
 }
 
@@ -462,8 +663,5 @@ int main()
         activity->Run();
     }
     delete activity;
-    return 0;                // if (0!=tmp[i])
-                // {
-                //     std::cout << "99999999999999999999999999999999999999999" << std::endl;
-                // }
+    return 0;
 }

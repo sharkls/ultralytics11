@@ -57,6 +57,7 @@ include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/glog)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/protobuf)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/googletest)
 include_directories(${CMAKE_SOURCE_DIR}/Include/Thirdpart/gflags)
+include_directories(${CMAKE_SOURCE_DIR}/Src/Common)
 
 # TensorRT 链接
 set(TENSORRT_ROOT /mnt/env/TensorRT-10.2.0.19)
@@ -86,9 +87,11 @@ aux_source_directory(. HW_SRC_FILES)
 
 if(CMAKE_PLATFORM MATCHES "86")
     #生成可执行程序
-    add_executable(${PROJECT_NAME} TestMultiModalDetection.cpp)
+    # add_executable(${PROJECT_NAME} TestMultiModalDetection.cpp)
     # add_executable(${PROJECT_NAME} TestPoseEstimation.cpp)
     # add_executable(${PROJECT_NAME} TestObjectLocation.cpp)
+    add_executable(${PROJECT_NAME} TestObjectDetection.cpp)
+
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_core)
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_imgproc)
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_imgcodecs)
@@ -120,4 +123,5 @@ if(CMAKE_PLATFORM MATCHES "86")
     target_link_libraries(${PROJECT_NAME} PRIVATE PoseEstimationAlg)
     target_link_libraries(${PROJECT_NAME} PRIVATE ObjectLocationAlg)
     target_link_libraries(${PROJECT_NAME} PRIVATE MultiModalFusionAlg)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ObjectDetectionAlg)
 endif()

@@ -1,9 +1,9 @@
 /*******************************************************
  文件名：ImagePreProcess.h
- 作者：sharkls
+ 作者：
  描述：图像预处理模块
  版本：v1.0
- 日期：2025-05-16
+ 日期：2024-03-21
  *******************************************************/
 
 #ifndef IMAGE_PRE_PROCESS_H
@@ -35,7 +35,7 @@ public:
 
 private:
 
-   objectdetection::YOLOModelConfig m_objectDetectionConfig;            // 目标检测任务配置参数
+   objectdetection::YOLOModelConfig m_poseConfig;            // 目标检测任务配置参数
    CMultiModalSrcData m_inputImage;         // 预处理输入数据
    std::vector<float> m_outputImage;        // 模型输入数据缓存区
 

@@ -1,9 +1,9 @@
 /*******************************************************
  文件名：Yolov11.h
- 作者：sharkls
- 描述：Yolov11目标检测推理模块
+ 作者：
+ 描述：Yolov11姿态估计推理模块
  版本：v1.0
- 日期：2025-05-16
+ 日期：2025-05-13
  *******************************************************/
 
 #pragma once
@@ -25,6 +25,7 @@
 #include "ModuleFactory.h"
 #include "FunctionHub.h"
 #include "CMultiModalSrcData.h"
+// #include "PoseEstimation_conf.pb.h"
 #include "ObjectDetection_conf.pb.h"
 
 namespace nvinfer1 {

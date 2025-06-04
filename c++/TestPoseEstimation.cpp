@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
         // 设置默认路径
         std::string deploy_path = "/ultralytics/c++/Output/";
         g_save_dir = deploy_path + "vis/";
-        std::string data_path = "/ultralytics/data/Test_1/";
+        std::string data_path = "/ultralytics/data/Test_unmatch/";
 
         // 算法接口调用流程基本如下：
         IPoseEstimationAlg* l_pObj = CreatePoseEstimationAlgObj(deploy_path);

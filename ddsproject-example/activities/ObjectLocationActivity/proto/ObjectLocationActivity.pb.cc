@@ -82,9 +82,9 @@ struct ConfigDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ConfigDefaultTypeInternal _Config_default_instance_;
-static constexpr const ::_pb::EnumDescriptor**
+static constexpr const ::_pb::EnumDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_enum_descriptors_ObjectLocationActivity_2eproto = nullptr;
-static constexpr const ::_pb::ServiceDescriptor**
+static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_service_descriptors_ObjectLocationActivity_2eproto = nullptr;
 const ::uint32_t
     TableStruct_ObjectLocationActivity_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
@@ -120,7 +120,7 @@ static const ::_pbi::MigrationSchema
         {0, 11, -1, sizeof(::TopicConfig)},
         {14, 23, -1, sizeof(::Config)},
 };
-static const ::_pb::Message* const file_default_instances[] = {
+static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_TopicConfig_default_instance_._instance,
     &::_Config_default_instance_._instance,
 };
@@ -160,7 +160,7 @@ class TopicConfig::_Internal {
       8 * PROTOBUF_FIELD_OFFSET(TopicConfig, _impl_._has_bits_);
 };
 
-TopicConfig::TopicConfig(::google::protobuf::Arena* arena)
+TopicConfig::TopicConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, TopicConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -170,8 +170,9 @@ TopicConfig::TopicConfig(::google::protobuf::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:TopicConfig)
 }
 PROTOBUF_NDEBUG_INLINE TopicConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::TopicConfig& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::TopicConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         multi_modal_fusion_result_topic_(arena, from.multi_modal_fusion_result_topic_),
@@ -179,7 +180,7 @@ PROTOBUF_NDEBUG_INLINE TopicConfig::Impl_::Impl_(
         object_location_result_topic_(arena, from.object_location_result_topic_) {}
 
 TopicConfig::TopicConfig(
-    ::google::protobuf::Arena* arena,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const TopicConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, TopicConfig_class_data_.base()) {
@@ -196,13 +197,13 @@ TopicConfig::TopicConfig(
 }
 PROTOBUF_NDEBUG_INLINE TopicConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0},
         multi_modal_fusion_result_topic_(arena),
         pose_estimation_result_topic_(arena),
         object_location_result_topic_(arena) {}
 
-inline void TopicConfig::SharedCtor(::_pb::Arena* arena) {
+inline void TopicConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
 }
 TopicConfig::~TopicConfig() {
@@ -219,8 +220,9 @@ inline void TopicConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* TopicConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
+inline void* PROTOBUF_NONNULL TopicConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
   return ::new (mem) TopicConfig(arena);
 }
 constexpr auto TopicConfig::InternalNewImpl_() {
@@ -255,13 +257,14 @@ PROTOBUF_CONSTINIT
         TopicConfig_class_data_ =
             TopicConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* TopicConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL TopicConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&TopicConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(TopicConfig_class_data_.tc_table);
   return TopicConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 107, 2> TopicConfig::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 0, 107, 2>
+TopicConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(TopicConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -311,7 +314,6 @@ const ::_pbi::TcParseTable<2, 3, 0, 107, 2> TopicConfig::_table_ = {
     "object_location_result_topic"
   }},
 };
-
 PROTOBUF_NOINLINE void TopicConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:TopicConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -320,14 +322,14 @@ PROTOBUF_NOINLINE void TopicConfig::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       _impl_.multi_modal_fusion_result_topic_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       _impl_.pose_estimation_result_topic_.ClearNonDefaultToEmpty();
     }
-    if (cached_has_bits & 0x00000004u) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       _impl_.object_location_result_topic_.ClearNonDefaultToEmpty();
     }
   }
@@ -336,90 +338,90 @@ PROTOBUF_NOINLINE void TopicConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* TopicConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const TopicConfig& this_ = static_cast<const TopicConfig&>(base);
+::uint8_t* PROTOBUF_NONNULL TopicConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const TopicConfig& this_ = static_cast<const TopicConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* TopicConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const TopicConfig& this_ = *this;
+::uint8_t* PROTOBUF_NONNULL TopicConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const TopicConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:TopicConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
+  // @@protoc_insertion_point(serialize_to_array_start:TopicConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-          cached_has_bits = this_._impl_._has_bits_[0];
-          // optional string multi_modal_fusion_result_topic = 3;
-          if (cached_has_bits & 0x00000001u) {
-            const std::string& _s = this_._internal_multi_modal_fusion_result_topic();
-            ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
-                                        "TopicConfig.multi_modal_fusion_result_topic");
-            target = stream->WriteStringMaybeAliased(3, _s, target);
-          }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  // optional string multi_modal_fusion_result_topic = 3;
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    const std::string& _s = this_._internal_multi_modal_fusion_result_topic();
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
+                                "TopicConfig.multi_modal_fusion_result_topic");
+    target = stream->WriteStringMaybeAliased(3, _s, target);
+  }
 
-          // optional string pose_estimation_result_topic = 4;
-          if (cached_has_bits & 0x00000002u) {
-            const std::string& _s = this_._internal_pose_estimation_result_topic();
-            ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
-                                        "TopicConfig.pose_estimation_result_topic");
-            target = stream->WriteStringMaybeAliased(4, _s, target);
-          }
+  // optional string pose_estimation_result_topic = 4;
+  if ((cached_has_bits & 0x00000002u) != 0) {
+    const std::string& _s = this_._internal_pose_estimation_result_topic();
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
+                                "TopicConfig.pose_estimation_result_topic");
+    target = stream->WriteStringMaybeAliased(4, _s, target);
+  }
 
-          // optional string object_location_result_topic = 5;
-          if (cached_has_bits & 0x00000004u) {
-            const std::string& _s = this_._internal_object_location_result_topic();
-            ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
-                                        "TopicConfig.object_location_result_topic");
-            target = stream->WriteStringMaybeAliased(5, _s, target);
-          }
+  // optional string object_location_result_topic = 5;
+  if ((cached_has_bits & 0x00000004u) != 0) {
+    const std::string& _s = this_._internal_object_location_result_topic();
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
+                                "TopicConfig.object_location_result_topic");
+    target = stream->WriteStringMaybeAliased(5, _s, target);
+  }
 
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:TopicConfig)
-          return target;
-        }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:TopicConfig)
+  return target;
+}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t TopicConfig::ByteSizeLong(const MessageLite& base) {
-          const TopicConfig& this_ = static_cast<const TopicConfig&>(base);
+::size_t TopicConfig::ByteSizeLong(const MessageLite& base) {
+  const TopicConfig& this_ = static_cast<const TopicConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t TopicConfig::ByteSizeLong() const {
-          const TopicConfig& this_ = *this;
+::size_t TopicConfig::ByteSizeLong() const {
+  const TopicConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:TopicConfig)
-          ::size_t total_size = 0;
+  // @@protoc_insertion_point(message_byte_size_start:TopicConfig)
+  ::size_t total_size = 0;
 
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-          cached_has_bits = this_._impl_._has_bits_[0];
-          if (cached_has_bits & 0x00000007u) {
-            // optional string multi_modal_fusion_result_topic = 3;
-            if (cached_has_bits & 0x00000001u) {
-              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                              this_._internal_multi_modal_fusion_result_topic());
-            }
-            // optional string pose_estimation_result_topic = 4;
-            if (cached_has_bits & 0x00000002u) {
-              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                              this_._internal_pose_estimation_result_topic());
-            }
-            // optional string object_location_result_topic = 5;
-            if (cached_has_bits & 0x00000004u) {
-              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                              this_._internal_object_location_result_topic());
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    // optional string multi_modal_fusion_result_topic = 3;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                      this_._internal_multi_modal_fusion_result_topic());
+    }
+    // optional string pose_estimation_result_topic = 4;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                      this_._internal_pose_estimation_result_topic());
+    }
+    // optional string object_location_result_topic = 5;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                      this_._internal_object_location_result_topic());
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
 
 void TopicConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<TopicConfig*>(&to_msg);
@@ -430,14 +432,14 @@ void TopicConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goo
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       _this->_internal_set_multi_modal_fusion_result_topic(from._internal_multi_modal_fusion_result_topic());
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       _this->_internal_set_pose_estimation_result_topic(from._internal_pose_estimation_result_topic());
     }
-    if (cached_has_bits & 0x00000004u) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       _this->_internal_set_object_location_result_topic(from._internal_object_location_result_topic());
     }
   }
@@ -453,7 +455,7 @@ void TopicConfig::CopyFrom(const TopicConfig& from) {
 }
 
 
-void TopicConfig::InternalSwap(TopicConfig* PROTOBUF_RESTRICT other) {
+void TopicConfig::InternalSwap(TopicConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   auto* arena = GetArena();
   ABSL_DCHECK_EQ(arena, other->GetArena());
@@ -477,7 +479,7 @@ class Config::_Internal {
       8 * PROTOBUF_FIELD_OFFSET(Config, _impl_._has_bits_);
 };
 
-Config::Config(::google::protobuf::Arena* arena)
+Config::Config(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, Config_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -487,13 +489,14 @@ Config::Config(::google::protobuf::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:Config)
 }
 PROTOBUF_NDEBUG_INLINE Config::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::Config& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::Config& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0} {}
 
 Config::Config(
-    ::google::protobuf::Arena* arena,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const Config& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, Config_class_data_.base()) {
@@ -506,18 +509,18 @@ Config::Config(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.topic_config_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::TopicConfig>(
-                              arena, *from._impl_.topic_config_)
-                        : nullptr;
+  _impl_.topic_config_ = ((cached_has_bits & 0x00000001u) != 0)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.topic_config_)
+                : nullptr;
 
   // @@protoc_insertion_point(copy_constructor:Config)
 }
 PROTOBUF_NDEBUG_INLINE Config::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0} {}
 
-inline void Config::SharedCtor(::_pb::Arena* arena) {
+inline void Config::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   _impl_.topic_config_ = {};
 }
@@ -533,8 +536,9 @@ inline void Config::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* Config::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
+inline void* PROTOBUF_NONNULL Config::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
   return ::new (mem) Config(arena);
 }
 constexpr auto Config::InternalNewImpl_() {
@@ -569,13 +573,14 @@ PROTOBUF_CONSTINIT
         Config_class_data_ =
             Config::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* Config::GetClassData() const {
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL Config::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&Config_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(Config_class_data_.tc_table);
   return Config_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 1, 0, 2> Config::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 1, 0, 2>
+Config::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(Config, _impl_._has_bits_),
     0, // no _extensions_
@@ -602,12 +607,13 @@ const ::_pbi::TcParseTable<0, 1, 1, 0, 2> Config::_table_ = {
     // optional .TopicConfig topic_config = 1;
     {PROTOBUF_FIELD_OFFSET(Config, _impl_.topic_config_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
-  }}, {{
-    {::_pbi::TcParser::GetTable<::TopicConfig>()},
-  }}, {{
+  }},
+  {{
+      {::_pbi::TcParser::GetTable<::TopicConfig>()},
+  }},
+  {{
   }},
 };
-
 PROTOBUF_NOINLINE void Config::Clear() {
 // @@protoc_insertion_point(message_clear_start:Config)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -616,7 +622,7 @@ PROTOBUF_NOINLINE void Config::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000001u) != 0) {
     ABSL_DCHECK(_impl_.topic_config_ != nullptr);
     _impl_.topic_config_->Clear();
   }
@@ -625,62 +631,62 @@ PROTOBUF_NOINLINE void Config::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* Config::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const Config& this_ = static_cast<const Config&>(base);
+::uint8_t* PROTOBUF_NONNULL Config::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const Config& this_ = static_cast<const Config&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* Config::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const Config& this_ = *this;
+::uint8_t* PROTOBUF_NONNULL Config::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const Config& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:Config)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
+  // @@protoc_insertion_point(serialize_to_array_start:Config)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-          cached_has_bits = this_._impl_._has_bits_[0];
-          // optional .TopicConfig topic_config = 1;
-          if (cached_has_bits & 0x00000001u) {
-            target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                1, *this_._impl_.topic_config_, this_._impl_.topic_config_->GetCachedSize(), target,
-                stream);
-          }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  // optional .TopicConfig topic_config = 1;
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        1, *this_._impl_.topic_config_, this_._impl_.topic_config_->GetCachedSize(), target,
+        stream);
+  }
 
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:Config)
-          return target;
-        }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Config)
+  return target;
+}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t Config::ByteSizeLong(const MessageLite& base) {
-          const Config& this_ = static_cast<const Config&>(base);
+::size_t Config::ByteSizeLong(const MessageLite& base) {
+  const Config& this_ = static_cast<const Config&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t Config::ByteSizeLong() const {
-          const Config& this_ = *this;
+::size_t Config::ByteSizeLong() const {
+  const Config& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:Config)
-          ::size_t total_size = 0;
+  // @@protoc_insertion_point(message_byte_size_start:Config)
+  ::size_t total_size = 0;
 
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
-           {
-            // optional .TopicConfig topic_config = 1;
-            cached_has_bits = this_._impl_._has_bits_[0];
-            if (cached_has_bits & 0x00000001u) {
-              total_size += 1 +
-                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.topic_config_);
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
+   {
+    // optional .TopicConfig topic_config = 1;
+    cached_has_bits = this_._impl_._has_bits_[0];
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.topic_config_);
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
 
 void Config::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<Config*>(&to_msg);
@@ -692,11 +698,10 @@ void Config::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000001u) != 0) {
     ABSL_DCHECK(from._impl_.topic_config_ != nullptr);
     if (_this->_impl_.topic_config_ == nullptr) {
-      _this->_impl_.topic_config_ =
-          ::google::protobuf::Message::CopyConstruct<::TopicConfig>(arena, *from._impl_.topic_config_);
+      _this->_impl_.topic_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.topic_config_);
     } else {
       _this->_impl_.topic_config_->MergeFrom(*from._impl_.topic_config_);
     }
@@ -713,7 +718,7 @@ void Config::CopyFrom(const Config& from) {
 }
 
 
-void Config::InternalSwap(Config* PROTOBUF_RESTRICT other) {
+void Config::InternalSwap(Config* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);

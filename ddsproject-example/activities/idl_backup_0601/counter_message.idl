@@ -1,0 +1,5 @@
+struct CounterMessage
+{
+    long cnt;
+    string tip;
+};
