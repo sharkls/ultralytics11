@@ -183,6 +183,7 @@ bool CPoseEstimationAlg::executeModuleChain()
         m_currentOutput.vecFrameResult()[0].eDataType(DATA_TYPE_POSEALG_RESULT);                                 // 数据类型赋值
         m_currentOutput.vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_POSEALG_END] = endTimeStamp;                // 姿态估计算法结束时间戳
         m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_POSEALG] = endTimeStamp - m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN];    // 姿态估计算法耗时计算
+        m_currentOutput.vecFrameResult()[0].tCameraSupplement() = m_currentInput->tDisparityResult();
     }
 
     if(m_run_status)
@@ -193,6 +194,89 @@ bool CPoseEstimationAlg::executeModuleChain()
     if(m_currentOutput.vecFrameResult().size() > 0)
     {
         LOG(INFO) << "所有数据完成穿透! vecFrameResult()[0].vecObjectResult().size(): " << m_currentOutput.vecFrameResult()[0].vecObjectResult().size();
+        // 添加目标深度值获取逻辑
+        auto& frameResult = m_currentOutput.vecFrameResult()[0];
+        auto& objResults = frameResult.vecObjectResult();
+        const auto& disparity = frameResult.tCameraSupplement();
+        int width = disparity.usWidth();
+        int height = disparity.usHeight();
+        const auto& depthMap = disparity.vecDistanceInfo();
+        LOG(INFO) << "depthMap.size() : " << depthMap.size();
+        for (auto& obj : objResults) {
+            // 获取所有关键点的深度值
+            std::vector<float> allKeypointDepths;
+            const auto& keypoints = obj.vecKeypoints();
+            
+            for (const auto& kp : keypoints) {
+                // 获取关键点坐标
+                float kx = kp.x();
+                float ky = kp.y();
+                
+                // 像素坐标转整数下标
+                int kix = static_cast<int>(kx + 0.5f);
+                int kiy = static_cast<int>(ky + 0.5f);
+                
+                // 检查边界
+                if (kix >= 0 && kix < width && kiy >= 0 && kiy < height) {
+                    // 遍历关键点周围 5×5 的区域
+                    for (int dy = -2; dy <= 2; ++dy) {
+                        for (int dx = -2; dx <= 2; ++dx) {
+                            int currentIx = kix + dx;
+                            int currentIy = kiy + dy;
+                            
+                            // 检查当前坐标是否在深度图范围内
+                            if (currentIx >= 0 && currentIx < width && currentIy >= 0 && currentIy < height) {
+                                int idx = currentIy * width + currentIx;
+                                if (idx >= 0 && idx < depthMap.size()) {
+                                    float depth = depthMap[idx];
+                                    if (depth > 0.0f) {  // 只收集有效的深度值
+                                        allKeypointDepths.push_back(depth);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 如果收集到足够的深度值
+            if (!allKeypointDepths.empty()) {
+                // 对深度值进行排序
+                std::sort(allKeypointDepths.begin(), allKeypointDepths.end());
+                
+                // 计算四分位数
+                size_t n = allKeypointDepths.size();
+                float q1 = allKeypointDepths[n * 0.25];
+                float q3 = allKeypointDepths[n * 0.75];
+                float iqr = q3 - q1;
+                
+                // 定义异常值的界限
+                float lower_bound = q1 - 1.5 * iqr;
+                float upper_bound = q3 + 1.5 * iqr;
+                
+                // 过滤掉异常值
+                std::vector<float> filtered_depths;
+                for (float depth : allKeypointDepths) {
+                    if (depth >= lower_bound && depth <= upper_bound) {
+                        filtered_depths.push_back(depth);
+                    }
+                }
+                
+                if (!filtered_depths.empty()) {
+                    // 计算中位数作为最终深度值
+                    size_t mid = filtered_depths.size() / 2;
+                    float median_depth;
+                    if (filtered_depths.size() % 2 == 0) {
+                        median_depth = (filtered_depths[mid - 1] + filtered_depths[mid]) / 2.0f;
+                    } else {
+                        median_depth = filtered_depths[mid];
+                    }
+                    
+                    obj.fDistance() = median_depth;  // 赋值距离
+                    LOG(INFO) << "目标距离（基于关键点）： " << obj.fDistance() << " mm";
+                }
+            }
+        }
     }
     return true;
 } 

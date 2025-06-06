@@ -191,6 +191,7 @@ bool CObjectDetectionAlg::executeModuleChain()
         m_currentOutput.vecFrameResult()[0].eDataType(DATA_TYPE_POSEALG_RESULT);                                 
         m_currentOutput.vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_POSEALG_END] = endTimeStamp;                
         m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_POSEALG] = endTimeStamp - m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN];    
+        m_currentOutput.vecFrameResult()[0].tCameraSupplement() = m_currentInput->tDisparityResult();
     }
 
     if(m_run_status)
@@ -209,7 +210,7 @@ bool CObjectDetectionAlg::executeModuleChain()
         int width = disparity.usWidth();
         int height = disparity.usHeight();
         const auto& depthMap = disparity.vecDistanceInfo();
-
+        LOG(INFO) << "depthMap.size() : " << depthMap.size();
         for (auto& obj : objResults) {
             // 1. 计算中心点
             float cx = (obj.fTopLeftX() + obj.fBottomRightX()) / 2.0f;
@@ -225,6 +226,7 @@ bool CObjectDetectionAlg::executeModuleChain()
                 std::vector<float> depthValues;
 
                 // 遍历中心点周围 5×5 的区域
+                std::cout << "5x5区域深度值：" << std::endl;
                 for (int dy = -2; dy <= 2; ++dy) {
                     for (int dx = -2; dx <= 2; ++dx) {
                         int currentIx = ix + dx;
@@ -235,10 +237,16 @@ bool CObjectDetectionAlg::executeModuleChain()
                             int idx = currentIy * width + currentIx;
                             if (idx >= 0 && idx < depthMap.size()) {
                                 depthValues.push_back(depthMap[idx]);
+                                std::cout << std::fixed << std::setprecision(2) << depthMap[idx] << "\t";
                             }
+                        } else {
+                            std::cout << "N/A\t";
                         }
                     }
+                    std::cout << std::endl;
                 }
+                std::cout << std::endl;
+                
 
                 // 如果收集到足够的深度值
                 if (!depthValues.empty()) {

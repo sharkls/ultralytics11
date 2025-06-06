@@ -266,6 +266,8 @@ private:
 
 
     int sock{-1};
+    char tmpMem[1024 * 1024 * 10];
+
 
     int count_readXYZ = 0;
     long long tmpTimeStamp_readXYZ = getTimestamp();
@@ -522,12 +524,14 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Color()
 void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
 {
     std::cout << "aaa" << std::endl;
+
+
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
     sockaddr_in serv_addr;
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    serv_addr.sin_addr.s_addr = inet_addr("192.168.3.56");
     serv_addr.sin_port = htons(1234);
 
     int ret = connect(sock, (sockaddr*)&serv_addr, sizeof(serv_addr));
@@ -539,8 +543,8 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
     }
 
     {
+        
         DataState state {DataState::Header};
-        char p[1024 * 1024 * 10];
         char Header[] = "ABCDEFGH";
         int size = 0;
         int n;
@@ -550,13 +554,13 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
             switch (state)
             {
             case DataState::Header:
-                n = myRead(sock, p, 8);
+                n = myRead(sock, tmpMem, 8);
                 if (8 != n)
                 {
                     state = DataState::Error;
                 } else {
-                    p[8] = '\0';
-                    if (0 != strcmp(p, Header))
+                    tmpMem[8] = '\0';
+                    if (0 != strcmp(tmpMem, Header))
                     {
                         state = DataState::Error;
                     } else {
@@ -575,7 +579,7 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
                 }
                 break;
             case DataState::Data:
-                n = myRead(sock, p, size);
+                n = myRead(sock, tmpMem, size);
                 if (size != n)
                 {
                     state = DataState::Error;
@@ -583,7 +587,7 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
                     bool bSuccess {true};
                     std::vector<char> out;
                     try {
-                        decompress(p, size, out);
+                        decompress(tmpMem, size, out);
                     } catch (boost::wrapexcept<boost::iostreams::gzip_error> e)
                     {
                         std::cout << e.what() << std::endl;
@@ -592,10 +596,26 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
 
                     if (bSuccess)
                     {
-                        std::cout << "==========" << getTimestamp() << " " << out.size() << std::endl;
-                        //////////
-                        // out
-                        //////////
+                        // std::cout << "=1=========" << getTimestamp() << " " << out.size() << std::endl;
+             
+                        FrameFromStream frame;
+                        frame.width = 1280;
+                        frame.height = 720;
+                        frame.timestamp = getTimestamp();
+                        frame.vecBuf.resize(1280 * 720 * 2);
+                        memcpy(&frame.vecBuf[0], out.data(), 1280 * 720 * 2);
+
+                        frame_safeDeque_XYZ_Depth.PushBack(std::make_shared<FrameFromStream>(frame));
+
+                        count_XYZ_Depth++;
+                        if (getTimestamp() - tmpTimeStamp_XYZ_Depth > 1000)
+                        {
+                            std::cout << "==========fps_Depth: " << count_XYZ_Depth << std::endl;
+
+                            tmpTimeStamp_XYZ_Depth = getTimestamp();
+                            count_XYZ_Depth = 0;
+                        }
+
                         state = DataState::Header;
                     } else {
                         state = DataState::Error;
@@ -608,6 +628,7 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
                 break;
             }
         }
+            
     }
 
     close(sock);
@@ -750,25 +771,25 @@ void ActivityMultiModal::ImgProducerThreadFunc()
             disparityResult.usWidth(ptr_XYZ_Depth->width);
             disparityResult.usHeight(ptr_XYZ_Depth->height);
 
-            std::vector<uint8_t> tmpSrcVec;
-            tmpSrcVec.resize(1280 * 720 * 2);
-            for (int i = 0; i < 1280 * 720; ++i)
-            {
-                tmpSrcVec[i*2 + 0] = ptr_XYZ_Depth->vecBuf[i*3 + 0];
-                tmpSrcVec[i*2 + 1] = ptr_XYZ_Depth->vecBuf[i*3 + 1];
-            }
+            // std::vector<uint8_t> tmpSrcVec;
+            // tmpSrcVec.resize(1280 * 720 * 2);
+            // for (int i = 0; i < 1280 * 720; ++i)
+            // {
+            //     tmpSrcVec[i*2 + 0] = ptr_XYZ_Depth->vecBuf[i*3 + 0];
+            //     tmpSrcVec[i*2 + 1] = ptr_XYZ_Depth->vecBuf[i*3 + 1];
+            // }
 
-            std::cout << (int)ptr_XYZ_Depth->vecBuf[60*3 + 1] << std::endl;
-            std::cout << (int)ptr_XYZ_Depth->vecBuf[61*3 + 1] << std::endl;
-            std::cout << (int)ptr_XYZ_Depth->vecBuf[62*3 + 1] << std::endl;
+            // std::cout << (int)ptr_XYZ_Depth->vecBuf[60*3 + 1] << std::endl;
+            // std::cout << (int)ptr_XYZ_Depth->vecBuf[61*3 + 1] << std::endl;
+            // std::cout << (int)ptr_XYZ_Depth->vecBuf[62*3 + 1] << std::endl;
 
-            std::cout << (int)ptr_XYZ_Depth->vecBuf[60*3 + 2] << std::endl;
-            std::cout << (int)ptr_XYZ_Depth->vecBuf[61*3 + 2] << std::endl;
-            std::cout << (int)ptr_XYZ_Depth->vecBuf[62*3 + 2] << std::endl;
+            // std::cout << (int)ptr_XYZ_Depth->vecBuf[60*3 + 2] << std::endl;
+            // std::cout << (int)ptr_XYZ_Depth->vecBuf[61*3 + 2] << std::endl;
+            // std::cout << (int)ptr_XYZ_Depth->vecBuf[62*3 + 2] << std::endl;
 
             std::vector<int32_t> tmpVec;
             tmpVec.resize(1280 * 720);
-            depthConverter.process(tmpSrcVec, tmpVec);
+            depthConverter.process(ptr_XYZ_Depth->vecBuf/*tmpSrcVec*/, tmpVec);
             // depthConverter.process(ptr_XYZ_Depth->vecBuf, tmpVec);
 
             disparityResult.vecDistanceInfo(tmpVec);
