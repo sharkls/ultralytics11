@@ -16,6 +16,160 @@
 #include "pullFromStream.h"
 #include "DepthConverter.h"
 
+#include <stdio.h>
+
+#include <cstring>
+
+#include <unistd.h>
+
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+
+// 解压缩函数，将输入的压缩数据in解压缩后存入out中
+void decompress(const char *p, const int size, std::vector<char>& out)
+{
+    using namespace boost::iostreams;
+    filtering_ostream fos;  // 创建一个具有filter功能的输出流
+    fos.push(gzip_decompressor());  // 添加gzip解压缩器
+    fos.push(boost::iostreams::back_inserter(out));  // 将输出流指定为out，即解压缩后的数据存放位置
+    fos.write(p, size);  // 将压缩数据写入解压缩流
+    boost::iostreams::close(fos);  // 关闭流，确保数据被完整解压并存入out
+}
+
+ssize_t myRead(const int sock, void *p, const size_t length)
+{
+    ssize_t result = 0;
+
+    int left = length;
+    while (left > 0)
+    {
+        int n = read(sock, p, left);
+        if (n < 0)
+        {
+            result = n;
+            break;
+        } else if (n == 0)
+        {
+            break;
+        } else {
+            result += n;
+            p += n;
+            left -= n;
+        }
+    }
+
+    return result;
+}
+
+enum class ErrorState
+{
+    Empty,
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G
+};
+
+void findHeader(const int sock)
+{
+    ErrorState errorState {ErrorState::Empty};
+    char c;
+    int n;
+    while (true)
+    {
+        switch (errorState)
+        {
+        case ErrorState::Empty:
+            n = myRead(sock, &c, 1);
+            if (1 == n && 'A' == c)
+            {
+                errorState = ErrorState::A;
+            }
+            break;
+        case ErrorState::A:
+            n = myRead(sock, &c, 1);
+            if (1 == n && 'B' == c)
+            {
+                errorState = ErrorState::B;
+            } else {
+                errorState = ErrorState::Empty;
+            }
+            break;
+        case ErrorState::B:
+            n = myRead(sock, &c, 1);
+            if (1 == n && 'C' == c)
+            {
+                errorState = ErrorState::C;
+            } else {
+                errorState = ErrorState::Empty;
+            }
+            break;
+        case ErrorState::C:
+            n = myRead(sock, &c, 1);
+            if (1 == n && 'D' == c)
+            {
+                errorState = ErrorState::D;
+            } else {
+                errorState = ErrorState::Empty;
+            }
+            break;
+        case ErrorState::D:
+            n = myRead(sock, &c, 1);
+            if (1 == n && 'E' == c)
+            {
+                errorState = ErrorState::E;
+            } else {
+                errorState = ErrorState::Empty;
+            }
+            break;
+        case ErrorState::E:
+            n = myRead(sock, &c, 1);
+            if (1 == n && 'F' == c)
+            {
+                errorState = ErrorState::F;
+            } else {
+                errorState = ErrorState::Empty;
+            }
+            break;
+        case ErrorState::F:
+            n = myRead(sock, &c, 1);
+            if (1 == n && 'G' == c)
+            {
+                errorState = ErrorState::G;
+            } else {
+                errorState = ErrorState::Empty;
+            }
+            break;
+        case ErrorState::G:
+            n = myRead(sock, &c, 1);
+            if (1 == n && 'H' == c)
+            {
+                std::cout << "recover" << std::endl;
+                return;
+            } else {
+                errorState = ErrorState::Empty;
+            }
+            break;
+        }
+    }
+}
+
+enum class DataState
+{
+    Header,
+    Size,
+    Data,
+    Error,
+};
+
 long long getTimestamp()
 {
     auto now = std::chrono::system_clock::now();
@@ -108,8 +262,10 @@ private:
 
     PullFromStream pullM3J;
     PullFromStream pullXYZ_Color;
-    PullFromStream pullXYZ_Depth;
+    // PullFromStream pullXYZ_Depth;
 
+
+    int sock{-1};
 
     int count_readXYZ = 0;
     long long tmpTimeStamp_readXYZ = getTimestamp();
@@ -266,13 +422,13 @@ void ActivityMultiModal::Start()
         return;
     }
 
-    bool bInitXYZ_Depth = pullXYZ_Depth.init("rtsp://192.168.3.56:8554/camera/XYZ_Depth"); // 7
-    if (!bInitXYZ_Depth)
-    {
-        TINFO << "can not open stream XYZ_Depth";
+    // bool bInitXYZ_Depth = pullXYZ_Depth.init("rtsp://192.168.3.56:8554/camera/XYZ_Depth"); // 7
+    // if (!bInitXYZ_Depth)
+    // {
+    //     TINFO << "can not open stream XYZ_Depth";
 
-        return;
-    }
+    //     return;
+    // }
 
 
     pull_stream_thread_M3J_ = new std::thread(&ActivityMultiModal::PullStreamThreadFunc_M3J, this);
@@ -365,27 +521,119 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Color()
 
 void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
 {
-    pullXYZ_Depth.pull(
-        [this](char* data, const int width, const int height){
-            FrameFromStream frame;
-            frame.width = width;
-            frame.height = height;
-            frame.timestamp = getTimestamp();
-            frame.vecBuf.resize(width * height * 3);
-            memcpy(&frame.vecBuf[0], data, width * height * 3);
+    std::cout << "aaa" << std::endl;
+    sock = socket(AF_INET, SOCK_STREAM, 0);
 
-            frame_safeDeque_XYZ_Depth.PushBack(std::make_shared<FrameFromStream>(frame));
+    sockaddr_in serv_addr;
+    memset(&serv_addr, 0, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    serv_addr.sin_port = htons(1234);
 
-            count_XYZ_Depth++;
-            if (getTimestamp() - tmpTimeStamp_XYZ_Depth > 1000)
+    int ret = connect(sock, (sockaddr*)&serv_addr, sizeof(serv_addr));
+    if (ret != 0)
+    {
+        std::cout << "errno: " << errno << std::endl;
+
+        return;
+    }
+
+    {
+        DataState state {DataState::Header};
+        char p[1024 * 1024 * 10];
+        char Header[] = "ABCDEFGH";
+        int size = 0;
+        int n;
+
+        while(is_running_.load())
+        {
+            switch (state)
             {
-                std::cout << "==========fps_Depth: " << count_XYZ_Depth << std::endl;
+            case DataState::Header:
+                n = myRead(sock, p, 8);
+                if (8 != n)
+                {
+                    state = DataState::Error;
+                } else {
+                    p[8] = '\0';
+                    if (0 != strcmp(p, Header))
+                    {
+                        state = DataState::Error;
+                    } else {
+                        state = DataState::Size;
+                    }
+                }
+                break;
+            case DataState::Size:
+                n = myRead(sock, &size, 4);
+                if (4 != n)
+                {
+                    state = DataState::Error;
+                } else {
+                    // std::cout << "size: " << size << std::endl;
+                    state = DataState::Data;
+                }
+                break;
+            case DataState::Data:
+                n = myRead(sock, p, size);
+                if (size != n)
+                {
+                    state = DataState::Error;
+                } else {
+                    bool bSuccess {true};
+                    std::vector<char> out;
+                    try {
+                        decompress(p, size, out);
+                    } catch (boost::wrapexcept<boost::iostreams::gzip_error> e)
+                    {
+                        std::cout << e.what() << std::endl;
+                        bSuccess = false;
+                    }
 
-                tmpTimeStamp_XYZ_Depth = getTimestamp();
-                count_XYZ_Depth = 0;
+                    if (bSuccess)
+                    {
+                        std::cout << "==========" << getTimestamp() << " " << out.size() << std::endl;
+                        //////////
+                        // out
+                        //////////
+                        state = DataState::Header;
+                    } else {
+                        state = DataState::Error;
+                    }
+                }
+                break;
+            case DataState::Error:
+                findHeader(sock);
+                state = DataState::Size;
+                break;
             }
         }
-    );
+    }
+
+    close(sock);
+
+
+    // pullXYZ_Depth.pull(
+    //     [this](char* data, const int width, const int height){
+    //         FrameFromStream frame;
+    //         frame.width = width;
+    //         frame.height = height;
+    //         frame.timestamp = getTimestamp();
+    //         frame.vecBuf.resize(width * height * 3);
+    //         memcpy(&frame.vecBuf[0], data, width * height * 3);
+
+    //         frame_safeDeque_XYZ_Depth.PushBack(std::make_shared<FrameFromStream>(frame));
+
+    //         count_XYZ_Depth++;
+    //         if (getTimestamp() - tmpTimeStamp_XYZ_Depth > 1000)
+    //         {
+    //             std::cout << "==========fps_Depth: " << count_XYZ_Depth << std::endl;
+
+    //             tmpTimeStamp_XYZ_Depth = getTimestamp();
+    //             count_XYZ_Depth = 0;
+    //         }
+    //     }
+    // );
 }
 
 void ActivityMultiModal::ImgProducerThreadFunc()

@@ -58,6 +58,9 @@ target_link_libraries(multiModal_exec PRIVATE
     fastrtps
     fastcdr)
 
+target_link_libraries(multiModal_exec PRIVATE
+    -lboost_iostreams
+    )
 
 target_link_libraries(multiModal_exec PRIVATE
     opencv_core
