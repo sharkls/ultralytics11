@@ -367,7 +367,7 @@ std::vector<std::vector<float>> Yolov11Pose::process_keypoints(const std::vector
 
 std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<float>& output) 
 {   
-    LOG(INFO) << "Yolov11Pose::process_output status: start ";
+    // LOG(INFO) << "Yolov11Pose::process_output status: start ";
     // 1. TensorRT输出数据转置
     // [batch_size, 4 + num_classes + num_keys * 3, num_anchors] -> [num_anchors, 4 + num_classes + num_keys * 3]
     int num_anchors = num_anchors_; 
@@ -468,7 +468,7 @@ std::vector<std::vector<float>> Yolov11Pose::process_output(const std::vector<fl
     {
         save_bin(results, "./Save_Data/pose/result/processed_output_yolov11pose.bin"); // Yolov11Pose/Inference
     }
-    LOG(INFO) << "Yolov11Pose::process_output status: success ";
+    // LOG(INFO) << "Yolov11Pose::process_output status: success ";
     return results;
 }
 

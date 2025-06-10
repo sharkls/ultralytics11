@@ -3,6 +3,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <numeric>
 
 class DepthConverter
 {
@@ -30,28 +31,31 @@ public:
         return result;
     }
 
+    // 新增：CUDA并行计算接口
+    void process_gpu(const std::vector<uint8_t>& input, std::vector<int32_t>& result);
+
 private:
     int process(const std::vector<uint8_t>& input, const int x, const int y)
     {
         
-        // std::array<int, 25> arr;
-        // int count = 0;
-        // for (int i = x - 2; i <= x + 2; ++i)
-        // {
-        //     for (int j = y - 2; j <= y + 2; ++j)
-        //     {
-        //         arr[count++] = getValue(input, i, j);
-        //     }
-        // }
+        std::array<int, 25> arr;
+        int count = 0;
+        for (int i = x - 2; i <= x + 2; ++i)
+        {
+            for (int j = y - 2; j <= y + 2; ++j)
+            {
+                arr[count++] = getValue(input, i, j);
+            }
+        }
 
-        // std::sort(arr.begin(), arr.end());
+        std::sort(arr.begin(), arr.end());
 
-        // int avg = std::accumulate(arr.begin() + 10, arr.begin() + 15, 0) / 5;
+        int avg = std::accumulate(arr.begin() + 10, arr.begin() + 15, 0) / 5;
 
-        // return process(avg);
+        return process(avg);
         
 
-        return process(getValue(input, x, y));
+        // return process(getValue(input, x, y));
     }
 
     int process(ushort Pos_z)

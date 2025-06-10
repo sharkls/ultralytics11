@@ -152,7 +152,7 @@ void findHeader(const int sock)
             n = myRead(sock, &c, 1);
             if (1 == n && 'H' == c)
             {
-                std::cout << "recover" << std::endl;
+                TINFO << "recover";
                 return;
             } else {
                 errorState = ErrorState::Empty;
@@ -176,6 +176,7 @@ long long getTimestamp()
     auto duration = now.time_since_epoch();
     return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 }
+
 
 class FrameFromStream
 {
@@ -262,8 +263,6 @@ private:
 
     PullFromStream pullM3J;
     PullFromStream pullXYZ_Color;
-    // PullFromStream pullXYZ_Depth;
-
 
     int sock{-1};
     char tmpMem[1024 * 1024 * 10];
@@ -377,7 +376,7 @@ void ActivityMultiModal::ReadXYZCallbackFunc(const CMultiModalSrcData &message,
     count_readXYZ++;
     if (getTimestamp() - tmpTimeStamp_readXYZ > 1000)
     {
-        std::cout << "==========fps_readXYZ: " << count_readXYZ << std::endl;
+        TINFO << "fps_readXYZ: " << count_readXYZ;
 
         tmpTimeStamp_readXYZ = getTimestamp();
         count_readXYZ = 0;
@@ -397,7 +396,7 @@ void ActivityMultiModal::ReadM3JUVCCallbackFunc(const CVideoSrcData &message,
     count_readM3J++;
     if (getTimestamp() - tmpTimeStamp_readM3J > 1000)
     {
-        std::cout << "==========fps_readM3J: " << count_readM3J << std::endl;
+        TINFO << "fps_readM3J: " << count_readM3J;
 
         tmpTimeStamp_readM3J = getTimestamp();
         count_readM3J = 0;
@@ -424,15 +423,6 @@ void ActivityMultiModal::Start()
         return;
     }
 
-    // bool bInitXYZ_Depth = pullXYZ_Depth.init("rtsp://192.168.3.56:8554/camera/XYZ_Depth"); // 7
-    // if (!bInitXYZ_Depth)
-    // {
-    //     TINFO << "can not open stream XYZ_Depth";
-
-    //     return;
-    // }
-
-
     pull_stream_thread_M3J_ = new std::thread(&ActivityMultiModal::PullStreamThreadFunc_M3J, this);
     pull_stream_thread_XYZ_Color = new std::thread(&ActivityMultiModal::PullStreamThreadFunc_XYZ_Color, this);
     pull_stream_thread_XYZ_Depth = new std::thread(&ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth, this);
@@ -442,25 +432,25 @@ void ActivityMultiModal::Start()
     message_producer_thread_ = std::make_unique<std::thread>(&ActivityMultiModal::MessageProducerThreadFunc, this);
 }
 
-void saveToDisk_M3JUVC(const int serial, const std::vector<uint8_t>& img)
-{
-    // 640 * 512 == 327680
-    void *p = malloc(640 * 512 * 3);
-    memcpy(p, img.data(), 640 * 512 * 3);
-    cv::Mat matImg(cv::Size(640, 512), CV_8UC3, p);
+// void saveToDisk_M3JUVC(const int serial, const std::vector<uint8_t>& img)
+// {
+//     // 640 * 512 == 327680
+//     void *p = malloc(640 * 512 * 3);
+//     memcpy(p, img.data(), 640 * 512 * 3);
+//     cv::Mat matImg(cv::Size(640, 512), CV_8UC3, p);
 
-    std::filesystem::path dir = "/workspace/ddsproject-example/tmp/M3JUVC_multiModal/";
-    std::filesystem::create_directories(dir);
+//     std::filesystem::path dir = "/workspace/ddsproject-example/tmp/M3JUVC_multiModal/";
+//     std::filesystem::create_directories(dir);
 
-    std::string filePath = dir.string() + std::to_string(serial) + ".jpg";
-    if (cv::imwrite(filePath, matImg)) {
-        ;
-    } else {
+//     std::string filePath = dir.string() + std::to_string(serial) + ".jpg";
+//     if (cv::imwrite(filePath, matImg)) {
+//         ;
+//     } else {
 
-    }
+//     }
 
-    free(p);
-}
+//     free(p);
+// }
 
 
 void ActivityMultiModal::PullStreamThreadFunc_M3J()
@@ -484,7 +474,7 @@ void ActivityMultiModal::PullStreamThreadFunc_M3J()
             count_M3J++;
             if (getTimestamp() - tmpTimeStamp_M3J > 1000)
             {
-                std::cout << "==========fps_M3J: " << count_M3J << std::endl;
+                TINFO << "==========fps_M3J: " << count_M3J;
 
                 tmpTimeStamp_M3J = getTimestamp();
                 count_M3J = 0;
@@ -512,7 +502,7 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Color()
             count_XYZ_Color++;
             if (getTimestamp() - tmpTimeStamp_XYZ_Color > 1000)
             {
-                std::cout << "==========fps_Color: " << count_XYZ_Color << std::endl;
+                TINFO << "fps_Color: " << count_XYZ_Color;
 
                 tmpTimeStamp_XYZ_Color = getTimestamp();
                 count_XYZ_Color = 0;
@@ -523,9 +513,6 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Color()
 
 void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
 {
-    std::cout << "aaa" << std::endl;
-
-
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
     sockaddr_in serv_addr;
@@ -537,7 +524,7 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
     int ret = connect(sock, (sockaddr*)&serv_addr, sizeof(serv_addr));
     if (ret != 0)
     {
-        std::cout << "errno: " << errno << std::endl;
+        TINFO << "connect failed. errno: " << errno;
 
         return;
     }
@@ -574,30 +561,31 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
                 {
                     state = DataState::Error;
                 } else {
-                    // std::cout << "size: " << size << std::endl;
                     state = DataState::Data;
                 }
                 break;
             case DataState::Data:
+                // no leak here
+
                 n = myRead(sock, tmpMem, size);
                 if (size != n)
                 {
                     state = DataState::Error;
                 } else {
+                    ///////// already leak
+
                     bool bSuccess {true};
                     std::vector<char> out;
                     try {
                         decompress(tmpMem, size, out);
                     } catch (boost::wrapexcept<boost::iostreams::gzip_error> e)
                     {
-                        std::cout << e.what() << std::endl;
+                        TINFO << e.what() << std::endl;
                         bSuccess = false;
                     }
 
                     if (bSuccess)
                     {
-                        // std::cout << "=1=========" << getTimestamp() << " " << out.size() << std::endl;
-             
                         FrameFromStream frame;
                         frame.width = 1280;
                         frame.height = 720;
@@ -610,7 +598,7 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
                         count_XYZ_Depth++;
                         if (getTimestamp() - tmpTimeStamp_XYZ_Depth > 1000)
                         {
-                            std::cout << "==========fps_Depth: " << count_XYZ_Depth << std::endl;
+                            TINFO << "fps_Depth: " << count_XYZ_Depth;
 
                             tmpTimeStamp_XYZ_Depth = getTimestamp();
                             count_XYZ_Depth = 0;
@@ -632,29 +620,6 @@ void ActivityMultiModal::PullStreamThreadFunc_XYZ_Depth()
     }
 
     close(sock);
-
-
-    // pullXYZ_Depth.pull(
-    //     [this](char* data, const int width, const int height){
-    //         FrameFromStream frame;
-    //         frame.width = width;
-    //         frame.height = height;
-    //         frame.timestamp = getTimestamp();
-    //         frame.vecBuf.resize(width * height * 3);
-    //         memcpy(&frame.vecBuf[0], data, width * height * 3);
-
-    //         frame_safeDeque_XYZ_Depth.PushBack(std::make_shared<FrameFromStream>(frame));
-
-    //         count_XYZ_Depth++;
-    //         if (getTimestamp() - tmpTimeStamp_XYZ_Depth > 1000)
-    //         {
-    //             std::cout << "==========fps_Depth: " << count_XYZ_Depth << std::endl;
-
-    //             tmpTimeStamp_XYZ_Depth = getTimestamp();
-    //             count_XYZ_Depth = 0;
-    //         }
-    //     }
-    // );
 }
 
 void ActivityMultiModal::ImgProducerThreadFunc()
@@ -665,8 +630,6 @@ void ActivityMultiModal::ImgProducerThreadFunc()
     std::shared_ptr<FrameFromStream> ptr_M3J;
     std::shared_ptr<FrameFromStream> ptr_XYZ_Color;
     std::shared_ptr<FrameFromStream> ptr_XYZ_Depth;
-
-
 
 
     TINFO << "is_running_: " << is_running_;
@@ -706,16 +669,15 @@ void ActivityMultiModal::ImgProducerThreadFunc()
 
         if (abs(timestamp_M3J - timestamp_XYZ_Color) < 50 && abs(timestamp_XYZ_Color - timestamp_XYZ_Depth) < 50)
         {
-            std::cout << "=====matched: "
+            TINFO << "=====matched: "
                 << "M3J: " << timestamp_M3J << " ========== "
                 << "XYZ_Color: " << timestamp_XYZ_Color << " ========== "
-                << "XYZ_Depth: " << timestamp_XYZ_Depth << " ========== "
-                << std::endl;
+                << "XYZ_Depth: " << timestamp_XYZ_Depth << " ========== ";
 
             count++;
             if (getTimestamp() - tmpTimeStamp > 1000)
             {
-                std::cout << "==========fps: " << count << std::endl;
+                TINFO << "\fps: " << count;
 
                 tmpTimeStamp = getTimestamp();
                 count = 0;
@@ -741,7 +703,7 @@ void ActivityMultiModal::ImgProducerThreadFunc()
             multiModalSrcData.vecVideoSrcData().push_back(videoSrcData_XYZ);
 
 
-            cv::Mat mat_C(ptr_XYZ_Color->height, ptr_XYZ_Color->width, CV_8UC3, videoSrcData_XYZ.vecImageBuf().data());
+            // cv::Mat mat_C(ptr_XYZ_Color->height, ptr_XYZ_Color->width, CV_8UC3, videoSrcData_XYZ.vecImageBuf().data());
             // cv::imwrite(std::string("/share/tmpimage/Depth/a_C") + std::to_string(index) + ".jpg", mat_C);
         
 
@@ -789,38 +751,42 @@ void ActivityMultiModal::ImgProducerThreadFunc()
 
             std::vector<int32_t> tmpVec;
             tmpVec.resize(1280 * 720);
-            depthConverter.process(ptr_XYZ_Depth->vecBuf/*tmpSrcVec*/, tmpVec);
+            auto t1 = std::chrono::high_resolution_clock::now();
+            depthConverter.process_gpu(ptr_XYZ_Depth->vecBuf, tmpVec);
+            auto t2 = std::chrono::high_resolution_clock::now();
+            double gpu_cost = std::chrono::duration<double, std::milli>(t2 - t1).count();
+            TINFO << "[GPU] depthConverter.process_gpu 耗时: " << gpu_cost << " ms";
             // depthConverter.process(ptr_XYZ_Depth->vecBuf, tmpVec);
 
             disparityResult.vecDistanceInfo(tmpVec);
 
-            int center = 1280 * 720 / 2;
-            int center_a1 = center - 1280;
-            int center_a2 = center - 2 * 1280;
-            int center_b1 = center + 1280;
-            int center_b2 = center + 2 *1280;
-            std::cout
-                << tmpVec[center_a2 - 2] << " " << tmpVec[center_a2 - 1] << " " << tmpVec[center_a2] << " " << tmpVec[center_a2 + 1] << " " << tmpVec[center_a2 + 2] << "\n"
-                << tmpVec[center_a1 - 2] << " " << tmpVec[center_a1 - 1] << " " << tmpVec[center_a1] << " " << tmpVec[center_a1 + 1] << " " << tmpVec[center_a1 + 2] << "\n"
-                << tmpVec[center - 2] << " " << tmpVec[center - 1] << " " << tmpVec[center] << " " << tmpVec[center + 1] << " " << tmpVec[center + 2] << "\n"
-                << tmpVec[center_b1 - 2] << " " << tmpVec[center_b1 - 1] << " " << tmpVec[center_b1] << " " << tmpVec[center_b1 + 1] << " " << tmpVec[center_b1 + 2] << "\n"
-                << tmpVec[center_b2 - 2] << " " << tmpVec[center_b2 - 1] << " " << tmpVec[center_b2] << " " << tmpVec[center_b2 + 1] << " " << tmpVec[center_b2 + 2] << "\n"
-                << std::endl;
+            // int center = 1280 * 720 / 2;
+            // int center_a1 = center - 1280;
+            // int center_a2 = center - 2 * 1280;
+            // int center_b1 = center + 1280;
+            // int center_b2 = center + 2 *1280;
+            // std::cout
+            //     << tmpVec[center_a2 - 2] << " " << tmpVec[center_a2 - 1] << " " << tmpVec[center_a2] << " " << tmpVec[center_a2 + 1] << " " << tmpVec[center_a2 + 2] << "\n"
+            //     << tmpVec[center_a1 - 2] << " " << tmpVec[center_a1 - 1] << " " << tmpVec[center_a1] << " " << tmpVec[center_a1 + 1] << " " << tmpVec[center_a1 + 2] << "\n"
+            //     << tmpVec[center - 2] << " " << tmpVec[center - 1] << " " << tmpVec[center] << " " << tmpVec[center + 1] << " " << tmpVec[center + 2] << "\n"
+            //     << tmpVec[center_b1 - 2] << " " << tmpVec[center_b1 - 1] << " " << tmpVec[center_b1] << " " << tmpVec[center_b1 + 1] << " " << tmpVec[center_b1 + 2] << "\n"
+            //     << tmpVec[center_b2 - 2] << " " << tmpVec[center_b2 - 1] << " " << tmpVec[center_b2] << " " << tmpVec[center_b2 + 1] << " " << tmpVec[center_b2 + 2] << "\n"
+            //     << std::endl;
 
 
 
-            cv::Mat mat_0(ptr_XYZ_Depth->height, ptr_XYZ_Depth->width, CV_8UC3, ptr_XYZ_Depth->vecBuf.data());
+            // cv::Mat mat_0(ptr_XYZ_Depth->height, ptr_XYZ_Depth->width, CV_8UC3, ptr_XYZ_Depth->vecBuf.data());
             // cv::imwrite(std::string("/share/tmpimage/Depth/a0") + std::to_string(index) + ".jpg", mat_0);
         
 
 
-            std::vector<uint8_t> tmptmptmp;
-            tmptmptmp.resize(1280 * 720);
-            for (int i = 0; i < 1280 * 720; ++i)
-            {
-                tmptmptmp[i] = tmpVec[i] / 256;
-            }
-            cv::Mat mat(ptr_XYZ_Depth->height, ptr_XYZ_Depth->width, CV_8UC1, tmptmptmp.data());
+            // std::vector<uint8_t> tmptmptmp;
+            // tmptmptmp.resize(1280 * 720);
+            // for (int i = 0; i < 1280 * 720; ++i)
+            // {
+            //     tmptmptmp[i] = tmpVec[i] / 256;
+            // }
+            // cv::Mat mat(ptr_XYZ_Depth->height, ptr_XYZ_Depth->width, CV_8UC1, tmptmptmp.data());
             // cv::imwrite(std::string("/share/tmpimage/Depth/a") + std::to_string(index) + ".jpg", mat);
 
 
@@ -841,11 +807,10 @@ void ActivityMultiModal::ImgProducerThreadFunc()
 
             frameId++;
         } else {
-            std::cout << "=====mismatched: "
+            TINFO << "=====mismatched: "
                 << "M3J: " << timestamp_M3J << " ========== "
                 << "XYZ_Color: " << timestamp_XYZ_Color << " ========== "
-                << "XYZ_Depth: " << timestamp_XYZ_Depth << " ========== "
-                << std::endl;
+                << "XYZ_Depth: " << timestamp_XYZ_Depth << " ========== ";
             
 
             // only keep the max

@@ -88,7 +88,9 @@ int PullFromStream::decode(std::function<void(char* data, const int width, const
         //     count = 0;
         // }
 
+        sws_freeContext(sws_ctx);
         av_frame_free(&rgb_frame);
+        free(framebuf);
     }
     return 0;
 }

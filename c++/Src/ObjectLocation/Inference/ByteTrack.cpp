@@ -105,7 +105,8 @@ void* ByteTrack::getOutput()
 void ByteTrack::convertDetections(const std::vector<CObjectResult>& detections,
                                 std::vector<Eigen::VectorXf>& dets,
                                 std::vector<float>& scores,
-                                std::vector<int>& clss)
+                                std::vector<int>& clss,
+                                std::vector<float>& distances)
 {
     if (detections.empty()) {
         LOG(WARNING) << "Empty detections input";
@@ -115,6 +116,7 @@ void ByteTrack::convertDetections(const std::vector<CObjectResult>& detections,
     dets.clear();
     scores.clear();
     clss.clear();
+    distances.clear();
     
     for (const auto& det : detections) {
         // 检查检测框的有效性
@@ -132,8 +134,14 @@ void ByteTrack::convertDetections(const std::vector<CObjectResult>& detections,
         
         dets.push_back(det_vec);
         scores.push_back(det.fVideoConfidence());
-        // clss.push_back(0); // 默认类别为0，可以根据需要修改
         clss.push_back(std::stoi(det.strClass()));
+        distances.push_back(det.fDistance());
+        
+        // 创建STrack对象时传入距离值
+        auto track = std::make_shared<STrack>(det_vec, det.fVideoConfidence(), std::stoi(det.strClass()), class_history_len_);
+        track->distance = det.fDistance();  // 设置距离值
+
+        // std::cout << "convertDetections:   track->distance: -------------" << track->distance << std::endl;
     }
 }
 
@@ -149,13 +157,13 @@ void ByteTrack::convertTracks(const std::vector<std::vector<float>>& tracks,
     
     for (const auto& track : tracks) {
         // 检查track数据的完整性
-        if (track.size() < 7) {
+        if (track.size() < 8) {  // 修改为8，因为现在包含距离值
             LOG(WARNING) << "Invalid track data size";
             continue;
         }
 
         CObjectResult obj;
-        // track格式: [x, y, w, h, track_id, score, class]
+        // track格式: [x, y, w, h, track_id, score, class, distance]
         float x = track[0];
         float y = track[1];
         float w = track[2];
@@ -174,6 +182,9 @@ void ByteTrack::convertTracks(const std::vector<std::vector<float>>& tracks,
         obj.usTargetId(static_cast<uint16_t>(track[4]));
         obj.fVideoConfidence(track[5]);
         obj.strClass(std::to_string(static_cast<int>(track[6])));
+        obj.fDistance(track[7]);  // 设置距离值 
+
+        // std::cout << "convertTracks:   obj.fDistance: -------------" << obj.fDistance() << std::endl;
         
         output.push_back(obj);
     }
@@ -190,7 +201,8 @@ void ByteTrack::processFrame(const CFrameResult& frame)
     std::vector<Eigen::VectorXf> dets;
     std::vector<float> scores;
     std::vector<int> clss;
-    convertDetections(frame.vecObjectResult(), dets, scores, clss);
+    std::vector<float> distances;
+    convertDetections(frame.vecObjectResult(), dets, scores, clss, distances);
     
     if (dets.empty()) {
         LOG(WARNING) << "No valid detections after conversion";
@@ -198,7 +210,7 @@ void ByteTrack::processFrame(const CFrameResult& frame)
     }
     
     // 2. 执行跟踪
-    auto tracks = m_tracker_->update(dets, scores, clss);
+    auto tracks = m_tracker_->update(dets, scores, clss, distances);
     
     // 3. 转换跟踪结果
     std::vector<CObjectResult> tracked_objects;
@@ -208,11 +220,13 @@ void ByteTrack::processFrame(const CFrameResult& frame)
     CFrameResult output_frame;
     output_frame.vecObjectResult(tracked_objects);
     m_outputData_.vecFrameResult().push_back(output_frame);
+
+    // std::cout << "ByteTrack::processFrame status: success!  :   tracked_objects:" << tracked_objects.size() << std::endl;
 }
 
 void ByteTrack::execute()
 {
-    LOG(INFO) << "ByteTrack::execute status: start ";
+    // LOG(INFO) << "ByteTrack::execute status: start ";
     if (m_inputData_.vecFrameResult().empty()) {
         LOG(ERROR) << "Input data is empty";
         return;
@@ -238,7 +252,7 @@ void ByteTrack::execute()
         LOG(ERROR) << "Tracking failed: " << e.what();
         return;
     }
-    LOG(INFO) << "ByteTrack::execute status: end! ";
+    // LOG(INFO) << "ByteTrack::execute status: end! ";
 }
 
 // 保存二进制数据的函数实现

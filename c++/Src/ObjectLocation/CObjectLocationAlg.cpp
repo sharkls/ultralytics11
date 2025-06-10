@@ -73,7 +73,7 @@ bool CObjectLocationAlg::initAlgorithm(CSelfAlgParam* p_pAlgParam, const AlgCall
 
 void CObjectLocationAlg::runAlgorithm(void* p_pSrcData)
 {
-    LOG(INFO) << "CObjectLocationAlg::runAlgorithm status: start ";
+    // LOG(INFO) << "CObjectLocationAlg::runAlgorithm status: start ";
     // 0. 每次运行前重置结构体内容
     m_currentOutput = CAlgResult(); // 或者手动清空成员
     int64_t beginTimeStamp = GetTimeStamp();
@@ -161,9 +161,8 @@ bool CObjectLocationAlg::executeModuleChain()
     m_currentOutput = *static_cast<CAlgResult *>(currentData);
     int64_t endTimeStamp = GetTimeStamp();
 
-    
-
     // 结果穿透
+    m_currentOutput.lTimeStamp() = m_currentInput->lTimeStamp();
     if(m_currentOutput.vecFrameResult().size() > 0) 
     {   
         // 输入数据常规信息穿透
@@ -172,7 +171,6 @@ bool CObjectLocationAlg::executeModuleChain()
         m_currentOutput.vecFrameResult()[0].mapDelay() = m_currentInput->vecFrameResult()[0].mapDelay();
         m_currentOutput.vecFrameResult()[0].mapFps() = m_currentInput->vecFrameResult()[0].mapFps();
 
-        m_currentOutput.lTimeStamp() = m_currentInput->lTimeStamp();
         LOG(INFO) << "原有信息穿透完毕： FrameId : " << m_currentOutput.vecFrameResult()[0].unFrameId() << ", lTimeStamp : " << m_currentOutput.lTimeStamp();
 
         // 独有数据填充
@@ -196,7 +194,7 @@ bool CObjectLocationAlg::executeModuleChain()
                 LOG(INFO) << "打印结果 ---- 目标类别: " << strClass << ", 目标距离: " << fDistance;
             }
         }
-        LOG(INFO) << "所有数据完成穿透! vecFrameResult()[0].vecObjectResult().size(): " << m_currentOutput.vecFrameResult()[0].vecObjectResult().size();
+        // LOG(INFO) << "所有数据完成穿透! vecFrameResult()[0].vecObjectResult().size(): " << m_currentOutput.vecFrameResult()[0].vecObjectResult().size();
     }
     return true;
 } 

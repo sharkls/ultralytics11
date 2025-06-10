@@ -168,6 +168,7 @@ bool CPoseEstimationAlg::executeModuleChain()
     m_currentOutput = *resultPtr;
 
     // 结果穿透
+    m_currentOutput.lTimeStamp() = m_currentInput->vecVideoSrcData()[0].lTimeStamp();
     if(m_currentOutput.vecFrameResult().size() > 0) 
     {   
         // 输入数据常规信息穿透
@@ -175,7 +176,6 @@ bool CPoseEstimationAlg::executeModuleChain()
         m_currentOutput.vecFrameResult()[0].mapTimeStamp() = m_currentInput->vecVideoSrcData()[0].mapTimeStamp();
         m_currentOutput.vecFrameResult()[0].mapDelay() = m_currentInput->vecVideoSrcData()[0].mapDelay();
         m_currentOutput.vecFrameResult()[0].mapFps() = m_currentInput->vecVideoSrcData()[0].mapFps();
-        m_currentOutput.lTimeStamp() = m_currentInput->vecVideoSrcData()[0].lTimeStamp();
 
         LOG(INFO) << "原有信息穿透完毕： FrameId : " << m_currentOutput.vecFrameResult()[0].unFrameId() << ", lTimeStamp : " << m_currentOutput.lTimeStamp();
 

@@ -9,6 +9,26 @@ add_subdirectory(proto)
 
 aux_source_directory(. SRC_FILES)
 
+# CUDA配置
+# CUDA环境和编译器设置
+set(CMAKE_CUDA_COMPILER /usr/local/cuda-12.4/bin/nvcc)
+set(CMAKE_CUDA_ARCHITECTURES 86)
+enable_language(CUDA)
+
+# CUDA路径设置
+set(CUDA_DIR /usr/local/cuda-12.4)
+set(CUDNN_DIR /usr)
+
+# CUDA编译选项
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -arch=sm_86")
+
+# 添加CUDA相关目录
+include_directories(${CUDA_DIR}/include ${CUDNN_DIR}/include)
+link_directories(${CUDA_DIR}/lib64 ${CUDNN_DIR}/lib/x86_64-linux-gnu)
+
+# 添加CUDA实现文件
+set(SRC_FILES ${SRC_FILES} DepthConverter.cu)
+
 #find_package(OpenCV REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -43,7 +63,6 @@ target_link_libraries(multiModal_exec PRIVATE
     proto
     ${multiModal_activity_PROTO_LIB}
     ${ACTIVITY_IDL_LIB}
-    ${OpenCV_LIBS}
     )
 
 target_link_libraries(multiModal_exec PRIVATE pthread)

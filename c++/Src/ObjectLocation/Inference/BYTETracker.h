@@ -32,7 +32,7 @@ public:
         int class_history_len = 5
     );
     // 更新tracker，输入检测框、分数、类别，返回当前激活track的结果
-    std::vector<std::vector<float>> update(const std::vector<Eigen::VectorXf>& dets, const std::vector<float>& scores, const std::vector<int>& clss);
+    std::vector<std::vector<float>> update(const std::vector<Eigen::VectorXf>& dets, const std::vector<float>& scores, const std::vector<int>& clss, const std::vector<float>& distances);
     // 批量预测track状态
     void multi_predict(std::vector<std::shared_ptr<STrack>>& tracks);
     // 重置全局ID

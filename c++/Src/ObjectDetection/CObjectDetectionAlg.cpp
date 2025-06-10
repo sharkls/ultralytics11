@@ -176,6 +176,7 @@ bool CObjectDetectionAlg::executeModuleChain()
     m_currentOutput = *resultPtr;
 
     // 结果穿透
+    m_currentOutput.lTimeStamp() = m_currentInput->vecVideoSrcData()[0].lTimeStamp();
     if(m_currentOutput.vecFrameResult().size() > 0) 
     {   
         // 输入数据常规信息穿透
@@ -183,14 +184,13 @@ bool CObjectDetectionAlg::executeModuleChain()
         m_currentOutput.vecFrameResult()[0].mapTimeStamp() = m_currentInput->vecVideoSrcData()[0].mapTimeStamp();
         m_currentOutput.vecFrameResult()[0].mapDelay() = m_currentInput->vecVideoSrcData()[0].mapDelay();
         m_currentOutput.vecFrameResult()[0].mapFps() = m_currentInput->vecVideoSrcData()[0].mapFps();
-        m_currentOutput.lTimeStamp() = m_currentInput->vecVideoSrcData()[0].lTimeStamp();
 
         LOG(INFO) << "原有信息穿透完毕： FrameId : " << m_currentOutput.vecFrameResult()[0].unFrameId() << ", lTimeStamp : " << m_currentOutput.lTimeStamp();
 
         // 独有数据填充
-        m_currentOutput.vecFrameResult()[0].eDataType(DATA_TYPE_POSEALG_RESULT);                                 
-        m_currentOutput.vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_POSEALG_END] = endTimeStamp;                
-        m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_POSEALG] = endTimeStamp - m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN];    
+        m_currentOutput.vecFrameResult()[0].eDataType(DATA_TYPE_MMALG_RESULT);                                 
+        m_currentOutput.vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_MMALG_END] = endTimeStamp;                
+        m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_MMALG] = endTimeStamp - m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN];    
         m_currentOutput.vecFrameResult()[0].tCameraSupplement() = m_currentInput->tDisparityResult();
     }
 
@@ -226,7 +226,7 @@ bool CObjectDetectionAlg::executeModuleChain()
                 std::vector<float> depthValues;
 
                 // 遍历中心点周围 5×5 的区域
-                std::cout << "5x5区域深度值：" << std::endl;
+                // std::cout << "5x5区域深度值：" << std::endl;
                 for (int dy = -2; dy <= 2; ++dy) {
                     for (int dx = -2; dx <= 2; ++dx) {
                         int currentIx = ix + dx;
@@ -237,15 +237,16 @@ bool CObjectDetectionAlg::executeModuleChain()
                             int idx = currentIy * width + currentIx;
                             if (idx >= 0 && idx < depthMap.size()) {
                                 depthValues.push_back(depthMap[idx]);
-                                std::cout << std::fixed << std::setprecision(2) << depthMap[idx] << "\t";
+                                // std::cout << std::fixed << std::setprecision(2) << depthMap[idx] << "\t";
                             }
-                        } else {
-                            std::cout << "N/A\t";
-                        }
+                        } 
+                        // else {
+                        //     std::cout << "N/A\t";
+                        // }
                     }
-                    std::cout << std::endl;
+                    // std::cout << std::endl;
                 }
-                std::cout << std::endl;
+                // std::cout << std::endl;
                 
 
                 // 如果收集到足够的深度值

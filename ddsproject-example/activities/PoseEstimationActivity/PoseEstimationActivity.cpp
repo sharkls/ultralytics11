@@ -122,7 +122,7 @@ void PoseEstimationActivity::MessageProducerThreadFunc()
             // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             continue;
         }
-        LOG(INFO) << "Get CAlgResult!!";
+        // LOG(INFO) << "Get CAlgResult!!";
         endTimeStamp_ = GetTimeStamp();
         LOG(INFO) << "PoseEstimationActivity MessageProducerThreadFunc time:----------------------------------- " << endTimeStamp_ - startTimeStamp_;
         writer_->SendMessage((void*)message.get());
@@ -142,7 +142,7 @@ void PoseEstimationActivity::MessageConsumerThreadFunc()
             continue;
         }
         // 执行融合算法
-        LOG(INFO) << "PoseEstimationActivity Algorithm InputData get !!! ---------- CMultiModalSrcData : " << l_pMultiModalSrcData->vecVideoSrcData().size();
+        // LOG(INFO) << "PoseEstimationActivity Algorithm InputData get !!! ---------- CMultiModalSrcData : " << l_pMultiModalSrcData->vecVideoSrcData().size();
         pose_estimation_alg_->runAlgorithm(l_pMultiModalSrcData.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
@@ -150,7 +150,10 @@ void PoseEstimationActivity::MessageConsumerThreadFunc()
 
 // 启动activity方法1：写main函数，可通过命令行传参，int main(int argc, char*argv[]),需自行解析
 int main()
-{
+{   
+    FLAGS_alsologtostderr = true;
+    google::InitGoogleLogging("PoseEstimationActivity");
+
     std::string activity_info_path = "../../../ddsproject-example/activities/conf/PoseEstimationActivity.info";
     ActivityInfo activity_info;
     // 解析PoseEstimationActivity配置文件

@@ -6,6 +6,7 @@
 STrack::STrack(const Eigen::VectorXf& tlwh, float score, int cls, int class_history_len)
     : score(score), cls(cls), _tlwh(tlwh), class_history_len(class_history_len) {
     kalman_filter = std::make_shared<KalmanFilterXYAH>();
+    distance = 0.0f;  // 初始化距离值
 }
 
 void STrack::predict() {
@@ -44,6 +45,7 @@ void STrack::activate_with_kf(std::shared_ptr<KalmanFilterXYAH> kf, int frame_id
 void STrack::update_with_track(const STrack& new_track, int frame_id) {
     this->frame_id = frame_id;
     this->score = new_track.score;
+    this->distance = new_track.distance;  // 更新距离值
     
     auto [mean, covariance] = kalman_filter->update(this->mean, this->covariance, new_track.to_xyah());
     this->mean = mean;
@@ -64,6 +66,7 @@ void STrack::re_activate(const STrack& new_track, int frame_id, bool new_id) {
     this->is_activated = true;
     this->frame_id = frame_id;
     this->score = new_track.score;
+    this->distance = new_track.distance;  // 更新距离值
     
     if (new_id) {
         this->track_id = next_id();
@@ -101,7 +104,7 @@ Eigen::VectorXf STrack::xywha() const {
 }
 
 std::vector<float> STrack::result() const {
-    std::vector<float> ret(7);
+    std::vector<float> ret(8);
     ret[0] = _tlwh[0] + _tlwh[2] / 2;  // x center
     ret[1] = _tlwh[1] + _tlwh[3] / 2;  // y center
     ret[2] = _tlwh[2];                  // width
@@ -109,6 +112,7 @@ std::vector<float> STrack::result() const {
     ret[4] = static_cast<float>(track_id);
     ret[5] = score;
     ret[6] = static_cast<float>(cls);
+    ret[7] = distance;                  // 增加distance
     return ret;
 }
 

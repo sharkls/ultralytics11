@@ -211,7 +211,7 @@ void ByteTrack::processFrame(const CFrameResult& frame)
 
 void ByteTrack::execute()
 {
-    LOG(INFO) << "ByteTrack::execute status: start ";
+    // LOG(INFO) << "ByteTrack::execute status: start ";
     if (m_inputData_.vecFrameResult().empty()) {
         LOG(ERROR) << "Input data is empty";
         return;
@@ -237,7 +237,7 @@ void ByteTrack::execute()
         LOG(ERROR) << "Tracking failed: " << e.what();
         return;
     }
-    LOG(INFO) << "ByteTrack::execute status: end! ";
+    // LOG(INFO) << "ByteTrack::execute status: end! ";
 }
 
 // 保存二进制数据的函数实现

@@ -55,9 +55,9 @@ bool ObjectLocationActivity::Init()
     writer_object_location_result_->Init();
 
     // 4. 初始化消息队列
-    multi_modal_fusion_result_deque_.SetMaxSize(10);  // 通过SetMaxSize方法设置队列长度
-    pose_estimation_result_deque_.SetMaxSize(10);
-    object_location_result_deque_.SetMaxSize(10);
+    multi_modal_fusion_result_deque_.SetMaxSize(50);  // 通过SetMaxSize方法设置队列长度
+    pose_estimation_result_deque_.SetMaxSize(50);
+    object_location_result_deque_.SetMaxSize(50);
 
     // 5.实例化算法节点并初始化
     std::string root_path = GetRootPath();
@@ -75,6 +75,7 @@ void ObjectLocationActivity::ReadMultiModalFusionCallbackFunc(const CAlgResult &
 {
     std::shared_ptr<CAlgResult> message_ptr = std::make_shared<CAlgResult>(message);
     multi_modal_fusion_result_deque_.PushBack(message_ptr);
+    LOG(INFO) << "Get MultiModalResult TimeStamp : ********  " << message_ptr->lTimeStamp();
 
     multimodalresult_time_ = GetTimeStamp();
     if(multimodalresult_time_ - count_time1_ > 1000)
@@ -92,6 +93,7 @@ void ObjectLocationActivity::ReadPoseEstimationCallbackFunc(const CAlgResult &me
 {
     std::shared_ptr<CAlgResult> message_ptr = std::make_shared<CAlgResult>(message);
     pose_estimation_result_deque_.PushBack(message_ptr);
+    LOG(INFO) << "Get PoseEstimationResult TimeStamp : ********  " << message_ptr->lTimeStamp();
 
     poseestimationresult_time_ = GetTimeStamp();
     if(poseestimationresult_time_ - count_time2_ > 1000)
@@ -186,7 +188,8 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
         }
 
         // 检查多模态融合结果是否有效
-        if (l_pMultiModalResult->vecFrameResult().empty())
+        // if (l_pMultiModalResult->vecFrameResult().empty())
+        if (l_pMultiModalResult->lTimeStamp() == 0)
         {
             LOG(WARNING) << "Empty multi-modal fusion result";
             continue;
@@ -194,6 +197,7 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
 
         // 深拷贝多模态融合结果
         *l_pObjectLocationInputData = *l_pMultiModalResult;
+        LOG(INFO) << "Get MultiModalResult TimeStamp : ********  " << l_pMultiModalResult->lTimeStamp();
         // LOG(INFO) << "MessageConsumerThreadFunc multi_modal_fusion_result_deque_ PopFront success";
 
         // 获取多模态数据的时间戳
@@ -202,23 +206,27 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
         bool foundMatch = false;
 
         // 尝试匹配姿态估计结果
-        while(pose_estimation_result_deque_.PopFront(l_pPoseEstimationResult, 10))
+        while(pose_estimation_result_deque_.PopFront(l_pPoseEstimationResult, 100))
         {   
-            // 检查姿态估计结果是否有效
-            if (l_pPoseEstimationResult->vecFrameResult().empty())
-            {
-                LOG(WARNING) << "Empty pose estimation result";
-                continue;
-            }
-            // auto poseTime = l_pPoseEstimationResult->vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_TIME_MATCH];
+            // 检查时间戳
             auto poseTime = l_pPoseEstimationResult->lTimeStamp();
-            std::cout << "multiModalTime :" << multiModalTime << ", poseTime : " << poseTime << std::endl;
+            LOG(INFO) << "multiModalTime :" << multiModalTime << ", poseTime : " << poseTime << std::endl;
 
             if (multiModalTime == poseTime)
             {
-                // 时间戳匹配，添加姿态估计结果
-                l_pObjectLocationInputData->vecFrameResult().push_back(l_pPoseEstimationResult->vecFrameResult()[0]);
-                foundMatch = true;
+                // 检查两个结果是否至少有一个非空
+                bool multiModalNotEmpty = !l_pMultiModalResult->vecFrameResult().empty();
+                bool poseEstimationNotEmpty = !l_pPoseEstimationResult->vecFrameResult().empty();
+                if (multiModalNotEmpty || poseEstimationNotEmpty) {
+                    // 合并非空的vecFrameResult
+                    if (multiModalNotEmpty)
+                        l_pObjectLocationInputData->vecFrameResult() = l_pMultiModalResult->vecFrameResult();
+                    if (poseEstimationNotEmpty)
+                        l_pObjectLocationInputData->vecFrameResult().push_back(l_pPoseEstimationResult->vecFrameResult()[0]);
+                    foundMatch = true;
+                } else {
+                    LOG(WARNING) << "Both multi-modal and pose estimation results are empty for timestamp: " << multiModalTime;
+                }
                 break;
             }
             else if (multiModalTime < poseTime)
@@ -241,13 +249,10 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
         try
         {
             // 直接调用runAlgorithm，不检查返回值
-            // LOG(INFO) << "runAlgorithm InputData TimeStamp : " << l_pObjectLocationInputData->lTimeStamp();
             startTimeStamp_ = GetTimeStamp();
             object_location_alg_->runAlgorithm(l_pObjectLocationInputData.get());
             endTimeStamp_ = GetTimeStamp();
-            LOG(INFO) << "ObjectLocationActivity runAlgorithm time:----------------------------------- " << endTimeStamp_ - startTimeStamp_;
-            // LOG(INFO) << "ObjectLocationActivity Algorithm InputData processed successfully. "
-            //         << "Frame count: " << l_pObjectLocationInputData->vecFrameResult().size();
+            LOG(INFO) << "ObjectLocationActivity runAlgorithm time:------------------------------ " << endTimeStamp_ - startTimeStamp_;
         }
         catch (const std::exception& e)
         {
@@ -260,7 +265,10 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
 
 // 启动activity方法1：写main函数，可通过命令行传参，int main(int argc, char*argv[]),需自行解析
 int main()
-{
+{   
+    FLAGS_alsologtostderr = true;
+    google::InitGoogleLogging("ObjectLocationActivity");
+
     std::string activity_info_path = "../../../ddsproject-example/activities/conf/ObjectLocationActivity.info";
     ActivityInfo activity_info;
     // 解析ObjectLocationActivity配置文件

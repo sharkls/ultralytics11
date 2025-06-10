@@ -142,7 +142,7 @@ void ObjectDetectionActivity::MessageConsumerThreadFunc()
             continue;
         }
         // 执行融合算法
-        LOG(INFO) << "ObjectDetectionActivity Algorithm InputData get !!! ---------- CMultiModalSrcData : " << l_pMultiModalSrcData->vecVideoSrcData().size();
+        // LOG(INFO) << "ObjectDetectionActivity Algorithm InputData get !!! ---------- CMultiModalSrcData : " << l_pMultiModalSrcData->vecVideoSrcData().size();
         object_detection_alg_->runAlgorithm(l_pMultiModalSrcData.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
@@ -150,7 +150,10 @@ void ObjectDetectionActivity::MessageConsumerThreadFunc()
 
 // 启动activity方法1：写main函数，可通过命令行传参，int main(int argc, char*argv[]),需自行解析
 int main()
-{
+{   
+    FLAGS_alsologtostderr = true;
+    google::InitGoogleLogging("ObjectDetectionActivity");
+
     std::string activity_info_path = "../../../ddsproject-example/activities/conf/ObjectDetectionActivity.info";
     ActivityInfo activity_info;
     // 解析ObjectDetectionActivity配置文件

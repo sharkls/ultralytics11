@@ -78,7 +78,8 @@ private:
     void convertDetections(const std::vector<CObjectResult>& detections,
                           std::vector<Eigen::VectorXf>& dets,
                           std::vector<float>& scores,
-                          std::vector<int>& clss);
+                          std::vector<int>& clss,
+                          std::vector<float>& distances);
     
     // 将跟踪结果转换为输出格式
     void convertTracks(const std::vector<std::vector<float>>& tracks,

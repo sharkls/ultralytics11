@@ -2,11 +2,6 @@
 
 #include "pushStream.h"
 
-// #include <unistd.h>
-// #include <arpa/inet.h>
-// #include <sys/socket.h>
-// #include <netinet/in.h>
-
 
 // 启动activity方法二：使用REGISTER_ACTIVITY进行注册，然后通过activity_exec命令将activity启动，可传入参数（-c activity配置文件路径）
 // REGISTER_ACTIVITY(VisualizationActivity)
@@ -112,8 +107,8 @@ bool VisualizationActivity::Init()
     // writer_->Init();
 
     // 4. 初始化消息队列
-    multi_modal_src_data_deque_.SetMaxSize(10);  // 通过SetMaxSize方法设置队列长度
-    object_location_result_deque_.SetMaxSize(10);
+    multi_modal_src_data_deque_.SetMaxSize(3);  // 通过SetMaxSize方法设置队列长度
+    object_location_result_deque_.SetMaxSize(3);
 
     // 5.实例化算法节点并初始化
     // std::string root_path = GetRootPath();
@@ -144,11 +139,13 @@ void VisualizationActivity::ReadMultiModalSrcDataCallbackFunc(const CMultiModalS
     std::shared_ptr<CMultiModalSrcData> message_ptr = std::make_shared<CMultiModalSrcData>(message);
     multi_modal_src_data_deque_.PushBack(message_ptr);
 
+    TINFO << "timestamp in ReadMultiModalSrcDataCallbackFunc: " << message_ptr->vecVideoSrcData()[0].lTimeStamp();
+
 
     countReadMultiModal++;
     if (getTimeStamp() - tmpTimeStampReadMultiModal > 1000)
     {
-        std::cout << "==========fpsReadMultiModal: " << countReadMultiModal << std::endl;
+        TINFO << "fpsReadMultiModal: " << countReadMultiModal;
 
         tmpTimeStampReadMultiModal = getTimeStamp();
         countReadMultiModal = 0;
@@ -162,13 +159,18 @@ void VisualizationActivity::ReadObjectLocationResultCallbackFunc(const CAlgResul
         void *data_handle, std::string node_name, std::string topic_name)
 {
     std::shared_ptr<CAlgResult> message_ptr = std::make_shared<CAlgResult>(message);
+
+
+    TINFO << "before push: " << object_location_result_deque_.Size() << " " << message_ptr->vecFrameResult().size();
     object_location_result_deque_.PushBack(message_ptr);
+
+    TINFO << "timestamp in ReadObjectLocationResultCallbackFunc: " << message_ptr->lTimeStamp();
 
 
     countReadObjectLocation++;
     if (getTimeStamp() - tmpTimeReadObjectLocation > 1000)
     {
-        std::cout << "==========fpsReadObjectLocation: " << countReadObjectLocation << std::endl;
+        TINFO << "fpsReadObjectLocation: " << countReadObjectLocation;
 
         tmpTimeReadObjectLocation = getTimeStamp();
         countReadObjectLocation = 0;
@@ -283,24 +285,23 @@ void VisualizationActivity::MessageConsumerThreadFunc()
         // cv::imwrite("/share/tmpimage/Visual/" + std::to_string(i++) +  ".png", mat);
         // std::cout << mat.cols << " " << mat.rows << std::endl;
 
-        std::cout << "==========2" << std::endl;
+        TINFO << "timestamp in l_pMultiModalSrcData, " << multiModalTime;
 
         
         // 尝试匹配姿态估计结果
-        while(object_location_result_deque_.PopFront(l_pObjectLocationResult, 30))
+        while(object_location_result_deque_.PopFront(l_pObjectLocationResult, 100))
         {
-            std::cout << "==========21" << std::endl;
             // 检查姿态估计结果是否有效
             if (l_pObjectLocationResult->vecFrameResult().empty())
             {
-                LOG(WARNING) << "Empty pose estimation result";
+                LOG(WARNING) << "Empty pose estimation result " << l_pObjectLocationResult->lTimeStamp();
                 continue;
             }
 
             // auto poseTime = l_pPoseEstimationResult->vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_TIME_MATCH];
             auto poseTime = l_pObjectLocationResult->lTimeStamp();
-            
-            std::cout << multiModalTime << " vs " << poseTime << std::endl;
+
+            TINFO << multiModalTime << " vs " << poseTime;
             if (multiModalTime == poseTime)
             {
                 // 时间戳匹配，添加姿态估计结果
@@ -313,7 +314,7 @@ void VisualizationActivity::MessageConsumerThreadFunc()
                 {
                     for (const auto& obRes: item.vecObjectResult())
                     {
-                        std::cout << " " << obRes.fTopLeftX() << " " << obRes.fTopLeftY() << " " <<obRes.fBottomRightX() << " " << obRes.fBottomRightY() << std::endl;
+                        // std::cout << " " << obRes.fTopLeftX() << " " << obRes.fTopLeftY() << " " <<obRes.fBottomRightX() << " " << obRes.fBottomRightY() << std::endl;
 
                         cv::Scalar sc = cv::Scalar(0, 0, 255);
                         if (obRes.strClass() != "0")
@@ -322,15 +323,18 @@ void VisualizationActivity::MessageConsumerThreadFunc()
                         }
 
                         cv::rectangle(mat, cv::Point(obRes.fTopLeftX(), obRes.fTopLeftY()), cv::Point(obRes.fBottomRightX(), obRes.fBottomRightY()), sc, 3);
-                        cv::putText(mat, obRes.strClass() + ", " + std::to_string(obRes.fDistance()), cv::Point(obRes.fTopLeftX(), obRes.fTopLeftY()),
-                            cv::FONT_HERSHEY_SIMPLEX, 1.0, sc);
+                        cv::putText(mat,
+                            obRes.strClass() + ", " +
+                                std::to_string(obRes.fDistance() / 1000).substr(0, 5),
+                            cv::Point(obRes.fTopLeftX(), obRes.fTopLeftY()),
+                            cv::FONT_HERSHEY_SIMPLEX, 1.0, sc, 3);
                     }
                 }
 
                 count_inner++;
                 if (getTimeStamp() - tmpTimeStamp_inner > 1000)
                 {
-                    std::cout << "==========fps_inner: " << count_inner << std::endl;
+                    TINFO << "fps_inner: " << count_inner;
 
                     tmpTimeStamp_inner = getTimeStamp();
                     count_inner = 0;
@@ -353,10 +357,13 @@ void VisualizationActivity::MessageConsumerThreadFunc()
             }
             else if (multiModalTime < poseTime)
             {
+                TINFO << "1: " << object_location_result_deque_.Size();
                 // 当前姿态估计结果时间戳更大，放回队列
-                object_location_result_deque_.PushFront(l_pObjectLocationResult);
+                object_location_result_deque_.PushFront(std::make_shared<CAlgResult>(*l_pObjectLocationResult));
 
-                std::cout << "------------break directly. " << multiModalTime << " " << poseTime << std::endl;
+                TINFO << "2: " << object_location_result_deque_.Size();
+
+                TINFO << "break directly. " << multiModalTime << " " << poseTime;
                 break;
             }
             // 如果时间戳更小，继续循环查找匹配项
@@ -367,7 +374,7 @@ void VisualizationActivity::MessageConsumerThreadFunc()
         count++;
         if (getTimeStamp() - tmpTimeStamp > 1000)
         {
-            std::cout << "==========fps: " << count << std::endl;
+            TINFO << "fps: " << count;
 
             tmpTimeStamp = getTimeStamp();
             count = 0;
@@ -403,6 +410,9 @@ void VisualizationActivity::MessageConsumerThreadFunc()
 // 启动activity方法1：写main函数，可通过命令行传参，int main(int argc, char*argv[]),需自行解析
 int main()
 {
+    FLAGS_alsologtostderr = true;
+    google::InitGoogleLogging("VisualizationActivity");
+
     std::string activity_info_path = "../../../ddsproject-example/activities/conf/VisualizationActivity.info";
     ActivityInfo activity_info;
     // 解析VisualizationActivity配置文件

@@ -26,6 +26,7 @@ public:
     Eigen::VectorXf mean;  // 卡尔曼滤波器的均值向量
     Eigen::MatrixXf covariance; // 卡尔曼滤波器的协方差矩阵
     float score;           // 检测置信度分数
+    float distance;        // 目标距离值
     int tracklet_len;      // 轨迹长度
     int cls;               // 目标类别
     int idx;               // 检测框索引

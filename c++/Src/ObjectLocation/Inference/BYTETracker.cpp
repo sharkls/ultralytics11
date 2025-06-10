@@ -76,7 +76,7 @@ void BYTETracker::remove_duplicate_stracks(std::vector<std::shared_ptr<STrack>>&
 }
 void BYTETracker::reset_id() { BaseTrack::reset_id(); }
 
-std::vector<std::vector<float>> BYTETracker::update(const std::vector<Eigen::VectorXf>& dets, const std::vector<float>& scores, const std::vector<int>& clss) {
+std::vector<std::vector<float>> BYTETracker::update(const std::vector<Eigen::VectorXf>& dets, const std::vector<float>& scores, const std::vector<int>& clss, const std::vector<float>& distances) {
     frame_id++;
     std::vector<std::shared_ptr<STrack>> activated_stracks, refind_stracks;
     
@@ -96,8 +96,16 @@ std::vector<std::vector<float>> BYTETracker::update(const std::vector<Eigen::Vec
     
     // 2. 初始化STrack对象
     std::vector<std::shared_ptr<STrack>> detections, detections_second;
-    for (int idx : high_inds) detections.push_back(std::make_shared<STrack>(dets[idx], scores[idx], clss[idx], class_history_len));
-    for (int idx : second_inds) detections_second.push_back(std::make_shared<STrack>(dets[idx], scores[idx], clss[idx], class_history_len));
+    for (int idx : high_inds) {
+        auto track = std::make_shared<STrack>(dets[idx], scores[idx], clss[idx], class_history_len);
+        if (idx < distances.size()) track->distance = distances[idx];
+        detections.push_back(track);
+    }
+    for (int idx : second_inds) {
+        auto track = std::make_shared<STrack>(dets[idx], scores[idx], clss[idx], class_history_len);
+        if (idx < distances.size()) track->distance = distances[idx];
+        detections_second.push_back(track);
+    }
     
     // 3. 预测所有track位置
     std::vector<std::shared_ptr<STrack>> unconfirmed;
@@ -220,6 +228,11 @@ std::vector<std::vector<float>> BYTETracker::update(const std::vector<Eigen::Vec
     if (removed_stracks.size() > 1000) removed_stracks.erase(removed_stracks.begin(), removed_stracks.end() - 999);
     // 9. 输出结果
     std::vector<std::vector<float>> results;
-    for (auto& x : tracked_stracks) if (x->is_activated) results.push_back(x->result());
+    for (auto& x : tracked_stracks) {
+        if (x->is_activated) {
+            auto result = x->result();
+            results.push_back(result);
+        }
+    }
     return results;
 } 
