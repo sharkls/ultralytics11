@@ -1,0 +1,39 @@
+syntax = "proto3";
+package binocularpositioning;
+
+import "AlgorithmConfig_conf.proto";
+
+message SGBMConfig {
+    int32 min_disparity = 1;          // 最小视差值
+    int32 num_disparities = 2;        // 视差搜索范围
+    int32 block_size = 3;             // 匹配块大小
+    int32 p1 = 4;                     // 控制视差平滑度的第一个参数
+    int32 p2 = 5;                     // 控制视差平滑度的第二个参数
+    int32 disp12_max_diff = 6;        // 左右视差检查的最大允许差异
+    int32 pre_filter_cap = 7;         // 预处理滤波器的截断值
+    int32 uniqueness_ratio = 8;       // 唯一性比率
+    int32 speckle_window_size = 9;    // 斑点窗口大小
+    int32 speckle_range = 10;         // 斑点范围
+    int32 mode = 11;                  // 模式
+}
+
+// CRL 参数
+message CRLConfig{
+    string engine_path = 1;
+}
+
+// 双目测距模型参数
+message ModelConfig {
+    SGBMConfig sgbm_config = 1;       // SGBM配置
+    CRLConfig crl_config = 2;         // CRL配置
+    bool run_status = 3;             // 运行状态
+    float baseline = 4;              // 相机基线长度(mm)，即双目瞳距
+    int32 focus_pixel = 5;           // 像素焦距，单位为像素，定义为双目统一后的像素焦距
+    float focal_length = 6;          // 相机焦距(mm)
+}
+
+// 双目定位任务配置参数
+message BinocularPositioningConfig {
+    ModelConfig model_config = 1;      // 模型配置
+    common.ModulesConfig modules_config = 2;  // 模块配置
+}

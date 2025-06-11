@@ -178,9 +178,11 @@ data/
 # c++
 c++/build/
 c++/Submodules/TPL/
-c++/Output/
+c++/Output/vis/
 deploy/build/
 deploy/Output/
+*.jpg
+*.txt
 
 # ddsproject-example
 ddsproject-example/submodules/ddsproject-thirdparty/

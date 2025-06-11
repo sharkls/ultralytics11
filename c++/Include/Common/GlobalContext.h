@@ -42,6 +42,10 @@ enum TIMESTAMP_TYPE : uint8_t
     TIMESTAMP_LOCALG_BEGIN,     // 进入目标定位算法前时间戳
     TIMESTAMP_LOCALG_END,       // 目标定位算法后时间戳
 
+    // 双目定位算法相关
+    TIMESTAMP_BINOCULARPOSITIONINGALG_BEGIN,     // 进入双目定位算法前时间戳
+    TIMESTAMP_BINOCULARPOSITIONINGALG_END,       // 双目定位算法后时间戳
+
     TIMESTAMP_TYPE_MAX          // 时间戳类型总个数
 };
 
@@ -60,6 +64,8 @@ enum EFPSType : uint8_t
     FPS_POSEALG_OUTPUT,      // 姿态估计算法输出帧率
     FPS_LOCALG_INPUT,        // 进入目标定位算法帧率
     FPS_LOCALG_OUTPUT,       // 目标定位算法输出帧率
+    FPS_BINOCULARPOSITIONINGALG_INPUT,     // 进入双目定位算法帧率
+    FPS_BINOCULARPOSITIONINGALG_OUTPUT,       // 双目定位算法输出帧率
     FPS_TYPE_MAX
 };
 
@@ -73,6 +79,7 @@ enum EDelayType : uint8_t
     DELAY_TYPE_MMALG,                      // 多模态感知算法总耗时
     DELAY_TYPE_POSEALG,                    // 姿态估计算法总耗时
     DELAY_TYPE_LOCALG,                     // 目标定位算法总耗时
+    DELAY_TYPE_BINOCULARPOSITIONINGALG,     // 双目定位算法总耗时
     DELAY_TYPE_PIPELINE_ALL,               // 全流程总延时
     DELAY_TYPE_MAX
 };
@@ -97,6 +104,7 @@ enum EDataType : uint8_t
     DATA_TYPE_POSEALG_RESULT,      // 姿态估计算法结果
     DATA_TYPE_LOCALG_RESULT,       // 目标定位算法结果
     DATA_TYPE_FUSION_RESULT,       // 融合结果（如有）
+    DATA_TYPE_BINOCULARPOSITIONINGALG_RESULT,     // 双目定位算法结果
     DATA_TYPE_MAX
 };
 

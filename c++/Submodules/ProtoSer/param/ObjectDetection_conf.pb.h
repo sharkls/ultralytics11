@@ -50,9 +50,8 @@ template <typename T>
 struct TableStruct_ObjectDetection_5fconf_2eproto {
   static const ::uint32_t offsets[];
 };
-extern "C" {
-extern const ::google::protobuf::internal::DescriptorTable descriptor_table_ObjectDetection_5fconf_2eproto;
-}  // extern "C"
+extern const ::google::protobuf::internal::DescriptorTable
+    descriptor_table_ObjectDetection_5fconf_2eproto;
 namespace objectdetection {
 class ObjectDetectionConfig;
 struct ObjectDetectionConfigDefaultTypeInternal;
@@ -75,21 +74,23 @@ namespace objectdetection {
 
 // -------------------------------------------------------------------
 
-class YOLOModelConfig final : public ::google::protobuf::Message
+class YOLOModelConfig final
+    : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:objectdetection.YOLOModelConfig) */ {
  public:
   inline YOLOModelConfig() : YOLOModelConfig(nullptr) {}
   ~YOLOModelConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(YOLOModelConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+  void operator delete(YOLOModelConfig* msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(YOLOModelConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR YOLOModelConfig(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR YOLOModelConfig(
+      ::google::protobuf::internal::ConstantInitialized);
 
   inline YOLOModelConfig(const YOLOModelConfig& from) : YOLOModelConfig(nullptr, from) {}
   inline YOLOModelConfig(YOLOModelConfig&& from) noexcept
@@ -112,27 +113,30 @@ class YOLOModelConfig final : public ::google::protobuf::Message
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+  static const ::google::protobuf::Descriptor* descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+  static const ::google::protobuf::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const YOLOModelConfig& default_instance() {
-    return *reinterpret_cast<const YOLOModelConfig*>(
+    return *internal_default_instance();
+  }
+  static inline const YOLOModelConfig* internal_default_instance() {
+    return reinterpret_cast<const YOLOModelConfig*>(
         &_YOLOModelConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 0;
   friend void swap(YOLOModelConfig& a, YOLOModelConfig& b) { a.Swap(&b); }
-  inline void Swap(YOLOModelConfig* PROTOBUF_NONNULL other) {
+  inline void Swap(YOLOModelConfig* other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -140,7 +144,7 @@ class YOLOModelConfig final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(YOLOModelConfig* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(YOLOModelConfig* other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -148,7 +152,7 @@ class YOLOModelConfig final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  YOLOModelConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+  YOLOModelConfig* New(::google::protobuf::Arena* arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<YOLOModelConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -157,8 +161,9 @@ class YOLOModelConfig final : public ::google::protobuf::Message
   void MergeFrom(const YOLOModelConfig& from) { YOLOModelConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -168,46 +173,45 @@ class YOLOModelConfig final : public ::google::protobuf::Message
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  void SharedCtor(::google::protobuf::Arena* arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(YOLOModelConfig* PROTOBUF_NONNULL other);
+  void InternalSwap(YOLOModelConfig* other);
  private:
   template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "objectdetection.YOLOModelConfig"; }
 
  protected:
-  explicit YOLOModelConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  YOLOModelConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const YOLOModelConfig& from);
-  YOLOModelConfig(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, YOLOModelConfig&& from) noexcept
+  explicit YOLOModelConfig(::google::protobuf::Arena* arena);
+  YOLOModelConfig(::google::protobuf::Arena* arena, const YOLOModelConfig& from);
+  YOLOModelConfig(::google::protobuf::Arena* arena, YOLOModelConfig&& from) noexcept
       : YOLOModelConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -256,11 +260,11 @@ class YOLOModelConfig final : public ::google::protobuf::Message
   void set_stride(int index, ::int32_t value);
   void add_stride(::int32_t value);
   const ::google::protobuf::RepeatedField<::int32_t>& stride() const;
-  ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL mutable_stride();
+  ::google::protobuf::RepeatedField<::int32_t>* mutable_stride();
 
   private:
   const ::google::protobuf::RepeatedField<::int32_t>& _internal_stride() const;
-  ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL _internal_mutable_stride();
+  ::google::protobuf::RepeatedField<::int32_t>* _internal_mutable_stride();
 
   public:
   // string engine_path = 1;
@@ -268,14 +272,14 @@ class YOLOModelConfig final : public ::google::protobuf::Message
   const std::string& engine_path() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_engine_path(Arg_&& arg, Args_... args);
-  std::string* PROTOBUF_NONNULL mutable_engine_path();
-  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_engine_path();
-  void set_allocated_engine_path(std::string* PROTOBUF_NULLABLE value);
+  std::string* mutable_engine_path();
+  [[nodiscard]] std::string* release_engine_path();
+  void set_allocated_engine_path(std::string* value);
 
   private:
   const std::string& _internal_engine_path() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_engine_path(const std::string& value);
-  std::string* PROTOBUF_NONNULL _internal_mutable_engine_path();
+  std::string* _internal_mutable_engine_path();
 
   public:
   // int32 num_class = 2;
@@ -522,9 +526,9 @@ class YOLOModelConfig final : public ::google::protobuf::Message
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<5, 26,
-                                   0, 75,
-                                   2>
+  static const ::google::protobuf::internal::TcParseTable<
+      5, 26, 0,
+      75, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -534,14 +538,13 @@ class YOLOModelConfig final : public ::google::protobuf::Message
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const YOLOModelConfig& from_msg);
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const YOLOModelConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::RepeatedField<::int32_t> stride_;
@@ -580,21 +583,23 @@ class YOLOModelConfig final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull YOLOModelConfig_class_data_;
 // -------------------------------------------------------------------
 
-class ObjectDetectionConfig final : public ::google::protobuf::Message
+class ObjectDetectionConfig final
+    : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:objectdetection.ObjectDetectionConfig) */ {
  public:
   inline ObjectDetectionConfig() : ObjectDetectionConfig(nullptr) {}
   ~ObjectDetectionConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ObjectDetectionConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+  void operator delete(ObjectDetectionConfig* msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(ObjectDetectionConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ObjectDetectionConfig(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR ObjectDetectionConfig(
+      ::google::protobuf::internal::ConstantInitialized);
 
   inline ObjectDetectionConfig(const ObjectDetectionConfig& from) : ObjectDetectionConfig(nullptr, from) {}
   inline ObjectDetectionConfig(ObjectDetectionConfig&& from) noexcept
@@ -617,27 +622,30 @@ class ObjectDetectionConfig final : public ::google::protobuf::Message
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+  static const ::google::protobuf::Descriptor* descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+  static const ::google::protobuf::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const ObjectDetectionConfig& default_instance() {
-    return *reinterpret_cast<const ObjectDetectionConfig*>(
+    return *internal_default_instance();
+  }
+  static inline const ObjectDetectionConfig* internal_default_instance() {
+    return reinterpret_cast<const ObjectDetectionConfig*>(
         &_ObjectDetectionConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 1;
   friend void swap(ObjectDetectionConfig& a, ObjectDetectionConfig& b) { a.Swap(&b); }
-  inline void Swap(ObjectDetectionConfig* PROTOBUF_NONNULL other) {
+  inline void Swap(ObjectDetectionConfig* other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -645,7 +653,7 @@ class ObjectDetectionConfig final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ObjectDetectionConfig* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(ObjectDetectionConfig* other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -653,7 +661,7 @@ class ObjectDetectionConfig final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  ObjectDetectionConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+  ObjectDetectionConfig* New(::google::protobuf::Arena* arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<ObjectDetectionConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -662,8 +670,9 @@ class ObjectDetectionConfig final : public ::google::protobuf::Message
   void MergeFrom(const ObjectDetectionConfig& from) { ObjectDetectionConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -673,46 +682,45 @@ class ObjectDetectionConfig final : public ::google::protobuf::Message
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  void SharedCtor(::google::protobuf::Arena* arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(ObjectDetectionConfig* PROTOBUF_NONNULL other);
+  void InternalSwap(ObjectDetectionConfig* other);
  private:
   template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "objectdetection.ObjectDetectionConfig"; }
 
  protected:
-  explicit ObjectDetectionConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  ObjectDetectionConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ObjectDetectionConfig& from);
-  ObjectDetectionConfig(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ObjectDetectionConfig&& from) noexcept
+  explicit ObjectDetectionConfig(::google::protobuf::Arena* arena);
+  ObjectDetectionConfig(::google::protobuf::Arena* arena, const ObjectDetectionConfig& from);
+  ObjectDetectionConfig(::google::protobuf::Arena* arena, ObjectDetectionConfig&& from) noexcept
       : ObjectDetectionConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -730,39 +738,39 @@ class ObjectDetectionConfig final : public ::google::protobuf::Message
   bool has_yolo_model_config() const;
   void clear_yolo_model_config() ;
   const ::objectdetection::YOLOModelConfig& yolo_model_config() const;
-  [[nodiscard]] ::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE release_yolo_model_config();
-  ::objectdetection::YOLOModelConfig* PROTOBUF_NONNULL mutable_yolo_model_config();
-  void set_allocated_yolo_model_config(::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_yolo_model_config(::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE value);
-  ::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE unsafe_arena_release_yolo_model_config();
+  [[nodiscard]] ::objectdetection::YOLOModelConfig* release_yolo_model_config();
+  ::objectdetection::YOLOModelConfig* mutable_yolo_model_config();
+  void set_allocated_yolo_model_config(::objectdetection::YOLOModelConfig* value);
+  void unsafe_arena_set_allocated_yolo_model_config(::objectdetection::YOLOModelConfig* value);
+  ::objectdetection::YOLOModelConfig* unsafe_arena_release_yolo_model_config();
 
   private:
   const ::objectdetection::YOLOModelConfig& _internal_yolo_model_config() const;
-  ::objectdetection::YOLOModelConfig* PROTOBUF_NONNULL _internal_mutable_yolo_model_config();
+  ::objectdetection::YOLOModelConfig* _internal_mutable_yolo_model_config();
 
   public:
   // .common.ModulesConfig modules_config = 2;
   bool has_modules_config() const;
   void clear_modules_config() ;
   const ::common::ModulesConfig& modules_config() const;
-  [[nodiscard]] ::common::ModulesConfig* PROTOBUF_NULLABLE release_modules_config();
-  ::common::ModulesConfig* PROTOBUF_NONNULL mutable_modules_config();
-  void set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value);
-  ::common::ModulesConfig* PROTOBUF_NULLABLE unsafe_arena_release_modules_config();
+  [[nodiscard]] ::common::ModulesConfig* release_modules_config();
+  ::common::ModulesConfig* mutable_modules_config();
+  void set_allocated_modules_config(::common::ModulesConfig* value);
+  void unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value);
+  ::common::ModulesConfig* unsafe_arena_release_modules_config();
 
   private:
   const ::common::ModulesConfig& _internal_modules_config() const;
-  ::common::ModulesConfig* PROTOBUF_NONNULL _internal_mutable_modules_config();
+  ::common::ModulesConfig* _internal_mutable_modules_config();
 
   public:
   // @@protoc_insertion_point(class_scope:objectdetection.ObjectDetectionConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
-                                   2, 0,
-                                   2>
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 2,
+      0, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -772,18 +780,17 @@ class ObjectDetectionConfig final : public ::google::protobuf::Message
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const ObjectDetectionConfig& from_msg);
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const ObjectDetectionConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE yolo_model_config_;
-    ::common::ModulesConfig* PROTOBUF_NULLABLE modules_config_;
+    ::objectdetection::YOLOModelConfig* yolo_model_config_;
+    ::common::ModulesConfig* modules_config_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -820,14 +827,14 @@ inline const std::string& YOLOModelConfig::engine_path() const
   return _internal_engine_path();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void YOLOModelConfig::set_engine_path(Arg_&& arg, Args_... args) {
+PROTOBUF_ALWAYS_INLINE void YOLOModelConfig::set_engine_path(Arg_&& arg,
+                                              Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.engine_path_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:objectdetection.YOLOModelConfig.engine_path)
 }
-inline std::string* PROTOBUF_NONNULL YOLOModelConfig::mutable_engine_path()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* YOLOModelConfig::mutable_engine_path() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_engine_path();
   // @@protoc_insertion_point(field_mutable:objectdetection.YOLOModelConfig.engine_path)
   return _s;
@@ -841,12 +848,12 @@ inline void YOLOModelConfig::_internal_set_engine_path(const std::string& value)
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.engine_path_.Set(value, GetArena());
 }
-inline std::string* PROTOBUF_NONNULL YOLOModelConfig::_internal_mutable_engine_path() {
+inline std::string* YOLOModelConfig::_internal_mutable_engine_path() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.engine_path_.Mutable( GetArena());
 }
-inline std::string* PROTOBUF_NULLABLE YOLOModelConfig::release_engine_path() {
+inline std::string* YOLOModelConfig::release_engine_path() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:objectdetection.YOLOModelConfig.engine_path)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
@@ -859,7 +866,7 @@ inline std::string* PROTOBUF_NULLABLE YOLOModelConfig::release_engine_path() {
   }
   return released;
 }
-inline void YOLOModelConfig::set_allocated_engine_path(std::string* PROTOBUF_NULLABLE value) {
+inline void YOLOModelConfig::set_allocated_engine_path(std::string* value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
@@ -1046,7 +1053,7 @@ inline const ::google::protobuf::RepeatedField<::int32_t>& YOLOModelConfig::stri
   // @@protoc_insertion_point(field_list:objectdetection.YOLOModelConfig.stride)
   return _internal_stride();
 }
-inline ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL YOLOModelConfig::mutable_stride()
+inline ::google::protobuf::RepeatedField<::int32_t>* YOLOModelConfig::mutable_stride()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_mutable_list:objectdetection.YOLOModelConfig.stride)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -1057,8 +1064,7 @@ YOLOModelConfig::_internal_stride() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.stride_;
 }
-inline ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL
-YOLOModelConfig::_internal_mutable_stride() {
+inline ::google::protobuf::RepeatedField<::int32_t>* YOLOModelConfig::_internal_mutable_stride() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.stride_;
 }
@@ -1519,8 +1525,7 @@ inline const ::objectdetection::YOLOModelConfig& ObjectDetectionConfig::yolo_mod
   // @@protoc_insertion_point(field_get:objectdetection.ObjectDetectionConfig.yolo_model_config)
   return _internal_yolo_model_config();
 }
-inline void ObjectDetectionConfig::unsafe_arena_set_allocated_yolo_model_config(
-    ::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE value) {
+inline void ObjectDetectionConfig::unsafe_arena_set_allocated_yolo_model_config(::objectdetection::YOLOModelConfig* value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.yolo_model_config_);
@@ -1533,7 +1538,7 @@ inline void ObjectDetectionConfig::unsafe_arena_set_allocated_yolo_model_config(
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:objectdetection.ObjectDetectionConfig.yolo_model_config)
 }
-inline ::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE ObjectDetectionConfig::release_yolo_model_config() {
+inline ::objectdetection::YOLOModelConfig* ObjectDetectionConfig::release_yolo_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
@@ -1552,7 +1557,7 @@ inline ::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE ObjectDetectionConf
   }
   return released;
 }
-inline ::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE ObjectDetectionConfig::unsafe_arena_release_yolo_model_config() {
+inline ::objectdetection::YOLOModelConfig* ObjectDetectionConfig::unsafe_arena_release_yolo_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:objectdetection.ObjectDetectionConfig.yolo_model_config)
 
@@ -1561,7 +1566,7 @@ inline ::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE ObjectDetectionConf
   _impl_.yolo_model_config_ = nullptr;
   return temp;
 }
-inline ::objectdetection::YOLOModelConfig* PROTOBUF_NONNULL ObjectDetectionConfig::_internal_mutable_yolo_model_config() {
+inline ::objectdetection::YOLOModelConfig* ObjectDetectionConfig::_internal_mutable_yolo_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.yolo_model_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::objectdetection::YOLOModelConfig>(GetArena());
@@ -1569,22 +1574,21 @@ inline ::objectdetection::YOLOModelConfig* PROTOBUF_NONNULL ObjectDetectionConfi
   }
   return _impl_.yolo_model_config_;
 }
-inline ::objectdetection::YOLOModelConfig* PROTOBUF_NONNULL ObjectDetectionConfig::mutable_yolo_model_config()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::objectdetection::YOLOModelConfig* ObjectDetectionConfig::mutable_yolo_model_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
   ::objectdetection::YOLOModelConfig* _msg = _internal_mutable_yolo_model_config();
   // @@protoc_insertion_point(field_mutable:objectdetection.ObjectDetectionConfig.yolo_model_config)
   return _msg;
 }
-inline void ObjectDetectionConfig::set_allocated_yolo_model_config(::objectdetection::YOLOModelConfig* PROTOBUF_NULLABLE value) {
+inline void ObjectDetectionConfig::set_allocated_yolo_model_config(::objectdetection::YOLOModelConfig* value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.yolo_model_config_);
+    delete (_impl_.yolo_model_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = value->GetArena();
+    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
@@ -1612,8 +1616,7 @@ inline const ::common::ModulesConfig& ObjectDetectionConfig::modules_config() co
   // @@protoc_insertion_point(field_get:objectdetection.ObjectDetectionConfig.modules_config)
   return _internal_modules_config();
 }
-inline void ObjectDetectionConfig::unsafe_arena_set_allocated_modules_config(
-    ::common::ModulesConfig* PROTOBUF_NULLABLE value) {
+inline void ObjectDetectionConfig::unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.modules_config_);
@@ -1626,7 +1629,7 @@ inline void ObjectDetectionConfig::unsafe_arena_set_allocated_modules_config(
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:objectdetection.ObjectDetectionConfig.modules_config)
 }
-inline ::common::ModulesConfig* PROTOBUF_NULLABLE ObjectDetectionConfig::release_modules_config() {
+inline ::common::ModulesConfig* ObjectDetectionConfig::release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000002u;
@@ -1645,7 +1648,7 @@ inline ::common::ModulesConfig* PROTOBUF_NULLABLE ObjectDetectionConfig::release
   }
   return released;
 }
-inline ::common::ModulesConfig* PROTOBUF_NULLABLE ObjectDetectionConfig::unsafe_arena_release_modules_config() {
+inline ::common::ModulesConfig* ObjectDetectionConfig::unsafe_arena_release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:objectdetection.ObjectDetectionConfig.modules_config)
 
@@ -1654,7 +1657,7 @@ inline ::common::ModulesConfig* PROTOBUF_NULLABLE ObjectDetectionConfig::unsafe_
   _impl_.modules_config_ = nullptr;
   return temp;
 }
-inline ::common::ModulesConfig* PROTOBUF_NONNULL ObjectDetectionConfig::_internal_mutable_modules_config() {
+inline ::common::ModulesConfig* ObjectDetectionConfig::_internal_mutable_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.modules_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::common::ModulesConfig>(GetArena());
@@ -1662,14 +1665,13 @@ inline ::common::ModulesConfig* PROTOBUF_NONNULL ObjectDetectionConfig::_interna
   }
   return _impl_.modules_config_;
 }
-inline ::common::ModulesConfig* PROTOBUF_NONNULL ObjectDetectionConfig::mutable_modules_config()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::common::ModulesConfig* ObjectDetectionConfig::mutable_modules_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000002u;
   ::common::ModulesConfig* _msg = _internal_mutable_modules_config();
   // @@protoc_insertion_point(field_mutable:objectdetection.ObjectDetectionConfig.modules_config)
   return _msg;
 }
-inline void ObjectDetectionConfig::set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value) {
+inline void ObjectDetectionConfig::set_allocated_modules_config(::common::ModulesConfig* value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
@@ -1677,7 +1679,7 @@ inline void ObjectDetectionConfig::set_allocated_modules_config(::common::Module
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::Message*>(value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(value)->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }

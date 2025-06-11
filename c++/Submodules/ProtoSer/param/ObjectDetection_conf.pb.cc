@@ -105,9 +105,9 @@ struct ObjectDetectionConfigDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ObjectDetectionConfigDefaultTypeInternal _ObjectDetectionConfig_default_instance_;
 }  // namespace objectdetection
-static constexpr const ::_pb::EnumDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
+static constexpr const ::_pb::EnumDescriptor**
     file_level_enum_descriptors_ObjectDetection_5fconf_2eproto = nullptr;
-static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
+static constexpr const ::_pb::ServiceDescriptor**
     file_level_service_descriptors_ObjectDetection_5fconf_2eproto = nullptr;
 const ::uint32_t
     TableStruct_ObjectDetection_5fconf_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
@@ -191,7 +191,7 @@ static const ::_pbi::MigrationSchema
         {0, 34, -1, sizeof(::objectdetection::YOLOModelConfig)},
         {60, 70, -1, sizeof(::objectdetection::ObjectDetectionConfig)},
 };
-static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
+static const ::_pb::Message* const file_default_instances[] = {
     &::objectdetection::_YOLOModelConfig_default_instance_._instance,
     &::objectdetection::_ObjectDetectionConfig_default_instance_._instance,
 };
@@ -218,8 +218,8 @@ const char descriptor_table_protodef_ObjectDetection_5fconf_2eproto[] ABSL_ATTRI
     "onfig\030\002 \001(\0132\025.common.ModulesConfigb\006prot"
     "o3"
 };
-static const ::_pbi::DescriptorTable* PROTOBUF_NONNULL const
-    descriptor_table_ObjectDetection_5fconf_2eproto_deps[1] = {
+static const ::_pbi::DescriptorTable* const descriptor_table_ObjectDetection_5fconf_2eproto_deps[1] =
+    {
         &::descriptor_table_AlgorithmConfig_5fconf_2eproto,
 };
 static ::absl::once_flag descriptor_table_ObjectDetection_5fconf_2eproto_once;
@@ -250,7 +250,7 @@ class YOLOModelConfig::_Internal {
       8 * PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_._has_bits_);
 };
 
-YOLOModelConfig::YOLOModelConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+YOLOModelConfig::YOLOModelConfig(::google::protobuf::Arena* arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, YOLOModelConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -260,9 +260,8 @@ YOLOModelConfig::YOLOModelConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE ar
   // @@protoc_insertion_point(arena_constructor:objectdetection.YOLOModelConfig)
 }
 PROTOBUF_NDEBUG_INLINE YOLOModelConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::objectdetection::YOLOModelConfig& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from, const ::objectdetection::YOLOModelConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         stride_{visibility, arena, from.stride_},
@@ -270,7 +269,7 @@ PROTOBUF_NDEBUG_INLINE YOLOModelConfig::Impl_::Impl_(
         engine_path_(arena, from.engine_path_) {}
 
 YOLOModelConfig::YOLOModelConfig(
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    ::google::protobuf::Arena* arena,
     const YOLOModelConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, YOLOModelConfig_class_data_.base()) {
@@ -294,13 +293,13 @@ YOLOModelConfig::YOLOModelConfig(
 }
 PROTOBUF_NDEBUG_INLINE YOLOModelConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+    ::google::protobuf::Arena* arena)
       : _cached_size_{0},
         stride_{visibility, arena},
         _stride_cached_byte_size_{0},
         engine_path_(arena) {}
 
-inline void YOLOModelConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+inline void YOLOModelConfig::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, num_class_),
@@ -321,9 +320,8 @@ inline void YOLOModelConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* PROTOBUF_NONNULL YOLOModelConfig::PlacementNew_(
-    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+inline void* YOLOModelConfig::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
   return ::new (mem) YOLOModelConfig(arena);
 }
 constexpr auto YOLOModelConfig::InternalNewImpl_() {
@@ -370,14 +368,13 @@ PROTOBUF_CONSTINIT
         YOLOModelConfig_class_data_ =
             YOLOModelConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL YOLOModelConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* YOLOModelConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&YOLOModelConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(YOLOModelConfig_class_data_.tc_table);
   return YOLOModelConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<5, 26, 0, 75, 2>
-YOLOModelConfig::_table_ = {
+const ::_pbi::TcParseTable<5, 26, 0, 75, 2> YOLOModelConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(YOLOModelConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -568,6 +565,7 @@ YOLOModelConfig::_table_ = {
     "engine_path"
   }},
 };
+
 PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:objectdetection.YOLOModelConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -577,20 +575,20 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
 
   _impl_.stride_.Clear();
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
+  if (cached_has_bits & 0x00000001u) {
     _impl_.engine_path_.ClearNonDefaultToEmpty();
   }
-  if ((cached_has_bits & 0x000000feu) != 0) {
+  if (cached_has_bits & 0x000000feu) {
     ::memset(&_impl_.num_class_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.src_width_) -
         reinterpret_cast<char*>(&_impl_.num_class_)) + sizeof(_impl_.src_width_));
   }
-  if ((cached_has_bits & 0x0000ff00u) != 0) {
+  if (cached_has_bits & 0x0000ff00u) {
     ::memset(&_impl_.src_height_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.num_keys_) -
         reinterpret_cast<char*>(&_impl_.src_height_)) + sizeof(_impl_.num_keys_));
   }
-  if ((cached_has_bits & 0x00ff0000u) != 0) {
+  if (cached_has_bits & 0x00ff0000u) {
     ::memset(&_impl_.channels_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.class_history_len_) -
         reinterpret_cast<char*>(&_impl_.channels_)) + sizeof(_impl_.class_history_len_));
@@ -601,467 +599,467 @@ PROTOBUF_NOINLINE void YOLOModelConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-::uint8_t* PROTOBUF_NONNULL YOLOModelConfig::_InternalSerialize(
-    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
-    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
-  const YOLOModelConfig& this_ = static_cast<const YOLOModelConfig&>(base);
+        ::uint8_t* YOLOModelConfig::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const YOLOModelConfig& this_ = static_cast<const YOLOModelConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-::uint8_t* PROTOBUF_NONNULL YOLOModelConfig::_InternalSerialize(
-    ::uint8_t* PROTOBUF_NONNULL target,
-    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-  const YOLOModelConfig& this_ = *this;
+        ::uint8_t* YOLOModelConfig::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const YOLOModelConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:objectdetection.YOLOModelConfig)
-  ::uint32_t cached_has_bits = 0;
-  (void)cached_has_bits;
+          // @@protoc_insertion_point(serialize_to_array_start:objectdetection.YOLOModelConfig)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
 
-  // string engine_path = 1;
-  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    if (!this_._internal_engine_path().empty()) {
-      const std::string& _s = this_._internal_engine_path();
-      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "objectdetection.YOLOModelConfig.engine_path");
-      target = stream->WriteStringMaybeAliased(1, _s, target);
-    }
-  }
+          // string engine_path = 1;
+          if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+            if (!this_._internal_engine_path().empty()) {
+              const std::string& _s = this_._internal_engine_path();
+              ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "objectdetection.YOLOModelConfig.engine_path");
+              target = stream->WriteStringMaybeAliased(1, _s, target);
+            }
+          }
 
-  // int32 num_class = 2;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
-    if (this_._internal_num_class() != 0) {
-      target =
-          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<2>(
-              stream, this_._internal_num_class(), target);
-    }
-  }
+          // int32 num_class = 2;
+          if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+            if (this_._internal_num_class() != 0) {
+              target = ::google::protobuf::internal::WireFormatLite::
+                  WriteInt32ToArrayWithField<2>(
+                      stream, this_._internal_num_class(), target);
+            }
+          }
 
-  // int32 batch_size = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
-    if (this_._internal_batch_size() != 0) {
-      target =
-          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<3>(
-              stream, this_._internal_batch_size(), target);
-    }
-  }
+          // int32 batch_size = 3;
+          if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+            if (this_._internal_batch_size() != 0) {
+              target = ::google::protobuf::internal::WireFormatLite::
+                  WriteInt32ToArrayWithField<3>(
+                      stream, this_._internal_batch_size(), target);
+            }
+          }
 
-  // int32 width = 4;
-  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
-    if (this_._internal_width() != 0) {
-      target =
-          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<4>(
-              stream, this_._internal_width(), target);
-    }
-  }
+          // int32 width = 4;
+          if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+            if (this_._internal_width() != 0) {
+              target = ::google::protobuf::internal::WireFormatLite::
+                  WriteInt32ToArrayWithField<4>(
+                      stream, this_._internal_width(), target);
+            }
+          }
 
-  // int32 height = 5;
-  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
-    if (this_._internal_height() != 0) {
-      target =
-          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<5>(
-              stream, this_._internal_height(), target);
-    }
-  }
+          // int32 height = 5;
+          if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
+            if (this_._internal_height() != 0) {
+              target = ::google::protobuf::internal::WireFormatLite::
+                  WriteInt32ToArrayWithField<5>(
+                      stream, this_._internal_height(), target);
+            }
+          }
 
-  // float conf_thres = 6;
-  if ((this_._impl_._has_bits_[0] & 0x00000020u) != 0) {
-    if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteFloatToArray(
-          6, this_._internal_conf_thres(), target);
-    }
-  }
+          // float conf_thres = 6;
+          if ((this_._impl_._has_bits_[0] & 0x00000020u) != 0) {
+            if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                  6, this_._internal_conf_thres(), target);
+            }
+          }
 
-  // float iou_thres = 7;
-  if ((this_._impl_._has_bits_[0] & 0x00000040u) != 0) {
-    if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteFloatToArray(
-          7, this_._internal_iou_thres(), target);
-    }
-  }
+          // float iou_thres = 7;
+          if ((this_._impl_._has_bits_[0] & 0x00000040u) != 0) {
+            if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                  7, this_._internal_iou_thres(), target);
+            }
+          }
 
-  // repeated int32 stride = 8;
-  {
-    int byte_size = this_._impl_._stride_cached_byte_size_.Get();
-    if (byte_size > 0) {
-      target = stream->WriteInt32Packed(
-          8, this_._internal_stride(), byte_size, target);
-    }
-  }
+          // repeated int32 stride = 8;
+          {
+            int byte_size = this_._impl_._stride_cached_byte_size_.Get();
+            if (byte_size > 0) {
+              target = stream->WriteInt32Packed(
+                  8, this_._internal_stride(), byte_size, target);
+            }
+          }
 
-  // int32 src_width = 9;
-  if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
-    if (this_._internal_src_width() != 0) {
-      target =
-          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<9>(
-              stream, this_._internal_src_width(), target);
-    }
-  }
+          // int32 src_width = 9;
+          if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
+            if (this_._internal_src_width() != 0) {
+              target = ::google::protobuf::internal::WireFormatLite::
+                  WriteInt32ToArrayWithField<9>(
+                      stream, this_._internal_src_width(), target);
+            }
+          }
 
-  // int32 src_height = 10;
-  if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
-    if (this_._internal_src_height() != 0) {
-      target =
-          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<10>(
-              stream, this_._internal_src_height(), target);
-    }
-  }
+          // int32 src_height = 10;
+          if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
+            if (this_._internal_src_height() != 0) {
+              target = ::google::protobuf::internal::WireFormatLite::
+                  WriteInt32ToArrayWithField<10>(
+                      stream, this_._internal_src_height(), target);
+            }
+          }
 
-  // float resize_ratio = 11;
-  if ((this_._impl_._has_bits_[0] & 0x00000200u) != 0) {
-    if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio()) != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteFloatToArray(
-          11, this_._internal_resize_ratio(), target);
-    }
-  }
+          // float resize_ratio = 11;
+          if ((this_._impl_._has_bits_[0] & 0x00000200u) != 0) {
+            if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio()) != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                  11, this_._internal_resize_ratio(), target);
+            }
+          }
 
-  // int32 dw = 12;
-  if ((this_._impl_._has_bits_[0] & 0x00000400u) != 0) {
-    if (this_._internal_dw() != 0) {
-      target =
-          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<12>(
-              stream, this_._internal_dw(), target);
-    }
-  }
+          // int32 dw = 12;
+          if ((this_._impl_._has_bits_[0] & 0x00000400u) != 0) {
+            if (this_._internal_dw() != 0) {
+              target = ::google::protobuf::internal::WireFormatLite::
+                  WriteInt32ToArrayWithField<12>(
+                      stream, this_._internal_dw(), target);
+            }
+          }
 
-  // int32 dh = 13;
-  if ((this_._impl_._has_bits_[0] & 0x00000800u) != 0) {
-    if (this_._internal_dh() != 0) {
-      target =
-          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<13>(
-              stream, this_._internal_dh(), target);
-    }
-  }
+          // int32 dh = 13;
+          if ((this_._impl_._has_bits_[0] & 0x00000800u) != 0) {
+            if (this_._internal_dh() != 0) {
+              target = ::google::protobuf::internal::WireFormatLite::
+                  WriteInt32ToArrayWithField<13>(
+                      stream, this_._internal_dh(), target);
+            }
+          }
 
-  // int32 new_unpad_w = 14;
-  if ((this_._impl_._has_bits_[0] & 0x00001000u) != 0) {
-    if (this_._internal_new_unpad_w() != 0) {
-      target =
-          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<14>(
-              stream, this_._internal_new_unpad_w(), target);
-    }
-  }
+          // int32 new_unpad_w = 14;
+          if ((this_._impl_._has_bits_[0] & 0x00001000u) != 0) {
+            if (this_._internal_new_unpad_w() != 0) {
+              target = ::google::protobuf::internal::WireFormatLite::
+                  WriteInt32ToArrayWithField<14>(
+                      stream, this_._internal_new_unpad_w(), target);
+            }
+          }
 
-  // int32 new_unpad_h = 15;
-  if ((this_._impl_._has_bits_[0] & 0x00002000u) != 0) {
-    if (this_._internal_new_unpad_h() != 0) {
-      target =
-          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<15>(
-              stream, this_._internal_new_unpad_h(), target);
-    }
-  }
+          // int32 new_unpad_h = 15;
+          if ((this_._impl_._has_bits_[0] & 0x00002000u) != 0) {
+            if (this_._internal_new_unpad_h() != 0) {
+              target = ::google::protobuf::internal::WireFormatLite::
+                  WriteInt32ToArrayWithField<15>(
+                      stream, this_._internal_new_unpad_h(), target);
+            }
+          }
 
-  // int32 max_dets = 16;
-  if ((this_._impl_._has_bits_[0] & 0x00004000u) != 0) {
-    if (this_._internal_max_dets() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-          16, this_._internal_max_dets(), target);
-    }
-  }
+          // int32 max_dets = 16;
+          if ((this_._impl_._has_bits_[0] & 0x00004000u) != 0) {
+            if (this_._internal_max_dets() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  16, this_._internal_max_dets(), target);
+            }
+          }
 
-  // int32 num_keys = 17;
-  if ((this_._impl_._has_bits_[0] & 0x00008000u) != 0) {
-    if (this_._internal_num_keys() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-          17, this_._internal_num_keys(), target);
-    }
-  }
+          // int32 num_keys = 17;
+          if ((this_._impl_._has_bits_[0] & 0x00008000u) != 0) {
+            if (this_._internal_num_keys() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  17, this_._internal_num_keys(), target);
+            }
+          }
 
-  // int32 channels = 18;
-  if ((this_._impl_._has_bits_[0] & 0x00010000u) != 0) {
-    if (this_._internal_channels() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-          18, this_._internal_channels(), target);
-    }
-  }
+          // int32 channels = 18;
+          if ((this_._impl_._has_bits_[0] & 0x00010000u) != 0) {
+            if (this_._internal_channels() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  18, this_._internal_channels(), target);
+            }
+          }
 
-  // bool run_status = 19;
-  if ((this_._impl_._has_bits_[0] & 0x00020000u) != 0) {
-    if (this_._internal_run_status() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteBoolToArray(
-          19, this_._internal_run_status(), target);
-    }
-  }
+          // bool run_status = 19;
+          if ((this_._impl_._has_bits_[0] & 0x00020000u) != 0) {
+            if (this_._internal_run_status() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteBoolToArray(
+                  19, this_._internal_run_status(), target);
+            }
+          }
 
-  // float track_high_thresh = 20;
-  if ((this_._impl_._has_bits_[0] & 0x00040000u) != 0) {
-    if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteFloatToArray(
-          20, this_._internal_track_high_thresh(), target);
-    }
-  }
+          // float track_high_thresh = 20;
+          if ((this_._impl_._has_bits_[0] & 0x00040000u) != 0) {
+            if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                  20, this_._internal_track_high_thresh(), target);
+            }
+          }
 
-  // float track_low_thresh = 21;
-  if ((this_._impl_._has_bits_[0] & 0x00080000u) != 0) {
-    if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteFloatToArray(
-          21, this_._internal_track_low_thresh(), target);
-    }
-  }
+          // float track_low_thresh = 21;
+          if ((this_._impl_._has_bits_[0] & 0x00080000u) != 0) {
+            if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                  21, this_._internal_track_low_thresh(), target);
+            }
+          }
 
-  // float match_thresh = 22;
-  if ((this_._impl_._has_bits_[0] & 0x00100000u) != 0) {
-    if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteFloatToArray(
-          22, this_._internal_match_thresh(), target);
-    }
-  }
+          // float match_thresh = 22;
+          if ((this_._impl_._has_bits_[0] & 0x00100000u) != 0) {
+            if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                  22, this_._internal_match_thresh(), target);
+            }
+          }
 
-  // float new_track_thresh = 23;
-  if ((this_._impl_._has_bits_[0] & 0x00200000u) != 0) {
-    if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteFloatToArray(
-          23, this_._internal_new_track_thresh(), target);
-    }
-  }
+          // float new_track_thresh = 23;
+          if ((this_._impl_._has_bits_[0] & 0x00200000u) != 0) {
+            if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                  23, this_._internal_new_track_thresh(), target);
+            }
+          }
 
-  // int32 tracker_buffer_size = 24;
-  if ((this_._impl_._has_bits_[0] & 0x00400000u) != 0) {
-    if (this_._internal_tracker_buffer_size() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-          24, this_._internal_tracker_buffer_size(), target);
-    }
-  }
+          // int32 tracker_buffer_size = 24;
+          if ((this_._impl_._has_bits_[0] & 0x00400000u) != 0) {
+            if (this_._internal_tracker_buffer_size() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  24, this_._internal_tracker_buffer_size(), target);
+            }
+          }
 
-  // int32 class_history_len = 25;
-  if ((this_._impl_._has_bits_[0] & 0x00800000u) != 0) {
-    if (this_._internal_class_history_len() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-          25, this_._internal_class_history_len(), target);
-    }
-  }
+          // int32 class_history_len = 25;
+          if ((this_._impl_._has_bits_[0] & 0x00800000u) != 0) {
+            if (this_._internal_class_history_len() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  25, this_._internal_class_history_len(), target);
+            }
+          }
 
-  // int32 max_time_lost = 26;
-  if ((this_._impl_._has_bits_[0] & 0x01000000u) != 0) {
-    if (this_._internal_max_time_lost() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-          26, this_._internal_max_time_lost(), target);
-    }
-  }
+          // int32 max_time_lost = 26;
+          if ((this_._impl_._has_bits_[0] & 0x01000000u) != 0) {
+            if (this_._internal_max_time_lost() != 0) {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+                  26, this_._internal_max_time_lost(), target);
+            }
+          }
 
-  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    target =
-        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:objectdetection.YOLOModelConfig)
-  return target;
-}
+          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:objectdetection.YOLOModelConfig)
+          return target;
+        }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-::size_t YOLOModelConfig::ByteSizeLong(const MessageLite& base) {
-  const YOLOModelConfig& this_ = static_cast<const YOLOModelConfig&>(base);
+        ::size_t YOLOModelConfig::ByteSizeLong(const MessageLite& base) {
+          const YOLOModelConfig& this_ = static_cast<const YOLOModelConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-::size_t YOLOModelConfig::ByteSizeLong() const {
-  const YOLOModelConfig& this_ = *this;
+        ::size_t YOLOModelConfig::ByteSizeLong() const {
+          const YOLOModelConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:objectdetection.YOLOModelConfig)
-  ::size_t total_size = 0;
+          // @@protoc_insertion_point(message_byte_size_start:objectdetection.YOLOModelConfig)
+          ::size_t total_size = 0;
 
-  ::uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void)cached_has_bits;
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
 
-  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-   {
-    // repeated int32 stride = 8;
-    {
-      total_size +=
-          ::_pbi::WireFormatLite::Int32SizeWithPackedTagSize(
-              this_._internal_stride(), 1,
-              this_._impl_._stride_cached_byte_size_);
-    }
-  }
-  cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x000000ffu) != 0) {
-    // string engine_path = 1;
-    if ((cached_has_bits & 0x00000001u) != 0) {
-      if (!this_._internal_engine_path().empty()) {
-        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                        this_._internal_engine_path());
-      }
-    }
-    // int32 num_class = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
-      if (this_._internal_num_class() != 0) {
-        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_num_class());
-      }
-    }
-    // int32 batch_size = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
-      if (this_._internal_batch_size() != 0) {
-        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_batch_size());
-      }
-    }
-    // int32 width = 4;
-    if ((cached_has_bits & 0x00000008u) != 0) {
-      if (this_._internal_width() != 0) {
-        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_width());
-      }
-    }
-    // int32 height = 5;
-    if ((cached_has_bits & 0x00000010u) != 0) {
-      if (this_._internal_height() != 0) {
-        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_height());
-      }
-    }
-    // float conf_thres = 6;
-    if ((cached_has_bits & 0x00000020u) != 0) {
-      if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
-        total_size += 5;
-      }
-    }
-    // float iou_thres = 7;
-    if ((cached_has_bits & 0x00000040u) != 0) {
-      if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
-        total_size += 5;
-      }
-    }
-    // int32 src_width = 9;
-    if ((cached_has_bits & 0x00000080u) != 0) {
-      if (this_._internal_src_width() != 0) {
-        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_src_width());
-      }
-    }
-  }
-  if ((cached_has_bits & 0x0000ff00u) != 0) {
-    // int32 src_height = 10;
-    if ((cached_has_bits & 0x00000100u) != 0) {
-      if (this_._internal_src_height() != 0) {
-        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_src_height());
-      }
-    }
-    // float resize_ratio = 11;
-    if ((cached_has_bits & 0x00000200u) != 0) {
-      if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio()) != 0) {
-        total_size += 5;
-      }
-    }
-    // int32 dw = 12;
-    if ((cached_has_bits & 0x00000400u) != 0) {
-      if (this_._internal_dw() != 0) {
-        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_dw());
-      }
-    }
-    // int32 dh = 13;
-    if ((cached_has_bits & 0x00000800u) != 0) {
-      if (this_._internal_dh() != 0) {
-        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_dh());
-      }
-    }
-    // int32 new_unpad_w = 14;
-    if ((cached_has_bits & 0x00001000u) != 0) {
-      if (this_._internal_new_unpad_w() != 0) {
-        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_new_unpad_w());
-      }
-    }
-    // int32 new_unpad_h = 15;
-    if ((cached_has_bits & 0x00002000u) != 0) {
-      if (this_._internal_new_unpad_h() != 0) {
-        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_new_unpad_h());
-      }
-    }
-    // int32 max_dets = 16;
-    if ((cached_has_bits & 0x00004000u) != 0) {
-      if (this_._internal_max_dets() != 0) {
-        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                        this_._internal_max_dets());
-      }
-    }
-    // int32 num_keys = 17;
-    if ((cached_has_bits & 0x00008000u) != 0) {
-      if (this_._internal_num_keys() != 0) {
-        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                        this_._internal_num_keys());
-      }
-    }
-  }
-  if ((cached_has_bits & 0x00ff0000u) != 0) {
-    // int32 channels = 18;
-    if ((cached_has_bits & 0x00010000u) != 0) {
-      if (this_._internal_channels() != 0) {
-        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                        this_._internal_channels());
-      }
-    }
-    // bool run_status = 19;
-    if ((cached_has_bits & 0x00020000u) != 0) {
-      if (this_._internal_run_status() != 0) {
-        total_size += 3;
-      }
-    }
-    // float track_high_thresh = 20;
-    if ((cached_has_bits & 0x00040000u) != 0) {
-      if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
-        total_size += 6;
-      }
-    }
-    // float track_low_thresh = 21;
-    if ((cached_has_bits & 0x00080000u) != 0) {
-      if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
-        total_size += 6;
-      }
-    }
-    // float match_thresh = 22;
-    if ((cached_has_bits & 0x00100000u) != 0) {
-      if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
-        total_size += 6;
-      }
-    }
-    // float new_track_thresh = 23;
-    if ((cached_has_bits & 0x00200000u) != 0) {
-      if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
-        total_size += 6;
-      }
-    }
-    // int32 tracker_buffer_size = 24;
-    if ((cached_has_bits & 0x00400000u) != 0) {
-      if (this_._internal_tracker_buffer_size() != 0) {
-        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                        this_._internal_tracker_buffer_size());
-      }
-    }
-    // int32 class_history_len = 25;
-    if ((cached_has_bits & 0x00800000u) != 0) {
-      if (this_._internal_class_history_len() != 0) {
-        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                        this_._internal_class_history_len());
-      }
-    }
-  }
-   {
-    // int32 max_time_lost = 26;
-    if ((cached_has_bits & 0x01000000u) != 0) {
-      if (this_._internal_max_time_lost() != 0) {
-        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
-                                        this_._internal_max_time_lost());
-      }
-    }
-  }
-  return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                             &this_._impl_._cached_size_);
-}
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+           {
+            // repeated int32 stride = 8;
+            {
+              total_size +=
+                  ::_pbi::WireFormatLite::Int32SizeWithPackedTagSize(
+                      this_._internal_stride(), 1,
+                      this_._impl_._stride_cached_byte_size_);
+            }
+          }
+          cached_has_bits = this_._impl_._has_bits_[0];
+          if (cached_has_bits & 0x000000ffu) {
+            // string engine_path = 1;
+            if (cached_has_bits & 0x00000001u) {
+              if (!this_._internal_engine_path().empty()) {
+                total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                                this_._internal_engine_path());
+              }
+            }
+            // int32 num_class = 2;
+            if (cached_has_bits & 0x00000002u) {
+              if (this_._internal_num_class() != 0) {
+                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                    this_._internal_num_class());
+              }
+            }
+            // int32 batch_size = 3;
+            if (cached_has_bits & 0x00000004u) {
+              if (this_._internal_batch_size() != 0) {
+                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                    this_._internal_batch_size());
+              }
+            }
+            // int32 width = 4;
+            if (cached_has_bits & 0x00000008u) {
+              if (this_._internal_width() != 0) {
+                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                    this_._internal_width());
+              }
+            }
+            // int32 height = 5;
+            if (cached_has_bits & 0x00000010u) {
+              if (this_._internal_height() != 0) {
+                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                    this_._internal_height());
+              }
+            }
+            // float conf_thres = 6;
+            if (cached_has_bits & 0x00000020u) {
+              if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
+                total_size += 5;
+              }
+            }
+            // float iou_thres = 7;
+            if (cached_has_bits & 0x00000040u) {
+              if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
+                total_size += 5;
+              }
+            }
+            // int32 src_width = 9;
+            if (cached_has_bits & 0x00000080u) {
+              if (this_._internal_src_width() != 0) {
+                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                    this_._internal_src_width());
+              }
+            }
+          }
+          if (cached_has_bits & 0x0000ff00u) {
+            // int32 src_height = 10;
+            if (cached_has_bits & 0x00000100u) {
+              if (this_._internal_src_height() != 0) {
+                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                    this_._internal_src_height());
+              }
+            }
+            // float resize_ratio = 11;
+            if (cached_has_bits & 0x00000200u) {
+              if (::absl::bit_cast<::uint32_t>(this_._internal_resize_ratio()) != 0) {
+                total_size += 5;
+              }
+            }
+            // int32 dw = 12;
+            if (cached_has_bits & 0x00000400u) {
+              if (this_._internal_dw() != 0) {
+                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                    this_._internal_dw());
+              }
+            }
+            // int32 dh = 13;
+            if (cached_has_bits & 0x00000800u) {
+              if (this_._internal_dh() != 0) {
+                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                    this_._internal_dh());
+              }
+            }
+            // int32 new_unpad_w = 14;
+            if (cached_has_bits & 0x00001000u) {
+              if (this_._internal_new_unpad_w() != 0) {
+                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                    this_._internal_new_unpad_w());
+              }
+            }
+            // int32 new_unpad_h = 15;
+            if (cached_has_bits & 0x00002000u) {
+              if (this_._internal_new_unpad_h() != 0) {
+                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                    this_._internal_new_unpad_h());
+              }
+            }
+            // int32 max_dets = 16;
+            if (cached_has_bits & 0x00004000u) {
+              if (this_._internal_max_dets() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_max_dets());
+              }
+            }
+            // int32 num_keys = 17;
+            if (cached_has_bits & 0x00008000u) {
+              if (this_._internal_num_keys() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_num_keys());
+              }
+            }
+          }
+          if (cached_has_bits & 0x00ff0000u) {
+            // int32 channels = 18;
+            if (cached_has_bits & 0x00010000u) {
+              if (this_._internal_channels() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_channels());
+              }
+            }
+            // bool run_status = 19;
+            if (cached_has_bits & 0x00020000u) {
+              if (this_._internal_run_status() != 0) {
+                total_size += 3;
+              }
+            }
+            // float track_high_thresh = 20;
+            if (cached_has_bits & 0x00040000u) {
+              if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
+                total_size += 6;
+              }
+            }
+            // float track_low_thresh = 21;
+            if (cached_has_bits & 0x00080000u) {
+              if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
+                total_size += 6;
+              }
+            }
+            // float match_thresh = 22;
+            if (cached_has_bits & 0x00100000u) {
+              if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
+                total_size += 6;
+              }
+            }
+            // float new_track_thresh = 23;
+            if (cached_has_bits & 0x00200000u) {
+              if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
+                total_size += 6;
+              }
+            }
+            // int32 tracker_buffer_size = 24;
+            if (cached_has_bits & 0x00400000u) {
+              if (this_._internal_tracker_buffer_size() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_tracker_buffer_size());
+              }
+            }
+            // int32 class_history_len = 25;
+            if (cached_has_bits & 0x00800000u) {
+              if (this_._internal_class_history_len() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_class_history_len());
+              }
+            }
+          }
+           {
+            // int32 max_time_lost = 26;
+            if (cached_has_bits & 0x01000000u) {
+              if (this_._internal_max_time_lost() != 0) {
+                total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                                this_._internal_max_time_lost());
+              }
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
 
 void YOLOModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<YOLOModelConfig*>(&to_msg);
@@ -1073,8 +1071,8 @@ void YOLOModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
 
   _this->_internal_mutable_stride()->MergeFrom(from._internal_stride());
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x000000ffu) != 0) {
-    if ((cached_has_bits & 0x00000001u) != 0) {
+  if (cached_has_bits & 0x000000ffu) {
+    if (cached_has_bits & 0x00000001u) {
       if (!from._internal_engine_path().empty()) {
         _this->_internal_set_engine_path(from._internal_engine_path());
       } else {
@@ -1083,127 +1081,127 @@ void YOLOModelConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
         }
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if (cached_has_bits & 0x00000002u) {
       if (from._internal_num_class() != 0) {
         _this->_impl_.num_class_ = from._impl_.num_class_;
       }
     }
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if (cached_has_bits & 0x00000004u) {
       if (from._internal_batch_size() != 0) {
         _this->_impl_.batch_size_ = from._impl_.batch_size_;
       }
     }
-    if ((cached_has_bits & 0x00000008u) != 0) {
+    if (cached_has_bits & 0x00000008u) {
       if (from._internal_width() != 0) {
         _this->_impl_.width_ = from._impl_.width_;
       }
     }
-    if ((cached_has_bits & 0x00000010u) != 0) {
+    if (cached_has_bits & 0x00000010u) {
       if (from._internal_height() != 0) {
         _this->_impl_.height_ = from._impl_.height_;
       }
     }
-    if ((cached_has_bits & 0x00000020u) != 0) {
+    if (cached_has_bits & 0x00000020u) {
       if (::absl::bit_cast<::uint32_t>(from._internal_conf_thres()) != 0) {
         _this->_impl_.conf_thres_ = from._impl_.conf_thres_;
       }
     }
-    if ((cached_has_bits & 0x00000040u) != 0) {
+    if (cached_has_bits & 0x00000040u) {
       if (::absl::bit_cast<::uint32_t>(from._internal_iou_thres()) != 0) {
         _this->_impl_.iou_thres_ = from._impl_.iou_thres_;
       }
     }
-    if ((cached_has_bits & 0x00000080u) != 0) {
+    if (cached_has_bits & 0x00000080u) {
       if (from._internal_src_width() != 0) {
         _this->_impl_.src_width_ = from._impl_.src_width_;
       }
     }
   }
-  if ((cached_has_bits & 0x0000ff00u) != 0) {
-    if ((cached_has_bits & 0x00000100u) != 0) {
+  if (cached_has_bits & 0x0000ff00u) {
+    if (cached_has_bits & 0x00000100u) {
       if (from._internal_src_height() != 0) {
         _this->_impl_.src_height_ = from._impl_.src_height_;
       }
     }
-    if ((cached_has_bits & 0x00000200u) != 0) {
+    if (cached_has_bits & 0x00000200u) {
       if (::absl::bit_cast<::uint32_t>(from._internal_resize_ratio()) != 0) {
         _this->_impl_.resize_ratio_ = from._impl_.resize_ratio_;
       }
     }
-    if ((cached_has_bits & 0x00000400u) != 0) {
+    if (cached_has_bits & 0x00000400u) {
       if (from._internal_dw() != 0) {
         _this->_impl_.dw_ = from._impl_.dw_;
       }
     }
-    if ((cached_has_bits & 0x00000800u) != 0) {
+    if (cached_has_bits & 0x00000800u) {
       if (from._internal_dh() != 0) {
         _this->_impl_.dh_ = from._impl_.dh_;
       }
     }
-    if ((cached_has_bits & 0x00001000u) != 0) {
+    if (cached_has_bits & 0x00001000u) {
       if (from._internal_new_unpad_w() != 0) {
         _this->_impl_.new_unpad_w_ = from._impl_.new_unpad_w_;
       }
     }
-    if ((cached_has_bits & 0x00002000u) != 0) {
+    if (cached_has_bits & 0x00002000u) {
       if (from._internal_new_unpad_h() != 0) {
         _this->_impl_.new_unpad_h_ = from._impl_.new_unpad_h_;
       }
     }
-    if ((cached_has_bits & 0x00004000u) != 0) {
+    if (cached_has_bits & 0x00004000u) {
       if (from._internal_max_dets() != 0) {
         _this->_impl_.max_dets_ = from._impl_.max_dets_;
       }
     }
-    if ((cached_has_bits & 0x00008000u) != 0) {
+    if (cached_has_bits & 0x00008000u) {
       if (from._internal_num_keys() != 0) {
         _this->_impl_.num_keys_ = from._impl_.num_keys_;
       }
     }
   }
-  if ((cached_has_bits & 0x00ff0000u) != 0) {
-    if ((cached_has_bits & 0x00010000u) != 0) {
+  if (cached_has_bits & 0x00ff0000u) {
+    if (cached_has_bits & 0x00010000u) {
       if (from._internal_channels() != 0) {
         _this->_impl_.channels_ = from._impl_.channels_;
       }
     }
-    if ((cached_has_bits & 0x00020000u) != 0) {
+    if (cached_has_bits & 0x00020000u) {
       if (from._internal_run_status() != 0) {
         _this->_impl_.run_status_ = from._impl_.run_status_;
       }
     }
-    if ((cached_has_bits & 0x00040000u) != 0) {
+    if (cached_has_bits & 0x00040000u) {
       if (::absl::bit_cast<::uint32_t>(from._internal_track_high_thresh()) != 0) {
         _this->_impl_.track_high_thresh_ = from._impl_.track_high_thresh_;
       }
     }
-    if ((cached_has_bits & 0x00080000u) != 0) {
+    if (cached_has_bits & 0x00080000u) {
       if (::absl::bit_cast<::uint32_t>(from._internal_track_low_thresh()) != 0) {
         _this->_impl_.track_low_thresh_ = from._impl_.track_low_thresh_;
       }
     }
-    if ((cached_has_bits & 0x00100000u) != 0) {
+    if (cached_has_bits & 0x00100000u) {
       if (::absl::bit_cast<::uint32_t>(from._internal_match_thresh()) != 0) {
         _this->_impl_.match_thresh_ = from._impl_.match_thresh_;
       }
     }
-    if ((cached_has_bits & 0x00200000u) != 0) {
+    if (cached_has_bits & 0x00200000u) {
       if (::absl::bit_cast<::uint32_t>(from._internal_new_track_thresh()) != 0) {
         _this->_impl_.new_track_thresh_ = from._impl_.new_track_thresh_;
       }
     }
-    if ((cached_has_bits & 0x00400000u) != 0) {
+    if (cached_has_bits & 0x00400000u) {
       if (from._internal_tracker_buffer_size() != 0) {
         _this->_impl_.tracker_buffer_size_ = from._impl_.tracker_buffer_size_;
       }
     }
-    if ((cached_has_bits & 0x00800000u) != 0) {
+    if (cached_has_bits & 0x00800000u) {
       if (from._internal_class_history_len() != 0) {
         _this->_impl_.class_history_len_ = from._impl_.class_history_len_;
       }
     }
   }
-  if ((cached_has_bits & 0x01000000u) != 0) {
+  if (cached_has_bits & 0x01000000u) {
     if (from._internal_max_time_lost() != 0) {
       _this->_impl_.max_time_lost_ = from._impl_.max_time_lost_;
     }
@@ -1220,7 +1218,7 @@ void YOLOModelConfig::CopyFrom(const YOLOModelConfig& from) {
 }
 
 
-void YOLOModelConfig::InternalSwap(YOLOModelConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+void YOLOModelConfig::InternalSwap(YOLOModelConfig* PROTOBUF_RESTRICT other) {
   using std::swap;
   auto* arena = GetArena();
   ABSL_DCHECK_EQ(arena, other->GetArena());
@@ -1254,7 +1252,7 @@ void ObjectDetectionConfig::clear_modules_config() {
   if (_impl_.modules_config_ != nullptr) _impl_.modules_config_->Clear();
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
-ObjectDetectionConfig::ObjectDetectionConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+ObjectDetectionConfig::ObjectDetectionConfig(::google::protobuf::Arena* arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ObjectDetectionConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -1264,14 +1262,13 @@ ObjectDetectionConfig::ObjectDetectionConfig(::google::protobuf::Arena* PROTOBUF
   // @@protoc_insertion_point(arena_constructor:objectdetection.ObjectDetectionConfig)
 }
 PROTOBUF_NDEBUG_INLINE ObjectDetectionConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::objectdetection::ObjectDetectionConfig& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from, const ::objectdetection::ObjectDetectionConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0} {}
 
 ObjectDetectionConfig::ObjectDetectionConfig(
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    ::google::protobuf::Arena* arena,
     const ObjectDetectionConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ObjectDetectionConfig_class_data_.base()) {
@@ -1284,21 +1281,21 @@ ObjectDetectionConfig::ObjectDetectionConfig(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.yolo_model_config_ = ((cached_has_bits & 0x00000001u) != 0)
-                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.yolo_model_config_)
-                : nullptr;
-  _impl_.modules_config_ = ((cached_has_bits & 0x00000002u) != 0)
-                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.modules_config_)
-                : nullptr;
+  _impl_.yolo_model_config_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::objectdetection::YOLOModelConfig>(
+                              arena, *from._impl_.yolo_model_config_)
+                        : nullptr;
+  _impl_.modules_config_ = (cached_has_bits & 0x00000002u) ? ::google::protobuf::Message::CopyConstruct<::common::ModulesConfig>(
+                              arena, *from._impl_.modules_config_)
+                        : nullptr;
 
   // @@protoc_insertion_point(copy_constructor:objectdetection.ObjectDetectionConfig)
 }
 PROTOBUF_NDEBUG_INLINE ObjectDetectionConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+    ::google::protobuf::Arena* arena)
       : _cached_size_{0} {}
 
-inline void ObjectDetectionConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+inline void ObjectDetectionConfig::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, yolo_model_config_),
@@ -1320,9 +1317,8 @@ inline void ObjectDetectionConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* PROTOBUF_NONNULL ObjectDetectionConfig::PlacementNew_(
-    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+inline void* ObjectDetectionConfig::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
   return ::new (mem) ObjectDetectionConfig(arena);
 }
 constexpr auto ObjectDetectionConfig::InternalNewImpl_() {
@@ -1357,14 +1353,13 @@ PROTOBUF_CONSTINIT
         ObjectDetectionConfig_class_data_ =
             ObjectDetectionConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL ObjectDetectionConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* ObjectDetectionConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&ObjectDetectionConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(ObjectDetectionConfig_class_data_.tc_table);
   return ObjectDetectionConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 2, 0, 2>
-ObjectDetectionConfig::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 2, 0, 2> ObjectDetectionConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(ObjectDetectionConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -1397,14 +1392,13 @@ ObjectDetectionConfig::_table_ = {
     // .common.ModulesConfig modules_config = 2;
     {PROTOBUF_FIELD_OFFSET(ObjectDetectionConfig, _impl_.modules_config_), _Internal::kHasBitsOffset + 1, 1,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
-  }},
-  {{
-      {::_pbi::TcParser::GetTable<::objectdetection::YOLOModelConfig>()},
-      {::_pbi::TcParser::GetTable<::common::ModulesConfig>()},
-  }},
-  {{
+  }}, {{
+    {::_pbi::TcParser::GetTable<::objectdetection::YOLOModelConfig>()},
+    {::_pbi::TcParser::GetTable<::common::ModulesConfig>()},
+  }}, {{
   }},
 };
+
 PROTOBUF_NOINLINE void ObjectDetectionConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:objectdetection.ObjectDetectionConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -1413,12 +1407,12 @@ PROTOBUF_NOINLINE void ObjectDetectionConfig::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    if ((cached_has_bits & 0x00000001u) != 0) {
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
       ABSL_DCHECK(_impl_.yolo_model_config_ != nullptr);
       _impl_.yolo_model_config_->Clear();
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if (cached_has_bits & 0x00000002u) {
       ABSL_DCHECK(_impl_.modules_config_ != nullptr);
       _impl_.modules_config_->Clear();
     }
@@ -1428,75 +1422,75 @@ PROTOBUF_NOINLINE void ObjectDetectionConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-::uint8_t* PROTOBUF_NONNULL ObjectDetectionConfig::_InternalSerialize(
-    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
-    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
-  const ObjectDetectionConfig& this_ = static_cast<const ObjectDetectionConfig&>(base);
+        ::uint8_t* ObjectDetectionConfig::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const ObjectDetectionConfig& this_ = static_cast<const ObjectDetectionConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-::uint8_t* PROTOBUF_NONNULL ObjectDetectionConfig::_InternalSerialize(
-    ::uint8_t* PROTOBUF_NONNULL target,
-    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-  const ObjectDetectionConfig& this_ = *this;
+        ::uint8_t* ObjectDetectionConfig::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const ObjectDetectionConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:objectdetection.ObjectDetectionConfig)
-  ::uint32_t cached_has_bits = 0;
-  (void)cached_has_bits;
+          // @@protoc_insertion_point(serialize_to_array_start:objectdetection.ObjectDetectionConfig)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
 
-  cached_has_bits = this_._impl_._has_bits_[0];
-  // .objectdetection.YOLOModelConfig yolo_model_config = 1;
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-        1, *this_._impl_.yolo_model_config_, this_._impl_.yolo_model_config_->GetCachedSize(), target,
-        stream);
-  }
+          cached_has_bits = this_._impl_._has_bits_[0];
+          // .objectdetection.YOLOModelConfig yolo_model_config = 1;
+          if (cached_has_bits & 0x00000001u) {
+            target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+                1, *this_._impl_.yolo_model_config_, this_._impl_.yolo_model_config_->GetCachedSize(), target,
+                stream);
+          }
 
-  // .common.ModulesConfig modules_config = 2;
-  if ((cached_has_bits & 0x00000002u) != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-        2, *this_._impl_.modules_config_, this_._impl_.modules_config_->GetCachedSize(), target,
-        stream);
-  }
+          // .common.ModulesConfig modules_config = 2;
+          if (cached_has_bits & 0x00000002u) {
+            target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+                2, *this_._impl_.modules_config_, this_._impl_.modules_config_->GetCachedSize(), target,
+                stream);
+          }
 
-  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    target =
-        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:objectdetection.ObjectDetectionConfig)
-  return target;
-}
+          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:objectdetection.ObjectDetectionConfig)
+          return target;
+        }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-::size_t ObjectDetectionConfig::ByteSizeLong(const MessageLite& base) {
-  const ObjectDetectionConfig& this_ = static_cast<const ObjectDetectionConfig&>(base);
+        ::size_t ObjectDetectionConfig::ByteSizeLong(const MessageLite& base) {
+          const ObjectDetectionConfig& this_ = static_cast<const ObjectDetectionConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-::size_t ObjectDetectionConfig::ByteSizeLong() const {
-  const ObjectDetectionConfig& this_ = *this;
+        ::size_t ObjectDetectionConfig::ByteSizeLong() const {
+          const ObjectDetectionConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:objectdetection.ObjectDetectionConfig)
-  ::size_t total_size = 0;
+          // @@protoc_insertion_point(message_byte_size_start:objectdetection.ObjectDetectionConfig)
+          ::size_t total_size = 0;
 
-  ::uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void)cached_has_bits;
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
 
-  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-  cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    // .objectdetection.YOLOModelConfig yolo_model_config = 1;
-    if ((cached_has_bits & 0x00000001u) != 0) {
-      total_size += 1 +
-                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.yolo_model_config_);
-    }
-    // .common.ModulesConfig modules_config = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
-      total_size += 1 +
-                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.modules_config_);
-    }
-  }
-  return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                             &this_._impl_._cached_size_);
-}
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+          cached_has_bits = this_._impl_._has_bits_[0];
+          if (cached_has_bits & 0x00000003u) {
+            // .objectdetection.YOLOModelConfig yolo_model_config = 1;
+            if (cached_has_bits & 0x00000001u) {
+              total_size += 1 +
+                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.yolo_model_config_);
+            }
+            // .common.ModulesConfig modules_config = 2;
+            if (cached_has_bits & 0x00000002u) {
+              total_size += 1 +
+                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.modules_config_);
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
 
 void ObjectDetectionConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<ObjectDetectionConfig*>(&to_msg);
@@ -1508,19 +1502,21 @@ void ObjectDetectionConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, c
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    if ((cached_has_bits & 0x00000001u) != 0) {
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
       ABSL_DCHECK(from._impl_.yolo_model_config_ != nullptr);
       if (_this->_impl_.yolo_model_config_ == nullptr) {
-        _this->_impl_.yolo_model_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.yolo_model_config_);
+        _this->_impl_.yolo_model_config_ =
+            ::google::protobuf::Message::CopyConstruct<::objectdetection::YOLOModelConfig>(arena, *from._impl_.yolo_model_config_);
       } else {
         _this->_impl_.yolo_model_config_->MergeFrom(*from._impl_.yolo_model_config_);
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if (cached_has_bits & 0x00000002u) {
       ABSL_DCHECK(from._impl_.modules_config_ != nullptr);
       if (_this->_impl_.modules_config_ == nullptr) {
-        _this->_impl_.modules_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.modules_config_);
+        _this->_impl_.modules_config_ =
+            ::google::protobuf::Message::CopyConstruct<::common::ModulesConfig>(arena, *from._impl_.modules_config_);
       } else {
         _this->_impl_.modules_config_->MergeFrom(*from._impl_.modules_config_);
       }
@@ -1538,7 +1534,7 @@ void ObjectDetectionConfig::CopyFrom(const ObjectDetectionConfig& from) {
 }
 
 
-void ObjectDetectionConfig::InternalSwap(ObjectDetectionConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+void ObjectDetectionConfig::InternalSwap(ObjectDetectionConfig* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
