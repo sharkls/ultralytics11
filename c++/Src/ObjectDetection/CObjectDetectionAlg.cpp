@@ -290,6 +290,9 @@ bool CObjectDetectionAlg::executeModuleChain()
                 }
             }
         }
+
+        // 保存目标框区域图像到 vecVideoSrcData
+        saveObjectRegionImages();
     }
     return true;
 }
@@ -347,4 +350,153 @@ void CObjectDetectionAlg::visualizationResult()
     cv::imwrite(savePath, srcImage);
 
     LOG(INFO) << "检测结果已保存到: " << savePath;
+} 
+
+void CObjectDetectionAlg::saveObjectRegionImages()
+{
+    if (m_currentOutput.vecFrameResult().empty()) {
+        LOG(ERROR) << "No frame result available for saving object region images";
+        return;
+    }
+
+    auto& frameResult = m_currentOutput.vecFrameResult()[0];
+    const auto& objResults = frameResult.vecObjectResult();
+    
+    if (objResults.empty()) {
+        LOG(INFO) << "No objects detected, skipping region image extraction";
+        return;
+    }
+
+    // 获取原始图像
+    const auto& videoSrc = m_currentInput->vecVideoSrcData()[0];
+    int width = videoSrc.usBmpWidth();
+    int height = videoSrc.usBmpLength();
+    int totalBytes = videoSrc.unBmpBytes();
+    int channels = 0;
+    if (width > 0 && height > 0) {
+        channels = totalBytes / (width * height);
+    }
+
+    cv::Mat srcImage;
+    if (channels == 3) {
+        srcImage = cv::Mat(height, width, CV_8UC3, (void*)videoSrc.vecImageBuf().data()).clone();
+    } else if (channels == 1) {
+        srcImage = cv::Mat(height, width, CV_8UC1, (void*)videoSrc.vecImageBuf().data()).clone();
+    } else {
+        LOG(ERROR) << "Unsupported image channel: " << channels;
+        return;
+    }
+
+    // 清空现有的 vecVideoSrcData
+    frameResult.vecVideoSrcData().clear();
+
+    // 为每个检测到的目标提取区域图像
+    for (size_t i = 0; i < objResults.size(); ++i) {
+        const auto& obj = objResults[i];
+        
+        // 计算边界框坐标
+        int x1 = static_cast<int>(obj.fTopLeftX());
+        int y1 = static_cast<int>(obj.fTopLeftY());
+        int x2 = static_cast<int>(obj.fBottomRightX());
+        int y2 = static_cast<int>(obj.fBottomRightY());
+
+        // 确保坐标在有效范围内
+        x1 = std::max(0, std::min(x1, width - 1));
+        y1 = std::max(0, std::min(y1, height - 1));
+        x2 = std::max(0, std::min(x2, width - 1));
+        y2 = std::max(0, std::min(y2, height - 1));
+
+        // 确保边界框有效
+        if (x2 <= x1 || y2 <= y1) {
+            LOG(WARNING) << "Invalid bounding box for object " << i << ": (" << x1 << "," << y1 << ") to (" << x2 << "," << y2 << ")";
+            continue;
+        }
+
+        // 提取目标区域图像
+        cv::Mat roiImage = srcImage(cv::Rect(x1, y1, x2 - x1, y2 - y1)).clone();
+
+        // 当 m_run_status 为 true 时，保存目标区域图像
+        if (m_run_status) {
+            // 构造保存目录
+            std::string roiVisDir = (std::filesystem::path(m_exePath) / "Vis_Object_Regions").string();
+            if (!std::filesystem::exists(roiVisDir)) {
+                std::filesystem::create_directories(roiVisDir);
+            }
+
+            // 在图像上添加标注信息
+            cv::Mat annotatedImage = roiImage.clone();
+            
+            // 添加目标信息文本
+            std::string infoText = obj.strClass() + " Conf:" + std::to_string(static_cast<int>(obj.fVideoConfidence()));
+            if (obj.fDistance() > 0) {
+                infoText += " Dist:" + std::to_string(static_cast<int>(obj.fDistance())) + "cm";
+            }
+            
+            // 计算文本位置和大小
+            int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+            double fontScale = 0.5;
+            int thickness = 1;
+            cv::Size textSize = cv::getTextSize(infoText, fontFace, fontScale, thickness, nullptr);
+            
+            // 绘制背景矩形
+            cv::Rect textRect(5, 5, textSize.width + 10, textSize.height + 10);
+            cv::rectangle(annotatedImage, textRect, cv::Scalar(0, 0, 0), -1);
+            cv::rectangle(annotatedImage, textRect, cv::Scalar(255, 255, 255), 1);
+            
+            // 绘制文本
+            cv::putText(annotatedImage, infoText, cv::Point(10, 20), fontFace, fontScale, 
+                       cv::Scalar(255, 255, 255), thickness);
+
+            // 构造保存路径：帧ID_目标索引_类别.jpg
+            uint32_t frameId = m_currentInput->vecVideoSrcData()[0].unFrameId();
+            std::string className = obj.strClass();
+            // 替换类别名称中的特殊字符，避免文件名问题
+            std::replace(className.begin(), className.end(), ' ', '_');
+            std::string savePath = roiVisDir + "/" + std::to_string(frameId) + "_" + 
+                                  std::to_string(i) + "_" + className + ".jpg";
+
+            // 保存图片
+            if (cv::imwrite(savePath, annotatedImage)) {
+                LOG(INFO) << "目标区域图像已保存到: " << savePath;
+            } else {
+                LOG(ERROR) << "保存目标区域图像失败: " << savePath;
+            }
+        }
+
+        // 创建 CVideoSrcData 对象
+        CVideoSrcData videoData;
+        videoData.ucCameraId(static_cast<uint8_t>(i));  // 使用目标索引作为相机ID
+        videoData.usBmpWidth(roiImage.cols);
+        videoData.usBmpLength(roiImage.rows);
+        videoData.unBmpBytes(roiImage.total() * roiImage.elemSize());
+        videoData.unFrameId(m_currentInput->vecVideoSrcData()[0].unFrameId());
+        videoData.lTimeStamp(m_currentInput->vecVideoSrcData()[0].lTimeStamp());
+
+        // 设置 CDataBase 继承的字段
+        videoData.eDataType(DATA_TYPE_RGB_IMAGE);  // 设置为RGB图像数据类型
+        videoData.eDataSourceType(0);  // 设置为双目数据源类型
+        videoData.mapTimeStamp() = m_currentInput->vecVideoSrcData()[0].mapTimeStamp();
+        videoData.mapDelay() = m_currentInput->vecVideoSrcData()[0].mapDelay();
+        videoData.mapFps() = m_currentInput->vecVideoSrcData()[0].mapFps();
+
+        // 将图像数据转换为 vector<uint8_t>
+        std::vector<uint8_t> imageData(roiImage.data, roiImage.data + roiImage.total() * roiImage.elemSize());
+        videoData.vecImageBuf(imageData);
+
+        // 将提取的区域图像添加到 vecVideoSrcData
+        frameResult.vecVideoSrcData().push_back(videoData);
+
+        LOG(INFO) << "Extracted region image for object " << i 
+                  << " (" << obj.strClass() << "): " 
+                  << roiImage.cols << "x" << roiImage.rows 
+                  << " from (" << x1 << "," << y1 << ") to (" << x2 << "," << y2 << ")";
+    }
+
+    LOG(INFO) << "Successfully extracted " << frameResult.vecVideoSrcData().size() 
+              << " object region images for secondary detection";
+    
+    // 如果启用了离线保存，显示保存信息
+    if (m_run_status && !objResults.empty()) {
+        LOG(INFO) << "Saved " << objResults.size() << " object region images to Vis_Object_Regions directory";
+    }
 } 

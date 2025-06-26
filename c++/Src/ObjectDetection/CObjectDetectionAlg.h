@@ -14,6 +14,7 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 #include "log.h"
 #include <google/protobuf/text_format.h>    // 解析prototext格式文本
 #include <opencv2/opencv.hpp>
@@ -57,6 +58,9 @@ private:
     bool executeModuleChain();
 
     void visualizationResult();
+
+    // 保存目标框区域图像到 vecVideoSrcData
+    void saveObjectRegionImages();
 
 private:
     std::string m_exePath;                                    // 工程路径
