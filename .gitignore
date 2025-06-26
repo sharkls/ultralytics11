@@ -179,6 +179,7 @@ data/
 c++/build/
 c++/Submodules/TPL/
 c++/Output/vis/
+c++/Output/Lib/
 deploy/build/
 deploy/Output/
 *.jpg

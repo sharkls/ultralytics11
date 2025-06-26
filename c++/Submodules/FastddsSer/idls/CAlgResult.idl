@@ -68,7 +68,7 @@ struct CObjectResult {
 struct CFrameResult : CDataBase {
     sequence<CObjectResult>  vecObjectResult;         // 该帧中所有的参与者信息
     CDisparityResult         tCameraSupplement;       // 相机附加信息
-    // CLidarSupplement         tLidarSupplement;     // 雷达附加信息
+    sequence<CVideoSrcData>  vecVideoSrcData;         // 目标抠图后的图像信息
     // CRadarSupplement         tRadarSupplement;     // 毫米波附加信息
     // CFusionSupplemet         tFusionSupplement;    // 融合附加信息
 };
