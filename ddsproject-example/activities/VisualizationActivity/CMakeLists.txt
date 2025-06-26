@@ -6,21 +6,22 @@ set(VisualizationActivity_PROTO_LIB VisualizationActivity_proto)
 add_subdirectory(proto)
 
 
-find_package(PkgConfig REQUIRED)
+#find_package(PkgConfig REQUIRED)
 find_package(ZLIB REQUIRED)
 
-pkg_check_modules(AVFORMAT REQUIRED libavformat)
-pkg_check_modules(AVCODEC REQUIRED libavcodec)
-pkg_check_modules(AVUTIL REQUIRED libavutil)
-pkg_check_modules(SWSCALE REQUIRED libswscale)
-pkg_check_modules(AVRESAMPLE REQUIRED libavresample)
+#pkg_check_modules(AVFORMAT REQUIRED libavformat)
+#pkg_check_modules(AVCODEC REQUIRED libavcodec)
+#pkg_check_modules(AVUTIL REQUIRED libavutil)
+#pkg_check_modules(SWSCALE REQUIRED libswscale)
+#pkg_check_modules(AVRESAMPLE REQUIRED libavresample)
+#link_directories(/root/ffmpeg_build/lib)
 
 # 打印FFmpeg信息（可选）
-message(STATUS "FFmpeg library status:")
-message(STATUS "    avformat: ${AVFORMAT_VERSION}")
-message(STATUS "    avcodec: ${AVCODEC_VERSION}")
-message(STATUS "    avutil: ${AVUTIL_VERSION}")
-message(STATUS "    swscale: ${SWSCALE_VERSION}")
+#message(STATUS "FFmpeg library status:")
+#message(STATUS "    avformat: ${AVFORMAT_VERSION}")
+#message(STATUS "    avcodec: ${AVCODEC_VERSION}")
+#message(STATUS "    avutil: ${AVUTIL_VERSION}")
+#message(STATUS "    swscale: ${SWSCALE_VERSION}")
 
 
 
@@ -41,11 +42,14 @@ aux_source_directory(. SRC_FILES)
 add_library(push_lib pushStream.cpp)
 
 # 包含FFmpeg头文件目录
+#target_include_directories(push_lib PRIVATE
+#    ${AVFORMAT_INCLUDE_DIRS}
+#    ${AVCODEC_INCLUDE_DIRS}
+#    ${AVUTIL_INCLUDE_DIRS}
+#    ${SWSCALE_INCLUDE_DIRS}
+#)
 target_include_directories(push_lib PRIVATE
-    ${AVFORMAT_INCLUDE_DIRS}
-    ${AVCODEC_INCLUDE_DIRS}
-    ${AVUTIL_INCLUDE_DIRS}
-    ${SWSCALE_INCLUDE_DIRS}
+    /root/ffmpeg_build/include/
 )
 
 message(${AVFORMAT_INCLUDE_DIRS})
@@ -60,11 +64,16 @@ message(${SWSCALE_LIBRARIES})
 
 # 链接FFmpeg库
 target_link_libraries(push_lib PRIVATE
-    ${AVFORMAT_LIBRARIES}
-    ${AVCODEC_LIBRARIES}
-    ${AVUTIL_LIBRARIES}
-    ${SWSCALE_LIBRARIES}
-    ${AVRESAMPLE_LIBRARIES}
+    /root/ffmpeg_build/lib/libavformat.a
+    /root/ffmpeg_build/lib/libavcodec.a
+    /root/ffmpeg_build/lib/libavutil.a
+    /root/ffmpeg_build/lib/libswscale.a
+    /root/ffmpeg_build/lib/libswresample.a
+    #${AVFORMAT_LIBRARIES}
+    #${AVCODEC_LIBRARIES}
+    #${AVUTIL_LIBRARIES}
+    #${SWSCALE_LIBRARIES}
+    #${AVRESAMPLE_LIBRARIES}
     pthread
     m
     ZLIB::ZLIB

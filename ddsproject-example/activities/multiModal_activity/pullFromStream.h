@@ -19,22 +19,24 @@ extern "C"
 class PullFromStream
 {
 public:
-	PullFromStream();
-	~PullFromStream();
-	
-	bool init(const std::string& url);
-	void final();
-	void pull(std::function<void(char* data, const int width, const int height)> callback);
+    PullFromStream();
+    ~PullFromStream();
+    
+    bool init(const std::string& url);
+    void final();
+    void pull(std::function<void(char* data, const int width, const int height)> callback);
 
 private:
-	int decode(std::function<void(char* data, const int width, const int height)> callback);
+    int decode(std::function<void(char* data, const int width, const int height)> callback);
 
-	AVFormatContext *pFctx {nullptr};
+    AVFormatContext *pFctx {nullptr};
     AVCodecContext *ctx {nullptr};
+    AVFrame *hwFrame {nullptr};
     AVFrame *frame {nullptr};
     AVPacket *pkt {nullptr};
 
-	int idx{0};
+    int idx{0};
 
 };
+
 

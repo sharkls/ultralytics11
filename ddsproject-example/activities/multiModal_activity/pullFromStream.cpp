@@ -2,15 +2,10 @@
 #include <iostream>
 #include <chrono>
 
-long long getTimeStamp()
-{
-    auto now = std::chrono::system_clock::now();
-    auto duration = now.time_since_epoch();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-}
 
-int count = 0;
-long long tmpTimeStamp = 0;
+
+// int count = 0;
+// long long tmpTimeStamp = 0;
 
 int PullFromStream::decode(std::function<void(char* data, const int width, const int height)> callback)
 {
@@ -28,7 +23,7 @@ int PullFromStream::decode(std::function<void(char* data, const int width, const
     while (ret >= 0)
     {
         //解码后的数据存储到frame中
-        ret = avcodec_receive_frame(ctx, frame);
+        ret = avcodec_receive_frame(ctx, hwFrame);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
         {
             return 0;
@@ -38,10 +33,17 @@ int PullFromStream::decode(std::function<void(char* data, const int width, const
             av_log(NULL, AV_LOG_ERROR, "Error during decoding\n");
             return ret;
         }
+        
+        if (av_hwframe_transfer_data(frame, hwFrame, 0) < 0)
+        {
+            return 0;
+        }
+        
+        auto formatttt = frame->format;
 
 
 
-        SwsContext *sws_ctx = sws_getContext(frame->width, frame->height, AV_PIX_FMT_YUV420P,  frame->width, frame->height, AV_PIX_FMT_BGR24, SWS_BICUBIC, nullptr, nullptr, nullptr);
+        SwsContext *sws_ctx = sws_getContext(frame->width, frame->height, AV_PIX_FMT_NV12/*AV_PIX_FMT_YUV420P*/,  frame->width, frame->height, AV_PIX_FMT_BGR24, SWS_BICUBIC, nullptr, nullptr, nullptr);
 
 
 
@@ -69,24 +71,15 @@ int PullFromStream::decode(std::function<void(char* data, const int width, const
         callback((char *)rgb_frame->data[0], rgb_frame->width, rgb_frame->height);
 
 
+/*
+        count++;
+        if (getTimeStamp() - tmpTimeStamp > 1000)
+        {
+            std::cout << "================fps: " << count << std::endl;
 
-
-
-        //生成图片文件名字
-        // snprintf(buf, sizeof(buf), "%s-%d.pgm", filename, ctx->frame_number);
-        //保存图片
-        // savepic(frame->data[0], frame->linesize[0], frame->width, frame->height, buf);
-
-        // savepic_bgr(rgb_frame->data[0], rgb_frame->linesize[0], rgb_frame->width, rgb_frame->height, buf);
-
-        // count++;
-        // if (getTimeStamp() - tmpTimeStamp > 1000)
-        // {
-        //     std::cout << "================fps: " << count << std::endl;
-
-        //     tmpTimeStamp = getTimeStamp();
-        //     count = 0;
-        // }
+            tmpTimeStamp = getTimeStamp();
+            count = 0;
+        }*/
 
         sws_freeContext(sws_ctx);
         av_frame_free(&rgb_frame);
@@ -103,29 +96,50 @@ PullFromStream::~PullFromStream()
 {
 }
 
+int check_cuda_support(void) {
+    enum AVHWDeviceType type = AV_HWDEVICE_TYPE_NONE;
+    
+    // 遍历所有支持的硬件设备类型
+    while ((type = av_hwdevice_iterate_types(type)) != AV_HWDEVICE_TYPE_NONE) {
+        std::cout << "find: " << type << std::endl;
+        // if (type == AV_HWDEVICE_TYPE_CUDA) {
+        //     printf("当前环境支持CUDA硬件加速\n");
+        //     return 1;
+        // }
+    }
+
+    std::cout << "=-=-=111" << std::endl;
+
+    std::cout << avcodec_configuration() << std::endl;
+
+    // const AVCodec *codec = nullptr;
+    // void *iter = nullptr;
+    // while (codec = av_codec_iterate(&iter))
+    // {
+    //     std::cout << codec->name << std::endl;
+    // }
+
+    // std::cout << "=-=-=222" << std::endl;
+    
+    // printf("当前环境不支持CUDA硬件加速\n");
+    return 0;
+}
+
 bool PullFromStream::init(const std::string& url)
 {
     av_register_all();
-    
-    
-    
-    
-    
-    
+
+    check_cuda_support();
     
     avformat_network_init();
 
-    
-    // AVFormatContext *pFctx = nullptr;
-    // AVCodecContext *ctx = NULL;
-    // AVFrame *frame = NULL;
-    // AVPacket *pkt = NULL;
-
     AVDictionary* options = nullptr;
     av_dict_set(&options, "stimeout", "30000000", 0);
-    av_dict_set(&options, "max_delay", "500000", 0);  // 设置最大延迟
-    av_dict_set(&options, "buffer_size", "10240000", 0);  // 设置缓冲区大小
-    
+    av_dict_set(&options, "max_delay", "5000000", 0);  // 设置最大延迟
+    av_dict_set(&options, "buffer_size", "1024000", 0);  // 设置缓冲区大小
+
+    av_dict_set(&options, "analyzeduration", "50000000", 0);  // 分析时长（微秒）
+    av_dict_set(&options, "probesize", "20000000", 0);        // 探测大小（字节）
 
     av_log_set_level(AV_LOG_DEBUG);
 
@@ -134,7 +148,6 @@ bool PullFromStream::init(const std::string& url)
     ret = avformat_open_input(&pFctx, url.c_str(), nullptr, &options);
     if (ret < 0)
     {
-        std::cout << "avformat_open_input returns " << ret << std::endl;
         av_log(NULL, AV_LOG_ERROR, "%s\n", (ret));
 
         return false;
@@ -153,15 +166,28 @@ bool PullFromStream::init(const std::string& url)
         av_log(NULL, AV_LOG_ERROR, "Don't find best video stream\n");
         return false;
     }
+    
+    
+
     //寻找视频流的编码器
     AVStream *inStream = pFctx->streams[idx];
     //设置视频流的解码器
-    AVCodec *codec = (AVCodec *)avcodec_find_decoder(inStream->codecpar->codec_id);
+    AVCodec *codec = avcodec_find_decoder_by_name("h264_cuvid"); // (AVCodec *)avcodec_find_decoder(inStream->codecpar->codec_id);
     if (!codec)
     {
         av_log(NULL, AV_LOG_ERROR, "could not find codec\n");
         return false;
     }
+    // check_cuda_support();
+    
+    AVHWDeviceType hwDeviceType = AV_HWDEVICE_TYPE_CUDA;
+    // 创建硬件设备上下文
+    AVBufferRef* hwDeviceContext = nullptr;
+    ret = av_hwdevice_ctx_create(&hwDeviceContext, hwDeviceType, nullptr, nullptr, 0);
+    if (ret < 0) {
+        return false;
+    }
+
     //定义解码器上下文
     ctx = avcodec_alloc_context3(codec);
     if (!ctx)
@@ -169,6 +195,13 @@ bool PullFromStream::init(const std::string& url)
         av_log(NULL, AV_LOG_ERROR, "NO MEMORY\n");
         return false;
     }
+    
+    // 复制参数并设置硬件设备上下文
+    avcodec_parameters_to_context(ctx, inStream->codecpar);
+    ctx->hw_device_ctx = av_buffer_ref(hwDeviceContext);
+    
+    auto p = ctx->hwaccel;
+    std::cout << "------------------------" << p << std::endl;
 
 
     //对解码器上下文初始化
@@ -190,6 +223,14 @@ bool PullFromStream::init(const std::string& url)
         av_log(NULL, AV_LOG_ERROR, "Could not open codec\n");
         return false;
     }
+    
+    hwFrame = av_frame_alloc();
+    if (!hwFrame)
+    {
+        av_log(NULL, AV_LOG_ERROR, "no memory\n");
+        return false;
+    }
+    
     //定义AVFrame
     frame = av_frame_alloc();
     if (!frame)
@@ -197,6 +238,7 @@ bool PullFromStream::init(const std::string& url)
         av_log(NULL, AV_LOG_ERROR, "no memory\n");
         return false;
     }
+    
     //定义AVPacket
     pkt = av_packet_alloc();
     if (!pkt)
@@ -246,10 +288,16 @@ void PullFromStream::final()
     {
         av_frame_free(&frame);
     }
+    
+    if (hwFrame)
+    {
+        av_frame_free(&hwFrame);
+    }
 
     if (pkt)
     {
         av_packet_free(&pkt);
     }
 }
+
 

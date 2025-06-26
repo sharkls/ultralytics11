@@ -180,6 +180,7 @@ c++/build/
 c++/Submodules/TPL/
 c++/Output/vis/
 c++/Output/Lib/
+c++/Output/Save_Data/
 deploy/build/
 deploy/Output/
 *.jpg
