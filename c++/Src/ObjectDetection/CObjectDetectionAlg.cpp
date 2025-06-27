@@ -336,20 +336,44 @@ void CObjectDetectionAlg::visualizationResult()
         cv::putText(srcImage, label, rect.tl(), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,0), 1);
     }
 
-    // 3. 构造保存目录
-    std::string visDir = (std::filesystem::path(m_exePath) / "Vis_Detection_Result").string();
+    // 3. 构造保存目录 - 按照帧号创建文件夹
+    uint32_t frameId = frameResult.unFrameId();
+    std::string visDir = (std::filesystem::path(m_exePath) / "Vis_Detection_Result" / std::to_string(frameId)).string();
     if (!std::filesystem::exists(visDir)) {
         std::filesystem::create_directories(visDir);
     }
 
-    // 4. 构造保存路径
-    uint32_t frameId = frameResult.unFrameId();
-    std::string savePath = visDir + "/" + std::to_string(frameId) + ".jpg";
+    // 4. 保存图片
+    std::string imagePath = visDir + "/" + std::to_string(frameId) + ".jpg";
+    cv::imwrite(imagePath, srcImage);
 
-    // 5. 保存图片
-    cv::imwrite(savePath, srcImage);
+    // 5. 保存目标框信息和类别到txt文件
+    std::string txtPath = visDir + "/" + std::to_string(frameId) + ".txt";
+    std::ofstream txtFile(txtPath);
+    if (txtFile.is_open()) {
+        txtFile << "# Frame ID: " << frameId << std::endl;
+        txtFile << "# Format: class_name confidence x1 y1 x2 y2 target_id distance" << std::endl;
+        txtFile << "# x1,y1: top-left corner, x2,y2: bottom-right corner" << std::endl;
+        txtFile << "# distance unit: mm" << std::endl;
+        txtFile << std::endl;
+        
+        for(const auto& obj : frameResult.vecObjectResult()) {
+            txtFile << obj.strClass() << " "
+                   << std::fixed << std::setprecision(3) << obj.fVideoConfidence() << " "
+                   << std::fixed << std::setprecision(2) << obj.fTopLeftX() << " "
+                   << std::fixed << std::setprecision(2) << obj.fTopLeftY() << " "
+                   << std::fixed << std::setprecision(2) << obj.fBottomRightX() << " "
+                   << std::fixed << std::setprecision(2) << obj.fBottomRightY() << " "
+                   << obj.usTargetId() << " "
+                   << std::fixed << std::setprecision(2) << obj.fDistance() << std::endl;
+        }
+        txtFile.close();
+        LOG(INFO) << "目标框信息已保存到: " << txtPath;
+    } else {
+        LOG(ERROR) << "无法创建txt文件: " << txtPath;
+    }
 
-    LOG(INFO) << "检测结果已保存到: " << savePath;
+    LOG(INFO) << "检测结果已保存到: " << visDir;
 } 
 
 void CObjectDetectionAlg::saveObjectRegionImages()
@@ -417,46 +441,21 @@ void CObjectDetectionAlg::saveObjectRegionImages()
 
         // 当 m_run_status 为 true 时，保存目标区域图像
         if (m_run_status) {
-            // 构造保存目录
-            std::string roiVisDir = (std::filesystem::path(m_exePath) / "Vis_Object_Regions").string();
+            // 构造保存目录 - 按照帧号创建文件夹
+            uint32_t frameId = m_currentInput->vecVideoSrcData()[0].unFrameId();
+            std::string roiVisDir = (std::filesystem::path(m_exePath) / "Vis_Object_Regions" / std::to_string(frameId)).string();
             if (!std::filesystem::exists(roiVisDir)) {
                 std::filesystem::create_directories(roiVisDir);
             }
 
-            // 在图像上添加标注信息
-            cv::Mat annotatedImage = roiImage.clone();
-            
-            // 添加目标信息文本
-            std::string infoText = obj.strClass() + " Conf:" + std::to_string(static_cast<int>(obj.fVideoConfidence()));
-            if (obj.fDistance() > 0) {
-                infoText += " Dist:" + std::to_string(static_cast<int>(obj.fDistance())) + "cm";
-            }
-            
-            // 计算文本位置和大小
-            int fontFace = cv::FONT_HERSHEY_SIMPLEX;
-            double fontScale = 0.5;
-            int thickness = 1;
-            cv::Size textSize = cv::getTextSize(infoText, fontFace, fontScale, thickness, nullptr);
-            
-            // 绘制背景矩形
-            cv::Rect textRect(5, 5, textSize.width + 10, textSize.height + 10);
-            cv::rectangle(annotatedImage, textRect, cv::Scalar(0, 0, 0), -1);
-            cv::rectangle(annotatedImage, textRect, cv::Scalar(255, 255, 255), 1);
-            
-            // 绘制文本
-            cv::putText(annotatedImage, infoText, cv::Point(10, 20), fontFace, fontScale, 
-                       cv::Scalar(255, 255, 255), thickness);
-
-            // 构造保存路径：帧ID_目标索引_类别.jpg
-            uint32_t frameId = m_currentInput->vecVideoSrcData()[0].unFrameId();
+            // 构造保存路径：目标索引_类别.jpg
             std::string className = obj.strClass();
             // 替换类别名称中的特殊字符，避免文件名问题
             std::replace(className.begin(), className.end(), ' ', '_');
-            std::string savePath = roiVisDir + "/" + std::to_string(frameId) + "_" + 
-                                  std::to_string(i) + "_" + className + ".jpg";
+            std::string savePath = roiVisDir + "/" + std::to_string(i) + "_" + className + ".jpg";
 
-            // 保存图片
-            if (cv::imwrite(savePath, annotatedImage)) {
+            // 保存原始目标区域图像（不添加任何文字）
+            if (cv::imwrite(savePath, roiImage)) {
                 LOG(INFO) << "目标区域图像已保存到: " << savePath;
             } else {
                 LOG(ERROR) << "保存目标区域图像失败: " << savePath;

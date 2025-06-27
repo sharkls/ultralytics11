@@ -7,5 +7,5 @@ ENV_FILE=~/.bashrc
 sed -i '/export LD_LIBRARY_PATH=/d' $ENV_FILE
 
 # 再追加新的 LD_LIBRARY_PATH
-echo "export LD_LIBRARY_PATH=$CUR_DIR/Output/Lib:$CUR_DIR/Submodules/TPL:$CUR_DIR/Submodules/TPL/av_opencv:$CUR_DIR/Submodules/TPL/fastdds:$CUR_DIR/Submodules/TPL/protobuf:$CUR_DIR/Submodules/TPL/yaml-cpp:$CUR_DIR/Submodules/TPL/tinyxml2:$CUR_DIR/Submodules/TPL/glog:$CUR_DIR/Submodules/TPL/gflags:$CUR_DIR/Submodules/TPL/googletest" >> $ENV_FILE
+echo "export LD_LIBRARY_PATH=$CUR_DIR/Output/Lib:$CUR_DIR/Submodules/TPL:$CUR_DIR/Submodules/TPL/av_opencv:$CUR_DIR/Submodules/TPL/fastdds:$CUR_DIR/Submodules/TPL/protobuf:$CUR_DIR/Submodules/TPL/yaml-cpp:$CUR_DIR/Submodules/TPL/tinyxml2:$CUR_DIR/Submodules/TPL/glog:$CUR_DIR/Submodules/TPL/gflags:$CUR_DIR/Submodules/TPL/googletest:/mnt/env/TensorRT-10.2.0.19/lib" >> $ENV_FILE
 source $ENV_FILE

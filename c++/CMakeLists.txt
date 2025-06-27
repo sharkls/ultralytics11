@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10)
 project(testAlgLib)
 
 # 编译设置
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_PLATFORM 86)
@@ -91,7 +91,9 @@ if(CMAKE_PLATFORM MATCHES "86")
     # add_executable(${PROJECT_NAME} TestPoseEstimation.cpp)
     # add_executable(${PROJECT_NAME} TestObjectLocation.cpp)
     # add_executable(${PROJECT_NAME} TestObjectDetection.cpp)
-    add_executable(${PROJECT_NAME} TestBinocularPositioning.cpp)
+    # add_executable(${PROJECT_NAME} TestBinocularPositioning.cpp)
+    # add_executable(${PROJECT_NAME} TestObjectDetectionv2.cpp)
+    add_executable(${PROJECT_NAME} TestPoseEstimationv2.cpp)
 
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_core)
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_imgproc)
@@ -121,7 +123,7 @@ if(CMAKE_PLATFORM MATCHES "86")
 
 
     # 链接各算法模块的动态库
-    target_link_libraries(${PROJECT_NAME} PRIVATE PoseEstimationAlg)
+    target_link_libraries(${PROJECT_NAME} PRIVATE PoseEstimationv2Alg)
     target_link_libraries(${PROJECT_NAME} PRIVATE ObjectLocationAlg)
     target_link_libraries(${PROJECT_NAME} PRIVATE MultiModalFusionAlg)
     target_link_libraries(${PROJECT_NAME} PRIVATE ObjectDetectionAlg)

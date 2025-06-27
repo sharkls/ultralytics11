@@ -9,6 +9,29 @@ import onnx
 import argparse
 from ultralytics.utils.ops import non_max_suppression
 
+"""
+YOLO姿态估计模型转换和推理工具
+
+支持的功能：
+1. PyTorch模型推理
+2. ONNX模型导出和推理（支持CPU和GPU）
+3. TensorRT engine转换和推理
+4. 结果对比和可视化
+
+使用方法：
+# 使用CPU进行ONNX推理
+python 9_torch2trt_pose.py --model_path ckpt/yolo11m-pose.pt --image_path data/test.jpg
+
+# 使用GPU进行ONNX推理
+python 9_torch2trt_pose.py --model_path ckpt/yolo11m-pose.pt --image_path data/test.jpg --use_gpu_onnx
+
+# 指定ONNX推理提供者
+python 9_torch2trt_pose.py --model_path ckpt/yolo11m-pose.pt --image_path data/test.jpg --onnx_provider gpu
+
+# 同时进行TensorRT转换和推理
+python 9_torch2trt_pose.py --model_path ckpt/yolo11m-pose.pt --image_path data/test.jpg --use_gpu_onnx --fp16
+"""
+
 def parse_args():
     """
     解析命令行参数
@@ -24,7 +47,7 @@ def parse_args():
                       help='TensorRT engine保存路径')
     
     # 推理相关参数
-    parser.add_argument('--image_path', type=str, default='data/coco8-pose/images/val/000000000113.jpg',
+    parser.add_argument('--image_path', type=str, default='/ultralytics/c++/Output/Vis_Object_Regions/2/1_0.jpg',
                       help='输入图像路径')
     parser.add_argument('--max_size', type=int, default=640,
                       help='最大输入尺寸')
@@ -52,8 +75,15 @@ def parse_args():
                       help='是否使用FP16精度')
     parser.add_argument('--min_batch', type=int, default=1,
                       help='最小批次大小')
-    parser.add_argument('--max_batch', type=int, default=4,
+    parser.add_argument('--max_batch', type=int, default=8,
                       help='最大批次大小')
+    
+    # ONNX Runtime相关参数
+    parser.add_argument('--use_gpu_onnx', action='store_true',
+                      help='是否使用GPU版本的onnxruntime进行推理')
+    parser.add_argument('--onnx_provider', type=str, default='auto',
+                      choices=['auto', 'cpu', 'gpu', 'cuda'],
+                      help='ONNX Runtime推理提供者')
     
     return parser.parse_args()
 
@@ -167,6 +197,38 @@ def export_onnx(model_path, onnx_path, max_size=640, stride=32):
         name=onnx_path
     )
     print(f"ONNX模型已导出到: {onnx_path}")
+
+def check_onnxruntime_providers():
+    """
+    检查onnxruntime可用的推理提供者
+    
+    Returns:
+        dict: 可用提供者信息
+    """
+    providers_info = {
+        'available_providers': ort.get_available_providers(),
+        'cuda_available': False,
+        'cpu_available': False
+    }
+    
+    print(f"ONNX Runtime版本: {ort.__version__}")
+    print(f"可用提供者: {providers_info['available_providers']}")
+    
+    # 检查CUDA提供者
+    if 'CUDAExecutionProvider' in providers_info['available_providers']:
+        providers_info['cuda_available'] = True
+        print("✓ CUDA提供者可用")
+    else:
+        print("✗ CUDA提供者不可用")
+    
+    # 检查CPU提供者
+    if 'CPUExecutionProvider' in providers_info['available_providers']:
+        providers_info['cpu_available'] = True
+        print("✓ CPU提供者可用")
+    else:
+        print("✗ CPU提供者不可用")
+    
+    return providers_info
 
 def check_cuda_available():
     """
@@ -302,22 +364,53 @@ def keypoints_rescale(kpts, orig_shape, preprocess_params):
     
     return kpts
 
-def run_onnx(onnx_path, img):
+def run_onnx(onnx_path, img, use_gpu=False, provider='auto'):
     """
     运行ONNX模型推理
     
     Args:
         onnx_path (str): ONNX模型路径
         img (np.ndarray): 预处理后的输入图像
+        use_gpu (bool): 是否使用GPU推理
+        provider (str): 推理提供者 ('auto', 'cpu', 'gpu', 'cuda')
     
     Returns:
         list: 模型输出
     """
-    session = ort.InferenceSession(onnx_path, providers=['CPUExecutionProvider'])
-    input_name = session.get_inputs()[0].name
-    outputs = session.run(None, {input_name: img})
-    print(f"ONNX模型输出形状: {[out.shape for out in outputs]}")
-    return outputs
+    # 根据参数选择推理提供者
+    if provider == 'auto':
+        if use_gpu:
+            # 尝试GPU提供者，如果失败则回退到CPU
+            providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+        else:
+            providers = ['CPUExecutionProvider']
+    elif provider == 'cpu':
+        providers = ['CPUExecutionProvider']
+    elif provider in ['gpu', 'cuda']:
+        providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+    else:
+        providers = ['CPUExecutionProvider']
+    
+    try:
+        session = ort.InferenceSession(onnx_path, providers=providers)
+        
+        # 打印可用的提供者
+        available_providers = session.get_providers()
+        print(f"ONNX Runtime可用提供者: {available_providers}")
+        print(f"当前使用的提供者: {session.get_provider_options()}")
+        
+        input_name = session.get_inputs()[0].name
+        outputs = session.run(None, {input_name: img})
+        print(f"ONNX模型输出形状: {[out.shape for out in outputs]}")
+        return outputs
+        
+    except Exception as e:
+        print(f"ONNX推理失败: {e}")
+        if use_gpu and provider == 'auto':
+            print("GPU推理失败，尝试使用CPU推理...")
+            return run_onnx(onnx_path, img, use_gpu=False, provider='cpu')
+        else:
+            raise
 
 def run_engine(engine_path, img):
     """
@@ -527,11 +620,30 @@ if __name__ == "__main__":
     # 创建保存目录
     os.makedirs(args.save_dir, exist_ok=True)
     
+    # 检查ONNX Runtime提供者
+    print("=" * 50)
+    print("检查ONNX Runtime提供者")
+    print("=" * 50)
+    onnx_providers = check_onnxruntime_providers()
+    
     # 检查CUDA可用性
+    print("\n" + "=" * 50)
+    print("检查CUDA可用性")
+    print("=" * 50)
     cuda_available, error_msg = check_cuda_available()
     if not cuda_available:
         print(f"警告：{error_msg}")
         print("将只执行ONNX推理，跳过TensorRT转换和推理")
+    
+    # 根据参数调整推理策略
+    if args.use_gpu_onnx and not onnx_providers['cuda_available']:
+        print("警告：请求使用GPU ONNX推理，但CUDA提供者不可用，将使用CPU推理")
+        args.use_gpu_onnx = False
+        args.onnx_provider = 'cpu'
+    
+    if not onnx_providers['cpu_available']:
+        print("错误：CPU提供者不可用，无法进行推理")
+        exit(1)
     
     # 读取图像
     image = cv2.imread(args.image_path)
@@ -570,7 +682,7 @@ if __name__ == "__main__":
     print("预处理后图像尺寸: ", img_input.shape)
 
     # ONNX推理
-    onnx_outputs = run_onnx(args.onnx_path, img_input)
+    onnx_outputs = run_onnx(args.onnx_path, img_input, args.use_gpu_onnx, args.onnx_provider)
     onnx_kpts, onnx_boxes = postprocess_pose_output(onnx_outputs[0], 
                                                   conf_thres=args.conf_thres, 
                                                   iou_thres=args.iou_thres, 

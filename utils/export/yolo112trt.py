@@ -16,15 +16,15 @@ def parse_args():
     parser = argparse.ArgumentParser(description='YOLO目标检测模型转换和推理')
     
     # 模型相关参数
-    parser.add_argument('--model_path', type=str, default='ckpt/best0603.pt',
+    parser.add_argument('--model_path', type=str, default='ckpt/best626.pt',
                       help='PyTorch模型路径')
-    parser.add_argument('--onnx_path', type=str, default='ckpt/best0603.onnx',
+    parser.add_argument('--onnx_path', type=str, default='ckpt/best626.onnx',
                       help='ONNX模型保存路径')
-    parser.add_argument('--engine_path', type=str, default='ckpt/best0603.engine',
+    parser.add_argument('--engine_path', type=str, default='ckpt/best626.engine',
                       help='TensorRT engine保存路径')
     
     # 推理相关参数
-    parser.add_argument('--image_path', type=str, default='/ultralytics/data/Test_unmatch/images/visible/test/190005.jpg',
+    parser.add_argument('--image_path', type=str, default='/ultralytics/data/Data/saved_files/saved_files/XYZ_color/1750381950076.jpg',
                       help='输入图像路径')
     parser.add_argument('--max_size', type=int, default=640,
                       help='最大输入尺寸')
