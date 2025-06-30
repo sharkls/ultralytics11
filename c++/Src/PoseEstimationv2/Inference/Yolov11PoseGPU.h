@@ -28,6 +28,7 @@
 #include "CMultiModalSrcData.h"
 #include "PoseEstimation_conf.pb.h"
 #include "CPoseEstimationAlg.h" 
+#include "Yolov11PoseGPU_postprocess.h"  // 添加GPU后处理头文件
 
 namespace nvinfer1 {
     class IRuntime;
@@ -141,4 +142,8 @@ private:
 
     // 运行状态
     bool status_;
+    
+    // GPU后处理加速
+    std::unique_ptr<GPUPostProcessor> gpu_postprocessor_;  // GPU后处理器
+    bool use_gpu_postprocessing_;                          // 是否使用GPU后处理
 }; 

@@ -21,6 +21,7 @@ Yolov11PoseGPU::Yolov11PoseGPU(const std::string& exe_path) : IBaseModule(exe_pa
     m_gpuTempBuffer = nullptr;
     m_gpuNMSBuffer = nullptr;
     m_maxGPUBufferSize = 0;
+    use_gpu_postprocessing_ = true;  // 默认启用GPU后处理
 
     // 初始化CUDA流
     cudaError_t cuda_status = cudaStreamCreate(&stream_);
@@ -81,6 +82,17 @@ bool Yolov11PoseGPU::init(void* p_pAlgParam)
 
     // 5. 初始化TensorRT相关配置
     initTensorRT();
+    
+    // 6. 初始化GPU后处理器
+    if (use_gpu_postprocessing_) {
+        gpu_postprocessor_ = std::make_unique<GPUPostProcessor>();
+        if (!gpu_postprocessor_->initialize(m_maxBatchSize, max_dets_)) {
+            LOG(ERROR) << "Failed to initialize GPU post-processor";
+            return false;
+        }
+        LOG(INFO) << "GPU post-processor initialized successfully";
+    }
+    
     LOG(INFO) << "Yolov11PoseGPU::init status: success ";
     return true;
 }
@@ -626,6 +638,13 @@ void Yolov11PoseGPU::cleanup()
     engine_.reset();
     runtime_.reset();
     
+    // 清理GPU后处理器
+    if (gpu_postprocessor_) {
+        gpu_postprocessor_->cleanup();
+        gpu_postprocessor_.reset();
+        LOG(INFO) << "GPU post-processor cleanup completed";
+    }
+    
     LOG(INFO) << "TensorRT和CUDA资源清理完成";
 }
 
@@ -824,21 +843,36 @@ std::vector<float> Yolov11PoseGPU::inference()
     for (int i = 0; i < output_dims.nbDims; ++i) {
         output_size *= output_dims.d[i];
     }
-    std::vector<float> output(output_size);
     
     LOG(INFO) << "Dynamic output size: " << output_size;
 
-    // 8. 拷贝输出数据到CPU
-    cudaError_t cuda_status = cudaMemcpyAsync(output.data(), output_buffers_[0],
-                                  output_size * sizeof(float),
-                                  cudaMemcpyDeviceToHost, stream_);
-    if (cuda_status != cudaSuccess) {
-        throw std::runtime_error("CUDA输出内存拷贝失败: " + std::string(cudaGetErrorString(cuda_status)));
-    }
-    cudaStreamSynchronize(stream_);
+    // 8. 根据是否使用GPU后处理决定是否拷贝数据到CPU
+    if (use_gpu_postprocessing_ && gpu_postprocessor_) {
+        // 使用GPU后处理，直接返回GPU内存指针
+        LOG(INFO) << "Using GPU post-processing, keeping output in GPU memory";
+        // 返回一个特殊的向量，第一个元素存储GPU指针的地址值
+        std::vector<float> gpu_output_info;
+        gpu_output_info.push_back(static_cast<float>(reinterpret_cast<size_t>(output_buffers_[0])));  // GPU指针地址
+        gpu_output_info.push_back(static_cast<float>(output_size));              // 输出大小
+        gpu_output_info.push_back(1.0f);  // 标记为GPU数据
+        
+        LOG(INFO) << "Yolov11PoseGPU::inference status: success, GPU output size: " << output_size;
+        return gpu_output_info;
+    } else {
+        // 使用CPU后处理，拷贝数据到CPU
+        std::vector<float> output(output_size);
+        
+        cudaError_t cuda_status = cudaMemcpyAsync(output.data(), output_buffers_[0],
+                                      output_size * sizeof(float),
+                                      cudaMemcpyDeviceToHost, stream_);
+        if (cuda_status != cudaSuccess) {
+            throw std::runtime_error("CUDA输出内存拷贝失败: " + std::string(cudaGetErrorString(cuda_status)));
+        }
+        cudaStreamSynchronize(stream_);
 
-    LOG(INFO) << "Yolov11PoseGPU::inference status: success, output size: " << output.size();
-    return output;
+        LOG(INFO) << "Yolov11PoseGPU::inference status: success, CPU output size: " << output.size();
+        return output;
+    }
 }
 
 void Yolov11PoseGPU::rescale_coords(std::vector<float>& coords, bool is_keypoint) 
@@ -883,6 +917,105 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
 {   
     LOG(INFO) << "Yolov11PoseGPU::process_output status: start ";
     
+    // 检查是否为GPU输出数据
+    if (output.size() >= 3 && output[2] == 1.0f) {
+        // GPU输出数据，使用GPU后处理
+        if (use_gpu_postprocessing_ && gpu_postprocessor_) {
+            LOG(INFO) << "Using GPU post-processing for output";
+            
+            // 提取GPU指针和输出大小
+            float* gpu_output_ptr = reinterpret_cast<float*>(static_cast<size_t>(output[0]));
+            int output_size = static_cast<int>(output[1]);
+            
+            // 检查输入数据类型
+            bool use_gpu_input = !m_inputDataGPU.empty();
+            int current_batch_size = 0;
+            std::vector<float> preprocess_params;
+            
+            if (use_gpu_input) {
+                if (m_inputDataGPU.empty()) {
+                    LOG(ERROR) << "No GPU batch data available for processing";
+                    return std::vector<std::vector<float>>();
+                }
+                current_batch_size = static_cast<int>(m_inputDataGPU.size());
+                
+                // 准备预处理参数
+                preprocess_params.reserve(current_batch_size * 5);
+                for (int i = 0; i < current_batch_size; ++i) {
+                    if (i < m_inputDataGPU.preprocessParams.size()) {
+                        const auto& params = m_inputDataGPU.preprocessParams[i];
+                        preprocess_params.push_back(params.ratio);
+                        preprocess_params.push_back(static_cast<float>(params.padTop));
+                        preprocess_params.push_back(static_cast<float>(params.padLeft));
+                        preprocess_params.push_back(static_cast<float>(params.originalWidth));
+                        preprocess_params.push_back(static_cast<float>(params.originalHeight));
+                    } else {
+                        // 使用默认参数
+                        preprocess_params.push_back(1.0f);
+                        preprocess_params.push_back(0.0f);
+                        preprocess_params.push_back(0.0f);
+                        preprocess_params.push_back(640.0f);
+                        preprocess_params.push_back(640.0f);
+                    }
+                }
+            } else {
+                if (m_batchInputs.empty()) {
+                    LOG(ERROR) << "No CPU batch data available for processing";
+                    return std::vector<std::vector<float>>();
+                }
+                current_batch_size = static_cast<int>(m_batchInputs.size());
+                
+                // 准备预处理参数
+                preprocess_params.reserve(current_batch_size * 5);
+                for (int i = 0; i < current_batch_size; ++i) {
+                    if (i < m_inputData.preprocessParams.size()) {
+                        const auto& params = m_inputData.preprocessParams[i];
+                        preprocess_params.push_back(params.ratio);
+                        preprocess_params.push_back(static_cast<float>(params.padTop));
+                        preprocess_params.push_back(static_cast<float>(params.padLeft));
+                        preprocess_params.push_back(static_cast<float>(params.originalWidth));
+                        preprocess_params.push_back(static_cast<float>(params.originalHeight));
+                    } else {
+                        // 使用默认参数
+                        preprocess_params.push_back(1.0f);
+                        preprocess_params.push_back(0.0f);
+                        preprocess_params.push_back(0.0f);
+                        preprocess_params.push_back(640.0f);
+                        preprocess_params.push_back(640.0f);
+                    }
+                }
+            }
+            
+            // 获取输出形状信息
+            nvinfer1::Dims output_dims = context_->getTensorShape(output_name_);
+            int feature_dim = 4 + num_classes_ + num_keys_ * 3;
+            int num_anchors = output_dims.d[2];
+            
+            LOG(INFO) << "GPU post-processing: batch_size=" << current_batch_size 
+                      << ", feature_dim=" << feature_dim << ", num_anchors=" << num_anchors;
+            
+            // 执行GPU后处理
+            auto results = gpu_postprocessor_->processOutput(
+                gpu_output_ptr,
+                current_batch_size,
+                feature_dim,
+                num_anchors,
+                num_classes_,
+                num_keys_,
+                conf_thres_,
+                iou_thres_,
+                preprocess_params,
+                stream_
+            );
+            
+            LOG(INFO) << "GPU post-processing completed, found " << results.size() << " detections";
+            return results;
+        } else {
+            LOG(WARNING) << "GPU post-processing not available, falling back to CPU processing";
+        }
+    }
+    
+    // 原有的CPU后处理逻辑
     // 检查输入数据类型
     bool use_gpu_input = !m_inputDataGPU.empty();
     
