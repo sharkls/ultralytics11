@@ -42,10 +42,12 @@ struct MultiImagePreprocessResult {
         int originalHeight;   // 原始图像高度
         int targetWidth;      // 目标图像宽度
         int targetHeight;     // 目标图像高度
+        int dw;               // 左右填充
+        int dh;               // 上下填充
         
         PreprocessParams() : ratio(1.0f), padTop(0), padLeft(0), 
                            originalWidth(0), originalHeight(0), 
-                           targetWidth(0), targetHeight(0) {}
+                           targetWidth(0), targetHeight(0), dw(0), dh(0) {}
     };
     std::vector<PreprocessParams> preprocessParams;  // 每个图像的预处理参数
     

@@ -77,7 +77,11 @@ enum EDelayType : uint8_t
     DELAY_TYPE_RADAR,                      // 毫米波数据处理延时
     DELAY_TYPE_TIME_MATCH,                 // 时间匹配耗时
     DELAY_TYPE_MMALG,                      // 多模态感知算法总耗时
-    DELAY_TYPE_POSEALG,                    // 姿态估计算法总耗时
+
+    DELAY_TYPE_POSEALG_PREPROCESS,        // 姿态估计算法预处理耗时
+    DELAY_TYPE_POSEALG_INFERENCE,         // 姿态估计算法推理耗时
+    DELAY_TYPE_POSEALG,                   // 姿态估计算法总耗时
+
     DELAY_TYPE_LOCALG,                     // 目标定位算法总耗时
     DELAY_TYPE_BINOCULARPOSITIONINGALG,     // 双目定位算法总耗时
     DELAY_TYPE_PIPELINE_ALL,               // 全流程总延时

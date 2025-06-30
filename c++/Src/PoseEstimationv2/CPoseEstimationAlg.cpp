@@ -94,9 +94,6 @@ void CPoseEstimationAlg::runAlgorithm(void* p_pSrcData)
         m_currentOutput.unFrameId() = 0;
         m_currentOutput.lTimeStamp() = 0;
         
-        int64_t endTimeStamp = GetTimeStamp();
-        m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN] = endTimeStamp;
-        
         LOG(INFO) << "m_currentOutput初始化完成";
 
         // 1. 核验输入数据是否为空
@@ -177,8 +174,12 @@ bool CPoseEstimationAlg::initModules()
 
 // 执行模块链
 bool CPoseEstimationAlg::executeModuleChain()
-{
+{   
+    int64_t beginTimeStamp = GetTimeStamp();
+    m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN] = beginTimeStamp;
     void* currentData = static_cast<void *>(m_currentInput);
+
+    int64_t preprocessEndTimeStamp = 0;
 
     for (auto& module : m_moduleChain) {
         // 设置输入数据
@@ -193,20 +194,29 @@ bool CPoseEstimationAlg::executeModuleChain()
         }
         
         // 根据模块类型处理输出数据
-        if (module->getModuleName() == "ImagePreProcess") {
+        if (module->getModuleName() == "ImagePreProcess" || module->getModuleName() == "ImagePreProcessGPU") {
             // ImagePreProcess 输出 MultiImagePreprocessResult，直接传递给下一个模块
-            LOG(INFO) << "ImagePreProcess completed, output type: MultiImagePreprocessResult";
-        } else if (module->getModuleName() == "Yolov11Pose") {
+            preprocessEndTimeStamp = GetTimeStamp();
+            LOG(INFO) << "ImagePreProcess completed, output type: MultiImagePreprocessResult. [DELAY_TYPE_POSEALG_PREPROCESS] : " << preprocessEndTimeStamp - beginTimeStamp;
+            // m_currentOutput.mapTimeStamp()[DELAY_TYPE_POSEALG_PREPROCESS] = preprocessEndTimeStamp - beginTimeStamp;
+        } else if (module->getModuleName() == "Yolov11Pose" || module->getModuleName() == "Yolov11PoseGPU") {
             // Yolov11Pose 输出 CAlgResult，这是最终结果
-            LOG(INFO) << "Yolov11Pose completed, output type: CAlgResult";
+            LOG(INFO) << "Yolov11Pose completed, output type: CAlgResult. [DELAY_TYPE_POSEALG_INFERENCE] : " << GetTimeStamp() - preprocessEndTimeStamp;
+            // m_currentOutput.mapTimeStamp()[DELAY_TYPE_POSEALG_INFERENCE] = GetTimeStamp() - m_currentOutput.mapTimeStamp()[DELAY_TYPE_POSEALG_PREPROCESS];
         }
     }
 
     // 最后一个模块应该是 Yolov11Pose，输出 CAlgResult
-    int64_t endTimeStamp = GetTimeStamp();
+    int64_t endTimeStamp = GetTimeStamp();    
+    // 保存开始时间戳，避免被覆盖
+    int64_t savedBeginTimeStamp = m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN];
+    
     if (currentData) {
         CAlgResult* resultPtr = static_cast<CAlgResult *>(currentData);
         m_currentOutput = *resultPtr;
+        
+        // 恢复开始时间戳
+        m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN] = savedBeginTimeStamp;
     } else {
         LOG(ERROR) << "No valid output from module chain";
         return false;
@@ -231,7 +241,7 @@ bool CPoseEstimationAlg::executeModuleChain()
             m_currentOutput.vecFrameResult()[0].eDataType(DATA_TYPE_POSEALG_RESULT);                                 // 数据类型赋值
             m_currentOutput.vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_POSEALG_END] = endTimeStamp;                // 姿态估计算法结束时间戳
             m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_POSEALG] = endTimeStamp - m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN];    // 姿态估计算法耗时计算
-            
+            LOG(INFO) << "[DELAY_TYPE_POSEALG] : " << m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_POSEALG];
             // 修正视差数据访问
             if (!m_currentInput->vecFrameResult()[0].tCameraSupplement().vecDistanceInfo().empty()) {
                 m_currentOutput.vecFrameResult()[0].tCameraSupplement() = m_currentInput->vecFrameResult()[0].tCameraSupplement();
@@ -245,7 +255,7 @@ bool CPoseEstimationAlg::executeModuleChain()
         visualizationResult();
     }
 
-    // 姿态估计点从子图坐标转换为整图上的坐标
+    // 坐标转换和结果合并
     convertCoordinatesAndMergeResults();
 
     // 添加目标深度值获取逻辑
@@ -431,13 +441,31 @@ void CPoseEstimationAlg::createCombinedVisualization(const std::vector<CVideoSrc
             float bbox_x2 = obj.fBottomRightX();
             float bbox_y2 = obj.fBottomRightY();
             
-            // 边界检查
-            if (bbox_x1 >= 0 && bbox_y1 >= 0 && bbox_x2 <= width && bbox_y2 <= height) {
+            // 添加调试信息
+            LOG(INFO) << "子图 " << subImgIdx << " 边界框坐标: (" << bbox_x1 << ", " << bbox_y1 << ") - (" << bbox_x2 << ", " << bbox_y2 << ")";
+            LOG(INFO) << "子图 " << subImgIdx << " 图像尺寸: " << width << "x" << height;
+            
+            // 改进的边界检查：允许部分超出边界的边界框，只要中心点在图像内即可
+            float bbox_center_x = (bbox_x1 + bbox_x2) / 2.0f;
+            float bbox_center_y = (bbox_y1 + bbox_y2) / 2.0f;
+            
+            // 检查边界框中心是否在图像内，或者边界框是否与图像有重叠
+            bool bbox_valid = (bbox_center_x >= 0 && bbox_center_x < width && 
+                              bbox_center_y >= 0 && bbox_center_y < height) ||
+                             (bbox_x1 < width && bbox_x2 > 0 && 
+                              bbox_y1 < height && bbox_y2 > 0);
+            
+            if (bbox_valid) {
+                // 裁剪边界框到图像范围内
+                float clamped_x1 = std::max(0.0f, bbox_x1);
+                float clamped_y1 = std::max(0.0f, bbox_y1);
+                float clamped_x2 = std::min(static_cast<float>(width), bbox_x2);
+                float clamped_y2 = std::min(static_cast<float>(height), bbox_y2);
                 
                 // 绘制目标框
                 cv::Rect rect(
-                    cv::Point(static_cast<int>(bbox_x1), static_cast<int>(bbox_y1)),
-                    cv::Point(static_cast<int>(bbox_x2), static_cast<int>(bbox_y2))
+                    cv::Point(static_cast<int>(clamped_x1), static_cast<int>(clamped_y1)),
+                    cv::Point(static_cast<int>(clamped_x2), static_cast<int>(clamped_y2))
                 );
                 cv::rectangle(srcImage, rect, cv::Scalar(0, 255, 0), 2);
 
@@ -452,8 +480,8 @@ void CPoseEstimationAlg::createCombinedVisualization(const std::vector<CVideoSrc
                 // 绘制人体关键点（子图坐标系）
                 const auto& keypoints = obj.vecKeypoints();
                 for(const auto& kp : keypoints) {
-                    // 边界检查（相对于子图）
-                    if (kp.x() < 0 || kp.y() < 0 || kp.x() >= width || kp.y() >= height) {
+                    // 边界检查（相对于子图）- 允许关键点稍微超出边界
+                    if (kp.x() < -10 || kp.y() < -10 || kp.x() >= width + 10 || kp.y() >= height + 10) {
                         continue;
                     }
                     
@@ -499,9 +527,9 @@ void CPoseEstimationAlg::createCombinedVisualization(const std::vector<CVideoSrc
                                 cv::Point2f pt1(static_cast<int>(kp1.x()), static_cast<int>(kp1.y()));
                                 cv::Point2f pt2(static_cast<int>(kp2.x()), static_cast<int>(kp2.y()));
                                 
-                                // 边界检查（相对于子图）
-                                if (pt1.x >= 0 && pt1.y >= 0 && pt1.x < width && pt1.y < height &&
-                                    pt2.x >= 0 && pt2.y >= 0 && pt2.x < width && pt2.y < height) {
+                                // 边界检查（相对于子图）- 允许连线稍微超出边界
+                                if (pt1.x >= -10 && pt1.y >= -10 && pt1.x < width + 10 && pt1.y < height + 10 &&
+                                    pt2.x >= -10 && pt2.y >= -10 && pt2.x < width + 10 && pt2.y < height + 10) {
                                     cv::line(srcImage, pt1, pt2, cv::Scalar(255, 0, 0), 2);
                                 }
                             }
@@ -511,7 +539,8 @@ void CPoseEstimationAlg::createCombinedVisualization(const std::vector<CVideoSrc
                 
                 LOG(INFO) << "子图 " << subImgIdx << " 绘制完成，关键点数: " << keypoints.size();
             } else {
-                LOG(WARNING) << "子图 " << subImgIdx << " 目标框超出图像边界，跳过绘制";
+                LOG(WARNING) << "子图 " << subImgIdx << " 目标框完全超出图像边界，跳过绘制";
+                LOG(WARNING) << "边界框中心: (" << bbox_center_x << ", " << bbox_center_y << ")";
             }
         } else {
             LOG(WARNING) << "子图 " << subImgIdx << " 没有对应的检测结果";
@@ -545,124 +574,78 @@ void CPoseEstimationAlg::createCombinedVisualization(const std::vector<CVideoSrc
 
 void CPoseEstimationAlg::convertCoordinatesAndMergeResults()
 {
-    // 姿态估计点从子图坐标转换为整图上的坐标
-    if (m_currentOutput.vecFrameResult().size() > 0 && 
-        m_currentInput && !m_currentInput->vecFrameResult().empty() &&
-        !m_currentInput->vecFrameResult()[0].vecObjectResult().empty()) {
+    LOG(INFO) << "开始坐标转换和结果合并...";
+    LOG(INFO) << "输入目标检测结果数量: " << m_currentInput->vecFrameResult()[0].vecObjectResult().size();
+    LOG(INFO) << "姿态估计结果数量: " << m_currentOutput.vecFrameResult()[0].vecObjectResult().size();
+    
+    // 获取目标检测结果（整图上的目标框）
+    const auto& detectionResults = m_currentInput->vecFrameResult()[0].vecObjectResult();
+    // 获取姿态估计结果（子图上的关键点）
+    auto& poseResults = m_currentOutput.vecFrameResult()[0].vecObjectResult();
+    
+    // 在清空容器前，先保存姿态估计结果的副本
+    std::vector<CObjectResult> poseResultsCopy = poseResults;
+    
+    // 清空输出容器，准备重新填充
+    m_currentOutput.vecFrameResult()[0].vecObjectResult().clear();
+    
+    // 遍历每个目标检测结果
+    for (size_t detIdx = 0; detIdx < detectionResults.size(); ++detIdx) {
+        const auto& detectionObj = detectionResults[detIdx];
         
-        LOG(INFO) << "开始坐标转换和结果合并...";
-        LOG(INFO) << "输入目标检测结果数量: " << m_currentInput->vecFrameResult()[0].vecObjectResult().size();
-        LOG(INFO) << "姿态估计结果数量: " << m_currentOutput.vecFrameResult()[0].vecObjectResult().size();
+        // 创建新的结果对象，基于目标检测结果
+        CObjectResult mergedObj = detectionObj;
         
-        // 获取目标检测结果（整图上的目标框）
-        const auto& detectionResults = m_currentInput->vecFrameResult()[0].vecObjectResult();
-        // 获取姿态估计结果（子图上的关键点）
-        auto& poseResults = m_currentOutput.vecFrameResult()[0].vecObjectResult();
-        
-        // // 添加调试信息：打印目标检测结果的详细信息
-        // for (size_t i = 0; i < detectionResults.size(); ++i) {
-        //     const auto& det = detectionResults[i];
-        //     LOG(INFO) << "目标检测结果 " << i << ": 类别=" << det.strClass() 
-        //               << ", 置信度=" << det.fVideoConfidence()
-        //               << ", 边界框=(" << det.fTopLeftX() << "," << det.fTopLeftY() 
-        //               << ") to (" << det.fBottomRightX() << "," << det.fBottomRightY() << ")";
-        // }
-        
-        // // 添加调试信息：打印姿态估计结果的详细信息
-        // for (size_t i = 0; i < poseResults.size(); ++i) {
-        //     const auto& pose = poseResults[i];
-        //     LOG(INFO) << "姿态估计结果 " << i << ": 类别=" << pose.strClass() 
-        //               << ", 置信度=" << pose.fVideoConfidence()
-        //               << ", 边界框=(" << pose.fTopLeftX() << "," << pose.fTopLeftY() 
-        //               << ") to (" << pose.fBottomRightX() << "," << pose.fBottomRightY() << ")"
-        //               << ", 关键点数=" << pose.vecKeypoints().size();
-        // }
-        
-        // 在清空容器前，先保存姿态估计结果的副本
-        std::vector<CObjectResult> poseResultsCopy = poseResults;
-        
-        // 清空当前输出，准备重新构建
-        m_currentOutput.vecFrameResult()[0].vecObjectResult().clear();
-        
-        // 遍历每个目标检测结果
-        for (size_t detIdx = 0; detIdx < detectionResults.size(); ++detIdx) {
-            const auto& detectionObj = detectionResults[detIdx];
+        // 查找对应的姿态估计结果
+        // 目标检测和姿态估计的索引是一一对应的，因为每个子图对应一个目标
+        if (detIdx < poseResultsCopy.size()) {
+            const auto& poseObj = poseResultsCopy[detIdx];
             
-            // 创建新的结果对象，基于目标检测结果
-            CObjectResult mergedObj = detectionObj;
+            // 获取目标框信息（用于坐标转换）
+            float bbox_x1 = detectionObj.fTopLeftX();
+            float bbox_y1 = detectionObj.fTopLeftY();
+            float bbox_x2 = detectionObj.fBottomRightX();
+            float bbox_y2 = detectionObj.fBottomRightY();
             
-            // 查找对应的姿态估计结果
-            // 目标检测和姿态估计的索引是一一对应的，因为每个子图对应一个目标
-            // LOG(INFO) << "检查目标 " << detIdx << " 的匹配情况: detIdx=" << detIdx << ", poseResultsCopy.size()=" << poseResultsCopy.size();
-            if (detIdx < poseResultsCopy.size()) {
-                const auto& poseObj = poseResultsCopy[detIdx];
-                LOG(INFO) << "找到匹配的姿态估计结果 " << detIdx;
+            // 转换关键点坐标从子图到整图
+            std::vector<Keypoint> convertedKeypoints;
+            const auto& originalKeypoints = poseObj.vecKeypoints();
+            
+            for (const auto& kp : originalKeypoints) {
+                Keypoint convertedKp;
                 
-                // 获取目标框信息（用于坐标转换）
-                float bbox_x1 = detectionObj.fTopLeftX();
-                float bbox_y1 = detectionObj.fTopLeftY();
-                float bbox_x2 = detectionObj.fBottomRightX();
-                float bbox_y2 = detectionObj.fBottomRightY();
-                float bbox_width = bbox_x2 - bbox_x1;
-                float bbox_height = bbox_y2 - bbox_y1;
+                // 姿态估计输出的坐标是相对于子图的绝对像素坐标
+                float sub_x = kp.x();
+                float sub_y = kp.y();
                 
-                // LOG(INFO) << "目标 " << detIdx << " 框: (" << bbox_x1 << "," << bbox_y1 << ") to (" 
-                //           << bbox_x2 << "," << bbox_y2 << "), 尺寸: " << bbox_width << "x" << bbox_height;
+                // 将子图坐标转换为整图坐标
+                // 子图坐标是相对于子图的，需要加上子图在整图中的偏移
+                // 由于每个子图都是独立的，子图坐标就是相对于子图左上角的坐标
+                // 而目标检测的边界框是相对于整图的，所以需要加上边界框的左上角坐标
+                float full_x = bbox_x1 + sub_x;
+                float full_y = bbox_y1 + sub_y;
                 
-                // 转换关键点坐标从子图到整图
-                std::vector<Keypoint> convertedKeypoints;
-                const auto& originalKeypoints = poseObj.vecKeypoints();
-                
-                // LOG(INFO) << "目标 " << detIdx << " 开始转换 " << originalKeypoints.size() << " 个关键点";
-                
-                for (const auto& kp : originalKeypoints) {
-                    Keypoint convertedKp;
-                    
-                    // 姿态估计输出的坐标是相对于子图的绝对像素坐标
-                    float sub_x = kp.x();
-                    float sub_y = kp.y();
-                    
-                    // 将子图坐标转换为整图坐标
-                    // 子图坐标是相对于子图的，需要加上子图在整图中的偏移
-                    // 由于每个子图都是独立的，子图坐标就是相对于子图左上角的坐标
-                    // 而目标检测的边界框是相对于整图的，所以需要加上边界框的左上角坐标
-                    float full_x = bbox_x1 + sub_x;
-                    float full_y = bbox_y1 + sub_y;
-                    
-                    convertedKp.x(full_x);
-                    convertedKp.y(full_y);
-                    convertedKp.confidence(kp.confidence());
-                    
-                    convertedKeypoints.push_back(convertedKp);
-                    
-                    // LOG(INFO) << "关键点转换: 子图(" << sub_x << "," << sub_y 
-                    //           << ") -> 整图(" << full_x << "," << full_y 
-                    //           << "), 置信度: " << kp.confidence();
-                }
-                
-                // 更新合并对象的关键点信息
-                mergedObj.vecKeypoints(convertedKeypoints);
-                
-                // 更新类别信息（使用姿态估计的类别）
-                mergedObj.strClass(poseObj.strClass());
-                
-                // 更新置信度（可以取目标检测和姿态估计的平均值）
-                float avg_confidence = (detectionObj.fVideoConfidence() + poseObj.fVideoConfidence()) / 2.0f;
-                mergedObj.fVideoConfidence(avg_confidence);
-                
-                // LOG(INFO) << "目标 " << detIdx << " 合并完成: 类别=" << mergedObj.strClass() 
-                //           << ", 置信度=" << avg_confidence << ", 关键点数=" << convertedKeypoints.size();
-            } else {
-                // 如果没有对应的姿态估计结果，保留目标检测结果，关键点为空
-                LOG(WARNING) << "目标 " << detIdx << " 没有对应的姿态估计结果";
-                mergedObj.vecKeypoints().clear();
+                convertedKp.x(full_x);
+                convertedKp.y(full_y);
+                convertedKp.confidence(kp.confidence());
+                convertedKeypoints.push_back(convertedKp);
             }
             
-            // 添加到最终结果中
-            m_currentOutput.vecFrameResult()[0].vecObjectResult().push_back(mergedObj);
+            // 设置转换后的关键点
+            mergedObj.vecKeypoints(convertedKeypoints);
+            
+            // 计算平均置信度
+            float avg_confidence = (detectionObj.fVideoConfidence() + poseObj.fVideoConfidence()) / 2.0f;
+            mergedObj.fVideoConfidence(avg_confidence);
+        } else {
+            // 如果没有对应的姿态估计结果，保留目标检测结果，关键点为空
+            LOG(WARNING) << "目标 " << detIdx << " 没有对应的姿态估计结果";
         }
         
-        LOG(INFO) << "坐标转换和结果合并完成，最终结果数量: " 
-                  << m_currentOutput.vecFrameResult()[0].vecObjectResult().size();
+        // 添加到输出结果中
+        m_currentOutput.vecFrameResult()[0].vecObjectResult().push_back(mergedObj);
     }
+    
+    LOG(INFO) << "坐标转换和结果合并完成，输出结果数量: " 
+              << m_currentOutput.vecFrameResult()[0].vecObjectResult().size();
 }
