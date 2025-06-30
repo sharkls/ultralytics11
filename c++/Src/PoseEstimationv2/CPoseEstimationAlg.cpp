@@ -176,10 +176,8 @@ bool CPoseEstimationAlg::initModules()
 bool CPoseEstimationAlg::executeModuleChain()
 {   
     int64_t beginTimeStamp = GetTimeStamp();
-    m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN] = beginTimeStamp;
-    void* currentData = static_cast<void *>(m_currentInput);
-
     int64_t preprocessEndTimeStamp = 0;
+    void* currentData = static_cast<void *>(m_currentInput);
 
     for (auto& module : m_moduleChain) {
         // 设置输入数据
@@ -198,25 +196,17 @@ bool CPoseEstimationAlg::executeModuleChain()
             // ImagePreProcess 输出 MultiImagePreprocessResult，直接传递给下一个模块
             preprocessEndTimeStamp = GetTimeStamp();
             LOG(INFO) << "ImagePreProcess completed, output type: MultiImagePreprocessResult. [DELAY_TYPE_POSEALG_PREPROCESS] : " << preprocessEndTimeStamp - beginTimeStamp;
-            // m_currentOutput.mapTimeStamp()[DELAY_TYPE_POSEALG_PREPROCESS] = preprocessEndTimeStamp - beginTimeStamp;
         } else if (module->getModuleName() == "Yolov11Pose" || module->getModuleName() == "Yolov11PoseGPU") {
             // Yolov11Pose 输出 CAlgResult，这是最终结果
             LOG(INFO) << "Yolov11Pose completed, output type: CAlgResult. [DELAY_TYPE_POSEALG_INFERENCE] : " << GetTimeStamp() - preprocessEndTimeStamp;
-            // m_currentOutput.mapTimeStamp()[DELAY_TYPE_POSEALG_INFERENCE] = GetTimeStamp() - m_currentOutput.mapTimeStamp()[DELAY_TYPE_POSEALG_PREPROCESS];
         }
     }
 
     // 最后一个模块应该是 Yolov11Pose，输出 CAlgResult
     int64_t endTimeStamp = GetTimeStamp();    
-    // 保存开始时间戳，避免被覆盖
-    int64_t savedBeginTimeStamp = m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN];
-    
     if (currentData) {
         CAlgResult* resultPtr = static_cast<CAlgResult *>(currentData);
         m_currentOutput = *resultPtr;
-        
-        // 恢复开始时间戳
-        m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN] = savedBeginTimeStamp;
     } else {
         LOG(ERROR) << "No valid output from module chain";
         return false;
@@ -238,9 +228,10 @@ bool CPoseEstimationAlg::executeModuleChain()
             LOG(INFO) << "原有信息穿透完毕： FrameId : " << m_currentOutput.vecFrameResult()[0].unFrameId() << ", lTimeStamp : " << m_currentOutput.lTimeStamp();
 
             // 独有数据填充
+            m_currentOutput.vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN] = beginTimeStamp;            // 姿态估计算法开始时间戳
             m_currentOutput.vecFrameResult()[0].eDataType(DATA_TYPE_POSEALG_RESULT);                                 // 数据类型赋值
             m_currentOutput.vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_POSEALG_END] = endTimeStamp;                // 姿态估计算法结束时间戳
-            m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_POSEALG] = endTimeStamp - m_currentOutput.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN];    // 姿态估计算法耗时计算
+            m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_POSEALG] = endTimeStamp - beginTimeStamp;    // 姿态估计算法耗时计算
             LOG(INFO) << "[DELAY_TYPE_POSEALG] : " << m_currentOutput.vecFrameResult()[0].mapDelay()[DELAY_TYPE_POSEALG];
             // 修正视差数据访问
             if (!m_currentInput->vecFrameResult()[0].tCameraSupplement().vecDistanceInfo().empty()) {

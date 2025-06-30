@@ -81,19 +81,23 @@ __global__ void padImageKernel(float* src, float* dst, int src_width, int src_he
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (x < dst_width && y < dst_height) {
-        int dst_idx = y * dst_width + x;
-        
         // 检查是否在填充区域
         if (x < pad_left || x >= pad_left + src_width || 
             y < pad_top || y >= pad_top + src_height) {
-            // 填充区域，设置为填充值
-            dst[dst_idx] = pad_value;
+            // 填充区域，设置为填充值（3通道）
+            int dst_idx = (y * dst_width + x) * 3;
+            dst[dst_idx + 0] = pad_value;  // R
+            dst[dst_idx + 1] = pad_value;  // G
+            dst[dst_idx + 2] = pad_value;  // B
         } else {
-            // 图像区域，复制源数据
+            // 图像区域，复制源数据（3通道）
             int src_x = x - pad_left;
             int src_y = y - pad_top;
-            int src_idx = src_y * src_width + src_x;
-            dst[dst_idx] = src[src_idx];
+            int src_idx = (src_y * src_width + src_x) * 3;
+            int dst_idx = (y * dst_width + x) * 3;
+            dst[dst_idx + 0] = src[src_idx + 0];  // R
+            dst[dst_idx + 1] = src[src_idx + 1];  // G
+            dst[dst_idx + 2] = src[src_idx + 2];  // B
         }
     }
 }
@@ -110,6 +114,77 @@ __global__ void bgrToRgbKernel(uchar3* bgr, uchar3* rgb, int width, int height) 
         rgb[idx].x = pixel.z;  // B -> R
         rgb[idx].y = pixel.y;  // G -> G
         rgb[idx].z = pixel.x;  // R -> B
+    }
+}
+
+// 批量并行预处理内核函数
+__global__ void batchPreprocessKernel(uchar3* src_images, float* dst_images,
+                                     int* src_widths, int* src_heights,
+                                     int* dst_widths, int* dst_heights,
+                                     int* target_widths, int* target_heights,
+                                     int* pad_tops, int* pad_lefts,
+                                     int batch_size, int max_src_width, int max_src_height,
+                                     int max_target_width, int max_target_height) {
+    int batch_idx = blockIdx.z;
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    
+    if (batch_idx >= batch_size) return;
+    
+    int src_width = src_widths[batch_idx];
+    int src_height = src_heights[batch_idx];
+    int dst_width = dst_widths[batch_idx];
+    int dst_height = dst_heights[batch_idx];
+    int target_width = target_widths[batch_idx];
+    int target_height = target_heights[batch_idx];
+    int pad_top = pad_tops[batch_idx];
+    int pad_left = pad_lefts[batch_idx];
+    
+    // 计算源图像偏移
+    size_t src_offset = batch_idx * max_src_width * max_src_height;
+    uchar3* src = src_images + src_offset;
+    
+    // 计算目标图像偏移
+    size_t dst_offset = batch_idx * max_target_width * max_target_height * 3;
+    float* dst = dst_images + dst_offset;
+    
+    if (x < dst_width && y < dst_height) {
+        // 双线性插值resize
+        float src_x = (float)x * src_width / dst_width;
+        float src_y = (float)y * src_height / dst_height;
+        
+        int src_x0 = (int)src_x;
+        int src_y0 = (int)src_y;
+        int src_x1 = min(src_x0 + 1, src_width - 1);
+        int src_y1 = min(src_y0 + 1, src_height - 1);
+        
+        float fx = src_x - src_x0;
+        float fy = src_y - src_y0;
+        
+        uchar3 p00 = src[src_y0 * max_src_width + src_x0];
+        uchar3 p01 = src[src_y0 * max_src_width + src_x1];
+        uchar3 p10 = src[src_y1 * max_src_width + src_x0];
+        uchar3 p11 = src[src_y1 * max_src_width + src_x1];
+        
+        // BGR to RGB conversion and normalization
+        float r = ((1 - fx) * (1 - fy) * p00.z + fx * (1 - fy) * p01.z + 
+                   (1 - fx) * fy * p10.z + fx * fy * p11.z) / 255.0f;
+        float g = ((1 - fx) * (1 - fy) * p00.y + fx * (1 - fy) * p01.y + 
+                   (1 - fx) * fy * p10.y + fx * fy * p11.y) / 255.0f;
+        float b = ((1 - fx) * (1 - fy) * p00.x + fx * (1 - fy) * p01.x + 
+                   (1 - fx) * fy * p10.x + fx * fy * p11.x) / 255.0f;
+        
+        // 应用填充
+        int target_x = x + pad_left;
+        int target_y = y + pad_top;
+        
+        if (target_x < target_width && target_y < target_height) {
+            // HWC to CHW format
+            int hwc_idx = (target_y * target_width + target_x) * 3;
+            dst[hwc_idx + 0] = r;  // R
+            dst[hwc_idx + 1] = g;  // G
+            dst[hwc_idx + 2] = b;  // B
+        }
     }
 }
 
@@ -165,5 +240,25 @@ extern "C" {
         
         bgrToRgbKernel<<<grid_size, block_size, 0, stream>>>(
             bgr, rgb, width, height);
+    }
+    
+    void launchBatchPreprocessKernel(uchar3* src_images, float* dst_images,
+                                    int* src_widths, int* src_heights,
+                                    int* dst_widths, int* dst_heights,
+                                    int* target_widths, int* target_heights,
+                                    int* pad_tops, int* pad_lefts,
+                                    int batch_size, int max_src_width, int max_src_height,
+                                    int max_target_width, int max_target_height,
+                                    cudaStream_t stream) {
+        dim3 block_size(16, 16);
+        dim3 grid_size((max_target_width + block_size.x - 1) / block_size.x, 
+                      (max_target_height + block_size.y - 1) / block_size.y,
+                      batch_size);
+        
+        batchPreprocessKernel<<<grid_size, block_size, 0, stream>>>(
+            src_images, dst_images, src_widths, src_heights,
+            dst_widths, dst_heights, target_widths, target_heights,
+            pad_tops, pad_lefts, batch_size, max_src_width, max_src_height,
+            max_target_width, max_target_height);
     }
 } 

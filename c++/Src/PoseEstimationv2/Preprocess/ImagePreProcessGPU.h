@@ -38,6 +38,14 @@ extern "C" {
                              float pad_value, cudaStream_t stream);
     void launchBgrToRgbKernel(uchar3* bgr, uchar3* rgb, int width, int height, 
                              cudaStream_t stream);
+    void launchBatchPreprocessKernel(uchar3* src_images, float* dst_images,
+                                    int* src_widths, int* src_heights,
+                                    int* dst_widths, int* dst_heights,
+                                    int* target_widths, int* target_heights,
+                                    int* pad_tops, int* pad_lefts,
+                                    int batch_size, int max_src_width, int max_src_height,
+                                    int max_target_width, int max_target_height,
+                                    cudaStream_t stream);
 }
 
 class ImagePreProcessGPU : public IBaseModule {
@@ -66,6 +74,8 @@ private:
     std::vector<float> processSingleImageGPU(const cv::Mat& srcImage, int& outWidth, int& outHeight);
     std::vector<float> processSingleImageGPUWithPadding(const cv::Mat& srcImage, int targetWidth, int targetHeight, 
                                                        float& ratio, int& padTop, int& padLeft);
+    std::vector<std::vector<float>> processBatchImagesGPU(const std::vector<cv::Mat>& srcImages, int targetWidth, int targetHeight,
+                                                          std::vector<float>& ratios, std::vector<int>& padTops, std::vector<int>& padLefts);
     bool uploadImageToGPU(const cv::Mat& image, void* gpu_buffer);
     bool downloadImageFromGPU(void* gpu_buffer, std::vector<float>& output, int width, int height);
     
@@ -101,6 +111,9 @@ private:
 
     // 运行状态
     bool status_ = false;
+    
+    // 性能监控
+    std::chrono::high_resolution_clock::time_point m_start_time;
 };
 
 #endif // IMAGE_PRE_PROCESS_GPU_H 
