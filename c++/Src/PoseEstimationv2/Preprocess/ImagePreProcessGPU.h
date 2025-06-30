@@ -76,6 +76,13 @@ private:
                                                        float& ratio, int& padTop, int& padLeft);
     std::vector<std::vector<float>> processBatchImagesGPU(const std::vector<cv::Mat>& srcImages, int targetWidth, int targetHeight,
                                                           std::vector<float>& ratios, std::vector<int>& padTops, std::vector<int>& padLefts);
+    
+    // 新增：GPU内存直接处理函数
+    bool processBatchImagesGPUInPlace(const std::vector<cv::Mat>& srcImages, int targetWidth, int targetHeight,
+                                     MultiImagePreprocessResultGPU& gpuResult);
+    bool processSingleImageGPUInPlace(const cv::Mat& srcImage, int targetWidth, int targetHeight,
+                                     float* gpu_dst, size_t dst_offset, float& ratio, int& padTop, int& padLeft);
+    
     bool uploadImageToGPU(const cv::Mat& image, void* gpu_buffer);
     bool downloadImageFromGPU(void* gpu_buffer, std::vector<float>& output, int width, int height);
     
@@ -94,11 +101,13 @@ private:
 
     posetimation::YOLOModelConfig m_poseConfig;            // 姿态估计任务配置参数
     CAlgResult m_inputData;                                // 输入数据（CAlgResult格式）
-    MultiImagePreprocessResult m_outputResult;             // 多图像预处理结果
+    MultiImagePreprocessResult m_outputResult;             // 多图像预处理结果（CPU版本，兼容性）
+    MultiImagePreprocessResultGPU m_outputResultGPU;       // 多图像预处理结果（GPU版本，新版本）
 
     // 图像相关参数
     int max_model_size_;  // 模型输入最大尺寸
     int stride_;          // 模型最大步长
+    int channels_;        // 图像通道数
 
     // CUDA相关成员
     cudaStream_t m_cudaStream;

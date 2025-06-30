@@ -63,6 +63,7 @@ public:
     void initTensorRT();
     std::vector<float> inference();
     void prepareBatchData(size_t batch_start, size_t batch_end);
+    void prepareBatchDataGPU(size_t batch_start, size_t batch_end);
     void rescale_coords(std::vector<float>& coords, bool is_keypoint);
     std::vector<std::vector<float>> process_output(const std::vector<float>& output);
     std::vector<std::vector<float>> process_keypoints(const std::vector<float>& output, const std::vector<std::vector<float>>& boxes);
@@ -86,7 +87,8 @@ private:
                                         float ratio, int dw, int dh);
 
     posetimation::YOLOModelConfig m_poseConfig;       // 配置参数
-    MultiImagePreprocessResult m_inputData;           // 输入数据（多图像预处理结果）
+    MultiImagePreprocessResult m_inputData;           // 输入数据（多图像预处理结果，CPU版本）
+    MultiImagePreprocessResultGPU m_inputDataGPU;     // 输入数据（多图像预处理结果，GPU版本）
     CAlgResult m_outputResult;                        // 输出结果
 
     // TensorRT相关成员

@@ -20,6 +20,7 @@ ImagePreProcessGPU::ImagePreProcessGPU(const std::string& exe_path) : IBaseModul
     m_gpuTempBuffer = nullptr;
     m_maxGPUBufferSize = 0;
     m_cudaInitialized = false;
+    channels_ = 3;  // 默认3通道（RGB）
 }
 
 ImagePreProcessGPU::~ImagePreProcessGPU() {
@@ -193,7 +194,17 @@ void ImagePreProcessGPU::setInput(void* input) {
 }
 
 void* ImagePreProcessGPU::getOutput() {
-    return &m_outputResult;
+    // 返回GPU版本的结果，避免CPU-GPU转换
+    if (!m_outputResultGPU.empty()) {
+        return &m_outputResultGPU;
+    }
+    
+    // 如果没有GPU结果，返回CPU版本（兼容性）
+    if (!m_outputResult.empty()) {
+        return &m_outputResult;
+    }
+    
+    return nullptr;
 }
 
 void ImagePreProcessGPU::execute() {
@@ -290,39 +301,20 @@ void ImagePreProcessGPU::execute() {
     
     // 第二步：批量GPU预处理 - 优化版本
     if (!srcImages.empty()) {
-        std::vector<float> ratios;
-        std::vector<int> padTops, padLefts;
-        std::vector<std::vector<float>> processedImages = processBatchImagesGPU(
-            srcImages, targetWidth, targetHeight, ratios, padTops, padLefts
-        );
+        // 使用GPU内存直接处理，避免CPU-GPU转换
+        if (!processBatchImagesGPUInPlace(srcImages, targetWidth, targetHeight, m_outputResultGPU)) {
+            LOG(ERROR) << "Failed to process images in GPU memory";
+            return;
+        }
         
-        // 处理结果
-        for (size_t i = 0; i < processedImages.size(); ++i) {
-            if (!processedImages[i].empty()) {
-                m_outputResult.images.push_back(std::move(processedImages[i]));
-                m_outputResult.imageSizes.push_back(std::make_pair(targetWidth, targetHeight));
-                
-                // 保存预处理参数
-                MultiImagePreprocessResult::PreprocessParams params;
-                params.ratio = ratios[i];
-                params.padTop = padTops[i];
-                params.padLeft = padLefts[i];
-                params.originalWidth = srcImages[i].cols;
-                params.originalHeight = srcImages[i].rows;
-                params.targetWidth = targetWidth;
-                params.targetHeight = targetHeight;
-                m_outputResult.preprocessParams.push_back(params);
-                
-                LOG(INFO) << "Successfully processed sub-image " << i 
-                          << " -> " << targetWidth << "x" << targetHeight
-                          << " (ratio: " << ratios[i] << ", pad: " << padTops[i] << "," << padLefts[i] << ")";
-            } else {
-                LOG(ERROR) << "Failed to process sub-image " << i;
-            }
+        // 为了兼容性，同时保持CPU版本的结果（可选，用于调试）
+        if (status_) {
+            // 如果需要保存到CPU用于调试，可以在这里添加转换代码
+            LOG(INFO) << "GPU preprocessing completed, results kept in GPU memory";
         }
     }
     
-    LOG(INFO) << "ImagePreProcessGPU::execute status: success, processed " << m_outputResult.size() << " images";
+    LOG(INFO) << "ImagePreProcessGPU::execute status: success, processed " << m_outputResultGPU.size() << " images";
     
     // 计算GPU预处理总耗时
     auto end_time = std::chrono::high_resolution_clock::now();
@@ -629,4 +621,192 @@ std::vector<std::vector<float>> ImagePreProcessGPU::processBatchImagesGPU(
     
     LOG(INFO) << "Batch GPU preprocessing completed, processed " << results.size() << " images";
     return results;
+}
+
+// 新增：GPU内存直接处理函数
+bool ImagePreProcessGPU::processBatchImagesGPUInPlace(const std::vector<cv::Mat>& srcImages, int targetWidth, int targetHeight,
+                                                     MultiImagePreprocessResultGPU& gpuResult) {
+    LOG(INFO) << "processBatchImagesGPUInPlace start: batch size=" << srcImages.size() 
+              << ", target size=" << targetWidth << "x" << targetHeight;
+    
+    if (srcImages.empty()) {
+        LOG(ERROR) << "No source images provided";
+        return false;
+    }
+    
+    // 清空之前的结果
+    gpuResult.clear();
+    
+    // 计算总GPU内存需求
+    size_t total_gpu_size = 0;
+    std::vector<size_t> image_sizes;
+    
+    for (const auto& srcImage : srcImages) {
+        size_t image_size = channels_ * targetHeight * targetWidth;
+        image_sizes.push_back(image_size);
+        total_gpu_size += image_size;
+    }
+    
+    // 分配GPU内存
+    cudaError_t cuda_status = cudaMalloc(&gpuResult.gpu_buffer, total_gpu_size * sizeof(float));
+    if (cuda_status != cudaSuccess) {
+        LOG(ERROR) << "Failed to allocate GPU buffer: " << cudaGetErrorString(cuda_status);
+        return false;
+    }
+    
+    gpuResult.total_size = total_gpu_size;
+    gpuResult.max_width = targetWidth;
+    gpuResult.max_height = targetHeight;
+    gpuResult.channels = channels_;
+    gpuResult.batch_size = static_cast<int>(srcImages.size());
+    
+    // 计算每个图像的偏移
+    size_t current_offset = 0;
+    for (size_t image_size : image_sizes) {
+        gpuResult.image_offsets.push_back(current_offset);
+        current_offset += image_size;
+    }
+    
+    // 处理每个图像
+    for (size_t i = 0; i < srcImages.size(); ++i) {
+        const cv::Mat& srcImage = srcImages[i];
+        float* gpu_dst = gpuResult.getImagePtr(i);
+        
+        if (!gpu_dst) {
+            LOG(ERROR) << "Failed to get GPU pointer for image " << i;
+            continue;
+        }
+        
+        // 计算预处理参数
+        float ratio;
+        int padTop, padLeft;
+        
+        // 计算缩放比例 - 与CPU版本保持一致
+        ratio = std::min(static_cast<float>(targetHeight) / srcImage.rows, 
+                        static_cast<float>(targetWidth) / srcImage.cols);
+        
+        // 计算缩放后的尺寸 - 与CPU版本保持一致
+        int newWidth = static_cast<int>(srcImage.cols * ratio);
+        int newHeight = static_cast<int>(srcImage.rows * ratio);
+        
+        // 确保尺寸是stride的整数倍 - 与CPU版本保持一致
+        newWidth = (newWidth / stride_) * stride_;
+        newHeight = (newHeight / stride_) * stride_;
+        
+        // 计算填充 - 与CPU版本保持一致
+        int dh = targetHeight - newHeight;
+        int dw = targetWidth - newWidth;
+        padTop = dh / 2;
+        padLeft = dw / 2;
+        
+        // 保存预处理参数
+        MultiImagePreprocessResultGPU::PreprocessParams params;
+        params.ratio = ratio;
+        params.padTop = padTop;
+        params.padLeft = padLeft;
+        params.originalWidth = srcImage.cols;
+        params.originalHeight = srcImage.rows;
+        params.targetWidth = targetWidth;
+        params.targetHeight = targetHeight;
+        params.dw = dw;
+        params.dh = dh;
+        gpuResult.preprocessParams.push_back(params);
+        
+        // 保存图像尺寸
+        gpuResult.imageSizes.push_back(std::make_pair(targetWidth, targetHeight));
+        
+        LOG(INFO) << "Processing image " << i << ": " << srcImage.cols << "x" << srcImage.rows 
+                  << " -> " << newWidth << "x" << newHeight << " -> " << targetWidth << "x" << targetHeight;
+        
+        // 直接在GPU内存中处理图像
+        if (!processSingleImageGPUInPlace(srcImage, targetWidth, targetHeight, gpu_dst, 0, ratio, padTop, padLeft)) {
+            LOG(ERROR) << "Failed to process image " << i << " in place";
+            continue;
+        }
+        
+        LOG(INFO) << "Successfully processed image " << i << " in GPU memory";
+    }
+    
+    LOG(INFO) << "Batch GPU preprocessing in place completed, processed " << gpuResult.size() << " images";
+    return true;
+}
+
+bool ImagePreProcessGPU::processSingleImageGPUInPlace(const cv::Mat& srcImage, int targetWidth, int targetHeight,
+                                                     float* gpu_dst, size_t dst_offset, float& ratio, int& padTop, int& padLeft) {
+    LOG(INFO) << "processSingleImageGPUInPlace start: " << srcImage.cols << "x" << srcImage.rows 
+              << " -> " << targetWidth << "x" << targetHeight;
+    
+    // 检查输入参数
+    if (srcImage.empty() || !gpu_dst) {
+        LOG(ERROR) << "Invalid input parameters";
+        return false;
+    }
+    
+    // 检查GPU缓冲区状态
+    if (!m_gpuInputBuffer || !m_gpuTempBuffer) {
+        LOG(ERROR) << "GPU buffers not initialized";
+        return false;
+    }
+    
+    // 计算缩放比例和尺寸
+    ratio = std::min(static_cast<float>(targetHeight) / srcImage.rows, 
+                    static_cast<float>(targetWidth) / srcImage.cols);
+    
+    int newWidth = static_cast<int>(srcImage.cols * ratio);
+    int newHeight = static_cast<int>(srcImage.rows * ratio);
+    newWidth = (newWidth / stride_) * stride_;
+    newHeight = (newHeight / stride_) * stride_;
+    
+    int dh = targetHeight - newHeight;
+    int dw = targetWidth - newWidth;
+    padTop = dh / 2;
+    padLeft = dw / 2;
+    
+    LOG(INFO) << "GPU preprocessing in place: " << srcImage.cols << "x" << srcImage.rows 
+              << " -> " << newWidth << "x" << newHeight << " -> " << targetWidth << "x" << targetHeight;
+    
+    // 上传原始图像到GPU（uchar3格式）
+    if (!uploadImageToGPU(srcImage, m_gpuInputBuffer)) {
+        LOG(ERROR) << "Failed to upload image to GPU";
+        return false;
+    }
+    
+    // 执行GPU resize（uchar3 -> uchar3）
+    callResizeKernel(m_gpuInputBuffer, m_gpuTempBuffer, 
+                    srcImage.cols, srcImage.rows, newWidth, newHeight, m_cudaStream);
+    
+    // 执行GPU BGR到RGB转换（uchar3 -> uchar3）
+    callBgrToRgbKernel(m_gpuTempBuffer, m_gpuInputBuffer, newWidth, newHeight, m_cudaStream);
+    
+    // 执行GPU归一化（uchar3 -> float）
+    callNormalizeKernel(m_gpuInputBuffer, m_gpuTempBuffer, 
+                       newWidth, newHeight, 1.0f / 255.0f, m_cudaStream);
+    
+    // 执行GPU填充（float -> float）
+    callPadImageKernel(m_gpuTempBuffer, m_gpuOutputBuffer, 
+                      newWidth, newHeight, targetWidth, targetHeight,
+                      padTop, padLeft, 114.0f / 255.0f, m_cudaStream);
+    
+    // 执行HWC到CHW转换（float -> float）
+    callHWCtoCHWKernel(m_gpuOutputBuffer, m_gpuTempBuffer, 
+                      targetWidth, targetHeight, m_cudaStream);
+    
+    // 将结果复制到目标GPU内存位置
+    size_t result_size = channels_ * targetHeight * targetWidth * sizeof(float);
+    cudaError_t cuda_status = cudaMemcpyAsync(gpu_dst + dst_offset, m_gpuTempBuffer, 
+                                             result_size, cudaMemcpyDeviceToDevice, m_cudaStream);
+    if (cuda_status != cudaSuccess) {
+        LOG(ERROR) << "Failed to copy result to target GPU memory: " << cudaGetErrorString(cuda_status);
+        return false;
+    }
+    
+    // 同步流
+    cuda_status = cudaStreamSynchronize(m_cudaStream);
+    if (cuda_status != cudaSuccess) {
+        LOG(ERROR) << "Failed to synchronize CUDA stream: " << cudaGetErrorString(cuda_status);
+        return false;
+    }
+    
+    LOG(INFO) << "GPU preprocessing in place completed successfully";
+    return true;
 } 

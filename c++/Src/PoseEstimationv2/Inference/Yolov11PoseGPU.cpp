@@ -278,8 +278,24 @@ void Yolov11PoseGPU::setInput(void* input)
         LOG(ERROR) << "输入为空";
         return;
     }
-    m_inputData = *static_cast<MultiImagePreprocessResult*>(input);
-    LOG(INFO) << "Yolov11PoseGPU::setInput: 接收到 " << m_inputData.images.size() << " 张图像";
+    
+    // 尝试转换为GPU版本
+    MultiImagePreprocessResultGPU* gpu_input = static_cast<MultiImagePreprocessResultGPU*>(input);
+    if (gpu_input && !gpu_input->empty()) {
+        m_inputDataGPU = *gpu_input;
+        LOG(INFO) << "Yolov11PoseGPU::setInput: 接收到GPU版本 " << m_inputDataGPU.size() << " 张图像";
+        return;
+    }
+    
+    // 如果不是GPU版本，尝试CPU版本
+    MultiImagePreprocessResult* cpu_input = static_cast<MultiImagePreprocessResult*>(input);
+    if (cpu_input && !cpu_input->empty()) {
+        m_inputData = *cpu_input;
+        LOG(INFO) << "Yolov11PoseGPU::setInput: 接收到CPU版本 " << m_inputData.images.size() << " 张图像";
+        return;
+    }
+    
+    LOG(ERROR) << "输入数据类型不支持或为空";
 }
 
 void* Yolov11PoseGPU::getOutput() {
@@ -290,9 +306,19 @@ void Yolov11PoseGPU::execute()
 {
     LOG(INFO) << "Yolov11PoseGPU::execute status: start ";
     
-    if (m_inputData.images.empty()) {
+    // 检查输入数据
+    bool use_gpu_input = !m_inputDataGPU.empty();
+    bool use_cpu_input = !m_inputData.images.empty();
+    
+    if (!use_gpu_input && !use_cpu_input) {
         LOG(ERROR) << "No input images available";
         return;
+    }
+    
+    if (use_gpu_input) {
+        LOG(INFO) << "Using GPU input data with " << m_inputDataGPU.size() << " images";
+    } else {
+        LOG(INFO) << "Using CPU input data with " << m_inputData.images.size() << " images";
     }
 
     // 创建单个FrameResult来合并所有batch的结果
@@ -300,15 +326,21 @@ void Yolov11PoseGPU::execute()
     allFrameResult.eDataType(DATA_TYPE_POSEALG_RESULT);
     
     // 分批处理图像
-    for (size_t batch_start = 0; batch_start < m_inputData.images.size(); batch_start += m_maxBatchSize) {
-        size_t batch_end = std::min(batch_start + m_maxBatchSize, m_inputData.images.size());
+    size_t total_images = use_gpu_input ? m_inputDataGPU.size() : m_inputData.images.size();
+    
+    for (size_t batch_start = 0; batch_start < total_images; batch_start += m_maxBatchSize) {
+        size_t batch_end = std::min(batch_start + m_maxBatchSize, total_images);
         size_t batch_size = batch_end - batch_start;
         
         LOG(INFO) << "Processing batch " << (batch_start / m_maxBatchSize + 1) 
                   << " with " << batch_size << " images";
         
         // 准备批处理数据
-        prepareBatchData(batch_start, batch_end);
+        if (use_gpu_input) {
+            prepareBatchDataGPU(batch_start, batch_end);
+        } else {
+            prepareBatchData(batch_start, batch_end);
+        }
         
         // 执行推理
         std::vector<float> output = inference();
@@ -438,6 +470,121 @@ void Yolov11PoseGPU::prepareBatchData(size_t batch_start, size_t batch_end)
     }
 }
 
+void Yolov11PoseGPU::prepareBatchDataGPU(size_t batch_start, size_t batch_end)
+{
+    LOG(INFO) << "Yolov11PoseGPU::prepareBatchDataGPU status: start ";
+    
+    // 清空之前的批处理数据
+    m_batchInputs.clear();
+    
+    // 获取当前批次的图像数据
+    size_t batch_size = batch_end - batch_start;
+    
+    // 直接使用GPU内存数据，避免CPU-GPU转换
+    // 将GPU数据直接复制到TensorRT输入缓冲区
+    size_t total_size = 0;
+    std::vector<size_t> image_sizes;
+    
+    for (size_t i = batch_start; i < batch_end && i < m_inputDataGPU.size(); ++i) {
+        size_t image_size = m_inputDataGPU.getImageSize(i);
+        image_sizes.push_back(image_size);
+        total_size += image_size;
+    }
+    
+    LOG(INFO) << "Prepared GPU batch data with " << batch_size << " images, total size: " << total_size;
+    
+    // 检查所有图像的尺寸是否一致
+    if (image_sizes.empty()) {
+        LOG(ERROR) << "No images in GPU batch";
+        return;
+    }
+    
+    size_t first_image_size = image_sizes[0];
+    bool all_same_size = true;
+    for (size_t image_size : image_sizes) {
+        if (image_size != first_image_size) {
+            all_same_size = false;
+            break;
+        }
+    }
+    
+    if (!all_same_size) {
+        LOG(ERROR) << "All images in GPU batch must have the same size";
+        return;
+    }
+    
+    // 根据实际图像尺寸计算输入形状
+    int actual_height = 0, actual_width = 0;
+    if (first_image_size > 0) {
+        // 假设图像是CHW格式，计算高度和宽度
+        actual_height = static_cast<int>(sqrt(first_image_size / channels_));
+        actual_width = static_cast<int>(first_image_size / (channels_ * actual_height));
+        
+        // 验证计算是否正确
+        if (actual_height * actual_width * channels_ != first_image_size) {
+            LOG(ERROR) << "Invalid GPU image size calculation: " << first_image_size 
+                       << " != " << (actual_height * actual_width * channels_);
+            // 使用GPU结果中的实际尺寸
+            if (!m_inputDataGPU.imageSizes.empty()) {
+                actual_width = m_inputDataGPU.max_width;
+                actual_height = m_inputDataGPU.max_height;
+                LOG(INFO) << "Using GPU result dimensions: " << actual_width << "x" << actual_height;
+            } else {
+                return;
+            }
+        }
+    }
+    
+    LOG(INFO) << "GPU batch image size: " << actual_width << "x" << actual_height 
+              << " (total pixels: " << first_image_size << ")";
+    
+    // 动态调整TensorRT输入形状
+    if (actual_height > 0 && actual_width > 0) {
+        nvinfer1::Dims new_input_dims;
+        new_input_dims.nbDims = 4;
+        new_input_dims.d[0] = static_cast<int>(batch_size);  // batch size
+        new_input_dims.d[1] = channels_;                     // channels
+        new_input_dims.d[2] = actual_height;                 // height
+        new_input_dims.d[3] = actual_width;                  // width
+        
+        // 检查新形状是否与当前形状不同
+        nvinfer1::Dims current_dims = context_->getTensorShape(input_name_);
+        bool shape_changed = false;
+        if (current_dims.nbDims != new_input_dims.nbDims) {
+            shape_changed = true;
+        } else {
+            for (int i = 0; i < current_dims.nbDims; ++i) {
+                if (current_dims.d[i] != new_input_dims.d[i]) {
+                    shape_changed = true;
+                    break;
+                }
+            }
+        }
+        
+        if (shape_changed) {
+            LOG(INFO) << "Resizing TensorRT input from " 
+                      << current_dims.d[3] << "x" << current_dims.d[2] 
+                      << " to " << new_input_dims.d[3] << "x" << new_input_dims.d[2];
+            
+            if (!context_->setInputShape(input_name_, new_input_dims)) {
+                LOG(ERROR) << "Failed to set new input shape";
+                return;
+            }
+            
+            // 更新输出形状
+            output_dims_ = context_->getTensorShape(output_name_);
+            
+            // 重新计算输出大小
+            size_t new_output_size = 1;
+            for (int i = 0; i < output_dims_.nbDims; ++i) {
+                new_output_size *= output_dims_.d[i];
+            }
+            
+            LOG(INFO) << "New output size: " << new_output_size;
+        }
+    }
+}
+
 void Yolov11PoseGPU::cleanup() 
 {
     LOG(INFO) << "开始清理TensorRT和CUDA资源...";
@@ -484,31 +631,63 @@ void Yolov11PoseGPU::cleanup()
 
 std::vector<float> Yolov11PoseGPU::inference()
 {
-    LOG(INFO) << "Yolov11PoseGPU::inference status: start with batch size: " << m_batchInputs.size();
+    // 检查输入数据类型
+    bool use_gpu_input = !m_inputDataGPU.empty();
     
-    if (m_batchInputs.empty()) {
-        LOG(ERROR) << "No batch data available";
-        return std::vector<float>();
-    }
-    
-    // 计算当前批次的实际大小
-    int current_batch_size = static_cast<int>(m_batchInputs.size());
-    
-    // 检查batch_size是否超出限制
-    if (current_batch_size > m_maxBatchSize) {
-        LOG(ERROR) << "Batch size " << current_batch_size << " exceeds maximum " << m_maxBatchSize;
-        return std::vector<float>();
+    if (use_gpu_input) {
+        LOG(INFO) << "Yolov11PoseGPU::inference status: start with GPU batch size: " << m_inputDataGPU.size();
+        
+        if (m_inputDataGPU.empty()) {
+            LOG(ERROR) << "No GPU batch data available";
+            return std::vector<float>();
+        }
+        
+        // 计算当前批次的实际大小
+        int current_batch_size = static_cast<int>(m_inputDataGPU.size());
+        
+        // 检查batch_size是否超出限制
+        if (current_batch_size > m_maxBatchSize) {
+            LOG(ERROR) << "Batch size " << current_batch_size << " exceeds maximum " << m_maxBatchSize;
+            return std::vector<float>();
+        }
+    } else {
+        LOG(INFO) << "Yolov11PoseGPU::inference status: start with CPU batch size: " << m_batchInputs.size();
+        
+        if (m_batchInputs.empty()) {
+            LOG(ERROR) << "No CPU batch data available";
+            return std::vector<float>();
+        }
+        
+        // 计算当前批次的实际大小
+        int current_batch_size = static_cast<int>(m_batchInputs.size());
+        
+        // 检查batch_size是否超出限制
+        if (current_batch_size > m_maxBatchSize) {
+            LOG(ERROR) << "Batch size " << current_batch_size << " exceeds maximum " << m_maxBatchSize;
+            return std::vector<float>();
+        }
     }
     
     // 1. 统一图像尺寸 - 找到最大尺寸并填充所有图像（与CPU版本保持一致）
     int max_width = 0, max_height = 0;
     std::vector<std::pair<int, int>> original_sizes;
+    int current_batch_size = 0;
     
-    // 收集所有图像的原始尺寸
-    for (const auto& size : m_inputData.imageSizes) {
-        max_width = std::max(max_width, size.first);
-        max_height = std::max(max_height, size.second);
-        original_sizes.push_back(size);
+    if (use_gpu_input) {
+        // 使用GPU版本的输入数据
+        max_width = m_inputDataGPU.max_width;
+        max_height = m_inputDataGPU.max_height;
+        original_sizes = m_inputDataGPU.imageSizes;
+        current_batch_size = static_cast<int>(m_inputDataGPU.size());
+        LOG(INFO) << "Using GPU input dimensions: " << max_width << "x" << max_height;
+    } else {
+        // 使用CPU版本的输入数据
+        for (const auto& size : m_inputData.imageSizes) {
+            max_width = std::max(max_width, size.first);
+            max_height = std::max(max_height, size.second);
+            original_sizes.push_back(size);
+        }
+        current_batch_size = static_cast<int>(m_batchInputs.size());
     }
     
     // 确保尺寸是stride的整数倍
@@ -548,52 +727,87 @@ std::vector<float> Yolov11PoseGPU::inference()
     LOG(INFO) << "单张图像大小: " << single_image_size << " (约 " 
               << (single_image_size * sizeof(float)) / (1024*1024) << "MB)";
     
-    for (size_t i = 0; i < m_batchInputs.size(); ++i) {
-        const auto& image_data = m_batchInputs[i];
-        const auto& original_size = original_sizes[i];
+    if (use_gpu_input) {
+        // 直接使用GPU内存数据，避免CPU-GPU转换
+        LOG(INFO) << "Using GPU input data directly, skipping CPU-GPU conversion";
         
-        // 计算当前图像的实际大小
-        size_t actual_size = channels_ * original_size.second * original_size.first;
+        // 设置正确的batch大小
+        size_t actual_batch_size = std::min(static_cast<size_t>(current_batch_size), m_inputDataGPU.size());
         
-        if (image_data.size() == actual_size) {
-            // 图像尺寸与原始尺寸匹配，需要填充到统一尺寸
-            std::vector<float> padded_image(single_image_size, 0.0f);
-            
-            // 复制原始数据到填充图像
-            for (int h = 0; h < original_size.second; ++h) {
-                for (int w = 0; w < original_size.first; ++w) {
-                    for (int c = 0; c < channels_; ++c) {
-                        int src_idx = c * original_size.second * original_size.first + h * original_size.first + w;
-                        int dst_idx = c * max_height * max_width + h * max_width + w;
-                        padded_image[dst_idx] = image_data[src_idx];
-                    }
+        // 将GPU数据直接复制到TensorRT输入缓冲区
+        for (size_t i = 0; i < actual_batch_size; ++i) {
+            float* gpu_image_ptr = m_inputDataGPU.getImagePtr(i);
+            if (gpu_image_ptr) {
+                // 直接复制GPU数据到TensorRT输入缓冲区
+                size_t image_size = m_inputDataGPU.getImageSize(i);
+                cudaError_t cuda_status = cudaMemcpyAsync(
+                    static_cast<float*>(input_buffers_[0]) + i * single_image_size,
+                    gpu_image_ptr,
+                    image_size * sizeof(float),
+                    cudaMemcpyDeviceToDevice,
+                    stream_
+                );
+                if (cuda_status != cudaSuccess) {
+                    LOG(ERROR) << "Failed to copy GPU image " << i << " to TensorRT buffer: " 
+                               << cudaGetErrorString(cuda_status);
+                } else {
+                    LOG(INFO) << "Successfully copied GPU image " << i << " to TensorRT buffer";
                 }
             }
-            
-            batch_input.insert(batch_input.end(), padded_image.begin(), padded_image.end());
-            
-            LOG(INFO) << "Image " << i << ": " << original_size.first << "x" << original_size.second 
-                      << " -> padded to " << max_width << "x" << max_height;
-        } else {
-            LOG(WARNING) << "Image " << i << " data size mismatch: expected " << actual_size 
-                         << ", got " << image_data.size() << ", skipping";
-            // 用零填充
-            batch_input.resize(batch_input.size() + single_image_size, 0.0f);
         }
-    }
+        
+        // 同步流
+        cudaStreamSynchronize(stream_);
+        
+    } else {
+        // 使用CPU版本的输入数据（原有逻辑）
+        for (size_t i = 0; i < m_batchInputs.size(); ++i) {
+            const auto& image_data = m_batchInputs[i];
+            const auto& original_size = original_sizes[i];
+            
+            // 计算当前图像的实际大小
+            size_t actual_size = channels_ * original_size.second * original_size.first;
+            
+            if (image_data.size() == actual_size) {
+                // 图像尺寸与原始尺寸匹配，需要填充到统一尺寸
+                std::vector<float> padded_image(single_image_size, 0.0f);
+                
+                // 复制原始数据到填充图像
+                for (int h = 0; h < original_size.second; ++h) {
+                    for (int w = 0; w < original_size.first; ++w) {
+                        for (int c = 0; c < channels_; ++c) {
+                            int src_idx = c * original_size.second * original_size.first + h * original_size.first + w;
+                            int dst_idx = c * max_height * max_width + h * max_width + w;
+                            padded_image[dst_idx] = image_data[src_idx];
+                        }
+                    }
+                }
+                
+                batch_input.insert(batch_input.end(), padded_image.begin(), padded_image.end());
+                
+                LOG(INFO) << "Image " << i << ": " << original_size.first << "x" << original_size.second 
+                          << " -> padded to " << max_width << "x" << max_height;
+            } else {
+                LOG(WARNING) << "Image " << i << " data size mismatch: expected " << actual_size 
+                             << ", got " << image_data.size() << ", skipping";
+                // 用零填充
+                batch_input.resize(batch_input.size() + single_image_size, 0.0f);
+            }
+        }
 
-    // 5. 拷贝输入数据到GPU
-    size_t input_size = batch_input.size() * sizeof(float);
-    LOG(INFO) << "拷贝输入数据到GPU: " << input_size << " bytes (约 " 
-              << input_size / (1024*1024) << "MB)";
-    
-    cudaError_t cuda_status = cudaMemcpyAsync(input_buffers_[0], batch_input.data(),
-                                              input_size,
-                                              cudaMemcpyHostToDevice, stream_);
-    if (cuda_status != cudaSuccess) {
-        throw std::runtime_error("CUDA内存拷贝失败: " + std::string(cudaGetErrorString(cuda_status)));
+        // 5. 拷贝输入数据到GPU
+        size_t input_size = batch_input.size() * sizeof(float);
+        LOG(INFO) << "拷贝输入数据到GPU: " << input_size << " bytes (约 " 
+                  << input_size / (1024*1024) << "MB)";
+        
+        cudaError_t cuda_status = cudaMemcpyAsync(input_buffers_[0], batch_input.data(),
+                                                  input_size,
+                                                  cudaMemcpyHostToDevice, stream_);
+        if (cuda_status != cudaSuccess) {
+            throw std::runtime_error("CUDA内存拷贝失败: " + std::string(cudaGetErrorString(cuda_status)));
+        }
+        cudaStreamSynchronize(stream_);
     }
-    cudaStreamSynchronize(stream_);
 
     // 6. 执行推理
     LOG(INFO) << "开始TensorRT推理...";
@@ -615,7 +829,7 @@ std::vector<float> Yolov11PoseGPU::inference()
     LOG(INFO) << "Dynamic output size: " << output_size;
 
     // 8. 拷贝输出数据到CPU
-    cuda_status = cudaMemcpyAsync(output.data(), output_buffers_[0],
+    cudaError_t cuda_status = cudaMemcpyAsync(output.data(), output_buffers_[0],
                                   output_size * sizeof(float),
                                   cudaMemcpyDeviceToHost, stream_);
     if (cuda_status != cudaSuccess) {
@@ -669,12 +883,26 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
 {   
     LOG(INFO) << "Yolov11PoseGPU::process_output status: start ";
     
-    if (m_batchInputs.empty()) {
-        LOG(ERROR) << "No batch data available for processing";
-        return std::vector<std::vector<float>>();
-    }
+    // 检查输入数据类型
+    bool use_gpu_input = !m_inputDataGPU.empty();
     
-    int current_batch_size = static_cast<int>(m_batchInputs.size());
+    int current_batch_size = 0;
+    
+    if (use_gpu_input) {
+        if (m_inputDataGPU.empty()) {
+            LOG(ERROR) << "No GPU batch data available for processing";
+            return std::vector<std::vector<float>>();
+        }
+        current_batch_size = static_cast<int>(m_inputDataGPU.size());
+        LOG(INFO) << "Processing GPU batch data with " << current_batch_size << " images";
+    } else {
+        if (m_batchInputs.empty()) {
+            LOG(ERROR) << "No CPU batch data available for processing";
+            return std::vector<std::vector<float>>();
+        }
+        current_batch_size = static_cast<int>(m_batchInputs.size());
+        LOG(INFO) << "Processing CPU batch data with " << current_batch_size << " images";
+    }
     
     // 2. 正确处理TensorRT输出数据格式
     // 输出形状: [batch_size, feature_dim, num_anchors] -> [batch_size * num_anchors, feature_dim]
@@ -710,58 +938,86 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
         int original_width = 0;   // 修复：初始化为0，确保必须从正确来源获取
         int original_height = 0;  // 修复：初始化为0，确保必须从正确来源获取
         
-        // 从预处理结果中获取参数
-        if (batch_idx < m_inputData.preprocessParams.size()) {
-            const auto& params = m_inputData.preprocessParams[batch_idx];
-            ratio = params.ratio;
-            padTop = params.padTop;
-            padLeft = params.padLeft;
-            original_width = params.originalWidth;   // 使用预处理保存的原始图像宽度
-            original_height = params.originalHeight; // 使用预处理保存的原始图像高度
-            
-            LOG(INFO) << "Image " << batch_idx << ": using saved params - original " 
-                      << original_width << "x" << original_height 
-                      << ", ratio: " << ratio << ", pad: (" << padTop << "," << padLeft << ")";
-        } else {
-            // 如果没有保存的参数，使用默认计算（兼容性）
-            LOG(WARNING) << "Image " << batch_idx << ": no saved preprocessing params, using fallback";
-            
-            // 修复：如果没有预处理参数，应该从输入数据中获取原始图像信息
-            if (batch_idx < m_inputData.imageSizes.size()) {
-                original_width = m_inputData.imageSizes[batch_idx].first;
-                original_height = m_inputData.imageSizes[batch_idx].second;
-                LOG(WARNING) << "Using preprocessed size as original size (may be incorrect): " 
-                             << original_width << "x" << original_height;
+        // 检查输入数据类型
+        bool use_gpu_input = !m_inputDataGPU.empty();
+        
+        if (use_gpu_input) {
+            // 从GPU版本的预处理结果中获取参数
+            if (batch_idx < m_inputDataGPU.preprocessParams.size()) {
+                const auto& params = m_inputDataGPU.preprocessParams[batch_idx];
+                ratio = params.ratio;
+                padTop = params.padTop;
+                padLeft = params.padLeft;
+                original_width = params.originalWidth;   // 使用预处理保存的原始图像宽度
+                original_height = params.originalHeight; // 使用预处理保存的原始图像高度
+                
+                LOG(INFO) << "Image " << batch_idx << ": using GPU saved params - original " 
+                          << original_width << "x" << original_height 
+                          << ", ratio: " << ratio << ", pad: (" << padTop << "," << padLeft << ")";
             } else {
-                // 最后的fallback：使用配置中的默认值
-                original_width = new_unpad_w_;
-                original_height = new_unpad_h_;
-                LOG(WARNING) << "Using config default size as original size: " 
-                             << original_width << "x" << original_height;
+                LOG(WARNING) << "Image " << batch_idx << ": no GPU saved preprocessing params, using fallback";
+                // 使用GPU结果中的尺寸信息
+                if (batch_idx < m_inputDataGPU.imageSizes.size()) {
+                    original_width = m_inputDataGPU.imageSizes[batch_idx].first;
+                    original_height = m_inputDataGPU.imageSizes[batch_idx].second;
+                    LOG(WARNING) << "Using GPU image size as original size: " 
+                                 << original_width << "x" << original_height;
+                }
             }
-            
-            // 计算当前图像的预处理参数 - 修复：与Python脚本保持一致
-            // 从统一推理尺寸和原始尺寸计算缩放比例和填充
-            float r = std::min(static_cast<float>(max_height) / original_height, 
-                              static_cast<float>(max_width) / original_width);
-            int new_unpad_w = static_cast<int>(original_width * r);
-            int new_unpad_h = static_cast<int>(original_height * r);
-            
-            // 获取stride值（使用第一个stride）
-            int current_stride = stride_.empty() ? 32 : stride_[0];
-            new_unpad_w = (new_unpad_w / current_stride) * current_stride;
-            new_unpad_h = (new_unpad_h / current_stride) * current_stride;
-            
-            // 计算填充参数
-            int dh = max_height - new_unpad_h;
-            int dw = max_width - new_unpad_w;
-            padTop = dh / 2;
-            padLeft = dw / 2;
-            ratio = r;
-            
-            LOG(INFO) << "Image " << batch_idx << ": computed params - original " 
-                      << original_width << "x" << original_height 
-                      << ", ratio: " << ratio << ", pad: (" << padTop << "," << padLeft << ")";
+        } else {
+            // 从CPU版本的预处理结果中获取参数
+            if (batch_idx < m_inputData.preprocessParams.size()) {
+                const auto& params = m_inputData.preprocessParams[batch_idx];
+                ratio = params.ratio;
+                padTop = params.padTop;
+                padLeft = params.padLeft;
+                original_width = params.originalWidth;   // 使用预处理保存的原始图像宽度
+                original_height = params.originalHeight; // 使用预处理保存的原始图像高度
+                
+                LOG(INFO) << "Image " << batch_idx << ": using CPU saved params - original " 
+                          << original_width << "x" << original_height 
+                          << ", ratio: " << ratio << ", pad: (" << padTop << "," << padLeft << ")";
+            } else {
+                // 如果没有保存的参数，使用默认计算（兼容性）
+                LOG(WARNING) << "Image " << batch_idx << ": no CPU saved preprocessing params, using fallback";
+                
+                // 修复：如果没有预处理参数，应该从输入数据中获取原始图像信息
+                if (batch_idx < m_inputData.imageSizes.size()) {
+                    original_width = m_inputData.imageSizes[batch_idx].first;
+                    original_height = m_inputData.imageSizes[batch_idx].second;
+                    LOG(WARNING) << "Using preprocessed size as original size (may be incorrect): " 
+                                 << original_width << "x" << original_height;
+                } else {
+                    // 最后的fallback：使用配置中的默认值
+                    original_width = new_unpad_w_;
+                    original_height = new_unpad_h_;
+                    LOG(WARNING) << "Using config default size as original size: " 
+                                 << original_width << "x" << original_height;
+                }
+                
+                // 计算当前图像的预处理参数 - 修复：与Python脚本保持一致
+                // 从统一推理尺寸和原始尺寸计算缩放比例和填充
+                float r = std::min(static_cast<float>(max_height) / original_height, 
+                                  static_cast<float>(max_width) / original_width);
+                int new_unpad_w = static_cast<int>(original_width * r);
+                int new_unpad_h = static_cast<int>(original_height * r);
+                
+                // 获取stride值（使用第一个stride）
+                int current_stride = stride_.empty() ? 32 : stride_[0];
+                new_unpad_w = (new_unpad_w / current_stride) * current_stride;
+                new_unpad_h = (new_unpad_h / current_stride) * current_stride;
+                
+                // 计算填充参数
+                int dh = max_height - new_unpad_h;
+                int dw = max_width - new_unpad_w;
+                padTop = dh / 2;
+                padLeft = dw / 2;
+                ratio = r;
+                
+                LOG(INFO) << "Image " << batch_idx << ": computed params - original " 
+                          << original_width << "x" << original_height 
+                          << ", ratio: " << ratio << ", pad: (" << padTop << "," << padLeft << ")";
+            }
         }
         
         // 验证原始尺寸的有效性
