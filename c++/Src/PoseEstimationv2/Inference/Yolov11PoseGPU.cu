@@ -191,14 +191,21 @@ __global__ void nmsKernel(
     
     if (idx >= num_detections) return;
     
-    // 简单的NMS实现：按置信度排序后，逐个检查IOU
-    // 这里使用简化的实现，实际应用中可能需要更复杂的并行NMS算法
-    
     // 标记是否保留当前检测
     bool keep = true;
     
+    // 检查当前检测框是否与之前保留的检测框重叠
     for (int i = 0; i < idx; ++i) {
-        if (keep_indices[i] == -1) continue;  // 已被抑制
+        // 检查索引i是否已被保留
+        bool i_kept = false;
+        for (int j = 0; j < *keep_count; ++j) {
+            if (keep_indices[j] == i) {
+                i_kept = true;
+                break;
+            }
+        }
+        
+        if (!i_kept) continue;  // 索引i未被保留，跳过
         
         const DetectionResult& current = detections[idx];
         const DetectionResult& previous = detections[i];
@@ -215,6 +222,8 @@ __global__ void nmsKernel(
         float area1 = (current.x2 - current.x1) * (current.y2 - current.y1);
         float area2 = (previous.x2 - previous.x1) * (previous.y2 - previous.y1);
         float union_area = area1 + area2 - intersection;
+        
+        if (union_area <= 0) continue;  // 避免除零错误
         
         float iou = intersection / union_area;
         
@@ -395,82 +404,75 @@ extern "C" int processOutputGPU(
     
     printf("Sorting completed successfully\n");
     
-    // 执行NMS - 使用同步版本避免流同步问题
-    int* gpu_keep_indices;
-    int* gpu_keep_count;
-    status = cudaMalloc(&gpu_keep_indices, valid_count * sizeof(int));
+    // 下载检测结果到CPU进行NMS
+    std::vector<DetectionResult> cpu_detections(valid_count);
+    status = cudaMemcpy(cpu_detections.data(), gpu_detections,
+                       valid_count * sizeof(DetectionResult),
+                       cudaMemcpyDeviceToHost);
     if (status != cudaSuccess) {
-        printf("Failed to allocate GPU memory for keep indices: %s\n", cudaGetErrorString(status));
+        printf("Failed to copy detections for NMS: %s\n", cudaGetErrorString(status));
         return valid_count;  // 返回排序后的结果，不进行NMS
     }
     
-    status = cudaMalloc(&gpu_keep_count, sizeof(int));
-    if (status != cudaSuccess) {
-        printf("Failed to allocate GPU memory for keep count: %s\n", cudaGetErrorString(status));
-        cudaFree(gpu_keep_indices);
-        return valid_count;  // 返回排序后的结果，不进行NMS
+    // 在CPU上执行NMS
+    std::vector<int> keep_indices;
+    std::vector<bool> suppressed(valid_count, false);
+    
+    for (int i = 0; i < valid_count; ++i) {
+        if (suppressed[i]) continue;
+        
+        keep_indices.push_back(i);
+        
+        for (int j = i + 1; j < valid_count; ++j) {
+            if (suppressed[j]) continue;
+            
+            const DetectionResult& current = cpu_detections[i];
+            const DetectionResult& candidate = cpu_detections[j];
+            
+            // 计算IOU
+            float x1 = max(current.x1, candidate.x1);
+            float y1 = max(current.y1, candidate.y1);
+            float x2 = min(current.x2, candidate.x2);
+            float y2 = min(current.y2, candidate.y2);
+            
+            if (x2 <= x1 || y2 <= y1) continue;  // 无重叠
+            
+            float intersection = (x2 - x1) * (y2 - y1);
+            float area1 = (current.x2 - current.x1) * (current.y2 - current.y1);
+            float area2 = (candidate.x2 - candidate.x1) * (candidate.y2 - candidate.y1);
+            float union_area = area1 + area2 - intersection;
+            
+            if (union_area <= 0) continue;  // 避免除零错误
+            
+            float iou = intersection / union_area;
+            
+            if (iou > iou_threshold) {
+                suppressed[j] = true;
+            }
+        }
     }
     
-    status = cudaMemset(gpu_keep_indices, -1, valid_count * sizeof(int));
-    if (status != cudaSuccess) {
-        printf("Failed to initialize keep indices: %s\n", cudaGetErrorString(status));
-        cudaFree(gpu_keep_indices);
-        cudaFree(gpu_keep_count);
-        return valid_count;  // 返回排序后的结果，不进行NMS
+    // printf("NMS completed, kept %d detections out of %d\n", keep_indices.size(), valid_count);
+    
+    // 将NMS结果复制回GPU
+    if (!keep_indices.empty()) {
+        std::vector<DetectionResult> nms_detections;
+        nms_detections.reserve(keep_indices.size());
+        
+        for (int idx : keep_indices) {
+            nms_detections.push_back(cpu_detections[idx]);
+        }
+        
+        status = cudaMemcpy(gpu_detections, nms_detections.data(),
+                           nms_detections.size() * sizeof(DetectionResult),
+                           cudaMemcpyHostToDevice);
+        if (status != cudaSuccess) {
+            printf("Failed to copy NMS results back to GPU: %s\n", cudaGetErrorString(status));
+            return valid_count;  // 返回排序后的结果
+        }
+        
+        return nms_detections.size();
     }
     
-    status = cudaMemset(gpu_keep_count, 0, sizeof(int));
-    if (status != cudaSuccess) {
-        printf("Failed to initialize keep count: %s\n", cudaGetErrorString(status));
-        cudaFree(gpu_keep_indices);
-        cudaFree(gpu_keep_count);
-        return valid_count;  // 返回排序后的结果，不进行NMS
-    }
-    
-    block_size = 256;
-    grid_size = (valid_count + block_size - 1) / block_size;
-    
-    nmsKernel<<<grid_size, block_size, 0, stream>>>(
-        gpu_detections,
-        gpu_keep_indices,
-        gpu_keep_count,
-        valid_count,
-        iou_threshold
-    );
-    
-    // 检查NMS的CUDA错误
-    status = cudaGetLastError();
-    if (status != cudaSuccess) {
-        printf("CUDA error in nmsKernel: %s\n", cudaGetErrorString(status));
-        cudaFree(gpu_keep_indices);
-        cudaFree(gpu_keep_count);
-        return valid_count;  // 返回排序后的结果，不进行NMS
-    }
-    
-    // 同步流，确保NMS完成
-    status = cudaStreamSynchronize(stream);
-    if (status != cudaSuccess) {
-        printf("Failed to synchronize stream after NMS: %s\n", cudaGetErrorString(status));
-        cudaFree(gpu_keep_indices);
-        cudaFree(gpu_keep_count);
-        return valid_count;  // 返回排序后的结果，不进行NMS
-    }
-    
-    // 获取NMS后的检测数量
-    int keep_count;
-    status = cudaMemcpy(&keep_count, gpu_keep_count, sizeof(int), cudaMemcpyDeviceToHost);
-    if (status != cudaSuccess) {
-        printf("Failed to copy keep count: %s\n", cudaGetErrorString(status));
-        cudaFree(gpu_keep_indices);
-        cudaFree(gpu_keep_count);
-        return valid_count;  // 返回排序后的结果，不进行NMS
-    }
-    
-    printf("NMS completed, kept %d detections out of %d\n", keep_count, valid_count);
-    
-    // 清理GPU内存
-    cudaFree(gpu_keep_indices);
-    cudaFree(gpu_keep_count);
-    
-    return keep_count;
+    return 0;
 } 

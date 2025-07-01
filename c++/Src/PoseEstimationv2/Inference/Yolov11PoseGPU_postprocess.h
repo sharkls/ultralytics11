@@ -55,4 +55,21 @@ private:
     bool initialized_;
     int max_batch_size_;
     int max_detections_;
+    
+    // GPU内存指针
+    DetectionResult* gpu_detections_;
+    int* gpu_valid_count_;
+    
+    // CPU后处理辅助函数
+    std::vector<std::vector<std::vector<float>>> processOutputCPU(
+        const float* cpu_output,
+        int batch_size,
+        int feature_dim,
+        int num_anchors,
+        int num_classes,
+        int num_keys,
+        float conf_threshold,
+        float iou_threshold,
+        const std::vector<float>& preprocess_params
+    );
 }; 
