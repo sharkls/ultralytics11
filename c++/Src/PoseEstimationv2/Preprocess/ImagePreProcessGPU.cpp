@@ -647,11 +647,92 @@ bool ImagePreProcessGPU::processBatchImagesGPUInPlace(const std::vector<cv::Mat>
         total_gpu_size += image_size;
     }
     
+    // 检查GPU内存是否足够
+    size_t free_memory, total_memory;
+    cudaError_t cuda_status = cudaMemGetInfo(&free_memory, &total_memory);
+    if (cuda_status != cudaSuccess) {
+        LOG(ERROR) << "Failed to get GPU memory info: " << cudaGetErrorString(cuda_status);
+        
+        // 尝试重置GPU设备
+        cuda_status = cudaDeviceReset();
+        if (cuda_status != cudaSuccess) {
+            LOG(ERROR) << "Failed to reset GPU device: " << cudaGetErrorString(cuda_status);
+            return false;
+        }
+        
+        // 重新初始化GPU资源
+        if (!allocateGPUMemory(m_maxGPUBufferSize)) {
+            LOG(ERROR) << "Failed to reallocate GPU memory after reset";
+            return false;
+        }
+        
+        // 再次尝试获取内存信息
+        cuda_status = cudaMemGetInfo(&free_memory, &total_memory);
+        if (cuda_status != cudaSuccess) {
+            LOG(ERROR) << "Failed to get GPU memory info after reset: " << cudaGetErrorString(cuda_status);
+            return false;
+        }
+    }
+    
+    size_t required_memory = total_gpu_size * sizeof(float);
+    if (required_memory > free_memory) {
+        LOG(ERROR) << "Insufficient GPU memory: required " << required_memory 
+                   << " bytes, available " << free_memory << " bytes";
+        
+        // 尝试清理GPU内存并重试
+        cuda_status = cudaDeviceReset();
+        if (cuda_status != cudaSuccess) {
+            LOG(ERROR) << "Failed to reset GPU device: " << cudaGetErrorString(cuda_status);
+            return false;
+        }
+        
+        // 重新初始化GPU资源
+        if (!allocateGPUMemory(m_maxGPUBufferSize)) {
+            LOG(ERROR) << "Failed to reallocate GPU memory after reset";
+            return false;
+        }
+        
+        // 再次检查内存
+        cuda_status = cudaMemGetInfo(&free_memory, &total_memory);
+        if (cuda_status != cudaSuccess) {
+            LOG(ERROR) << "Failed to get GPU memory info after second reset: " << cudaGetErrorString(cuda_status);
+            return false;
+        }
+        
+        if (required_memory > free_memory) {
+            LOG(ERROR) << "Still insufficient GPU memory after reset: required " << required_memory 
+                       << " bytes, available " << free_memory << " bytes";
+            return false;
+        }
+    }
+    
+    LOG(INFO) << "GPU memory check: required " << required_memory 
+              << " bytes, available " << free_memory << " bytes";
+    
     // 分配GPU内存
-    cudaError_t cuda_status = cudaMalloc(&gpuResult.gpu_buffer, total_gpu_size * sizeof(float));
+    cuda_status = cudaMalloc(&gpuResult.gpu_buffer, required_memory);
     if (cuda_status != cudaSuccess) {
         LOG(ERROR) << "Failed to allocate GPU buffer: " << cudaGetErrorString(cuda_status);
-        return false;
+        
+        // 尝试清理GPU内存并重试
+        cuda_status = cudaDeviceReset();
+        if (cuda_status != cudaSuccess) {
+            LOG(ERROR) << "Failed to reset GPU device: " << cudaGetErrorString(cuda_status);
+            return false;
+        }
+        
+        // 重新初始化GPU资源
+        if (!allocateGPUMemory(m_maxGPUBufferSize)) {
+            LOG(ERROR) << "Failed to reallocate GPU memory after reset";
+            return false;
+        }
+        
+        // 再次尝试分配
+        cuda_status = cudaMalloc(&gpuResult.gpu_buffer, required_memory);
+        if (cuda_status != cudaSuccess) {
+            LOG(ERROR) << "Failed to allocate GPU buffer after reset: " << cudaGetErrorString(cuda_status);
+            return false;
+        }
     }
     
     gpuResult.total_size = total_gpu_size;

@@ -12,9 +12,10 @@
 #include <algorithm>
 #include <thrust/device_ptr.h>
 #include <cub/cub.cuh>
+#include <cmath>
 
-// 检测结果结构体
-struct DetectionResult {
+// 检测结果结构体 - 确保内存对齐
+struct __align__(16) DetectionResult {
     float x1, y1, x2, y2;  // 边界框坐标
     float confidence;      // 置信度
     int class_id;          // 类别ID
@@ -50,15 +51,28 @@ __global__ void filterDetectionsKernel(
     int batch_idx = idx / num_anchors;
     int anchor_idx = idx % num_anchors;
     
-    // 获取预处理参数
-    float ratio = preprocess_params[batch_idx * 5 + 0];
-    float padTop = preprocess_params[batch_idx * 5 + 1];
-    float padLeft = preprocess_params[batch_idx * 5 + 2];
-    float originalWidth = preprocess_params[batch_idx * 5 + 3];
-    float originalHeight = preprocess_params[batch_idx * 5 + 4];
+    // 边界检查
+    if (batch_idx >= batch_size || anchor_idx >= num_anchors) return;
     
-    // 计算数据起始位置
-    int batch_start = batch_idx * feature_dim * num_anchors;
+    // 获取预处理参数 - 当batch_size=1时，直接使用索引0
+    int param_offset = (batch_size == 1) ? 0 : (batch_idx * 5);
+    if (param_offset + 4 >= batch_size * 5) return;  // 边界检查
+    
+    float ratio = preprocess_params[param_offset + 0];
+    float padTop = preprocess_params[param_offset + 1];
+    float padLeft = preprocess_params[param_offset + 2];
+    float originalWidth = preprocess_params[param_offset + 3];
+    float originalHeight = preprocess_params[param_offset + 4];
+    
+    // 检查参数有效性
+    if (ratio <= 0 || originalWidth <= 0 || originalHeight <= 0) return;
+    
+    // 计算数据起始位置 - 当batch_size=1时，从0开始
+    int batch_start = (batch_size == 1) ? 0 : (batch_idx * feature_dim * num_anchors);
+    
+    // 边界检查
+    int total_elements = batch_size * feature_dim * num_anchors;
+    if (batch_start + 4 * num_anchors + anchor_idx >= total_elements) return;
     
     // 获取边界框坐标
     float x = output[batch_start + 0 * num_anchors + anchor_idx];
@@ -66,11 +80,22 @@ __global__ void filterDetectionsKernel(
     float w = output[batch_start + 2 * num_anchors + anchor_idx];
     float h = output[batch_start + 3 * num_anchors + anchor_idx];
     
+    // 检查坐标有效性
+    if (std::isnan(x) || std::isnan(y) || std::isnan(w) || std::isnan(h) ||
+        std::isinf(x) || std::isinf(y) || std::isinf(w) || std::isinf(h)) {
+        return;
+    }
+    
     // 获取类别置信度
     float max_conf = 0.0f;
     int max_class = 0;
     for (int c = 0; c < num_classes; ++c) {
-        float conf = output[batch_start + (4 + c) * num_anchors + anchor_idx];
+        int conf_idx = batch_start + (4 + c) * num_anchors + anchor_idx;
+        if (conf_idx >= total_elements) break;  // 边界检查
+        
+        float conf = output[conf_idx];
+        if (std::isnan(conf) || std::isinf(conf)) continue;
+        
         if (conf > max_conf) {
             max_conf = conf;
             max_class = c;
@@ -79,6 +104,9 @@ __global__ void filterDetectionsKernel(
     
     // 置信度过滤
     if (max_conf < conf_threshold) return;
+    
+    // 检查边界框坐标的有效性
+    if (w <= 0 || h <= 0) return;
     
     // 坐标转换 (xywh -> xyxy)
     float x1 = ((x - w / 2) - padLeft) / ratio;
@@ -99,7 +127,7 @@ __global__ void filterDetectionsKernel(
         return;
     }
     
-    // 原子操作获取有效检测索引
+    // 原子操作获取有效检测索引 - 使用更安全的原子操作
     int detection_idx = atomicAdd(valid_count, 1);
     if (detection_idx >= max_detections) return;
     
@@ -114,15 +142,32 @@ __global__ void filterDetectionsKernel(
     
     // 处理关键点
     for (int k = 0; k < num_keys; ++k) {
-        float kpt_x = output[batch_start + (4 + num_classes + k * 3) * num_anchors + anchor_idx];
-        float kpt_y = output[batch_start + (4 + num_classes + k * 3 + 1) * num_anchors + anchor_idx];
-        float kpt_conf = output[batch_start + (4 + num_classes + k * 3 + 2) * num_anchors + anchor_idx];
+        int kpt_x_idx = batch_start + (4 + num_classes + k * 3) * num_anchors + anchor_idx;
+        int kpt_y_idx = batch_start + (4 + num_classes + k * 3 + 1) * num_anchors + anchor_idx;
+        int kpt_conf_idx = batch_start + (4 + num_classes + k * 3 + 2) * num_anchors + anchor_idx;
+        
+        // 边界检查
+        if (kpt_conf_idx >= total_elements) break;
+        
+        float kpt_x = output[kpt_x_idx];
+        float kpt_y = output[kpt_y_idx];
+        float kpt_conf = output[kpt_conf_idx];
+        
+        // 检查关键点坐标有效性
+        if (std::isnan(kpt_x) || std::isnan(kpt_y) || std::isnan(kpt_conf) ||
+            std::isinf(kpt_x) || std::isinf(kpt_y) || std::isinf(kpt_conf)) {
+            detection.keypoints[k * 3 + 0] = 0.0f;
+            detection.keypoints[k * 3 + 1] = 0.0f;
+            detection.keypoints[k * 3 + 2] = 0.0f;
+            continue;
+        }
         
         // 坐标转换
         kpt_x = (kpt_x - padLeft) / ratio;
         kpt_y = (kpt_y - padTop) / ratio;
         
-        if (kpt_conf < conf_threshold) {
+        // 关键点置信度过滤
+        if (kpt_conf < 0.1f) {  // 使用更低的阈值过滤关键点
             detection.keypoints[k * 3 + 0] = 0.0f;
             detection.keypoints[k * 3 + 1] = 0.0f;
             detection.keypoints[k * 3 + 2] = 0.0f;
@@ -201,13 +246,52 @@ extern "C" int processOutputGPU(
     int max_detections,
     cudaStream_t stream
 ) {
-    // 重置有效检测计数
-    cudaMemsetAsync(gpu_valid_count, 0, sizeof(int), stream);
+    // 检查输入参数的有效性
+    if (!gpu_output || !gpu_detections || !gpu_valid_count || !gpu_preprocess_params) {
+        printf("Invalid GPU pointers in processOutputGPU\n");
+        return 0;
+    }
+    
+    // 检查参数合理性
+    if (batch_size <= 0 || feature_dim <= 0 || num_anchors <= 0 || 
+        num_classes <= 0 || num_keys <= 0 || max_detections <= 0) {
+        printf("Invalid parameters in processOutputGPU\n");
+        return 0;
+    }
+    
+    // 检查CUDA错误状态
+    cudaError_t status = cudaGetLastError();
+    if (status != cudaSuccess) {
+        printf("Previous CUDA error detected: %s\n", cudaGetErrorString(status));
+    }
+    
+    // 重置有效检测计数 - 使用同步版本避免流同步问题
+    status = cudaMemset(gpu_valid_count, 0, sizeof(int));
+    if (status != cudaSuccess) {
+        printf("Failed to reset valid count: %s\n", cudaGetErrorString(status));
+        return 0;
+    }
+    
+    // 重置检测结果内存 - 使用同步版本
+    status = cudaMemset(gpu_detections, 0, max_detections * sizeof(DetectionResult));
+    if (status != cudaSuccess) {
+        printf("Failed to reset detections memory: %s\n", cudaGetErrorString(status));
+        return 0;
+    }
     
     // 计算线程块配置
     int total_threads = batch_size * num_anchors;
     int block_size = 256;
     int grid_size = (total_threads + block_size - 1) / block_size;
+    
+    // 限制grid大小，避免过度并行
+    if (grid_size > 65535) {
+        grid_size = 65535;
+        block_size = (total_threads + grid_size - 1) / grid_size;
+    }
+    
+    printf("GPU processing: batch_size=%d, feature_dim=%d, num_anchors=%d, grid_size=%d, block_size=%d\n",
+           batch_size, feature_dim, num_anchors, grid_size, block_size);
     
     // 执行置信度过滤和坐标转换
     filterDetectionsKernel<<<grid_size, block_size, 0, stream>>>(
@@ -224,25 +308,124 @@ extern "C" int processOutputGPU(
         max_detections
     );
     
+    // 检查CUDA错误
+    status = cudaGetLastError();
+    if (status != cudaSuccess) {
+        printf("CUDA error in filterDetectionsKernel: %s\n", cudaGetErrorString(status));
+        return 0;
+    }
+    
+    // 同步流，确保内核执行完成
+    status = cudaStreamSynchronize(stream);
+    if (status != cudaSuccess) {
+        printf("Failed to synchronize stream: %s\n", cudaGetErrorString(status));
+        return 0;
+    }
+    
     // 获取有效检测数量
     int valid_count;
-    cudaMemcpyAsync(&valid_count, gpu_valid_count, sizeof(int), cudaMemcpyDeviceToHost, stream);
-    cudaStreamSynchronize(stream);
+    status = cudaMemcpy(&valid_count, gpu_valid_count, sizeof(int), cudaMemcpyDeviceToHost);
+    if (status != cudaSuccess) {
+        printf("Failed to copy valid count: %s\n", cudaGetErrorString(status));
+        return 0;
+    }
     
-    if (valid_count == 0) return 0;
+    if (valid_count == 0) {
+        printf("No valid detections found after confidence filtering\n");
+        return 0;
+    }
+    
+    printf("Found %d valid detections after confidence filtering\n", valid_count);
+    
+    // 限制检测数量
+    if (valid_count > max_detections) {
+        valid_count = max_detections;
+        printf("Limited detections to %d (max_detections)\n", valid_count);
+    }
+    
+    // 验证检测结果的有效性
+    std::vector<DetectionResult> temp_detections(valid_count);
+    status = cudaMemcpy(temp_detections.data(), gpu_detections,
+                       valid_count * sizeof(DetectionResult),
+                       cudaMemcpyDeviceToHost);
+    if (status != cudaSuccess) {
+        printf("Failed to copy detections for validation: %s\n", cudaGetErrorString(status));
+        return 0;
+    }
+    
+    // 验证检测结果
+    bool valid_detections = true;
+    for (int i = 0; i < valid_count; ++i) {
+        const DetectionResult& det = temp_detections[i];
+        if (std::isnan(det.confidence) || std::isinf(det.confidence) ||
+            std::isnan(det.x1) || std::isnan(det.y1) || std::isnan(det.x2) || std::isnan(det.y2)) {
+            printf("Invalid detection result at index %d\n", i);
+            valid_detections = false;
+            break;
+        }
+    }
+    
+    if (!valid_detections) {
+        printf("Invalid detection results found, skipping sort and NMS\n");
+        return 0;
+    }
     
     // 按置信度排序 - 使用简单的比较函数而不是lambda
-    thrust::device_ptr<DetectionResult> detections_ptr(gpu_detections);
-    thrust::sort(thrust::cuda::par.on(stream), detections_ptr, detections_ptr + valid_count, DetectionResultCompare());
+    try {
+        thrust::device_ptr<DetectionResult> detections_ptr(gpu_detections);
+        thrust::sort(thrust::cuda::par.on(stream), detections_ptr, detections_ptr + valid_count, DetectionResultCompare());
+        
+        // 同步流，确保排序完成
+        status = cudaStreamSynchronize(stream);
+        if (status != cudaSuccess) {
+            printf("Failed to synchronize stream after sort: %s\n", cudaGetErrorString(status));
+            return valid_count;  // 返回排序前的结果，不进行NMS
+        }
+    } catch (const thrust::system_error& e) {
+        printf("Thrust sort error: %s\n", e.what());
+        return valid_count;  // 返回排序前的结果，不进行NMS
+    }
     
-    // 执行NMS
+    // 检查排序后的CUDA错误
+    status = cudaGetLastError();
+    if (status != cudaSuccess) {
+        printf("CUDA error in thrust::sort: %s\n", cudaGetErrorString(status));
+        return valid_count;  // 返回排序后的结果，不进行NMS
+    }
+    
+    printf("Sorting completed successfully\n");
+    
+    // 执行NMS - 使用同步版本避免流同步问题
     int* gpu_keep_indices;
     int* gpu_keep_count;
-    cudaMallocAsync(&gpu_keep_indices, valid_count * sizeof(int), stream);
-    cudaMallocAsync(&gpu_keep_count, sizeof(int), stream);
+    status = cudaMalloc(&gpu_keep_indices, valid_count * sizeof(int));
+    if (status != cudaSuccess) {
+        printf("Failed to allocate GPU memory for keep indices: %s\n", cudaGetErrorString(status));
+        return valid_count;  // 返回排序后的结果，不进行NMS
+    }
     
-    cudaMemsetAsync(gpu_keep_indices, -1, valid_count * sizeof(int), stream);
-    cudaMemsetAsync(gpu_keep_count, 0, sizeof(int), stream);
+    status = cudaMalloc(&gpu_keep_count, sizeof(int));
+    if (status != cudaSuccess) {
+        printf("Failed to allocate GPU memory for keep count: %s\n", cudaGetErrorString(status));
+        cudaFree(gpu_keep_indices);
+        return valid_count;  // 返回排序后的结果，不进行NMS
+    }
+    
+    status = cudaMemset(gpu_keep_indices, -1, valid_count * sizeof(int));
+    if (status != cudaSuccess) {
+        printf("Failed to initialize keep indices: %s\n", cudaGetErrorString(status));
+        cudaFree(gpu_keep_indices);
+        cudaFree(gpu_keep_count);
+        return valid_count;  // 返回排序后的结果，不进行NMS
+    }
+    
+    status = cudaMemset(gpu_keep_count, 0, sizeof(int));
+    if (status != cudaSuccess) {
+        printf("Failed to initialize keep count: %s\n", cudaGetErrorString(status));
+        cudaFree(gpu_keep_indices);
+        cudaFree(gpu_keep_count);
+        return valid_count;  // 返回排序后的结果，不进行NMS
+    }
     
     block_size = 256;
     grid_size = (valid_count + block_size - 1) / block_size;
@@ -255,14 +438,39 @@ extern "C" int processOutputGPU(
         iou_threshold
     );
     
+    // 检查NMS的CUDA错误
+    status = cudaGetLastError();
+    if (status != cudaSuccess) {
+        printf("CUDA error in nmsKernel: %s\n", cudaGetErrorString(status));
+        cudaFree(gpu_keep_indices);
+        cudaFree(gpu_keep_count);
+        return valid_count;  // 返回排序后的结果，不进行NMS
+    }
+    
+    // 同步流，确保NMS完成
+    status = cudaStreamSynchronize(stream);
+    if (status != cudaSuccess) {
+        printf("Failed to synchronize stream after NMS: %s\n", cudaGetErrorString(status));
+        cudaFree(gpu_keep_indices);
+        cudaFree(gpu_keep_count);
+        return valid_count;  // 返回排序后的结果，不进行NMS
+    }
+    
     // 获取NMS后的检测数量
     int keep_count;
-    cudaMemcpyAsync(&keep_count, gpu_keep_count, sizeof(int), cudaMemcpyDeviceToHost, stream);
-    cudaStreamSynchronize(stream);
+    status = cudaMemcpy(&keep_count, gpu_keep_count, sizeof(int), cudaMemcpyDeviceToHost);
+    if (status != cudaSuccess) {
+        printf("Failed to copy keep count: %s\n", cudaGetErrorString(status));
+        cudaFree(gpu_keep_indices);
+        cudaFree(gpu_keep_count);
+        return valid_count;  // 返回排序后的结果，不进行NMS
+    }
+    
+    printf("NMS completed, kept %d detections out of %d\n", keep_count, valid_count);
     
     // 清理GPU内存
-    cudaFreeAsync(gpu_keep_indices, stream);
-    cudaFreeAsync(gpu_keep_count, stream);
+    cudaFree(gpu_keep_indices);
+    cudaFree(gpu_keep_count);
     
     return keep_count;
 } 

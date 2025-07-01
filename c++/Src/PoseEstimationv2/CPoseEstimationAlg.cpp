@@ -127,11 +127,43 @@ void CPoseEstimationAlg::runAlgorithm(void* p_pSrcData)
         
     } catch (const std::exception& e) {
         LOG(ERROR) << "CPoseEstimationAlg::runAlgorithm exception: " << e.what();
+        // 确保输出结果有基本结构，避免访问空向量
+        if (m_currentOutput.vecFrameResult().empty()) {
+            CFrameResult frameResult;
+            m_currentOutput.vecFrameResult().push_back(frameResult);
+        }
+        
+        // 确保FrameResult有基本结构
+        if (m_currentOutput.vecFrameResult().size() > 0) {
+            CFrameResult& frameResult = m_currentOutput.vecFrameResult()[0];
+            if (frameResult.vecObjectResult().empty()) {
+                // 添加一个空的对象结果，避免后续访问时越界
+                CObjectResult emptyObj;
+                frameResult.vecObjectResult().push_back(emptyObj);
+            }
+        }
+        
         if (m_algCallback) {
             m_algCallback(m_currentOutput, m_callbackHandle);
         }
     } catch (...) {
         LOG(ERROR) << "CPoseEstimationAlg::runAlgorithm unknown exception";
+        // 确保输出结果有基本结构，避免访问空向量
+        if (m_currentOutput.vecFrameResult().empty()) {
+            CFrameResult frameResult;
+            m_currentOutput.vecFrameResult().push_back(frameResult);
+        }
+        
+        // 确保FrameResult有基本结构
+        if (m_currentOutput.vecFrameResult().size() > 0) {
+            CFrameResult& frameResult = m_currentOutput.vecFrameResult()[0];
+            if (frameResult.vecObjectResult().empty()) {
+                // 添加一个空的对象结果，避免后续访问时越界
+                CObjectResult emptyObj;
+                frameResult.vecObjectResult().push_back(emptyObj);
+            }
+        }
+        
         if (m_algCallback) {
             m_algCallback(m_currentOutput, m_callbackHandle);
         }
@@ -422,15 +454,25 @@ void CPoseEstimationAlg::createCombinedVisualization(const std::vector<CVideoSrc
             continue;
         }
         
-        // 绘制对应的检测结果
+        // 查找属于当前子图的检测结果
+        // 由于姿态估计结果是按batch顺序返回的，我们需要找到对应的结果
+        const CObjectResult* targetObj = nullptr;
+        
         if (subImgIdx < objResults.size()) {
-            const auto& obj = objResults[subImgIdx];
-            
+            // 简单按索引分配（临时方案）
+            targetObj = &objResults[subImgIdx];
+            LOG(INFO) << "子图 " << subImgIdx << " 使用检测结果索引 " << subImgIdx;
+        } else {
+            LOG(WARNING) << "子图 " << subImgIdx << " 没有对应的检测结果";
+        }
+        
+        // 绘制对应的检测结果
+        if (targetObj) {
             // 直接使用姿态估计结果中的边界框坐标（已经是子图坐标系）
-            float bbox_x1 = obj.fTopLeftX();
-            float bbox_y1 = obj.fTopLeftY();
-            float bbox_x2 = obj.fBottomRightX();
-            float bbox_y2 = obj.fBottomRightY();
+            float bbox_x1 = targetObj->fTopLeftX();
+            float bbox_y1 = targetObj->fTopLeftY();
+            float bbox_x2 = targetObj->fBottomRightX();
+            float bbox_y2 = targetObj->fBottomRightY();
             
             // 添加调试信息
             LOG(INFO) << "子图 " << subImgIdx << " 边界框坐标: (" << bbox_x1 << ", " << bbox_y1 << ") - (" << bbox_x2 << ", " << bbox_y2 << ")";
@@ -461,15 +503,15 @@ void CPoseEstimationAlg::createCombinedVisualization(const std::vector<CVideoSrc
                 cv::rectangle(srcImage, rect, cv::Scalar(0, 255, 0), 2);
 
                 // 绘制类别、置信度和深度值
-                std::string label = obj.strClass() + " " + std::to_string(obj.fVideoConfidence());
-                if (obj.fDistance() > 0.0f) {
-                    label += " " + std::to_string(static_cast<int>(obj.fDistance())) + "mm";
+                std::string label = targetObj->strClass() + " " + std::to_string(targetObj->fVideoConfidence());
+                if (targetObj->fDistance() > 0.0f) {
+                    label += " " + std::to_string(static_cast<int>(targetObj->fDistance())) + "mm";
                 }
                 cv::putText(srcImage, label, rect.tl() + cv::Point(0, -10), 
                            cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,0), 1);
 
                 // 绘制人体关键点（子图坐标系）
-                const auto& keypoints = obj.vecKeypoints();
+                const auto& keypoints = targetObj->vecKeypoints();
                 for(const auto& kp : keypoints) {
                     // 边界检查（相对于子图）- 允许关键点稍微超出边界
                     if (kp.x() < -10 || kp.y() < -10 || kp.x() >= width + 10 || kp.y() >= height + 10) {
@@ -533,8 +575,6 @@ void CPoseEstimationAlg::createCombinedVisualization(const std::vector<CVideoSrc
                 LOG(WARNING) << "子图 " << subImgIdx << " 目标框完全超出图像边界，跳过绘制";
                 LOG(WARNING) << "边界框中心: (" << bbox_center_x << ", " << bbox_center_y << ")";
             }
-        } else {
-            LOG(WARNING) << "子图 " << subImgIdx << " 没有对应的检测结果";
         }
         
         subImages.push_back(srcImage);

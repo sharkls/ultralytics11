@@ -913,80 +913,68 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_keypoints(const std::vec
     return keypoints;
 }
 
-std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector<float>& output) 
-{   
+std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector<float>& output)
+{
     LOG(INFO) << "Yolov11PoseGPU::process_output status: start ";
     
-    // 检查是否为GPU输出数据
-    if (output.size() >= 3 && output[2] == 1.0f) {
-        // GPU输出数据，使用GPU后处理
-        if (use_gpu_postprocessing_ && gpu_postprocessor_) {
-            LOG(INFO) << "Using GPU post-processing for output";
+    // 检查是否使用GPU后处理
+    if (use_gpu_postprocessing_ && gpu_postprocessor_) {
+        LOG(INFO) << "Using GPU post-processing for output";
+        
+        // 检查output是否是GPU数据标记
+        if (output.size() >= 3 && output[2] == 1.0f) {
+            // 这是GPU数据，提取GPU指针和大小
+            size_t gpu_ptr_addr = static_cast<size_t>(output[0]);
+            size_t output_size = static_cast<size_t>(output[1]);
+            float* gpu_output_ptr = reinterpret_cast<float*>(gpu_ptr_addr);
             
-            // 提取GPU指针和输出大小
-            float* gpu_output_ptr = reinterpret_cast<float*>(static_cast<size_t>(output[0]));
-            int output_size = static_cast<int>(output[1]);
+            LOG(INFO) << "Extracted GPU output pointer: " << gpu_output_ptr 
+                      << ", size: " << output_size;
             
-            // 检查输入数据类型
-            bool use_gpu_input = !m_inputDataGPU.empty();
+            // 获取当前批次大小
             int current_batch_size = 0;
-            std::vector<float> preprocess_params;
-            
-            if (use_gpu_input) {
-                if (m_inputDataGPU.empty()) {
-                    LOG(ERROR) << "No GPU batch data available for processing";
-                    return std::vector<std::vector<float>>();
-                }
+            if (!m_inputDataGPU.empty()) {
                 current_batch_size = static_cast<int>(m_inputDataGPU.size());
-                
-                // 准备预处理参数
-                preprocess_params.reserve(current_batch_size * 5);
-                for (int i = 0; i < current_batch_size; ++i) {
-                    if (i < m_inputDataGPU.preprocessParams.size()) {
-                        const auto& params = m_inputDataGPU.preprocessParams[i];
-                        preprocess_params.push_back(params.ratio);
-                        preprocess_params.push_back(static_cast<float>(params.padTop));
-                        preprocess_params.push_back(static_cast<float>(params.padLeft));
-                        preprocess_params.push_back(static_cast<float>(params.originalWidth));
-                        preprocess_params.push_back(static_cast<float>(params.originalHeight));
-                    } else {
-                        // 使用默认参数
-                        preprocess_params.push_back(1.0f);
-                        preprocess_params.push_back(0.0f);
-                        preprocess_params.push_back(0.0f);
-                        preprocess_params.push_back(640.0f);
-                        preprocess_params.push_back(640.0f);
-                    }
-                }
-            } else {
-                if (m_batchInputs.empty()) {
-                    LOG(ERROR) << "No CPU batch data available for processing";
-                    return std::vector<std::vector<float>>();
-                }
+            } else if (!m_batchInputs.empty()) {
                 current_batch_size = static_cast<int>(m_batchInputs.size());
-                
-                // 准备预处理参数
-                preprocess_params.reserve(current_batch_size * 5);
-                for (int i = 0; i < current_batch_size; ++i) {
-                    if (i < m_inputData.preprocessParams.size()) {
-                        const auto& params = m_inputData.preprocessParams[i];
-                        preprocess_params.push_back(params.ratio);
-                        preprocess_params.push_back(static_cast<float>(params.padTop));
-                        preprocess_params.push_back(static_cast<float>(params.padLeft));
-                        preprocess_params.push_back(static_cast<float>(params.originalWidth));
-                        preprocess_params.push_back(static_cast<float>(params.originalHeight));
-                    } else {
-                        // 使用默认参数
-                        preprocess_params.push_back(1.0f);
-                        preprocess_params.push_back(0.0f);
-                        preprocess_params.push_back(0.0f);
-                        preprocess_params.push_back(640.0f);
-                        preprocess_params.push_back(640.0f);
-                    }
-                }
+            } else {
+                LOG(ERROR) << "No input data available for batch size calculation";
+                return std::vector<std::vector<float>>();
             }
             
-            // 获取输出形状信息
+            // 准备预处理参数
+            std::vector<float> preprocess_params;
+            preprocess_params.reserve(current_batch_size * 5);
+            
+            for (int i = 0; i < current_batch_size; ++i) {
+                float ratio = 1.0f;
+                int padTop = 0, padLeft = 0;
+                int originalWidth = 0, originalHeight = 0;
+                
+                if (!m_inputDataGPU.empty() && i < m_inputDataGPU.preprocessParams.size()) {
+                    const auto& params = m_inputDataGPU.preprocessParams[i];
+                    ratio = params.ratio;
+                    padTop = params.padTop;
+                    padLeft = params.padLeft;
+                    originalWidth = params.originalWidth;
+                    originalHeight = params.originalHeight;
+                } else if (!m_batchInputs.empty() && i < m_inputData.preprocessParams.size()) {
+                    const auto& params = m_inputData.preprocessParams[i];
+                    ratio = params.ratio;
+                    padTop = params.padTop;
+                    padLeft = params.padLeft;
+                    originalWidth = params.originalWidth;
+                    originalHeight = params.originalHeight;
+                }
+                
+                preprocess_params.push_back(ratio);
+                preprocess_params.push_back(static_cast<float>(padTop));
+                preprocess_params.push_back(static_cast<float>(padLeft));
+                preprocess_params.push_back(static_cast<float>(originalWidth));
+                preprocess_params.push_back(static_cast<float>(originalHeight));
+            }
+            
+            // 获取输出维度信息
             nvinfer1::Dims output_dims = context_->getTensorShape(output_name_);
             int feature_dim = 4 + num_classes_ + num_keys_ * 3;
             int num_anchors = output_dims.d[2];
@@ -995,8 +983,8 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
                       << ", feature_dim=" << feature_dim << ", num_anchors=" << num_anchors;
             
             // 执行GPU后处理
-            auto results = gpu_postprocessor_->processOutput(
-                gpu_output_ptr,
+            auto batch_results = gpu_postprocessor_->processOutput(
+                gpu_output_ptr,  // 使用真正的GPU指针
                 current_batch_size,
                 feature_dim,
                 num_anchors,
@@ -1008,13 +996,27 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
                 stream_
             );
             
-            LOG(INFO) << "GPU post-processing completed, found " << results.size() << " detections";
-            return results;
+            // 合并所有batch的结果
+            std::vector<std::vector<float>> all_results;
+            int total_detections = 0;
+            for (const auto& batch_result : batch_results) {
+                total_detections += batch_result.size();
+            }
+            all_results.reserve(total_detections);
+            
+            for (const auto& batch_result : batch_results) {
+                all_results.insert(all_results.end(), batch_result.begin(), batch_result.end());
+            }
+            
+            LOG(INFO) << "GPU post-processing completed, found " << all_results.size() << " detections across " << current_batch_size << " batches";
+            return all_results;
         } else {
-            LOG(WARNING) << "GPU post-processing not available, falling back to CPU processing";
+            LOG(WARNING) << "Output is not GPU data, falling back to CPU processing";
         }
+    } else {
+        LOG(WARNING) << "GPU post-processing not available, falling back to CPU processing";
     }
-    
+
     // 原有的CPU后处理逻辑
     // 检查输入数据类型
     bool use_gpu_input = !m_inputDataGPU.empty();
@@ -1065,255 +1067,66 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
     
     // 3. 为每个batch中的图像处理结果
     for (int batch_idx = 0; batch_idx < current_batch_size; ++batch_idx) {
-        // 获取当前图像的预处理参数
-        float ratio = 1.0f;
-        int padTop = 0, padLeft = 0;
-        int original_width = 0;   // 修复：初始化为0，确保必须从正确来源获取
-        int original_height = 0;  // 修复：初始化为0，确保必须从正确来源获取
+        // 计算当前batch的输出偏移
+        int batch_output_offset = batch_idx * feature_dim * num_anchors;
         
-        // 检查输入数据类型
-        bool use_gpu_input = !m_inputDataGPU.empty();
-        
-        if (use_gpu_input) {
-            // 从GPU版本的预处理结果中获取参数
-            if (batch_idx < m_inputDataGPU.preprocessParams.size()) {
-                const auto& params = m_inputDataGPU.preprocessParams[batch_idx];
-                ratio = params.ratio;
-                padTop = params.padTop;
-                padLeft = params.padLeft;
-                original_width = params.originalWidth;   // 使用预处理保存的原始图像宽度
-                original_height = params.originalHeight; // 使用预处理保存的原始图像高度
-                
-                LOG(INFO) << "Image " << batch_idx << ": using GPU saved params - original " 
-                          << original_width << "x" << original_height 
-                          << ", ratio: " << ratio << ", pad: (" << padTop << "," << padLeft << ")";
-            } else {
-                LOG(WARNING) << "Image " << batch_idx << ": no GPU saved preprocessing params, using fallback";
-                // 使用GPU结果中的尺寸信息
-                if (batch_idx < m_inputDataGPU.imageSizes.size()) {
-                    original_width = m_inputDataGPU.imageSizes[batch_idx].first;
-                    original_height = m_inputDataGPU.imageSizes[batch_idx].second;
-                    LOG(WARNING) << "Using GPU image size as original size: " 
-                                 << original_width << "x" << original_height;
-                }
-            }
-        } else {
-            // 从CPU版本的预处理结果中获取参数
-            if (batch_idx < m_inputData.preprocessParams.size()) {
-                const auto& params = m_inputData.preprocessParams[batch_idx];
-                ratio = params.ratio;
-                padTop = params.padTop;
-                padLeft = params.padLeft;
-                original_width = params.originalWidth;   // 使用预处理保存的原始图像宽度
-                original_height = params.originalHeight; // 使用预处理保存的原始图像高度
-                
-                LOG(INFO) << "Image " << batch_idx << ": using CPU saved params - original " 
-                          << original_width << "x" << original_height 
-                          << ", ratio: " << ratio << ", pad: (" << padTop << "," << padLeft << ")";
-            } else {
-                // 如果没有保存的参数，使用默认计算（兼容性）
-                LOG(WARNING) << "Image " << batch_idx << ": no CPU saved preprocessing params, using fallback";
-                
-                // 修复：如果没有预处理参数，应该从输入数据中获取原始图像信息
-                if (batch_idx < m_inputData.imageSizes.size()) {
-                    original_width = m_inputData.imageSizes[batch_idx].first;
-                    original_height = m_inputData.imageSizes[batch_idx].second;
-                    LOG(WARNING) << "Using preprocessed size as original size (may be incorrect): " 
-                                 << original_width << "x" << original_height;
-                } else {
-                    // 最后的fallback：使用配置中的默认值
-                    original_width = new_unpad_w_;
-                    original_height = new_unpad_h_;
-                    LOG(WARNING) << "Using config default size as original size: " 
-                                 << original_width << "x" << original_height;
-                }
-                
-                // 计算当前图像的预处理参数 - 修复：与Python脚本保持一致
-                // 从统一推理尺寸和原始尺寸计算缩放比例和填充
-                float r = std::min(static_cast<float>(max_height) / original_height, 
-                                  static_cast<float>(max_width) / original_width);
-                int new_unpad_w = static_cast<int>(original_width * r);
-                int new_unpad_h = static_cast<int>(original_height * r);
-                
-                // 获取stride值（使用第一个stride）
-                int current_stride = stride_.empty() ? 32 : stride_[0];
-                new_unpad_w = (new_unpad_w / current_stride) * current_stride;
-                new_unpad_h = (new_unpad_h / current_stride) * current_stride;
-                
-                // 计算填充参数
-                int dh = max_height - new_unpad_h;
-                int dw = max_width - new_unpad_w;
-                padTop = dh / 2;
-                padLeft = dw / 2;
-                ratio = r;
-                
-                LOG(INFO) << "Image " << batch_idx << ": computed params - original " 
-                          << original_width << "x" << original_height 
-                          << ", ratio: " << ratio << ", pad: (" << padTop << "," << padLeft << ")";
-            }
-        }
-        
-        // 验证原始尺寸的有效性
-        if (original_width <= 0 || original_height <= 0) {
-            LOG(ERROR) << "Image " << batch_idx << ": invalid original dimensions " 
-                       << original_width << "x" << original_height << ", skipping";
-            continue;
-        }
-        
-        // 计算当前图像在数据中的起始位置
-        int batch_start = batch_idx * feature_dim * num_anchors;
-        
-        // 遍历当前图像的所有anchor，筛选置信度大于阈值的候选框
-        std::vector<std::vector<float>> boxes;
-        std::vector<float> scores;
-        std::vector<int> class_ids;
-        std::vector<std::vector<float>> keypoints;
-        
-        int valid_detections = 0;
-        
-        for (int i = 0; i < num_anchors; ++i) 
-        {
-            // 正确计算索引: [batch_idx, feature, anchor_i]
-            int bbox_start = batch_start + i;  // 每个feature的起始位置
+        // 处理当前batch的所有anchor
+        for (int anchor_idx = 0; anchor_idx < num_anchors; ++anchor_idx) {
+            // 获取边界框坐标
+            float x = output[batch_output_offset + 0 * num_anchors + anchor_idx];
+            float y = output[batch_output_offset + 1 * num_anchors + anchor_idx];
+            float w = output[batch_output_offset + 2 * num_anchors + anchor_idx];
+            float h = output[batch_output_offset + 3 * num_anchors + anchor_idx];
             
-            // 取bbox
-            float x = output[batch_start + 0 * num_anchors + i];
-            float y = output[batch_start + 1 * num_anchors + i];
-            float w = output[batch_start + 2 * num_anchors + i];
-            float h = output[batch_start + 3 * num_anchors + i];
-
-            // 取类别分数 - 修复：TensorRT engine输出已经是sigmoid激活后的值
+            // 获取类别置信度
             float max_conf = 0.0f;
             int max_class = 0;
             for (int c = 0; c < num_classes_; ++c) {
-                float conf = output[batch_start + (4 + c) * num_anchors + i];
-                // 直接使用模型输出的置信度值，因为已经是sigmoid激活后的值
-                
+                float conf = output[batch_output_offset + (4 + c) * num_anchors + anchor_idx];
                 if (conf > max_conf) {
                     max_conf = conf;
                     max_class = c;
                 }
             }
             
-            // 修复：使用sigmoid激活后的置信度值与阈值比较
-            if (max_conf < conf_thres_) {
-                continue;
-            }
-
-            // 坐标还原 - 修复：使用正确的坐标转换逻辑，与Python的xywh2xyxy保持一致
-            // Python: xywh2xyxy(x) -> x1 = x - w/2, y1 = y - h/2, x2 = x + w/2, y2 = y + h/2
-            // 然后考虑填充偏移：(coord - pad) / ratio
-            float x1 = ((x - w / 2) - padLeft) / ratio;
-            float y1 = ((y - h / 2) - padTop) / ratio;
-            float x2 = ((x + w / 2) - padLeft) / ratio;
-            float y2 = ((y + h / 2) - padTop) / ratio;
+            // 置信度过滤
+            if (max_conf < conf_thres_) continue;
             
-            // 修复：确保坐标在合理范围内，与Python的clip_boxes保持一致
-            x1 = std::max(0.0f, std::min(x1, static_cast<float>(original_width)));
-            y1 = std::max(0.0f, std::min(y1, static_cast<float>(original_height)));
-            x2 = std::max(0.0f, std::min(x2, static_cast<float>(original_width)));
-            y2 = std::max(0.0f, std::min(y2, static_cast<float>(original_height)));
+            // 检查边界框坐标的有效性
+            if (w <= 0 || h <= 0) continue;
             
-            // 修复：检查边界框大小的合理性，但放宽条件
-            float box_width = x2 - x1;
-            float box_height = y2 - y1;
-            if (box_width < 1 || box_height < 1 || box_width > original_width || box_height > original_height) {
-                if (valid_detections < 10) {  // 只打印前10个被过滤的
-                    LOG(INFO) << "Image " << batch_idx << " anchor " << i << ": 边界框尺寸不合理，跳过";
-                }
-                continue;
-            }
-
-            boxes.push_back({x1, y1, x2, y2});
-            scores.push_back(max_conf);
-            class_ids.push_back(max_class);
-
-            // 关键点 - 修复：使用正确的坐标转换和置信度处理，与Python脚本保持一致
-            std::vector<float> kpts;
-            for (int j = 0; j < num_keys_ * 3; j += 3) {
-                // 修复：直接使用模型输出的坐标和置信度值，因为已经是sigmoid激活后的值
-                float kpt_x = output[batch_start + (4 + num_classes_ + j) * num_anchors + i];
-                float kpt_y = output[batch_start + (4 + num_classes_ + j + 1) * num_anchors + i];
-                float kpt_conf = output[batch_start + (4 + num_classes_ + j + 2) * num_anchors + i];
+            // 创建检测结果
+            std::vector<float> result;
+            result.reserve(4 + 1 + 1 + num_keys_ * 3);  // bbox + confidence + class_id + keypoints
+            
+            // 添加边界框坐标
+            result.push_back(x);
+            result.push_back(y);
+            result.push_back(w);
+            result.push_back(h);
+            
+            // 添加置信度
+            result.push_back(max_conf);
+            
+            // 添加类别ID
+            result.push_back(static_cast<float>(max_class));
+            
+            // 添加关键点
+            for (int k = 0; k < num_keys_; ++k) {
+                float kpt_x = output[batch_output_offset + (4 + num_classes_ + k * 3) * num_anchors + anchor_idx];
+                float kpt_y = output[batch_output_offset + (4 + num_classes_ + k * 3 + 1) * num_anchors + anchor_idx];
+                float kpt_conf = output[batch_output_offset + (4 + num_classes_ + k * 3 + 2) * num_anchors + anchor_idx];
                 
-                // 修复：将坐标转换到原始图像尺寸，考虑填充偏移
-                kpt_x = (kpt_x - padLeft) / ratio;
-                kpt_y = (kpt_y - padTop) / ratio;
-                
-                if (kpt_conf < conf_thres_) {   // 使用配置的置信度阈值
-                    kpts.push_back(0.0f);
-                    kpts.push_back(0.0f);
-                    kpts.push_back(0.0f);
-                } else {
-                    kpts.push_back(kpt_x);
-                    kpts.push_back(kpt_y);
-                    kpts.push_back(kpt_conf);
-                }
+                result.push_back(kpt_x);
+                result.push_back(kpt_y);
+                result.push_back(kpt_conf);
             }
-            keypoints.push_back(kpts);
-            valid_detections++;
-        }
-        
-        LOG(INFO) << "Image " << batch_idx << ": 有效检测数=" << valid_detections 
-                  << ", 置信度阈值=" << conf_thres_;
-
-        // 4. 按类别分组做NMS
-        for (int cls = 0; cls < num_classes_; ++cls) {
-            std::vector<std::vector<float>> cls_boxes;
-            std::vector<float> cls_scores;
-            std::vector<std::vector<float>> cls_keypoints;
-            for (size_t i = 0; i < class_ids.size(); ++i) {
-                if (class_ids[i] == cls) {
-                    cls_boxes.push_back(boxes[i]);
-                    cls_scores.push_back(scores[i]);
-                    cls_keypoints.push_back(keypoints[i]);
-                }
-            }
-            if (cls_boxes.empty()) continue;
             
-            std::vector<int> keep = nms(cls_boxes, cls_scores);
-            
-            for (int idx : keep) {
-                std::vector<float> result = cls_boxes[idx];
-                result.push_back(cls_scores[idx]);
-                result.push_back(static_cast<float>(cls));  // 添加类别信息
-                result.insert(result.end(), cls_keypoints[idx].begin(), cls_keypoints[idx].end());
-                results.push_back(result);
-            }
-        }
-    }
-
-    // 5. 按置信度排序，截断最大检测数
-    std::sort(results.begin(), results.end(), [](const std::vector<float>& a, const std::vector<float>& b) {
-        return a[4] > b[4];
-    });
-    
-    LOG(INFO) << "排序后检测数: " << results.size();
-    
-    // 修复：使用配置中的置信度阈值进行过滤，与Python脚本保持一致
-    std::vector<std::vector<float>> filtered_results;
-    for (const auto& result : results) {
-        if (result[4] >= conf_thres_) {  // 使用配置的置信度阈值
-            filtered_results.push_back(result);
+            results.push_back(std::move(result));
         }
     }
     
-    LOG(INFO) << "置信度过滤后检测数: " << filtered_results.size();
-    
-    // 如果过滤后的结果仍然超过max_dets_，则截断
-    if (filtered_results.size() > max_dets_) {
-        LOG(INFO) << "截断检测数从 " << filtered_results.size() << " 到 " << max_dets_;
-        filtered_results.resize(max_dets_);
-    }
-    
-    results = filtered_results;
-
-    if(status_)
-    {
-        save_bin(results, "./Save_Data/pose/result/processed_output_yolov11pose.bin"); // Yolov11Pose/Inference
-    }
-    
-    LOG(INFO) << "Yolov11PoseGPU::process_output status: success, found " << results.size() << " detections";
+    LOG(INFO) << "CPU post-processing completed, found " << results.size() << " detections";
     return results;
 }
 

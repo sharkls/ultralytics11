@@ -1,10 +1,12 @@
 #pragma once
 
-#include <cuda_runtime.h>
 #include <vector>
+#include <memory>
+#include "log.h"
+#include <cuda_runtime.h>
 
-// 检测结果结构体
-struct DetectionResult {
+// 检测结果结构体 - 确保内存对齐
+struct __align__(16) DetectionResult {
     float x1, y1, x2, y2;  // 边界框坐标
     float confidence;      // 置信度
     int class_id;          // 类别ID
@@ -28,17 +30,15 @@ extern "C" int processOutputGPU(
     cudaStream_t stream
 );
 
-// GPU后处理管理类
 class GPUPostProcessor {
 public:
     GPUPostProcessor();
     ~GPUPostProcessor();
     
-    // 初始化GPU后处理
     bool initialize(int max_batch_size, int max_detections);
+    void cleanup();
     
-    // 执行GPU后处理
-    std::vector<std::vector<float>> processOutput(
+    std::vector<std::vector<std::vector<float>>> processOutput(
         const float* gpu_output,
         int batch_size,
         int feature_dim,
@@ -50,15 +50,9 @@ public:
         const std::vector<float>& preprocess_params,
         cudaStream_t stream
     );
-    
-    // 清理资源
-    void cleanup();
 
 private:
-    DetectionResult* gpu_detections_;
-    int* gpu_valid_count_;
-    float* gpu_preprocess_params_;
-    int max_detections_;
-    int max_batch_size_;
     bool initialized_;
+    int max_batch_size_;
+    int max_detections_;
 }; 
