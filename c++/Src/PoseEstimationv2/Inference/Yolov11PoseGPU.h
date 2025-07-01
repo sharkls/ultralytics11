@@ -146,4 +146,100 @@ private:
     // GPU后处理加速
     std::unique_ptr<GPUPostProcessor> gpu_postprocessor_;  // GPU后处理器
     bool use_gpu_postprocessing_;                          // 是否使用GPU后处理
+
+    // 姿态特征结构体
+    struct PoseFeatures {
+        float trunk_angle;           // 躯干角度 (度)
+        float leg_angle;             // 腿部角度 (度)
+        float head_angle;            // 头部角度 (度)
+        float body_height_ratio;     // 身体高宽比
+        float shoulder_hip_distance; // 肩臀距离
+        float knee_ankle_distance;   // 膝踝距离
+        float trunk_length;          // 躯干长度
+        float leg_length;            // 腿部长度
+        float arm_angle;             // 手臂角度
+        float stability_score;       // 稳定性评分
+        float symmetry_score;        // 对称性评分
+    };
+    
+    // 姿态权重结构体
+    struct PoseWeights {
+        float trunk_angle_weight;
+        float leg_angle_weight;
+        float head_angle_weight;
+        float body_ratio_weight;
+        float stability_weight;
+        float symmetry_weight;
+    };
+    
+    // 数学化姿态分类函数
+    PoseFeatures calculate_pose_features(const std::vector<std::pair<float, float>>& points,
+                                        const std::vector<float>& confidences) const;
+    std::string classify_pose_mathematical(const PoseFeatures& features) const;
+    float calculate_pose_match_score(const PoseFeatures& features, 
+                                   const PoseWeights& weights,
+                                   const std::vector<float>& ideal_values,
+                                   const std::vector<float>& tolerances) const;
+    
+    // 高级几何计算函数
+    float calculate_trunk_angle_advanced(const std::vector<std::pair<float, float>>& points,
+                                        const std::vector<float>& confidences,
+                                        int left_shoulder, int right_shoulder,
+                                        int left_hip, int right_hip) const;
+    float calculate_joint_angle(const std::vector<std::pair<float, float>>& points,
+                               const std::vector<float>& confidences,
+                               int joint1, int joint2, int joint3) const;
+    float calculate_head_angle_advanced(const std::vector<std::pair<float, float>>& points,
+                                       const std::vector<float>& confidences,
+                                       int nose, int left_shoulder, int right_shoulder) const;
+    float calculate_body_geometry(const std::vector<std::pair<float, float>>& points,
+                                 const std::vector<float>& confidences,
+                                 int nose, int left_ankle, int right_ankle) const;
+    float calculate_euclidean_distance(const std::vector<std::pair<float, float>>& points,
+                                      const std::vector<float>& confidences,
+                                      int left1, int right1, int left2, int right2) const;
+    float calculate_segment_length(const std::vector<std::pair<float, float>>& points,
+                                  const std::vector<float>& confidences,
+                                  int left1, int right1, int left2, int right2) const;
+    float calculate_stability_score(const std::vector<std::pair<float, float>>& points,
+                                   const std::vector<float>& confidences) const;
+    float calculate_symmetry_score(const std::vector<std::pair<float, float>>& points,
+                                  const std::vector<float>& confidences) const;
+    
+    // 保留原有函数以保持兼容性
+    float calculate_trunk_angle(const std::vector<std::pair<float, float>>& points, 
+                               const std::vector<float>& confidences,
+                               int left_shoulder, int right_shoulder, 
+                               int left_hip, int right_hip) const;
+    float calculate_leg_angle(const std::vector<std::pair<float, float>>& points,
+                             const std::vector<float>& confidences,
+                             int hip, int knee, int ankle) const;
+    float calculate_head_angle(const std::vector<std::pair<float, float>>& points,
+                              const std::vector<float>& confidences,
+                              int nose, int left_shoulder, int right_shoulder) const;
+    float calculate_body_height_ratio(const std::vector<std::pair<float, float>>& points,
+                                     const std::vector<float>& confidences,
+                                     int nose, int left_ankle, int right_ankle) const;
+    float calculate_distance(const std::vector<std::pair<float, float>>& points,
+                            const std::vector<float>& confidences,
+                            int left1, int right1, int left2, int right2) const;
+    
+    // 姿态判断函数 (保留原有实现)
+    bool is_standing_walking(const std::vector<std::pair<float, float>>& points,
+                            const std::vector<float>& confidences,
+                            float trunk_angle, float leg_angle, float head_angle,
+                            float body_height_ratio) const;
+    bool is_hunched(const std::vector<std::pair<float, float>>& points,
+                   const std::vector<float>& confidences,
+                   float trunk_angle, float head_angle, float body_height_ratio) const;
+    bool is_lying(const std::vector<std::pair<float, float>>& points,
+                 const std::vector<float>& confidences,
+                 float trunk_angle, float leg_angle, float body_height_ratio) const;
+    bool is_sitting(const std::vector<std::pair<float, float>>& points,
+                   const std::vector<float>& confidences,
+                   float trunk_angle, float leg_angle, 
+                   float shoulder_hip_distance, float knee_ankle_distance) const;
+    bool is_squatting(const std::vector<std::pair<float, float>>& points,
+                     const std::vector<float>& confidences,
+                     float trunk_angle, float leg_angle, float body_height_ratio) const;
 }; 

@@ -311,23 +311,44 @@ bool CPoseEstimationAlg::executeModuleChain()
                     
                     // 检查边界
                     if (kix >= 0 && kix < width && kiy >= 0 && kiy < height) {
-                        // 遍历关键点周围 5×5 的区域
-                        for (int dy = -2; dy <= 2; ++dy) {
-                            for (int dx = -2; dx <= 2; ++dx) {
-                                int currentIx = kix + dx;
-                                int currentIy = kiy + dy;
-                                
-                                // 检查当前坐标是否在深度图范围内
-                                if (currentIx >= 0 && currentIx < width && currentIy >= 0 && currentIy < height) {
-                                    int idx = currentIy * width + currentIx;
-                                    if (idx >= 0 && idx < depthMap.size()) {
-                                        float depth = depthMap[idx];
-                                        if (depth > 0.0f) {  // 只收集有效的深度值
-                                            allKeypointDepths.push_back(depth);
+                        // 可配置的深度查找模式
+                        bool use_region_search = true;  // 默认使用区域搜索模式
+                        int region_size = 2;  // 默认5×5区域 (region_size=2表示±2范围)
+                        
+                        // 这里可以通过配置文件或参数来控制查找模式
+                        // use_region_search = true: 查找关键点周围region_size×region_size区域
+                        // use_region_search = false: 只查找关键点位置
+                        if (use_region_search) {
+                            // 区域搜索模式：查找关键点周围region_size×region_size区域
+                            for (int dy = -region_size; dy <= region_size; ++dy) {
+                                for (int dx = -region_size; dx <= region_size; ++dx) {
+                                    int currentIx = kix + dx;
+                                    int currentIy = kiy + dy;
+                                    
+                                    // 检查当前坐标是否在深度图范围内
+                                    if (currentIx >= 0 && currentIx < width && currentIy >= 0 && currentIy < height) {
+                                        int idx = currentIy * width + currentIx;
+                                        if (idx >= 0 && idx < depthMap.size()) {
+                                            float depth = depthMap[idx];
+                                            if (depth > 0.0f) {  // 只收集有效的深度值
+                                                allKeypointDepths.push_back(depth);
+                                            }
                                         }
                                     }
                                 }
                             }
+                            LOG(INFO) << "关键点 (" << kx << ", " << ky << ") 使用区域搜索模式，"
+                                     << (2 * region_size + 1) << "×" << (2 * region_size + 1) << " 区域";
+                        } else {
+                            // 单点模式：只查找关键点位置的深度值
+                            int idx = kiy * width + kix;
+                            if (idx >= 0 && idx < depthMap.size()) {
+                                float depth = depthMap[idx];
+                                if (depth > 0.0f) {  // 只收集有效的深度值
+                                    allKeypointDepths.push_back(depth);
+                                }
+                            }
+                            LOG(INFO) << "关键点 (" << kx << ", " << ky << ") 使用单点搜索模式";
                         }
                     }
                 }
@@ -664,6 +685,29 @@ void CPoseEstimationAlg::convertCoordinatesAndMergeResults()
             
             // 设置转换后的关键点
             mergedObj.vecKeypoints(convertedKeypoints);
+            
+            // 类别更新逻辑
+            std::string detectionClass = detectionObj.strClass();
+            std::string poseClass = poseObj.strClass();
+            
+            // 如果姿态识别输出结果目标类别是pose_0且检测结果的目标类别不是1，则将目标类别更改为2
+            if (poseClass == "pose_0" && detectionClass != "1") {
+                mergedObj.strClass("2");
+                LOG(INFO) << "目标 " << detIdx << " 类别更新: 检测类别=" << detectionClass 
+                         << ", 姿态类别=" << poseClass << " -> 更新为类别2";
+            }
+            // 反之姿态识别目标不是pose_0,且目标检测类别是2，则将目标类别更改为0
+            else if (poseClass != "pose_0" && detectionClass == "2") {
+                mergedObj.strClass("0");
+                LOG(INFO) << "目标 " << detIdx << " 类别更新: 检测类别=" << detectionClass 
+                         << ", 姿态类别=" << poseClass << " -> 更新为类别0";
+            }
+            // 其他情况保持检测结果的类别不变
+            else {
+                mergedObj.strClass(detectionClass);
+                LOG(INFO) << "目标 " << detIdx << " 类别保持: 检测类别=" << detectionClass 
+                         << ", 姿态类别=" << poseClass << " -> 保持类别" << detectionClass;
+            }
             
             // 计算平均置信度
             float avg_confidence = (detectionObj.fVideoConfidence() + poseObj.fVideoConfidence()) / 2.0f;

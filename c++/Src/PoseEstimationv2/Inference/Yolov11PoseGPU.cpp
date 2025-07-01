@@ -1199,17 +1199,44 @@ CAlgResult Yolov11PoseGPU::formatConverted(std::vector<std::vector<float>> resul
         obj_result.fBottomRightX(result[2]);
         obj_result.fBottomRightY(result[3]);
         
-        // 设置关键点
+        // 设置关键点并进行姿态分类
         if (result.size() >= 6 + num_keys_ * 3) {
             std::vector<Keypoint> keypoints;
+            std::vector<float> keypoint_data;
+            
             for (int i = 0; i < num_keys_; ++i) {
                 Keypoint kp;
                 kp.x(result[6 + i * 3 + 0]);
                 kp.y(result[6 + i * 3 + 1]);
                 kp.confidence(result[6 + i * 3 + 2]);
                 keypoints.push_back(kp);
+                
+                // 同时保存到keypoint_data用于姿态分类
+                keypoint_data.push_back(result[6 + i * 3 + 0]);
+                keypoint_data.push_back(result[6 + i * 3 + 1]);
+                keypoint_data.push_back(result[6 + i * 3 + 2]);
             }
             obj_result.vecKeypoints(keypoints);
+            
+            // 进行姿态分类
+            std::string pose_type = classify_pose(keypoint_data);
+            if (pose_type == "standing_walking") {
+                obj_result.strClass("pose_0");  // 直立行走
+            } else if (pose_type == "hunched") {
+                obj_result.strClass("pose_1");  // 佝偻
+            } else if (pose_type == "lying") {
+                obj_result.strClass("pose_2");  // 躺着
+            } else if (pose_type == "sitting") {
+                obj_result.strClass("pose_3");  // 坐着
+            } else if (pose_type == "squatting") {
+                obj_result.strClass("pose_4");  // 蹲着
+            } else {
+                obj_result.strClass("pose_unknown"); // 未知姿态
+            }
+            // obj_result.strClass(pose_type);  // 更新类别名称为包含姿态信息
+            
+            LOG(INFO) << "Pose classification result: " << pose_type 
+                     << " for person with confidence: " << result[4];
         }
         
         frame_result.vecObjectResult().push_back(obj_result);
@@ -1225,15 +1252,398 @@ CAlgResult Yolov11PoseGPU::formatConverted(std::vector<std::vector<float>> resul
 
 std::string Yolov11PoseGPU::classify_pose(const std::vector<float>& keypoints) const
 {
-    // 简单的姿态分类逻辑，可以根据需要扩展
+    // 检查关键点数据完整性
     if (keypoints.size() < num_keys_ * 3) {
         return "unknown";
     }
     
-    // 这里可以添加更复杂的姿态分类逻辑
-    // 例如基于关键点位置和置信度的分类
+    // 定义关键点索引 (COCO格式)
+    const int NOSE = 0;
+    const int LEFT_EYE = 1;
+    const int RIGHT_EYE = 2;
+    const int LEFT_EAR = 3;
+    const int RIGHT_EAR = 4;
+    const int LEFT_SHOULDER = 5;
+    const int RIGHT_SHOULDER = 6;
+    const int LEFT_ELBOW = 7;
+    const int RIGHT_ELBOW = 8;
+    const int LEFT_WRIST = 9;
+    const int RIGHT_WRIST = 10;
+    const int LEFT_HIP = 11;
+    const int RIGHT_HIP = 12;
+    const int LEFT_KNEE = 13;
+    const int RIGHT_KNEE = 14;
+    const int LEFT_ANKLE = 15;
+    const int RIGHT_ANKLE = 16;
     
-    return "standing";  // 默认分类
+    // 提取关键点坐标和置信度
+    std::vector<std::pair<float, float>> points(num_keys_);
+    std::vector<float> confidences(num_keys_);
+    
+    for (int i = 0; i < num_keys_; ++i) {
+        points[i] = {keypoints[i * 3], keypoints[i * 3 + 1]};
+        confidences[i] = keypoints[i * 3 + 2];
+    }
+    
+    // 计算几何特征向量
+    PoseFeatures features = calculate_pose_features(points, confidences);
+    
+    // 使用数学化的姿态分类算法
+    return classify_pose_mathematical(features);
+}
+
+// 姿态特征结构体
+struct PoseFeatures {
+    float trunk_angle;           // 躯干角度 (度)
+    float leg_angle;             // 腿部角度 (度)
+    float head_angle;            // 头部角度 (度)
+    float body_height_ratio;     // 身体高宽比
+    float shoulder_hip_distance; // 肩臀距离
+    float knee_ankle_distance;   // 膝踝距离
+    float trunk_length;          // 躯干长度
+    float leg_length;            // 腿部长度
+    float arm_angle;             // 手臂角度
+    float stability_score;       // 稳定性评分
+    float symmetry_score;        // 对称性评分
+};
+
+Yolov11PoseGPU::PoseFeatures Yolov11PoseGPU::calculate_pose_features(const std::vector<std::pair<float, float>>& points,
+                                                                    const std::vector<float>& confidences) const
+{
+    PoseFeatures features = {0.0f};
+    
+    // 定义关键点索引
+    const int NOSE = 0, LEFT_SHOULDER = 5, RIGHT_SHOULDER = 6, LEFT_ELBOW = 7, RIGHT_ELBOW = 8;
+    const int LEFT_WRIST = 9, RIGHT_WRIST = 10, LEFT_HIP = 11, RIGHT_HIP = 12;
+    const int LEFT_KNEE = 13, RIGHT_KNEE = 14, LEFT_ANKLE = 15, RIGHT_ANKLE = 16;
+    
+    // 1. 计算躯干角度 (使用向量叉积和点积)
+    features.trunk_angle = calculate_trunk_angle_advanced(points, confidences, LEFT_SHOULDER, RIGHT_SHOULDER, LEFT_HIP, RIGHT_HIP);
+    
+    // 2. 计算腿部角度 (使用关节角度计算)
+    float left_leg_angle = calculate_joint_angle(points, confidences, LEFT_HIP, LEFT_KNEE, LEFT_ANKLE);
+    float right_leg_angle = calculate_joint_angle(points, confidences, RIGHT_HIP, RIGHT_KNEE, RIGHT_ANKLE);
+    features.leg_angle = (left_leg_angle + right_leg_angle) / 2.0f;
+    
+    // 3. 计算头部角度
+    features.head_angle = calculate_head_angle_advanced(points, confidences, NOSE, LEFT_SHOULDER, RIGHT_SHOULDER);
+    
+    // 4. 计算身体几何特征
+    features.body_height_ratio = calculate_body_geometry(points, confidences, NOSE, LEFT_ANKLE, RIGHT_ANKLE);
+    
+    // 5. 计算距离特征
+    features.shoulder_hip_distance = calculate_euclidean_distance(points, confidences, LEFT_SHOULDER, RIGHT_SHOULDER, LEFT_HIP, RIGHT_HIP);
+    features.knee_ankle_distance = calculate_euclidean_distance(points, confidences, LEFT_KNEE, RIGHT_KNEE, LEFT_ANKLE, RIGHT_ANKLE);
+    
+    // 6. 计算长度特征
+    features.trunk_length = calculate_segment_length(points, confidences, LEFT_SHOULDER, RIGHT_SHOULDER, LEFT_HIP, RIGHT_HIP);
+    features.leg_length = calculate_segment_length(points, confidences, LEFT_HIP, RIGHT_HIP, LEFT_ANKLE, RIGHT_ANKLE);
+    
+    // 7. 计算手臂角度
+    float left_arm_angle = calculate_joint_angle(points, confidences, LEFT_SHOULDER, LEFT_ELBOW, LEFT_WRIST);
+    float right_arm_angle = calculate_joint_angle(points, confidences, RIGHT_SHOULDER, RIGHT_ELBOW, RIGHT_WRIST);
+    features.arm_angle = (left_arm_angle + right_arm_angle) / 2.0f;
+    
+    // 8. 计算稳定性评分 (基于重心和支撑点)
+    features.stability_score = calculate_stability_score(points, confidences);
+    
+    // 9. 计算对称性评分
+    features.symmetry_score = calculate_symmetry_score(points, confidences);
+    
+    return features;
+}
+
+std::string Yolov11PoseGPU::classify_pose_mathematical(const Yolov11PoseGPU::PoseFeatures& features) const
+{
+    // 使用多维度特征向量进行姿态分类
+    // 采用加权评分和阈值判断的方法
+    
+    // 直立行走的权重配置
+    Yolov11PoseGPU::PoseWeights standing_weights = {
+        0.25f,  // 躯干角度权重
+        0.20f,  // 腿部角度权重
+        0.15f,  // 头部角度权重
+        0.20f,  // 身体比例权重
+        0.15f,  // 稳定性权重
+        0.05f   // 对称性权重
+    };
+    
+    // 计算各姿态类型的匹配度评分
+    float standing_score = calculate_pose_match_score(features, standing_weights, 
+        {0.0f, 0.0f, 0.0f, 2.5f, 0.8f, 0.7f},  // 理想特征值
+        {15.0f, 20.0f, 15.0f, 1.0f, 0.2f, 0.3f}); // 容忍范围
+    
+    Yolov11PoseGPU::PoseWeights hunched_weights = {0.30f, 0.10f, 0.25f, 0.15f, 0.15f, 0.05f};
+    float hunched_score = calculate_pose_match_score(features, hunched_weights,
+        {40.0f, 0.0f, 30.0f, 2.0f, 0.6f, 0.6f},
+        {20.0f, 30.0f, 20.0f, 0.5f, 0.3f, 0.3f});
+    
+    Yolov11PoseGPU::PoseWeights lying_weights = {0.35f, 0.25f, 0.10f, 0.20f, 0.05f, 0.05f};
+    float lying_score = calculate_pose_match_score(features, lying_weights,
+        {90.0f, 90.0f, 0.0f, 0.8f, 0.3f, 0.5f},
+        {30.0f, 45.0f, 30.0f, 0.4f, 0.3f, 0.4f});
+    
+    Yolov11PoseGPU::PoseWeights sitting_weights = {0.20f, 0.30f, 0.10f, 0.20f, 0.15f, 0.05f};
+    float sitting_score = calculate_pose_match_score(features, sitting_weights,
+        {10.0f, 60.0f, 10.0f, 1.8f, 0.7f, 0.6f},
+        {20.0f, 30.0f, 20.0f, 0.6f, 0.3f, 0.3f});
+    
+    Yolov11PoseGPU::PoseWeights squatting_weights = {0.25f, 0.35f, 0.10f, 0.20f, 0.05f, 0.05f};
+    float squatting_score = calculate_pose_match_score(features, squatting_weights,
+        {30.0f, 90.0f, 10.0f, 1.2f, 0.5f, 0.6f},
+        {15.0f, 30.0f, 20.0f, 0.4f, 0.3f, 0.3f});
+    
+    // 找到最高评分的姿态类型
+    std::vector<std::pair<std::string, float>> scores = {
+        {"standing_walking", standing_score},
+        {"hunched", hunched_score},
+        {"lying", lying_score},
+        {"sitting", sitting_score},
+        {"squatting", squatting_score}
+    };
+    
+    auto max_score = std::max_element(scores.begin(), scores.end(),
+        [](const auto& a, const auto& b) { return a.second < b.second; });
+    
+    // 如果最高评分低于阈值，返回unknown
+    if (max_score->second < 0.6f) {
+        return "unknown";
+    }
+    
+    return max_score->first;
+}
+
+float Yolov11PoseGPU::calculate_pose_match_score(const Yolov11PoseGPU::PoseFeatures& features, 
+                                                const Yolov11PoseGPU::PoseWeights& weights,
+                                                const std::vector<float>& ideal_values,
+                                                const std::vector<float>& tolerances) const
+{
+    // 计算特征向量与理想值的匹配度评分
+    // 使用高斯函数计算相似度
+    
+    float total_score = 0.0f;
+    float total_weight = 0.0f;
+    
+    // 计算各特征的匹配度
+    std::vector<float> feature_values = {
+        features.trunk_angle, features.leg_angle, features.head_angle,
+        features.body_height_ratio, features.stability_score, features.symmetry_score
+    };
+    
+    std::vector<float> weight_values = {
+        weights.trunk_angle_weight, weights.leg_angle_weight, weights.head_angle_weight,
+        weights.body_ratio_weight, weights.stability_weight, weights.symmetry_weight
+    };
+    
+    for (size_t i = 0; i < feature_values.size(); ++i) {
+        if (weight_values[i] > 0.0f) {
+            // 使用高斯函数计算相似度
+            float diff = std::abs(feature_values[i] - ideal_values[i]);
+            float similarity = std::exp(-(diff * diff) / (2.0f * tolerances[i] * tolerances[i]));
+            total_score += similarity * weight_values[i];
+            total_weight += weight_values[i];
+        }
+    }
+    
+    return total_weight > 0.0f ? total_score / total_weight : 0.0f;
+}
+
+// 计算躯干角度 (肩膀到臀部的角度)
+float Yolov11PoseGPU::calculate_trunk_angle(const std::vector<std::pair<float, float>>& points, 
+                                           const std::vector<float>& confidences,
+                                           int left_shoulder, int right_shoulder, 
+                                           int left_hip, int right_hip) const
+{
+    if (confidences[left_shoulder] < 0.3f || confidences[right_shoulder] < 0.3f ||
+        confidences[left_hip] < 0.3f || confidences[right_hip] < 0.3f) {
+        return 0.0f;
+    }
+    
+    // 计算肩膀中点
+    float shoulder_center_x = (points[left_shoulder].first + points[right_shoulder].first) / 2.0f;
+    float shoulder_center_y = (points[left_shoulder].second + points[right_shoulder].second) / 2.0f;
+    
+    // 计算臀部中点
+    float hip_center_x = (points[left_hip].first + points[right_hip].first) / 2.0f;
+    float hip_center_y = (points[left_hip].second + points[right_hip].second) / 2.0f;
+    
+    // 计算角度 (相对于垂直方向)
+    float dx = shoulder_center_x - hip_center_x;
+    float dy = shoulder_center_y - hip_center_y;
+    
+    if (std::abs(dy) < 1e-6f) return 0.0f;
+    
+    float angle = std::atan2(dx, dy) * 180.0f / M_PI;
+    return angle;
+}
+
+// 计算腿部角度
+float Yolov11PoseGPU::calculate_leg_angle(const std::vector<std::pair<float, float>>& points,
+                                         const std::vector<float>& confidences,
+                                         int hip, int knee, int ankle) const
+{
+    if (confidences[hip] < 0.3f || confidences[knee] < 0.3f || confidences[ankle] < 0.3f) {
+        return 0.0f;
+    }
+    
+    // 计算大腿角度 (臀部到膝盖)
+    float thigh_dx = points[knee].first - points[hip].first;
+    float thigh_dy = points[knee].second - points[hip].second;
+    float thigh_angle = std::atan2(thigh_dx, thigh_dy) * 180.0f / M_PI;
+    
+    // 计算小腿角度 (膝盖到脚踝)
+    float shin_dx = points[ankle].first - points[knee].first;
+    float shin_dy = points[ankle].second - points[knee].second;
+    float shin_angle = std::atan2(shin_dx, shin_dy) * 180.0f / M_PI;
+    
+    // 返回平均角度
+    return (thigh_angle + shin_angle) / 2.0f;
+}
+
+// 计算头部角度
+float Yolov11PoseGPU::calculate_head_angle(const std::vector<std::pair<float, float>>& points,
+                                          const std::vector<float>& confidences,
+                                          int nose, int left_shoulder, int right_shoulder) const
+{
+    if (confidences[nose] < 0.3f || confidences[left_shoulder] < 0.3f || confidences[right_shoulder] < 0.3f) {
+        return 0.0f;
+    }
+    
+    // 计算肩膀中点
+    float shoulder_center_x = (points[left_shoulder].first + points[right_shoulder].first) / 2.0f;
+    float shoulder_center_y = (points[left_shoulder].second + points[right_shoulder].second) / 2.0f;
+    
+    // 计算头部角度
+    float dx = points[nose].first - shoulder_center_x;
+    float dy = points[nose].second - shoulder_center_y;
+    
+    if (std::abs(dy) < 1e-6f) return 0.0f;
+    
+    float angle = std::atan2(dx, dy) * 180.0f / M_PI;
+    return angle;
+}
+
+// 计算身体高度比例
+float Yolov11PoseGPU::calculate_body_height_ratio(const std::vector<std::pair<float, float>>& points,
+                                                 const std::vector<float>& confidences,
+                                                 int nose, int left_ankle, int right_ankle) const
+{
+    if (confidences[nose] < 0.3f || confidences[left_ankle] < 0.3f || confidences[right_ankle] < 0.3f) {
+        return 1.0f;
+    }
+    
+    // 计算身体高度
+    float body_height = std::abs(points[nose].second - (points[left_ankle].second + points[right_ankle].second) / 2.0f);
+    
+    // 计算身体宽度 (肩膀宽度作为参考)
+    float body_width = std::abs(points[left_ankle].first - points[right_ankle].first);
+    
+    if (body_width < 1e-6f) return 1.0f;
+    
+    return body_height / body_width;
+}
+
+// 计算两点间距离
+float Yolov11PoseGPU::calculate_distance(const std::vector<std::pair<float, float>>& points,
+                                        const std::vector<float>& confidences,
+                                        int left1, int right1, int left2, int right2) const
+{
+    if (confidences[left1] < 0.3f || confidences[right1] < 0.3f ||
+        confidences[left2] < 0.3f || confidences[right2] < 0.3f) {
+        return 0.0f;
+    }
+    
+    // 计算中点
+    float center1_x = (points[left1].first + points[right1].first) / 2.0f;
+    float center1_y = (points[left1].second + points[right1].second) / 2.0f;
+    float center2_x = (points[left2].first + points[right2].first) / 2.0f;
+    float center2_y = (points[left2].second + points[right2].second) / 2.0f;
+    
+    float dx = center1_x - center2_x;
+    float dy = center1_y - center2_y;
+    
+    return std::sqrt(dx * dx + dy * dy);
+}
+
+// 判断是否为直立行走
+bool Yolov11PoseGPU::is_standing_walking(const std::vector<std::pair<float, float>>& points,
+                                        const std::vector<float>& confidences,
+                                        float trunk_angle, float leg_angle, float head_angle,
+                                        float body_height_ratio) const
+{
+    // 直立行走的特征：
+    // 1. 躯干角度接近垂直 (0度附近)
+    // 2. 腿部角度接近垂直
+    // 3. 头部角度接近垂直
+    // 4. 身体高度比例较大
+    
+    return (std::abs(trunk_angle) < 15.0f && 
+            std::abs(leg_angle) < 20.0f && 
+            std::abs(head_angle) < 15.0f && 
+            body_height_ratio > 2.0f);
+}
+
+// 判断是否为佝偻
+bool Yolov11PoseGPU::is_hunched(const std::vector<std::pair<float, float>>& points,
+                               const std::vector<float>& confidences,
+                               float trunk_angle, float head_angle, float body_height_ratio) const
+{
+    // 佝偻的特征：
+    // 1. 躯干角度较大 (向前弯曲)
+    // 2. 头部角度较大 (向前弯曲)
+    // 3. 身体高度比例中等
+    
+    return (trunk_angle > 20.0f && trunk_angle < 60.0f && 
+            head_angle > 15.0f && 
+            body_height_ratio > 1.5f && body_height_ratio < 2.5f);
+}
+
+// 判断是否为躺着
+bool Yolov11PoseGPU::is_lying(const std::vector<std::pair<float, float>>& points,
+                             const std::vector<float>& confidences,
+                             float trunk_angle, float leg_angle, float body_height_ratio) const
+{
+    // 躺着的特征：
+    // 1. 躯干角度接近水平 (90度或-90度)
+    // 2. 腿部角度接近水平
+    // 3. 身体高度比例很小
+    
+    return ((std::abs(trunk_angle) > 60.0f && std::abs(trunk_angle) < 120.0f) && 
+            std::abs(leg_angle) > 45.0f && 
+            body_height_ratio < 1.0f);
+}
+
+// 判断是否为坐着
+bool Yolov11PoseGPU::is_sitting(const std::vector<std::pair<float, float>>& points,
+                               const std::vector<float>& confidences,
+                               float trunk_angle, float leg_angle, 
+                               float shoulder_hip_distance, float knee_ankle_distance) const
+{
+    // 坐着的特征：
+    // 1. 躯干角度接近垂直
+    // 2. 腿部角度较大 (膝盖弯曲)
+    // 3. 肩膀到臀部距离适中
+    // 4. 膝盖到脚踝距离较小
+    
+    return (std::abs(trunk_angle) < 20.0f && 
+            leg_angle > 30.0f && leg_angle < 90.0f && 
+            shoulder_hip_distance > 0.0f && 
+            knee_ankle_distance < shoulder_hip_distance * 0.8f);
+}
+
+// 判断是否为蹲着
+bool Yolov11PoseGPU::is_squatting(const std::vector<std::pair<float, float>>& points,
+                                 const std::vector<float>& confidences,
+                                 float trunk_angle, float leg_angle, float body_height_ratio) const
+{
+    // 蹲着的特征：
+    // 1. 躯干角度较大 (向前倾斜)
+    // 2. 腿部角度很大 (膝盖严重弯曲)
+    // 3. 身体高度比例较小
+    
+    return (trunk_angle > 15.0f && trunk_angle < 45.0f && 
+            leg_angle > 60.0f && 
+            body_height_ratio < 1.5f);
 }
 
 void Yolov11PoseGPU::launchNMSKernel(const std::vector<std::vector<float>>& boxes, 
@@ -1254,4 +1664,269 @@ void Yolov11PoseGPU::launchCoordinateTransformKernel(std::vector<float>& coords,
     // 这里可以添加CUDA内核来加速坐标转换
     // 暂时使用CPU实现
     rescale_coords(coords, is_keypoint);
+}
+
+// 高级躯干角度计算 (使用向量叉积和点积)
+float Yolov11PoseGPU::calculate_trunk_angle_advanced(const std::vector<std::pair<float, float>>& points,
+                                                    const std::vector<float>& confidences,
+                                                    int left_shoulder, int right_shoulder,
+                                                    int left_hip, int right_hip) const
+{
+    if (confidences[left_shoulder] < 0.3f || confidences[right_shoulder] < 0.3f ||
+        confidences[left_hip] < 0.3f || confidences[right_hip] < 0.3f) {
+        return 0.0f;
+    }
+    
+    // 计算肩膀向量和臀部向量
+    float shoulder_dx = points[right_shoulder].first - points[left_shoulder].first;
+    float shoulder_dy = points[right_shoulder].second - points[left_shoulder].second;
+    float hip_dx = points[right_hip].first - points[left_hip].first;
+    float hip_dy = points[right_hip].second - points[left_hip].second;
+    
+    // 计算躯干向量 (肩膀中点到臀部中点)
+    float trunk_dx = (points[left_shoulder].first + points[right_shoulder].first) / 2.0f - 
+                     (points[left_hip].first + points[right_hip].first) / 2.0f;
+    float trunk_dy = (points[left_shoulder].second + points[right_shoulder].second) / 2.0f - 
+                     (points[left_hip].second + points[right_hip].second) / 2.0f;
+    
+    // 使用向量叉积计算角度
+    float cross_product = shoulder_dx * hip_dy - shoulder_dy * hip_dx;
+    float dot_product = shoulder_dx * hip_dx + shoulder_dy * hip_dy;
+    
+    float angle = std::atan2(cross_product, dot_product) * 180.0f / M_PI;
+    
+    // 计算躯干相对于垂直方向的角度
+    float trunk_vertical_angle = std::atan2(trunk_dx, trunk_dy) * 180.0f / M_PI;
+    
+    return trunk_vertical_angle;
+}
+
+// 关节角度计算 (三点角度)
+float Yolov11PoseGPU::calculate_joint_angle(const std::vector<std::pair<float, float>>& points,
+                                           const std::vector<float>& confidences,
+                                           int joint1, int joint2, int joint3) const
+{
+    if (confidences[joint1] < 0.3f || confidences[joint2] < 0.3f || confidences[joint3] < 0.3f) {
+        return 0.0f;
+    }
+    
+    // 计算两个向量
+    float vec1_dx = points[joint1].first - points[joint2].first;
+    float vec1_dy = points[joint1].second - points[joint2].second;
+    float vec2_dx = points[joint3].first - points[joint2].first;
+    float vec2_dy = points[joint3].second - points[joint2].second;
+    
+    // 计算向量长度
+    float len1 = std::sqrt(vec1_dx * vec1_dx + vec1_dy * vec1_dy);
+    float len2 = std::sqrt(vec2_dx * vec2_dx + vec2_dy * vec2_dy);
+    
+    if (len1 < 1e-6f || len2 < 1e-6f) return 0.0f;
+    
+    // 计算点积和叉积
+    float dot_product = vec1_dx * vec2_dx + vec1_dy * vec2_dy;
+    float cross_product = vec1_dx * vec2_dy - vec1_dy * vec2_dx;
+    
+    // 计算角度
+    float cos_angle = dot_product / (len1 * len2);
+    cos_angle = std::max(-1.0f, std::min(1.0f, cos_angle)); // 限制在[-1, 1]范围内
+    
+    float angle = std::acos(cos_angle) * 180.0f / M_PI;
+    
+    // 根据叉积符号确定角度方向
+    if (cross_product < 0) {
+        angle = 360.0f - angle;
+    }
+    
+    return angle;
+}
+
+// 高级头部角度计算
+float Yolov11PoseGPU::calculate_head_angle_advanced(const std::vector<std::pair<float, float>>& points,
+                                                   const std::vector<float>& confidences,
+                                                   int nose, int left_shoulder, int right_shoulder) const
+{
+    if (confidences[nose] < 0.3f || confidences[left_shoulder] < 0.3f || confidences[right_shoulder] < 0.3f) {
+        return 0.0f;
+    }
+    
+    // 计算肩膀向量
+    float shoulder_dx = points[right_shoulder].first - points[left_shoulder].first;
+    float shoulder_dy = points[right_shoulder].second - points[left_shoulder].second;
+    
+    // 计算头部向量 (鼻子到肩膀中点)
+    float head_dx = points[nose].first - (points[left_shoulder].first + points[right_shoulder].first) / 2.0f;
+    float head_dy = points[nose].second - (points[left_shoulder].second + points[right_shoulder].second) / 2.0f;
+    
+    // 计算头部相对于肩膀的角度
+    float shoulder_angle = std::atan2(shoulder_dy, shoulder_dx) * 180.0f / M_PI;
+    float head_angle = std::atan2(head_dy, head_dx) * 180.0f / M_PI;
+    
+    // 计算相对角度
+    float relative_angle = head_angle - shoulder_angle;
+    
+    // 标准化到[-180, 180]范围
+    while (relative_angle > 180.0f) relative_angle -= 360.0f;
+    while (relative_angle < -180.0f) relative_angle += 360.0f;
+    
+    return relative_angle;
+}
+
+// 身体几何特征计算
+float Yolov11PoseGPU::calculate_body_geometry(const std::vector<std::pair<float, float>>& points,
+                                             const std::vector<float>& confidences,
+                                             int nose, int left_ankle, int right_ankle) const
+{
+    if (confidences[nose] < 0.3f || confidences[left_ankle] < 0.3f || confidences[right_ankle] < 0.3f) {
+        return 1.0f;
+    }
+    
+    // 计算身体高度 (鼻子到脚踝中点)
+    float body_height = std::abs(points[nose].second - (points[left_ankle].second + points[right_ankle].second) / 2.0f);
+    
+    // 计算身体宽度 (脚踝间距)
+    float body_width = std::abs(points[left_ankle].first - points[right_ankle].first);
+    
+    // 计算身体面积 (近似为矩形)
+    float body_area = body_height * body_width;
+    
+    // 计算身体周长
+    float body_perimeter = 2.0f * (body_height + body_width);
+    
+    // 计算身体紧凑度 (面积与周长平方的比值)
+    float compactness = body_area / (body_perimeter * body_perimeter);
+    
+    // 返回高宽比和紧凑度的组合
+    return body_width > 1e-6f ? (body_height / body_width) * (1.0f + compactness) : 1.0f;
+}
+
+// 欧几里得距离计算
+float Yolov11PoseGPU::calculate_euclidean_distance(const std::vector<std::pair<float, float>>& points,
+                                                  const std::vector<float>& confidences,
+                                                  int left1, int right1, int left2, int right2) const
+{
+    if (confidences[left1] < 0.3f || confidences[right1] < 0.3f ||
+        confidences[left2] < 0.3f || confidences[right2] < 0.3f) {
+        return 0.0f;
+    }
+    
+    // 计算两个中点
+    float center1_x = (points[left1].first + points[right1].first) / 2.0f;
+    float center1_y = (points[left1].second + points[right1].second) / 2.0f;
+    float center2_x = (points[left2].first + points[right2].first) / 2.0f;
+    float center2_y = (points[left2].second + points[right2].second) / 2.0f;
+    
+    // 计算欧几里得距离
+    float dx = center1_x - center2_x;
+    float dy = center1_y - center2_y;
+    
+    return std::sqrt(dx * dx + dy * dy);
+}
+
+// 线段长度计算
+float Yolov11PoseGPU::calculate_segment_length(const std::vector<std::pair<float, float>>& points,
+                                              const std::vector<float>& confidences,
+                                              int left1, int right1, int left2, int right2) const
+{
+    if (confidences[left1] < 0.3f || confidences[right1] < 0.3f ||
+        confidences[left2] < 0.3f || confidences[right2] < 0.3f) {
+        return 0.0f;
+    }
+    
+    // 计算两个中点
+    float center1_x = (points[left1].first + points[right1].first) / 2.0f;
+    float center1_y = (points[left1].second + points[right1].second) / 2.0f;
+    float center2_x = (points[left2].first + points[right2].first) / 2.0f;
+    float center2_y = (points[left2].second + points[right2].second) / 2.0f;
+    
+    // 计算线段长度
+    float dx = center1_x - center2_x;
+    float dy = center1_y - center2_y;
+    
+    return std::sqrt(dx * dx + dy * dy);
+}
+
+// 稳定性评分计算
+float Yolov11PoseGPU::calculate_stability_score(const std::vector<std::pair<float, float>>& points,
+                                               const std::vector<float>& confidences) const
+{
+    const int LEFT_SHOULDER = 5, RIGHT_SHOULDER = 6, LEFT_HIP = 11, RIGHT_HIP = 12;
+    const int LEFT_KNEE = 13, RIGHT_KNEE = 14, LEFT_ANKLE = 15, RIGHT_ANKLE = 16;
+    
+    // 检查关键点置信度
+    if (confidences[LEFT_SHOULDER] < 0.3f || confidences[RIGHT_SHOULDER] < 0.3f ||
+        confidences[LEFT_HIP] < 0.3f || confidences[RIGHT_HIP] < 0.3f ||
+        confidences[LEFT_KNEE] < 0.3f || confidences[RIGHT_KNEE] < 0.3f ||
+        confidences[LEFT_ANKLE] < 0.3f || confidences[RIGHT_ANKLE] < 0.3f) {
+        return 0.5f; // 默认中等稳定性
+    }
+    
+    // 计算重心位置 (肩膀和臀部的加权平均)
+    float center_x = (points[LEFT_SHOULDER].first + points[RIGHT_SHOULDER].first + 
+                     points[LEFT_HIP].first + points[RIGHT_HIP].first) / 4.0f;
+    float center_y = (points[LEFT_SHOULDER].second + points[RIGHT_SHOULDER].second + 
+                     points[LEFT_HIP].second + points[RIGHT_HIP].second) / 4.0f;
+    
+    // 计算支撑点 (脚踝)
+    float support_x = (points[LEFT_ANKLE].first + points[RIGHT_ANKLE].first) / 2.0f;
+    float support_y = (points[LEFT_ANKLE].second + points[RIGHT_ANKLE].second) / 2.0f;
+    
+    // 计算重心到支撑点的距离
+    float dx = center_x - support_x;
+    float dy = center_y - support_y;
+    float distance = std::sqrt(dx * dx + dy * dy);
+    
+    // 计算支撑面积 (脚踝间距)
+    float support_width = std::abs(points[LEFT_ANKLE].first - points[RIGHT_ANKLE].first);
+    
+    // 稳定性评分：距离越小，支撑面积越大，稳定性越高
+    float distance_score = std::exp(-distance / 100.0f); // 距离评分
+    float support_score = std::min(1.0f, support_width / 50.0f); // 支撑面积评分
+    
+    return (distance_score + support_score) / 2.0f;
+}
+
+// 对称性评分计算
+float Yolov11PoseGPU::calculate_symmetry_score(const std::vector<std::pair<float, float>>& points,
+                                              const std::vector<float>& confidences) const
+{
+    const int LEFT_SHOULDER = 5, RIGHT_SHOULDER = 6, LEFT_ELBOW = 7, RIGHT_ELBOW = 8;
+    const int LEFT_WRIST = 9, RIGHT_WRIST = 10, LEFT_HIP = 11, RIGHT_HIP = 12;
+    const int LEFT_KNEE = 13, RIGHT_KNEE = 14, LEFT_ANKLE = 15, RIGHT_ANKLE = 16;
+    
+    // 计算身体中轴线 (肩膀中点到臀部中点)
+    float shoulder_center_x = (points[LEFT_SHOULDER].first + points[RIGHT_SHOULDER].first) / 2.0f;
+    float shoulder_center_y = (points[LEFT_SHOULDER].second + points[RIGHT_SHOULDER].second) / 2.0f;
+    float hip_center_x = (points[LEFT_HIP].first + points[RIGHT_HIP].first) / 2.0f;
+    float hip_center_y = (points[LEFT_HIP].second + points[RIGHT_HIP].second) / 2.0f;
+    
+    // 计算对称点对的距离差异
+    std::vector<std::pair<int, int>> symmetric_pairs = {
+        {LEFT_SHOULDER, RIGHT_SHOULDER},
+        {LEFT_ELBOW, RIGHT_ELBOW},
+        {LEFT_WRIST, RIGHT_WRIST},
+        {LEFT_HIP, RIGHT_HIP},
+        {LEFT_KNEE, RIGHT_KNEE},
+        {LEFT_ANKLE, RIGHT_ANKLE}
+    };
+    
+    float total_symmetry = 0.0f;
+    int valid_pairs = 0;
+    
+    for (const auto& pair : symmetric_pairs) {
+        if (confidences[pair.first] >= 0.3f && confidences[pair.second] >= 0.3f) {
+            // 计算对称点对到中轴线的距离
+            float left_dist = std::abs(points[pair.first].first - shoulder_center_x);
+            float right_dist = std::abs(points[pair.second].first - shoulder_center_x);
+            
+            // 计算对称性 (距离差异越小，对称性越高)
+            float max_dist = std::max(left_dist, right_dist);
+            if (max_dist > 1e-6f) {
+                float symmetry = 1.0f - std::abs(left_dist - right_dist) / max_dist;
+                total_symmetry += symmetry;
+                valid_pairs++;
+            }
+        }
+    }
+    
+    return valid_pairs > 0 ? total_symmetry / valid_pairs : 0.5f;
 } 
