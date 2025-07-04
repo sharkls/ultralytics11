@@ -185,7 +185,7 @@ c++/Output/vis/
 c++/Output/Vis_Detection_Result/
 deploy/build/
 deploy/Output/
-# *.jpg
+*.jpg
 *.txt
 
 # ddsproject-example
