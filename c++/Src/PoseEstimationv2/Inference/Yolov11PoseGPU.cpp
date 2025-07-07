@@ -317,6 +317,25 @@ void* Yolov11PoseGPU::getOutput() {
 void Yolov11PoseGPU::execute() 
 {
     LOG(INFO) << "Yolov11PoseGPU::execute status: start ";
+    
+    // 检查CUDA错误状态
+    cudaError_t cuda_status = cudaGetLastError();
+    if (cuda_status != cudaSuccess) {
+        LOG(ERROR) << "CUDA error detected at start of execute: " << cudaGetErrorString(cuda_status);
+        
+        // 如果是致命错误，清空输出并返回
+        if (cuda_status == cudaErrorIllegalAddress || 
+            cuda_status == cudaErrorInvalidValue ||
+            cuda_status == cudaErrorInvalidMemcpyDirection) {
+            LOG(ERROR) << "Fatal CUDA error detected, clearing output and returning";
+            m_outputResult.vecFrameResult().clear();
+            m_outputResult.mapTimeStamp().clear();
+            m_outputResult.mapDelay().clear();
+            m_outputResult.mapFps().clear();
+            return;
+        }
+    }
+    
     m_outputResult.vecFrameResult().clear();
     m_outputResult.mapTimeStamp().clear();
     m_outputResult.mapDelay().clear();
@@ -336,6 +355,20 @@ void Yolov11PoseGPU::execute()
         if (use_gpu_input) prepareBatchDataGPU(batch_start, batch_end);
         else prepareBatchData(batch_start, batch_end);
         std::vector<float> output = inference();
+        
+        // 检查inference是否返回空结果（表示GPU错误）
+        if (output.empty()) {
+            LOG(ERROR) << "Inference returned empty result, likely due to GPU error";
+            // 为每个图像创建空的FrameResult
+            for (size_t i = 0; i < batch_size; ++i) {
+                CFrameResult frameResult;
+                frameResult.eDataType(DATA_TYPE_POSEALG_RESULT);
+                frameResults.push_back(frameResult);
+                LOG(INFO) << "Image " << (batch_start + i) << " has no detection result due to GPU error";
+            }
+            continue;
+        }
+        
         std::vector<std::vector<float>> results = process_output(output);
         // 新调用
         auto all_image_results = formatConvertedByImage(results, batch_size);
@@ -469,6 +502,13 @@ void Yolov11PoseGPU::prepareBatchDataGPU(size_t batch_start, size_t batch_end)
 {
     LOG(INFO) << "Yolov11PoseGPU::prepareBatchDataGPU status: start ";
     
+    // 检查CUDA错误状态
+    cudaError_t cuda_status = cudaGetLastError();
+    if (cuda_status != cudaSuccess) {
+        LOG(ERROR) << "CUDA error detected in prepareBatchDataGPU: " << cudaGetErrorString(cuda_status);
+        return;
+    }
+    
     // 清空之前的批处理数据
     m_batchInputs.clear();
     
@@ -481,7 +521,32 @@ void Yolov11PoseGPU::prepareBatchDataGPU(size_t batch_start, size_t batch_end)
     std::vector<size_t> image_sizes;
     
     for (size_t i = batch_start; i < batch_end && i < m_inputDataGPU.size(); ++i) {
+        // 验证GPU图像指针
+        float* gpu_image_ptr = m_inputDataGPU.getImagePtr(i);
+        if (!gpu_image_ptr) {
+            LOG(ERROR) << "Failed to get GPU pointer for image " << i;
+            continue;
+        }
+        
+        // 验证GPU指针有效性
+        cudaPointerAttributes ptr_attrs;
+        cudaError_t ptr_status = cudaPointerGetAttributes(&ptr_attrs, gpu_image_ptr);
+        if (ptr_status != cudaSuccess) {
+            LOG(ERROR) << "Invalid GPU pointer for image " << i << ": " << cudaGetErrorString(ptr_status);
+            continue;
+        }
+        
+        if (ptr_attrs.type != cudaMemoryTypeDevice) {
+            LOG(ERROR) << "GPU pointer for image " << i << " is not device memory";
+            continue;
+        }
+        
         size_t image_size = m_inputDataGPU.getImageSize(i);
+        if (image_size == 0) {
+            LOG(ERROR) << "Invalid image size for image " << i << ": " << image_size;
+            continue;
+        }
+        
         image_sizes.push_back(image_size);
         total_size += image_size;
     }
@@ -740,21 +805,62 @@ std::vector<float> Yolov11PoseGPU::inference()
         for (size_t i = 0; i < actual_batch_size; ++i) {
             float* gpu_image_ptr = m_inputDataGPU.getImagePtr(i);
             if (gpu_image_ptr) {
-                // 直接复制GPU数据到TensorRT输入缓冲区
+                // 增加严格的GPU指针验证
+                cudaPointerAttributes ptr_attrs;
+                cudaError_t ptr_status = cudaPointerGetAttributes(&ptr_attrs, gpu_image_ptr);
+                if (ptr_status != cudaSuccess) {
+                    LOG(ERROR) << "Invalid GPU pointer for image " << i << ": " << cudaGetErrorString(ptr_status);
+                    continue;
+                }
+                
+                // 验证指针是否为设备内存
+                if (ptr_attrs.type != cudaMemoryTypeDevice) {
+                    LOG(ERROR) << "GPU pointer for image " << i << " is not device memory";
+                    continue;
+                }
+                
+                // 获取图像大小并进行边界检查
                 size_t image_size = m_inputDataGPU.getImageSize(i);
+                if (image_size == 0 || image_size > single_image_size) {
+                    LOG(ERROR) << "Invalid image size for image " << i << ": " << image_size 
+                               << ", expected <= " << single_image_size;
+                    continue;
+                }
+                
+                // 验证目标内存区域
+                size_t dst_offset = i * single_image_size;
+                if (dst_offset + image_size > input_size_) {
+                    LOG(ERROR) << "Destination offset out of bounds for image " << i 
+                               << ": " << dst_offset << " + " << image_size << " > " << input_size_;
+                    continue;
+                }
+                
+                // 执行安全的GPU内存拷贝
                 cudaError_t cuda_status = cudaMemcpyAsync(
-                    static_cast<float*>(input_buffers_[0]) + i * single_image_size,
+                    static_cast<float*>(input_buffers_[0]) + dst_offset,
                     gpu_image_ptr,
                     image_size * sizeof(float),
                     cudaMemcpyDeviceToDevice,
                     stream_
                 );
+                
                 if (cuda_status != cudaSuccess) {
                     LOG(ERROR) << "Failed to copy GPU image " << i << " to TensorRT buffer: " 
                                << cudaGetErrorString(cuda_status);
+                    
+                    // 检查是否为致命错误
+                    if (cuda_status == cudaErrorIllegalAddress || 
+                        cuda_status == cudaErrorInvalidValue ||
+                        cuda_status == cudaErrorInvalidMemcpyDirection) {
+                        LOG(ERROR) << "Fatal GPU memory error detected, stopping GPU operations";
+                        // 立即返回，避免继续执行导致更多错误
+                        return std::vector<float>();
+                    }
                 } else {
                     LOG(INFO) << "Successfully copied GPU image " << i << " to TensorRT buffer";
                 }
+            } else {
+                LOG(ERROR) << "Failed to get GPU pointer for image " << i;
             }
         }
         
@@ -909,6 +1015,20 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
 {
     LOG(INFO) << "Yolov11PoseGPU::process_output status: start ";
     
+    // 检查CUDA错误状态
+    cudaError_t cuda_status = cudaGetLastError();
+    if (cuda_status != cudaSuccess) {
+        LOG(ERROR) << "CUDA error detected before post-processing: " << cudaGetErrorString(cuda_status);
+        
+        // 如果是致命错误，立即返回空结果
+        if (cuda_status == cudaErrorIllegalAddress || 
+            cuda_status == cudaErrorInvalidValue ||
+            cuda_status == cudaErrorInvalidMemcpyDirection) {
+            LOG(ERROR) << "Fatal CUDA error detected, skipping post-processing";
+            return std::vector<std::vector<float>>();
+        }
+    }
+    
     // 检查是否使用GPU后处理
     if (use_gpu_postprocessing_ && gpu_postprocessor_) {
         LOG(INFO) << "Using GPU post-processing for output";
@@ -924,88 +1044,99 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
             size_t gpu_ptr_addr = (static_cast<size_t>(ptr_high) << 32) | static_cast<size_t>(ptr_low);
             float* gpu_output_ptr = reinterpret_cast<float*>(gpu_ptr_addr);
             
-            LOG(INFO) << "Extracted GPU output pointer: " << gpu_output_ptr 
-                      << ", size: " << output_size;
-            
-            // 获取当前批次大小
-            int current_batch_size = 0;
-            if (!m_inputDataGPU.empty()) {
-                current_batch_size = static_cast<int>(m_inputDataGPU.size());
-            } else if (!m_batchInputs.empty()) {
-                current_batch_size = static_cast<int>(m_batchInputs.size());
+            // 验证GPU指针有效性
+            cudaPointerAttributes ptr_attrs;
+            cudaError_t ptr_status = cudaPointerGetAttributes(&ptr_attrs, gpu_output_ptr);
+            if (ptr_status != cudaSuccess) {
+                LOG(ERROR) << "Invalid GPU output pointer: " << cudaGetErrorString(ptr_status);
+                LOG(INFO) << "Falling back to CPU post-processing";
+            } else if (ptr_attrs.type != cudaMemoryTypeDevice) {
+                LOG(ERROR) << "GPU output pointer is not device memory";
+                LOG(INFO) << "Falling back to CPU post-processing";
             } else {
-                LOG(ERROR) << "No input data available for batch size calculation";
-                return std::vector<std::vector<float>>();
-            }
-            
-            // 准备预处理参数
-            std::vector<float> preprocess_params;
-            preprocess_params.reserve(current_batch_size * 5);
-            
-            for (int i = 0; i < current_batch_size; ++i) {
-                float ratio = 1.0f;
-                int padTop = 0, padLeft = 0;
-                int originalWidth = 0, originalHeight = 0;
+                LOG(INFO) << "Extracted GPU output pointer: " << gpu_output_ptr 
+                          << ", size: " << output_size;
                 
-                if (!m_inputDataGPU.empty() && i < m_inputDataGPU.preprocessParams.size()) {
-                    const auto& params = m_inputDataGPU.preprocessParams[i];
-                    ratio = params.ratio;
-                    padTop = params.padTop;
-                    padLeft = params.padLeft;
-                    originalWidth = params.originalWidth;
-                    originalHeight = params.originalHeight;
-                } else if (!m_batchInputs.empty() && i < m_inputData.preprocessParams.size()) {
-                    const auto& params = m_inputData.preprocessParams[i];
-                    ratio = params.ratio;
-                    padTop = params.padTop;
-                    padLeft = params.padLeft;
-                    originalWidth = params.originalWidth;
-                    originalHeight = params.originalHeight;
+                // 获取当前批次大小
+                int current_batch_size = 0;
+                if (!m_inputDataGPU.empty()) {
+                    current_batch_size = static_cast<int>(m_inputDataGPU.size());
+                } else if (!m_batchInputs.empty()) {
+                    current_batch_size = static_cast<int>(m_batchInputs.size());
+                } else {
+                    LOG(ERROR) << "No input data available for batch size calculation";
+                    return std::vector<std::vector<float>>();
                 }
                 
-                preprocess_params.push_back(ratio);
-                preprocess_params.push_back(static_cast<float>(padTop));
-                preprocess_params.push_back(static_cast<float>(padLeft));
-                preprocess_params.push_back(static_cast<float>(originalWidth));
-                preprocess_params.push_back(static_cast<float>(originalHeight));
+                // 准备预处理参数
+                std::vector<float> preprocess_params;
+                preprocess_params.reserve(current_batch_size * 5);
+                
+                for (int i = 0; i < current_batch_size; ++i) {
+                    float ratio = 1.0f;
+                    int padTop = 0, padLeft = 0;
+                    int originalWidth = 0, originalHeight = 0;
+                    
+                    if (!m_inputDataGPU.empty() && i < m_inputDataGPU.preprocessParams.size()) {
+                        const auto& params = m_inputDataGPU.preprocessParams[i];
+                        ratio = params.ratio;
+                        padTop = params.padTop;
+                        padLeft = params.padLeft;
+                        originalWidth = params.originalWidth;
+                        originalHeight = params.originalHeight;
+                    } else if (!m_batchInputs.empty() && i < m_inputData.preprocessParams.size()) {
+                        const auto& params = m_inputData.preprocessParams[i];
+                        ratio = params.ratio;
+                        padTop = params.padTop;
+                        padLeft = params.padLeft;
+                        originalWidth = params.originalWidth;
+                        originalHeight = params.originalHeight;
+                    }
+                    
+                    preprocess_params.push_back(ratio);
+                    preprocess_params.push_back(static_cast<float>(padTop));
+                    preprocess_params.push_back(static_cast<float>(padLeft));
+                    preprocess_params.push_back(static_cast<float>(originalWidth));
+                    preprocess_params.push_back(static_cast<float>(originalHeight));
+                }
+                
+                // 获取输出维度信息
+                nvinfer1::Dims output_dims = context_->getTensorShape(output_name_);
+                int feature_dim = 4 + num_classes_ + num_keys_ * 3;
+                int num_anchors = output_dims.d[2];
+                
+                LOG(INFO) << "GPU post-processing: batch_size=" << current_batch_size 
+                          << ", feature_dim=" << feature_dim << ", num_anchors=" << num_anchors;
+                
+                // 执行GPU后处理
+                auto batch_results = gpu_postprocessor_->processOutput(
+                    gpu_output_ptr,  // 使用真正的GPU指针
+                    current_batch_size,
+                    feature_dim,
+                    num_anchors,
+                    num_classes_,
+                    num_keys_,
+                    conf_thres_,
+                    iou_thres_,
+                    preprocess_params,
+                    stream_
+                );
+                
+                // 合并所有batch的结果
+                std::vector<std::vector<float>> all_results;
+                int total_detections = 0;
+                for (const auto& batch_result : batch_results) {
+                    total_detections += batch_result.size();
+                }
+                all_results.reserve(total_detections);
+                
+                for (const auto& batch_result : batch_results) {
+                    all_results.insert(all_results.end(), batch_result.begin(), batch_result.end());
+                }
+                
+                LOG(INFO) << "GPU post-processing completed, found " << all_results.size() << " detections across " << current_batch_size << " batches";
+                return all_results;
             }
-            
-            // 获取输出维度信息
-            nvinfer1::Dims output_dims = context_->getTensorShape(output_name_);
-            int feature_dim = 4 + num_classes_ + num_keys_ * 3;
-            int num_anchors = output_dims.d[2];
-            
-            LOG(INFO) << "GPU post-processing: batch_size=" << current_batch_size 
-                      << ", feature_dim=" << feature_dim << ", num_anchors=" << num_anchors;
-            
-            // 执行GPU后处理
-            auto batch_results = gpu_postprocessor_->processOutput(
-                gpu_output_ptr,  // 使用真正的GPU指针
-                current_batch_size,
-                feature_dim,
-                num_anchors,
-                num_classes_,
-                num_keys_,
-                conf_thres_,
-                iou_thres_,
-                preprocess_params,
-                stream_
-            );
-            
-            // 合并所有batch的结果
-            std::vector<std::vector<float>> all_results;
-            int total_detections = 0;
-            for (const auto& batch_result : batch_results) {
-                total_detections += batch_result.size();
-            }
-            all_results.reserve(total_detections);
-            
-            for (const auto& batch_result : batch_results) {
-                all_results.insert(all_results.end(), batch_result.begin(), batch_result.end());
-            }
-            
-            LOG(INFO) << "GPU post-processing completed, found " << all_results.size() << " detections across " << current_batch_size << " batches";
-            return all_results;
         } else {
             LOG(WARNING) << "Output is not GPU data, falling back to CPU processing";
         }
@@ -1045,6 +1176,12 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
     LOG(INFO) << "Actual TensorRT output size: " << actual_output_size;
     LOG(INFO) << "Output dimensions: [" << output_dims.d[0] << ", " << output_dims.d[1] << ", " << output_dims.d[2] << "]";
     
+    // 验证输出缓冲区指针
+    if (!output_buffers_[0]) {
+        LOG(ERROR) << "Output buffer is null";
+        return std::vector<std::vector<float>>();
+    }
+    
     // 从GPU下载输出数据到CPU
     std::vector<float> cpu_output(actual_output_size);
     
@@ -1053,6 +1190,15 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
                                         cudaMemcpyDeviceToHost, stream_);
     if (status != cudaSuccess) {
         LOG(ERROR) << "Failed to copy GPU output to CPU: " << cudaGetErrorString(status);
+        
+        // 检查是否为致命错误
+        if (status == cudaErrorIllegalAddress || 
+            status == cudaErrorInvalidValue ||
+            status == cudaErrorInvalidMemcpyDirection) {
+            LOG(ERROR) << "Fatal GPU memory error in output copy, returning empty result";
+            return std::vector<std::vector<float>>();
+        }
+        
         return std::vector<std::vector<float>>();
     }
     
