@@ -24,12 +24,12 @@ bool PoseEstimationActivity::Init()
     }
 
     // 2. 创建camera_merged_topic对应的reader，接收数据
-    eprosima::fastdds::dds::TypeSupport deal_data_type(new CMultiModalSrcDataPubSubType());
+    eprosima::fastdds::dds::TypeSupport deal_data_type(new CAlgResultPubSubType());
     if (!node_->AddTopic(topic_config.camera_merged_topic(), deal_data_type))
     {
         return false;
     }
-    reader_ = node_->CreateReader<CMultiModalSrcData>(topic_config.camera_merged_topic(),
+    reader_ = node_->CreateReader<CAlgResult>(topic_config.camera_merged_topic(),
         std::bind(&PoseEstimationActivity::ReadCallbackFunc,
             this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), this);
     reader_->Init();
@@ -58,7 +58,7 @@ bool PoseEstimationActivity::Init()
 }
 
 // 处理camera_merged_topic中的数据
-void PoseEstimationActivity::ReadCallbackFunc(const CMultiModalSrcData &message,
+void PoseEstimationActivity::ReadCallbackFunc(const CAlgResult &message,
         void *data_handle, std::string node_name, std::string topic_name)
 {   
     startTimeStamp_ = GetTimeStamp();
@@ -70,7 +70,7 @@ void PoseEstimationActivity::ReadCallbackFunc(const CMultiModalSrcData &message,
     }
     count_++;
 
-    std::shared_ptr<CMultiModalSrcData> message_ptr = std::make_shared<CMultiModalSrcData>(message);
+    std::shared_ptr<CAlgResult> message_ptr = std::make_shared<CAlgResult>(message);
     camera_merged_data_deque_.PushBack(message_ptr);
 }
 
@@ -135,14 +135,14 @@ void PoseEstimationActivity::MessageConsumerThreadFunc()
     while (is_running_.load())
     {      
         // 输入到融合算法的数据
-        std::shared_ptr<CMultiModalSrcData> l_pMultiModalSrcData = std::make_shared<CMultiModalSrcData>();             
+        std::shared_ptr<CAlgResult> l_pMultiModalSrcData = std::make_shared<CAlgResult>();             
         if (!camera_merged_data_deque_.PopFront(l_pMultiModalSrcData, 1))
         {
             // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             continue;
         }
         // 执行融合算法
-        // LOG(INFO) << "PoseEstimationActivity Algorithm InputData get !!! ---------- CMultiModalSrcData : " << l_pMultiModalSrcData->vecVideoSrcData().size();
+        // LOG(INFO) << "PoseEstimationActivity Algorithm InputData get !!! ---------- CAlgResult : " << l_pMultiModalSrcData->vecVideoSrcData().size();
         pose_estimation_alg_->runAlgorithm(l_pMultiModalSrcData.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }

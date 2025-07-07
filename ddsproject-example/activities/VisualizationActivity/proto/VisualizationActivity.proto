@@ -2,7 +2,7 @@ syntax = "proto2";
 
 message TopicConfig {
     optional string camera_merged_topic = 3;
-    optional string pose_estimation_result_topic = 4;
+    optional string pose_estimation_v2_result_topic = 4;
     optional string multi_modal_fusion_result_topic = 5;
     optional string object_location_result_topic = 6;
 }

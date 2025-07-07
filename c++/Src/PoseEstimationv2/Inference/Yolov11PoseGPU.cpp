@@ -317,69 +317,52 @@ void* Yolov11PoseGPU::getOutput() {
 void Yolov11PoseGPU::execute() 
 {
     LOG(INFO) << "Yolov11PoseGPU::execute status: start ";
-    
-    // 检查输入数据
+    m_outputResult.vecFrameResult().clear();
+    m_outputResult.mapTimeStamp().clear();
+    m_outputResult.mapDelay().clear();
+    m_outputResult.mapFps().clear();
     bool use_gpu_input = !m_inputDataGPU.empty();
     bool use_cpu_input = !m_inputData.images.empty();
-    
     if (!use_gpu_input && !use_cpu_input) {
         LOG(ERROR) << "No input images available";
         return;
     }
-    
-    if (use_gpu_input) {
-        LOG(INFO) << "Using GPU input data with " << m_inputDataGPU.size() << " images";
-    } else {
-        LOG(INFO) << "Using CPU input data with " << m_inputData.images.size() << " images";
-    }
-
-    // 创建单个FrameResult来合并所有batch的结果
-    CFrameResult allFrameResult;
-    allFrameResult.eDataType(DATA_TYPE_POSEALG_RESULT);
-    
-    // 分批处理图像
     size_t total_images = use_gpu_input ? m_inputDataGPU.size() : m_inputData.images.size();
-    
+    std::vector<CFrameResult> frameResults;
+    frameResults.reserve(total_images);
     for (size_t batch_start = 0; batch_start < total_images; batch_start += m_maxBatchSize) {
         size_t batch_end = std::min(batch_start + m_maxBatchSize, total_images);
         size_t batch_size = batch_end - batch_start;
-        
-        LOG(INFO) << "Processing batch " << (batch_start / m_maxBatchSize + 1) 
-                  << " with " << batch_size << " images";
-        
-        // 准备批处理数据
-        if (use_gpu_input) {
-            prepareBatchDataGPU(batch_start, batch_end);
-        } else {
-            prepareBatchData(batch_start, batch_end);
-        }
-        
-        // 执行推理
+        if (use_gpu_input) prepareBatchDataGPU(batch_start, batch_end);
+        else prepareBatchData(batch_start, batch_end);
         std::vector<float> output = inference();
-        
-        // 结果后处理
         std::vector<std::vector<float>> results = process_output(output);
-        
-        // 格式转换并添加到总结果中
-        CAlgResult batchResult = formatConverted(results);
-        
-        // 合并结果到单个FrameResult中
-        if (!batchResult.vecFrameResult().empty()) {
-            const auto& batchFrameResult = batchResult.vecFrameResult()[0];
-            const auto& batchObjectResults = batchFrameResult.vecObjectResult();
-            allFrameResult.vecObjectResult().insert(
-                allFrameResult.vecObjectResult().end(),
-                batchObjectResults.begin(),
-                batchObjectResults.end()
-            );
+        // 新调用
+        auto all_image_results = formatConvertedByImage(results, batch_size);
+        for (size_t i = 0; i < batch_size; ++i) {
+            CFrameResult frameResult;
+            frameResult.eDataType(DATA_TYPE_POSEALG_RESULT);
+            const auto& image_results = all_image_results[i];
+            if (!image_results.empty()) {
+                // 只保留置信度最高的目标
+                auto best_it = std::max_element(image_results.begin(), image_results.end(),
+                    [](const CObjectResult& a, const CObjectResult& b) {
+                        return a.fVideoConfidence() < b.fVideoConfidence();
+                    });
+                frameResult.vecObjectResult().push_back(*best_it);
+                LOG(INFO) << "Image " << (batch_start + i) << " has detection result with confidence: " << best_it->fVideoConfidence();
+            } else {
+                LOG(INFO) << "Image " << (batch_start + i) << " has no detection result, creating empty FrameResult";
+            }
+            frameResults.push_back(frameResult);
         }
     }
-    
-    // 将合并后的FrameResult添加到输出中
-    m_outputResult.vecFrameResult().push_back(allFrameResult);
-    
-    LOG(INFO) << "Yolov11PoseGPU::execute status: success, total results: " 
-              << allFrameResult.vecObjectResult().size();
+    for (const auto& frameResult : frameResults) {
+        m_outputResult.vecFrameResult().push_back(frameResult);
+    }
+    LOG(INFO) << "Yolov11PoseGPU::execute status: success, total FrameResults: " 
+              << m_outputResult.vecFrameResult().size() 
+              << " (expected: " << total_images << ")";
 }
 
 void Yolov11PoseGPU::prepareBatchData(size_t batch_start, size_t batch_end)
@@ -850,10 +833,19 @@ std::vector<float> Yolov11PoseGPU::inference()
     if (use_gpu_postprocessing_ && gpu_postprocessor_) {
         // 使用GPU后处理，直接返回GPU内存指针
         LOG(INFO) << "Using GPU post-processing, keeping output in GPU memory";
+        
+        // 直接使用output_buffers_[0]作为GPU指针，不通过vector传递
         // 返回一个特殊的向量，第一个元素存储GPU指针的地址值
         std::vector<float> gpu_output_info;
-        gpu_output_info.push_back(static_cast<float>(reinterpret_cast<size_t>(output_buffers_[0])));  // GPU指针地址
-        gpu_output_info.push_back(static_cast<float>(output_size));              // 输出大小
+        
+        // 将64位指针地址转换为两个32位值
+        size_t ptr_addr = reinterpret_cast<size_t>(output_buffers_[0]);
+        uint32_t ptr_low = static_cast<uint32_t>(ptr_addr & 0xFFFFFFFF);
+        uint32_t ptr_high = static_cast<uint32_t>((ptr_addr >> 32) & 0xFFFFFFFF);
+        
+        gpu_output_info.push_back(static_cast<float>(ptr_low));   // 指针低32位
+        gpu_output_info.push_back(static_cast<float>(ptr_high));  // 指针高32位
+        gpu_output_info.push_back(static_cast<float>(output_size)); // 输出大小
         gpu_output_info.push_back(1.0f);  // 标记为GPU数据
         
         LOG(INFO) << "Yolov11PoseGPU::inference status: success, GPU output size: " << output_size;
@@ -922,10 +914,14 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
         LOG(INFO) << "Using GPU post-processing for output";
         
         // 检查output是否是GPU数据标记
-        if (output.size() >= 3 && output[2] == 1.0f) {
+        if (output.size() >= 4 && output[3] == 1.0f) {
             // 这是GPU数据，提取GPU指针和大小
-            size_t gpu_ptr_addr = static_cast<size_t>(output[0]);
-            size_t output_size = static_cast<size_t>(output[1]);
+            uint32_t ptr_low = static_cast<uint32_t>(output[0]);
+            uint32_t ptr_high = static_cast<uint32_t>(output[1]);
+            size_t output_size = static_cast<size_t>(output[2]);
+            
+            // 重建64位指针地址
+            size_t gpu_ptr_addr = (static_cast<size_t>(ptr_high) << 32) | static_cast<size_t>(ptr_low);
             float* gpu_output_ptr = reinterpret_cast<float*>(gpu_ptr_addr);
             
             LOG(INFO) << "Extracted GPU output pointer: " << gpu_output_ptr 
@@ -1017,7 +1013,7 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
         LOG(WARNING) << "GPU post-processing not available, falling back to CPU processing";
     }
 
-    // 原有的CPU后处理逻辑
+    // CPU后处理逻辑
     // 检查输入数据类型
     bool use_gpu_input = !m_inputDataGPU.empty();
     
@@ -1039,95 +1035,96 @@ std::vector<std::vector<float>> Yolov11PoseGPU::process_output(const std::vector
         LOG(INFO) << "Processing CPU batch data with " << current_batch_size << " images";
     }
     
-    // 2. 正确处理TensorRT输出数据格式
-    // 输出形状: [batch_size, feature_dim, num_anchors] -> [batch_size * num_anchors, feature_dim]
-    int feature_dim = 4 + num_classes_ + num_keys_ * 3; 
-    std::vector<std::vector<float>> results;
-    
-    // 获取当前推理使用的统一尺寸
-    nvinfer1::Dims input_dims = context_->getTensorShape(input_name_);
-    int max_height = input_dims.d[2];
-    int max_width = input_dims.d[3];
-    
-    // 从当前推理的实际输出形状获取正确的num_anchors
+    // 获取实际的TensorRT输出大小
     nvinfer1::Dims output_dims = context_->getTensorShape(output_name_);
-    int num_anchors = output_dims.d[2];  // 输出形状: [batch_size, feature_dim, num_anchors]
+    size_t actual_output_size = 1;
+    for (int i = 0; i < output_dims.nbDims; ++i) {
+        actual_output_size *= output_dims.d[i];
+    }
     
-    LOG(INFO) << "正确处理输出数据: num_anchors=" << num_anchors << ", feature_dim=" << feature_dim;
-    LOG(INFO) << "原始输出大小: " << output.size();
-    LOG(INFO) << "期望输出大小: " << (current_batch_size * feature_dim * num_anchors);
-    LOG(INFO) << "统一推理尺寸: " << max_width << "x" << max_height;
+    LOG(INFO) << "Actual TensorRT output size: " << actual_output_size;
+    LOG(INFO) << "Output dimensions: [" << output_dims.d[0] << ", " << output_dims.d[1] << ", " << output_dims.d[2] << "]";
     
-    // 验证输出大小是否正确
-    if (output.size() != current_batch_size * feature_dim * num_anchors) {
-        LOG(ERROR) << "输出大小不匹配！期望: " << (current_batch_size * feature_dim * num_anchors) 
-                   << ", 实际: " << output.size();
+    // 从GPU下载输出数据到CPU
+    std::vector<float> cpu_output(actual_output_size);
+    
+    cudaError_t status = cudaMemcpyAsync(cpu_output.data(), output_buffers_[0], 
+                                        actual_output_size * sizeof(float),
+                                        cudaMemcpyDeviceToHost, stream_);
+    if (status != cudaSuccess) {
+        LOG(ERROR) << "Failed to copy GPU output to CPU: " << cudaGetErrorString(status);
         return std::vector<std::vector<float>>();
     }
     
-    // 3. 为每个batch中的图像处理结果
-    for (int batch_idx = 0; batch_idx < current_batch_size; ++batch_idx) {
-        // 计算当前batch的输出偏移
-        int batch_output_offset = batch_idx * feature_dim * num_anchors;
+    // 同步流
+    cudaStreamSynchronize(stream_);
+    
+    // 准备预处理参数
+    std::vector<float> preprocess_params;
+    preprocess_params.reserve(current_batch_size * 5);
+    
+    for (int i = 0; i < current_batch_size; ++i) {
+        float ratio = 1.0f;
+        int padTop = 0, padLeft = 0;
+        int originalWidth = 0, originalHeight = 0;
         
-        // 处理当前batch的所有anchor
-        for (int anchor_idx = 0; anchor_idx < num_anchors; ++anchor_idx) {
-            // 获取边界框坐标
-            float x = output[batch_output_offset + 0 * num_anchors + anchor_idx];
-            float y = output[batch_output_offset + 1 * num_anchors + anchor_idx];
-            float w = output[batch_output_offset + 2 * num_anchors + anchor_idx];
-            float h = output[batch_output_offset + 3 * num_anchors + anchor_idx];
-            
-            // 获取类别置信度
-            float max_conf = 0.0f;
-            int max_class = 0;
-            for (int c = 0; c < num_classes_; ++c) {
-                float conf = output[batch_output_offset + (4 + c) * num_anchors + anchor_idx];
-                if (conf > max_conf) {
-                    max_conf = conf;
-                    max_class = c;
-                }
-            }
-            
-            // 置信度过滤
-            if (max_conf < conf_thres_) continue;
-            
-            // 检查边界框坐标的有效性
-            if (w <= 0 || h <= 0) continue;
-            
-            // 创建检测结果
-            std::vector<float> result;
-            result.reserve(4 + 1 + 1 + num_keys_ * 3);  // bbox + confidence + class_id + keypoints
-            
-            // 添加边界框坐标
-            result.push_back(x);
-            result.push_back(y);
-            result.push_back(w);
-            result.push_back(h);
-            
-            // 添加置信度
-            result.push_back(max_conf);
-            
-            // 添加类别ID
-            result.push_back(static_cast<float>(max_class));
-            
-            // 添加关键点
-            for (int k = 0; k < num_keys_; ++k) {
-                float kpt_x = output[batch_output_offset + (4 + num_classes_ + k * 3) * num_anchors + anchor_idx];
-                float kpt_y = output[batch_output_offset + (4 + num_classes_ + k * 3 + 1) * num_anchors + anchor_idx];
-                float kpt_conf = output[batch_output_offset + (4 + num_classes_ + k * 3 + 2) * num_anchors + anchor_idx];
-                
-                result.push_back(kpt_x);
-                result.push_back(kpt_y);
-                result.push_back(kpt_conf);
-            }
-            
-            results.push_back(std::move(result));
+        if (!m_inputDataGPU.empty() && i < m_inputDataGPU.preprocessParams.size()) {
+            const auto& params = m_inputDataGPU.preprocessParams[i];
+            ratio = params.ratio;
+            padTop = params.padTop;
+            padLeft = params.padLeft;
+            originalWidth = params.originalWidth;
+            originalHeight = params.originalHeight;
+        } else if (!m_batchInputs.empty() && i < m_inputData.preprocessParams.size()) {
+            const auto& params = m_inputData.preprocessParams[i];
+            ratio = params.ratio;
+            padTop = params.padTop;
+            padLeft = params.padLeft;
+            originalWidth = params.originalWidth;
+            originalHeight = params.originalHeight;
         }
+        
+        preprocess_params.push_back(ratio);
+        preprocess_params.push_back(static_cast<float>(padTop));
+        preprocess_params.push_back(static_cast<float>(padLeft));
+        preprocess_params.push_back(static_cast<float>(originalWidth));
+        preprocess_params.push_back(static_cast<float>(originalHeight));
     }
     
-    LOG(INFO) << "CPU post-processing completed, found " << results.size() << " detections";
-    return results;
+    // 获取输出维度信息
+    int feature_dim = 4 + num_classes_ + num_keys_ * 3;
+    int num_anchors = output_dims.d[2];
+    
+    LOG(INFO) << "CPU post-processing: batch_size=" << current_batch_size 
+              << ", feature_dim=" << feature_dim << ", num_anchors=" << num_anchors;
+    
+    // 使用CPU后处理
+    auto batch_results = gpu_postprocessor_->processOutputCPU(
+        cpu_output.data(),
+        current_batch_size,
+        feature_dim,
+        num_anchors,
+        num_classes_,
+        num_keys_,
+        conf_thres_,
+        iou_thres_,
+        preprocess_params
+    );
+    
+    // 合并所有batch的结果
+    std::vector<std::vector<float>> all_results;
+    int total_detections = 0;
+    for (const auto& batch_result : batch_results) {
+        total_detections += batch_result.size();
+    }
+    all_results.reserve(total_detections);
+    
+    for (const auto& batch_result : batch_results) {
+        all_results.insert(all_results.end(), batch_result.begin(), batch_result.end());
+    }
+    
+    LOG(INFO) << "CPU post-processing completed, found " << all_results.size() << " detections across " << current_batch_size << " batches";
+    return all_results;
 }
 
 std::vector<int> Yolov11PoseGPU::nms(const std::vector<std::vector<float>>& boxes, const std::vector<float>& scores)
@@ -1180,74 +1177,48 @@ std::vector<int> Yolov11PoseGPU::nms(const std::vector<std::vector<float>>& boxe
     return keep;
 }
 
-CAlgResult Yolov11PoseGPU::formatConverted(std::vector<std::vector<float>> results)
-{
-    CAlgResult alg_result;
-    CFrameResult frame_result;
-    frame_result.eDataType(DATA_TYPE_POSEALG_RESULT);
-    
-    for (const auto& result : results) {
-        if (result.size() < 6) continue;  // 至少需要边界框和置信度信息
-        
+// 新版formatConverted：按图像分组
+std::vector<std::vector<CObjectResult>> Yolov11PoseGPU::formatConvertedByImage(std::vector<std::vector<float>> results, size_t batch_size) {
+    // 假设results.size() <= batch_size，每个result属于一张图像
+    std::vector<std::vector<CObjectResult>> all_image_results(batch_size);
+    // 这里假设每个result按顺序属于每个图像（如2图像2结果，第0个属于0，第1个属于1）
+    for (size_t i = 0; i < results.size(); ++i) {
+        const auto& result = results[i];
+        if (result.size() < 6) continue;
         CObjectResult obj_result;
-        obj_result.fVideoConfidence(result[4]);  // 置信度
-        obj_result.strClass("person");  // 类别名称
-        
-        // 设置边界框
+        obj_result.fVideoConfidence(result[4]);
+        obj_result.strClass("person");
         obj_result.fTopLeftX(result[0]);
         obj_result.fTopLeftY(result[1]);
         obj_result.fBottomRightX(result[2]);
         obj_result.fBottomRightY(result[3]);
-        
-        // 设置关键点并进行姿态分类
         if (result.size() >= 6 + num_keys_ * 3) {
             std::vector<Keypoint> keypoints;
             std::vector<float> keypoint_data;
-            
-            for (int i = 0; i < num_keys_; ++i) {
+            for (int k = 0; k < num_keys_; ++k) {
                 Keypoint kp;
-                kp.x(result[6 + i * 3 + 0]);
-                kp.y(result[6 + i * 3 + 1]);
-                kp.confidence(result[6 + i * 3 + 2]);
+                kp.x(result[6 + k * 3 + 0]);
+                kp.y(result[6 + k * 3 + 1]);
+                kp.confidence(result[6 + k * 3 + 2]);
                 keypoints.push_back(kp);
-                
-                // 同时保存到keypoint_data用于姿态分类
-                keypoint_data.push_back(result[6 + i * 3 + 0]);
-                keypoint_data.push_back(result[6 + i * 3 + 1]);
-                keypoint_data.push_back(result[6 + i * 3 + 2]);
+                keypoint_data.push_back(result[6 + k * 3 + 0]);
+                keypoint_data.push_back(result[6 + k * 3 + 1]);
+                keypoint_data.push_back(result[6 + k * 3 + 2]);
             }
             obj_result.vecKeypoints(keypoints);
-            
-            // 进行姿态分类
             std::string pose_type = classify_pose(keypoint_data);
-            if (pose_type == "standing_walking") {
-                obj_result.strClass("pose_0");  // 直立行走
-            } else if (pose_type == "hunched") {
-                obj_result.strClass("pose_1");  // 佝偻
-            } else if (pose_type == "lying") {
-                obj_result.strClass("pose_2");  // 躺着
-            } else if (pose_type == "sitting") {
-                obj_result.strClass("pose_3");  // 坐着
-            } else if (pose_type == "squatting") {
-                obj_result.strClass("pose_4");  // 蹲着
-            } else {
-                obj_result.strClass("pose_unknown"); // 未知姿态
-            }
-            // obj_result.strClass(pose_type);  // 更新类别名称为包含姿态信息
-            
-            LOG(INFO) << "Pose classification result: " << pose_type 
-                     << " for person with confidence: " << result[4];
+            if (pose_type == "standing_walking") obj_result.strClass("pose_0");
+            else if (pose_type == "hunched") obj_result.strClass("pose_1");
+            else if (pose_type == "lying") obj_result.strClass("pose_2");
+            else if (pose_type == "sitting") obj_result.strClass("pose_3");
+            else if (pose_type == "squatting") obj_result.strClass("pose_4");
+            else obj_result.strClass("pose_unknown");
         }
-        
-        frame_result.vecObjectResult().push_back(obj_result);
+        // 分配到对应图像
+        size_t img_idx = i < batch_size ? i : batch_size-1; // 防止越界
+        all_image_results[img_idx].push_back(obj_result);
     }
-
-    alg_result.vecFrameResult({frame_result});
-
-    LOG(INFO) << "formatConverted: alg_result.vecFrameResult().size() = " << alg_result.vecFrameResult().size();
-    if (alg_result.vecFrameResult().size() > 0)
-        LOG(INFO) << "formatConverted: frame_result.vecObjectResult().size() = " << alg_result.vecFrameResult()[0].vecObjectResult().size();
-    return alg_result;
+    return all_image_results;
 }
 
 std::string Yolov11PoseGPU::classify_pose(const std::vector<float>& keypoints) const

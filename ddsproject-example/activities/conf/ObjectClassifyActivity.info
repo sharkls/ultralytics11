@@ -1,0 +1,11 @@
+class_name: "ObjectClassifyActivity"
+activiry_conf {
+    conf_file_path: "/ultralytics/ddsproject-example/activities/ObjectClassifyActivity/conf/ObjectClassifyActivity.conf"
+    node_conf {
+        name: "ObjectClassifyActivity"
+        domain_Id: 80
+        comm_type: SHM
+        segment_size: 1000000
+        white_list: ""
+    }
+}

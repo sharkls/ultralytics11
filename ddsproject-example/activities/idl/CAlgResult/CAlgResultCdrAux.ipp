@@ -480,6 +480,8 @@ void serialize_key(
 
 
 
+
+
 template<>
 eProsima_user_DllExport size_t calculate_serialized_size(
         eprosima::fastcdr::CdrSizeCalculator& calculator,
@@ -523,6 +525,9 @@ eProsima_user_DllExport size_t calculate_serialized_size(
         calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(8),
                 data.tCameraSupplement(), current_alignment);
 
+        calculated_size += calculator.calculate_member_serialized_size(eprosima::fastcdr::MemberId(9),
+                data.vecVideoSrcData(), current_alignment);
+
 
     calculated_size += calculator.end_calculate_type_serialized_size(previous_encoding, current_alignment);
 
@@ -550,6 +555,7 @@ eProsima_user_DllExport void serialize(
         << eprosima::fastcdr::MemberId(6) << data.mapFps()
         << eprosima::fastcdr::MemberId(7) << data.vecObjectResult()
         << eprosima::fastcdr::MemberId(8) << data.tCameraSupplement()
+        << eprosima::fastcdr::MemberId(9) << data.vecVideoSrcData()
 ;
     scdr.end_serialize_type(current_state);
 }
@@ -601,6 +607,10 @@ eProsima_user_DllExport void deserialize(
 
                                         case 8:
                                                 dcdr >> data.tCameraSupplement();
+                                            break;
+
+                                        case 9:
+                                                dcdr >> data.vecVideoSrcData();
                                             break;
 
                     default:

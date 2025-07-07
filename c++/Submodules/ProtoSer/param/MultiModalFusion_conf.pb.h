@@ -50,8 +50,9 @@ template <typename T>
 struct TableStruct_MultiModalFusion_5fconf_2eproto {
   static const ::uint32_t offsets[];
 };
-extern const ::google::protobuf::internal::DescriptorTable
-    descriptor_table_MultiModalFusion_5fconf_2eproto;
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_MultiModalFusion_5fconf_2eproto;
+}  // extern "C"
 namespace multimodalfusion {
 class MultiModalFusionConfig;
 struct MultiModalFusionConfigDefaultTypeInternal;
@@ -74,23 +75,21 @@ namespace multimodalfusion {
 
 // -------------------------------------------------------------------
 
-class MultiModalFusionModelConfig final
-    : public ::google::protobuf::Message
+class MultiModalFusionModelConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:multimodalfusion.MultiModalFusionModelConfig) */ {
  public:
   inline MultiModalFusionModelConfig() : MultiModalFusionModelConfig(nullptr) {}
   ~MultiModalFusionModelConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(MultiModalFusionModelConfig* msg, std::destroying_delete_t) {
+  void operator delete(MultiModalFusionModelConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(MultiModalFusionModelConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR MultiModalFusionModelConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR MultiModalFusionModelConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline MultiModalFusionModelConfig(const MultiModalFusionModelConfig& from) : MultiModalFusionModelConfig(nullptr, from) {}
   inline MultiModalFusionModelConfig(MultiModalFusionModelConfig&& from) noexcept
@@ -113,30 +112,27 @@ class MultiModalFusionModelConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const MultiModalFusionModelConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const MultiModalFusionModelConfig* internal_default_instance() {
-    return reinterpret_cast<const MultiModalFusionModelConfig*>(
+    return *reinterpret_cast<const MultiModalFusionModelConfig*>(
         &_MultiModalFusionModelConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 0;
   friend void swap(MultiModalFusionModelConfig& a, MultiModalFusionModelConfig& b) { a.Swap(&b); }
-  inline void Swap(MultiModalFusionModelConfig* other) {
+  inline void Swap(MultiModalFusionModelConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -144,7 +140,7 @@ class MultiModalFusionModelConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(MultiModalFusionModelConfig* other) {
+  void UnsafeArenaSwap(MultiModalFusionModelConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -152,7 +148,7 @@ class MultiModalFusionModelConfig final
 
   // implements Message ----------------------------------------------
 
-  MultiModalFusionModelConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  MultiModalFusionModelConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<MultiModalFusionModelConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -161,9 +157,8 @@ class MultiModalFusionModelConfig final
   void MergeFrom(const MultiModalFusionModelConfig& from) { MultiModalFusionModelConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -173,45 +168,46 @@ class MultiModalFusionModelConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(MultiModalFusionModelConfig* other);
+  void InternalSwap(MultiModalFusionModelConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "multimodalfusion.MultiModalFusionModelConfig"; }
 
  protected:
-  explicit MultiModalFusionModelConfig(::google::protobuf::Arena* arena);
-  MultiModalFusionModelConfig(::google::protobuf::Arena* arena, const MultiModalFusionModelConfig& from);
-  MultiModalFusionModelConfig(::google::protobuf::Arena* arena, MultiModalFusionModelConfig&& from) noexcept
+  explicit MultiModalFusionModelConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  MultiModalFusionModelConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const MultiModalFusionModelConfig& from);
+  MultiModalFusionModelConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, MultiModalFusionModelConfig&& from) noexcept
       : MultiModalFusionModelConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -260,11 +256,11 @@ class MultiModalFusionModelConfig final
   void set_stride(int index, ::int32_t value);
   void add_stride(::int32_t value);
   const ::google::protobuf::RepeatedField<::int32_t>& stride() const;
-  ::google::protobuf::RepeatedField<::int32_t>* mutable_stride();
+  ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL mutable_stride();
 
   private:
   const ::google::protobuf::RepeatedField<::int32_t>& _internal_stride() const;
-  ::google::protobuf::RepeatedField<::int32_t>* _internal_mutable_stride();
+  ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL _internal_mutable_stride();
 
   public:
   // string engine_path = 1;
@@ -272,14 +268,14 @@ class MultiModalFusionModelConfig final
   const std::string& engine_path() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_engine_path(Arg_&& arg, Args_... args);
-  std::string* mutable_engine_path();
-  [[nodiscard]] std::string* release_engine_path();
-  void set_allocated_engine_path(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_engine_path();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_engine_path();
+  void set_allocated_engine_path(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_engine_path() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_engine_path(const std::string& value);
-  std::string* _internal_mutable_engine_path();
+  std::string* PROTOBUF_NONNULL _internal_mutable_engine_path();
 
   public:
   // int32 num_class = 2;
@@ -526,9 +522,9 @@ class MultiModalFusionModelConfig final
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      5, 26, 0,
-      88, 2>
+  static const ::google::protobuf::internal::TcParseTable<5, 26,
+                                   0, 88,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -538,13 +534,14 @@ class MultiModalFusionModelConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const MultiModalFusionModelConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const MultiModalFusionModelConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::RepeatedField<::int32_t> stride_;
@@ -583,23 +580,21 @@ class MultiModalFusionModelConfig final
 extern const ::google::protobuf::internal::ClassDataFull MultiModalFusionModelConfig_class_data_;
 // -------------------------------------------------------------------
 
-class MultiModalFusionConfig final
-    : public ::google::protobuf::Message
+class MultiModalFusionConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:multimodalfusion.MultiModalFusionConfig) */ {
  public:
   inline MultiModalFusionConfig() : MultiModalFusionConfig(nullptr) {}
   ~MultiModalFusionConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(MultiModalFusionConfig* msg, std::destroying_delete_t) {
+  void operator delete(MultiModalFusionConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(MultiModalFusionConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR MultiModalFusionConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR MultiModalFusionConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline MultiModalFusionConfig(const MultiModalFusionConfig& from) : MultiModalFusionConfig(nullptr, from) {}
   inline MultiModalFusionConfig(MultiModalFusionConfig&& from) noexcept
@@ -622,30 +617,27 @@ class MultiModalFusionConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const MultiModalFusionConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const MultiModalFusionConfig* internal_default_instance() {
-    return reinterpret_cast<const MultiModalFusionConfig*>(
+    return *reinterpret_cast<const MultiModalFusionConfig*>(
         &_MultiModalFusionConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 1;
   friend void swap(MultiModalFusionConfig& a, MultiModalFusionConfig& b) { a.Swap(&b); }
-  inline void Swap(MultiModalFusionConfig* other) {
+  inline void Swap(MultiModalFusionConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -653,7 +645,7 @@ class MultiModalFusionConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(MultiModalFusionConfig* other) {
+  void UnsafeArenaSwap(MultiModalFusionConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -661,7 +653,7 @@ class MultiModalFusionConfig final
 
   // implements Message ----------------------------------------------
 
-  MultiModalFusionConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  MultiModalFusionConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<MultiModalFusionConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -670,9 +662,8 @@ class MultiModalFusionConfig final
   void MergeFrom(const MultiModalFusionConfig& from) { MultiModalFusionConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -682,45 +673,46 @@ class MultiModalFusionConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(MultiModalFusionConfig* other);
+  void InternalSwap(MultiModalFusionConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "multimodalfusion.MultiModalFusionConfig"; }
 
  protected:
-  explicit MultiModalFusionConfig(::google::protobuf::Arena* arena);
-  MultiModalFusionConfig(::google::protobuf::Arena* arena, const MultiModalFusionConfig& from);
-  MultiModalFusionConfig(::google::protobuf::Arena* arena, MultiModalFusionConfig&& from) noexcept
+  explicit MultiModalFusionConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  MultiModalFusionConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const MultiModalFusionConfig& from);
+  MultiModalFusionConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, MultiModalFusionConfig&& from) noexcept
       : MultiModalFusionConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -738,39 +730,39 @@ class MultiModalFusionConfig final
   bool has_model_config() const;
   void clear_model_config() ;
   const ::multimodalfusion::MultiModalFusionModelConfig& model_config() const;
-  [[nodiscard]] ::multimodalfusion::MultiModalFusionModelConfig* release_model_config();
-  ::multimodalfusion::MultiModalFusionModelConfig* mutable_model_config();
-  void set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* value);
-  void unsafe_arena_set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* value);
-  ::multimodalfusion::MultiModalFusionModelConfig* unsafe_arena_release_model_config();
+  [[nodiscard]] ::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NULLABLE release_model_config();
+  ::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NONNULL mutable_model_config();
+  void set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NULLABLE value);
+  ::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NULLABLE unsafe_arena_release_model_config();
 
   private:
   const ::multimodalfusion::MultiModalFusionModelConfig& _internal_model_config() const;
-  ::multimodalfusion::MultiModalFusionModelConfig* _internal_mutable_model_config();
+  ::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NONNULL _internal_mutable_model_config();
 
   public:
   // .common.ModulesConfig modules_config = 2;
   bool has_modules_config() const;
   void clear_modules_config() ;
   const ::common::ModulesConfig& modules_config() const;
-  [[nodiscard]] ::common::ModulesConfig* release_modules_config();
-  ::common::ModulesConfig* mutable_modules_config();
-  void set_allocated_modules_config(::common::ModulesConfig* value);
-  void unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value);
-  ::common::ModulesConfig* unsafe_arena_release_modules_config();
+  [[nodiscard]] ::common::ModulesConfig* PROTOBUF_NULLABLE release_modules_config();
+  ::common::ModulesConfig* PROTOBUF_NONNULL mutable_modules_config();
+  void set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value);
+  ::common::ModulesConfig* PROTOBUF_NULLABLE unsafe_arena_release_modules_config();
 
   private:
   const ::common::ModulesConfig& _internal_modules_config() const;
-  ::common::ModulesConfig* _internal_mutable_modules_config();
+  ::common::ModulesConfig* PROTOBUF_NONNULL _internal_mutable_modules_config();
 
   public:
   // @@protoc_insertion_point(class_scope:multimodalfusion.MultiModalFusionConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 2,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   2, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -780,17 +772,18 @@ class MultiModalFusionConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const MultiModalFusionConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const MultiModalFusionConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::multimodalfusion::MultiModalFusionModelConfig* model_config_;
-    ::common::ModulesConfig* modules_config_;
+    ::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NULLABLE model_config_;
+    ::common::ModulesConfig* PROTOBUF_NULLABLE modules_config_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -827,14 +820,14 @@ inline const std::string& MultiModalFusionModelConfig::engine_path() const
   return _internal_engine_path();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void MultiModalFusionModelConfig::set_engine_path(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void MultiModalFusionModelConfig::set_engine_path(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.engine_path_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.engine_path)
 }
-inline std::string* MultiModalFusionModelConfig::mutable_engine_path() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL MultiModalFusionModelConfig::mutable_engine_path()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_engine_path();
   // @@protoc_insertion_point(field_mutable:multimodalfusion.MultiModalFusionModelConfig.engine_path)
   return _s;
@@ -848,12 +841,12 @@ inline void MultiModalFusionModelConfig::_internal_set_engine_path(const std::st
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.engine_path_.Set(value, GetArena());
 }
-inline std::string* MultiModalFusionModelConfig::_internal_mutable_engine_path() {
+inline std::string* PROTOBUF_NONNULL MultiModalFusionModelConfig::_internal_mutable_engine_path() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.engine_path_.Mutable( GetArena());
 }
-inline std::string* MultiModalFusionModelConfig::release_engine_path() {
+inline std::string* PROTOBUF_NULLABLE MultiModalFusionModelConfig::release_engine_path() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:multimodalfusion.MultiModalFusionModelConfig.engine_path)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
@@ -866,7 +859,7 @@ inline std::string* MultiModalFusionModelConfig::release_engine_path() {
   }
   return released;
 }
-inline void MultiModalFusionModelConfig::set_allocated_engine_path(std::string* value) {
+inline void MultiModalFusionModelConfig::set_allocated_engine_path(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
@@ -1053,7 +1046,7 @@ inline const ::google::protobuf::RepeatedField<::int32_t>& MultiModalFusionModel
   // @@protoc_insertion_point(field_list:multimodalfusion.MultiModalFusionModelConfig.stride)
   return _internal_stride();
 }
-inline ::google::protobuf::RepeatedField<::int32_t>* MultiModalFusionModelConfig::mutable_stride()
+inline ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL MultiModalFusionModelConfig::mutable_stride()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_mutable_list:multimodalfusion.MultiModalFusionModelConfig.stride)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -1064,7 +1057,8 @@ MultiModalFusionModelConfig::_internal_stride() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.stride_;
 }
-inline ::google::protobuf::RepeatedField<::int32_t>* MultiModalFusionModelConfig::_internal_mutable_stride() {
+inline ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL
+MultiModalFusionModelConfig::_internal_mutable_stride() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.stride_;
 }
@@ -1525,7 +1519,8 @@ inline const ::multimodalfusion::MultiModalFusionModelConfig& MultiModalFusionCo
   // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionConfig.model_config)
   return _internal_model_config();
 }
-inline void MultiModalFusionConfig::unsafe_arena_set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* value) {
+inline void MultiModalFusionConfig::unsafe_arena_set_allocated_model_config(
+    ::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.model_config_);
@@ -1538,7 +1533,7 @@ inline void MultiModalFusionConfig::unsafe_arena_set_allocated_model_config(::mu
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:multimodalfusion.MultiModalFusionConfig.model_config)
 }
-inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::release_model_config() {
+inline ::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NULLABLE MultiModalFusionConfig::release_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
@@ -1557,7 +1552,7 @@ inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::
   }
   return released;
 }
-inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::unsafe_arena_release_model_config() {
+inline ::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NULLABLE MultiModalFusionConfig::unsafe_arena_release_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:multimodalfusion.MultiModalFusionConfig.model_config)
 
@@ -1566,7 +1561,7 @@ inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::
   _impl_.model_config_ = nullptr;
   return temp;
 }
-inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::_internal_mutable_model_config() {
+inline ::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NONNULL MultiModalFusionConfig::_internal_mutable_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.model_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::multimodalfusion::MultiModalFusionModelConfig>(GetArena());
@@ -1574,21 +1569,22 @@ inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::
   }
   return _impl_.model_config_;
 }
-inline ::multimodalfusion::MultiModalFusionModelConfig* MultiModalFusionConfig::mutable_model_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NONNULL MultiModalFusionConfig::mutable_model_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
   ::multimodalfusion::MultiModalFusionModelConfig* _msg = _internal_mutable_model_config();
   // @@protoc_insertion_point(field_mutable:multimodalfusion.MultiModalFusionConfig.model_config)
   return _msg;
 }
-inline void MultiModalFusionConfig::set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* value) {
+inline void MultiModalFusionConfig::set_allocated_model_config(::multimodalfusion::MultiModalFusionModelConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.model_config_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.model_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
@@ -1616,7 +1612,8 @@ inline const ::common::ModulesConfig& MultiModalFusionConfig::modules_config() c
   // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionConfig.modules_config)
   return _internal_modules_config();
 }
-inline void MultiModalFusionConfig::unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value) {
+inline void MultiModalFusionConfig::unsafe_arena_set_allocated_modules_config(
+    ::common::ModulesConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.modules_config_);
@@ -1629,7 +1626,7 @@ inline void MultiModalFusionConfig::unsafe_arena_set_allocated_modules_config(::
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:multimodalfusion.MultiModalFusionConfig.modules_config)
 }
-inline ::common::ModulesConfig* MultiModalFusionConfig::release_modules_config() {
+inline ::common::ModulesConfig* PROTOBUF_NULLABLE MultiModalFusionConfig::release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000002u;
@@ -1648,7 +1645,7 @@ inline ::common::ModulesConfig* MultiModalFusionConfig::release_modules_config()
   }
   return released;
 }
-inline ::common::ModulesConfig* MultiModalFusionConfig::unsafe_arena_release_modules_config() {
+inline ::common::ModulesConfig* PROTOBUF_NULLABLE MultiModalFusionConfig::unsafe_arena_release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:multimodalfusion.MultiModalFusionConfig.modules_config)
 
@@ -1657,7 +1654,7 @@ inline ::common::ModulesConfig* MultiModalFusionConfig::unsafe_arena_release_mod
   _impl_.modules_config_ = nullptr;
   return temp;
 }
-inline ::common::ModulesConfig* MultiModalFusionConfig::_internal_mutable_modules_config() {
+inline ::common::ModulesConfig* PROTOBUF_NONNULL MultiModalFusionConfig::_internal_mutable_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.modules_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::common::ModulesConfig>(GetArena());
@@ -1665,13 +1662,14 @@ inline ::common::ModulesConfig* MultiModalFusionConfig::_internal_mutable_module
   }
   return _impl_.modules_config_;
 }
-inline ::common::ModulesConfig* MultiModalFusionConfig::mutable_modules_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::common::ModulesConfig* PROTOBUF_NONNULL MultiModalFusionConfig::mutable_modules_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000002u;
   ::common::ModulesConfig* _msg = _internal_mutable_modules_config();
   // @@protoc_insertion_point(field_mutable:multimodalfusion.MultiModalFusionConfig.modules_config)
   return _msg;
 }
-inline void MultiModalFusionConfig::set_allocated_modules_config(::common::ModulesConfig* value) {
+inline void MultiModalFusionConfig::set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
@@ -1679,7 +1677,7 @@ inline void MultiModalFusionConfig::set_allocated_modules_config(::common::Modul
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::Message*>(value)->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }

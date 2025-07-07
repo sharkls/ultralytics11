@@ -1,5 +1,7 @@
 add_subdirectory(MultiModalFusion)
 add_subdirectory(PoseEstimationv2)
-add_subdirectory(ObjectLocation)
+add_subdirectory(ObjectLocationv2)
 add_subdirectory(ObjectDetection)
-add_subdirectory(BinocularPositioning)
+add_subdirectory(ObjectClassify)
+
+# add_subdirectory(BinocularPositioning)

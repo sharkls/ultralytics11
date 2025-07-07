@@ -221,6 +221,8 @@ public:
 
 
 
+
+
 /*!
  * @brief This class represents the TopicDataType of the type CFrameResult defined by the user in the IDL file.
  * @ingroup CAlgResult

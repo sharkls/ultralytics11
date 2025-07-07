@@ -88,11 +88,11 @@ bool VisualizationActivity::Init()
 
     // 2. 创建object_location_result_topic对应的reader，接收数据
     eprosima::fastdds::dds::TypeSupport deal_data_type_object_location(new CAlgResultPubSubType());
-    if (!node_->AddTopic(topic_config.object_location_result_topic(), deal_data_type_object_location))
+    if (!node_->AddTopic(topic_config.pose_estimation_v2_result_topic(), deal_data_type_object_location))
     {
         return false;
     }
-    reader_object_location_result_ = node_->CreateReader<CAlgResult>(topic_config.object_location_result_topic(),
+    reader_object_location_result_ = node_->CreateReader<CAlgResult>(topic_config.pose_estimation_v2_result_topic(),
         std::bind(&VisualizationActivity::ReadObjectLocationResultCallbackFunc,
             this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), this);
     reader_object_location_result_->Init();
@@ -250,7 +250,7 @@ void VisualizationActivity::MessageConsumerThreadFunc()
     int count = 0;
     long long tmpTimeStamp = getTimeStamp();
     while (is_running_.load())
-    {     
+    {
         // 清空之前的数据
         l_pMultiModalSrcData->vecVideoSrcData().clear();
         l_pObjectLocationResult->vecFrameResult().clear();
@@ -291,11 +291,14 @@ void VisualizationActivity::MessageConsumerThreadFunc()
         // 尝试匹配姿态估计结果
         while(object_location_result_deque_.PopFront(l_pObjectLocationResult, 100))
         {
+
+            TINFO << "=================: " << l_pObjectLocationResult->vecFrameResult().size();
             // 检查姿态估计结果是否有效
             if (l_pObjectLocationResult->vecFrameResult().empty())
             {
                 LOG(WARNING) << "Empty pose estimation result " << l_pObjectLocationResult->lTimeStamp();
-                continue;
+                break;
+                // continue;
             }
 
             // auto poseTime = l_pPoseEstimationResult->vecFrameResult()[0].mapTimeStamp()[TIMESTAMP_TIME_MATCH];

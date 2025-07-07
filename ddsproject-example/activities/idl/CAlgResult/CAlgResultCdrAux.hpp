@@ -27,13 +27,13 @@
 constexpr uint32_t CObjectResult_max_cdr_typesize {732UL};
 constexpr uint32_t CObjectResult_max_key_cdr_typesize {0UL};
 
-constexpr uint32_t CFrameResult_max_cdr_typesize {77248UL};
+constexpr uint32_t CFrameResult_max_cdr_typesize {411660UL};
 constexpr uint32_t CFrameResult_max_key_cdr_typesize {0UL};
 
 constexpr uint32_t Keypoint_max_cdr_typesize {16UL};
 constexpr uint32_t Keypoint_max_key_cdr_typesize {0UL};
 
-constexpr uint32_t CAlgResult_max_cdr_typesize {7728040UL};
+constexpr uint32_t CAlgResult_max_cdr_typesize {41168844UL};
 constexpr uint32_t CAlgResult_max_key_cdr_typesize {0UL};
 
 
@@ -56,6 +56,8 @@ eProsima_user_DllExport void serialize_key(
 eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const CObjectResult& data);
+
+
 
 
 

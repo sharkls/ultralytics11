@@ -10,7 +10,10 @@ add_subdirectory(test0_activity)
 # add_subdirectory(test2_activity)\
 add_subdirectory(MultiModalFusionActivity)
 add_subdirectory(PoseEstimationActivity)
+add_subdirectory(PoseEstimationV2Activity)
 add_subdirectory(ObjectLocationActivity)
-#add_subdirectory(VisualizationActivity)
+add_subdirectory(VisualizationActivity)
 add_subdirectory(multiModal_activity)
 add_subdirectory(ObjectDetectionActivity)
+add_subdirectory(ObjectClassifyActivity)
+

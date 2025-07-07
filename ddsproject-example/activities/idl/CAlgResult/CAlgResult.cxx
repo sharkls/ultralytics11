@@ -1451,6 +1451,8 @@ float& CObjectResult::fRCS()
 
 
 
+
+
 CFrameResult::CFrameResult()
     : CDataBase()
 
@@ -1468,6 +1470,7 @@ CFrameResult::CFrameResult(
 {
     m_vecObjectResult = x.m_vecObjectResult;
     m_tCameraSupplement = x.m_tCameraSupplement;
+    m_vecVideoSrcData = x.m_vecVideoSrcData;
 }
 
 CFrameResult::CFrameResult(
@@ -1477,6 +1480,7 @@ CFrameResult::CFrameResult(
 {
     m_vecObjectResult = std::move(x.m_vecObjectResult);
     m_tCameraSupplement = std::move(x.m_tCameraSupplement);
+    m_vecVideoSrcData = std::move(x.m_vecVideoSrcData);
 }
 
 CFrameResult& CFrameResult::operator =(
@@ -1486,6 +1490,7 @@ CFrameResult& CFrameResult::operator =(
 
     m_vecObjectResult = x.m_vecObjectResult;
     m_tCameraSupplement = x.m_tCameraSupplement;
+    m_vecVideoSrcData = x.m_vecVideoSrcData;
     return *this;
 }
 
@@ -1496,6 +1501,7 @@ CFrameResult& CFrameResult::operator =(
 
     m_vecObjectResult = std::move(x.m_vecObjectResult);
     m_tCameraSupplement = std::move(x.m_tCameraSupplement);
+    m_vecVideoSrcData = std::move(x.m_vecVideoSrcData);
     return *this;
 }
 
@@ -1507,7 +1513,8 @@ bool CFrameResult::operator ==(
             return false;
         }
     return (m_vecObjectResult == x.m_vecObjectResult &&
-           m_tCameraSupplement == x.m_tCameraSupplement);
+           m_tCameraSupplement == x.m_tCameraSupplement &&
+           m_vecVideoSrcData == x.m_vecVideoSrcData);
 }
 
 bool CFrameResult::operator !=(
@@ -1591,6 +1598,45 @@ const CDisparityResult& CFrameResult::tCameraSupplement() const
 CDisparityResult& CFrameResult::tCameraSupplement()
 {
     return m_tCameraSupplement;
+}
+
+
+/*!
+ * @brief This function copies the value in member vecVideoSrcData
+ * @param _vecVideoSrcData New value to be copied in member vecVideoSrcData
+ */
+void CFrameResult::vecVideoSrcData(
+        const std::vector<CVideoSrcData>& _vecVideoSrcData)
+{
+    m_vecVideoSrcData = _vecVideoSrcData;
+}
+
+/*!
+ * @brief This function moves the value in member vecVideoSrcData
+ * @param _vecVideoSrcData New value to be moved in member vecVideoSrcData
+ */
+void CFrameResult::vecVideoSrcData(
+        std::vector<CVideoSrcData>&& _vecVideoSrcData)
+{
+    m_vecVideoSrcData = std::move(_vecVideoSrcData);
+}
+
+/*!
+ * @brief This function returns a constant reference to member vecVideoSrcData
+ * @return Constant reference to member vecVideoSrcData
+ */
+const std::vector<CVideoSrcData>& CFrameResult::vecVideoSrcData() const
+{
+    return m_vecVideoSrcData;
+}
+
+/*!
+ * @brief This function returns a reference to member vecVideoSrcData
+ * @return Reference to member vecVideoSrcData
+ */
+std::vector<CVideoSrcData>& CFrameResult::vecVideoSrcData()
+{
+    return m_vecVideoSrcData;
 }
 
 

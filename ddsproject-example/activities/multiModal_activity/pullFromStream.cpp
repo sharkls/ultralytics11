@@ -22,29 +22,42 @@ int PullFromStream::decode(std::function<void(char* data, const int width, const
 
     while (ret >= 0)
     {
-        //解码后的数据存储到frame中
-        ret = avcodec_receive_frame(ctx, hwFrame);
-        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+        if (m_GPUAccel)
         {
-            return 0;
-        }
-        else if (ret < 0)
-        {
-            av_log(NULL, AV_LOG_ERROR, "Error during decoding\n");
-            return ret;
+            //解码后的数据存储到frame中
+            ret = avcodec_receive_frame(ctx, hwFrame);
+            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+            {
+                return 0;
+            }
+            else if (ret < 0)
+            {
+                av_log(NULL, AV_LOG_ERROR, "Error during decoding\n");
+                return ret;
+            }
+
+            if (av_hwframe_transfer_data(frame, hwFrame, 0) < 0)
+            {
+                return 0;
+            }
+        } else {
+            //解码后的数据存储到frame中
+            ret = avcodec_receive_frame(ctx, frame);
+            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+            {
+                return 0;
+            }
+            else if (ret < 0)
+            {
+                av_log(NULL, AV_LOG_ERROR, "Error during decoding\n");
+                return ret;
+            }
         }
         
-        if (av_hwframe_transfer_data(frame, hwFrame, 0) < 0)
-        {
-            return 0;
-        }
-        
-        auto formatttt = frame->format;
 
 
-
-        SwsContext *sws_ctx = sws_getContext(frame->width, frame->height, AV_PIX_FMT_NV12/*AV_PIX_FMT_YUV420P*/,  frame->width, frame->height, AV_PIX_FMT_BGR24, SWS_BICUBIC, nullptr, nullptr, nullptr);
-
+        SwsContext *sws_ctx = sws_getContext(frame->width, frame->height, m_GPUAccel ? AV_PIX_FMT_NV12 : AV_PIX_FMT_YUV420P,
+            frame->width, frame->height, AV_PIX_FMT_BGR24, SWS_BICUBIC, nullptr, nullptr, nullptr);
 
 
 
@@ -96,41 +109,11 @@ PullFromStream::~PullFromStream()
 {
 }
 
-int check_cuda_support(void) {
-    enum AVHWDeviceType type = AV_HWDEVICE_TYPE_NONE;
-    
-    // 遍历所有支持的硬件设备类型
-    while ((type = av_hwdevice_iterate_types(type)) != AV_HWDEVICE_TYPE_NONE) {
-        std::cout << "find: " << type << std::endl;
-        // if (type == AV_HWDEVICE_TYPE_CUDA) {
-        //     printf("当前环境支持CUDA硬件加速\n");
-        //     return 1;
-        // }
-    }
-
-    std::cout << "=-=-=111" << std::endl;
-
-    std::cout << avcodec_configuration() << std::endl;
-
-    // const AVCodec *codec = nullptr;
-    // void *iter = nullptr;
-    // while (codec = av_codec_iterate(&iter))
-    // {
-    //     std::cout << codec->name << std::endl;
-    // }
-
-    // std::cout << "=-=-=222" << std::endl;
-    
-    // printf("当前环境不支持CUDA硬件加速\n");
-    return 0;
-}
-
-bool PullFromStream::init(const std::string& url)
+bool PullFromStream::init(const std::string& url, const bool GPUAccel)
 {
-    av_register_all();
+    // av_register_all();
+    m_GPUAccel = GPUAccel;
 
-    check_cuda_support();
-    
     avformat_network_init();
 
     AVDictionary* options = nullptr;
@@ -145,7 +128,7 @@ bool PullFromStream::init(const std::string& url)
 
     int ret;
     //打开源路径
-    ret = avformat_open_input(&pFctx, url.c_str(), nullptr, &options);
+    ret = avformat_open_input(&pFctx, url.c_str(), nullptr/*input_format*/, &options);
     if (ret < 0)
     {
         av_log(NULL, AV_LOG_ERROR, "%s\n", (ret));
@@ -171,21 +154,24 @@ bool PullFromStream::init(const std::string& url)
 
     //寻找视频流的编码器
     AVStream *inStream = pFctx->streams[idx];
+    
     //设置视频流的解码器
-    AVCodec *codec = avcodec_find_decoder_by_name("h264_cuvid"); // (AVCodec *)avcodec_find_decoder(inStream->codecpar->codec_id);
+    const AVCodec *codec = avcodec_find_decoder(GPUAccel ? AV_CODEC_ID_H264 : inStream->codecpar->codec_id);
     if (!codec)
     {
-        av_log(NULL, AV_LOG_ERROR, "could not find codec\n");
+	av_log(NULL, AV_LOG_ERROR, "could not find codec\n");
         return false;
     }
-    // check_cuda_support();
-    
-    AVHWDeviceType hwDeviceType = AV_HWDEVICE_TYPE_CUDA;
-    // 创建硬件设备上下文
+
     AVBufferRef* hwDeviceContext = nullptr;
-    ret = av_hwdevice_ctx_create(&hwDeviceContext, hwDeviceType, nullptr, nullptr, 0);
-    if (ret < 0) {
-        return false;
+    if (GPUAccel)
+    {
+        AVHWDeviceType hwDeviceType = AV_HWDEVICE_TYPE_CUDA;
+	// 创建硬件设备上下文
+	ret = av_hwdevice_ctx_create(&hwDeviceContext, hwDeviceType, nullptr, nullptr, 0);
+	if (ret < 0) {
+	    return false;
+	}
     }
 
     //定义解码器上下文
@@ -196,24 +182,17 @@ bool PullFromStream::init(const std::string& url)
         return false;
     }
     
-    // 复制参数并设置硬件设备上下文
-    avcodec_parameters_to_context(ctx, inStream->codecpar);
-    ctx->hw_device_ctx = av_buffer_ref(hwDeviceContext);
-    
-    auto p = ctx->hwaccel;
-    std::cout << "------------------------" << p << std::endl;
-
-
-    //对解码器上下文初始化
     ret = avcodec_parameters_to_context(ctx, inStream->codecpar);
     if (ret < 0)
     {
         av_log(NULL, AV_LOG_ERROR, "Failed to copy codec parameters to decoder context\n");
         return false;
     }
-
-
-    // ctx->pix_fmt = AV_PIX_FMT_RGB24; //AV_PIX_FMT_YUV420P;
+    
+    if (GPUAccel)
+    {
+        ctx->hw_device_ctx = av_buffer_ref(hwDeviceContext);
+    }
 
 
     //把解码器上下文和解码器绑定，正式启动解码器
@@ -252,6 +231,8 @@ bool PullFromStream::init(const std::string& url)
 
 void PullFromStream::pull(std::function<void(char* data, const int width, const int height)> callback)
 {
+    std::cout << "PullFromStream::pull" << std::endl;
+
     //从输入数据中读取压缩数据包
     while (av_read_frame(pFctx, pkt) >= 0)
     {

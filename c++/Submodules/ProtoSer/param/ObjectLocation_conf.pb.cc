@@ -90,9 +90,9 @@ struct ObjectLocationConfigDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ObjectLocationConfigDefaultTypeInternal _ObjectLocationConfig_default_instance_;
 }  // namespace objectlocation
-static constexpr const ::_pb::EnumDescriptor**
+static constexpr const ::_pb::EnumDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_enum_descriptors_ObjectLocation_5fconf_2eproto = nullptr;
-static constexpr const ::_pb::ServiceDescriptor**
+static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_service_descriptors_ObjectLocation_5fconf_2eproto = nullptr;
 const ::uint32_t
     TableStruct_ObjectLocation_5fconf_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
@@ -152,7 +152,7 @@ static const ::_pbi::MigrationSchema
         {0, 22, -1, sizeof(::objectlocation::TaskConfig)},
         {36, 46, -1, sizeof(::objectlocation::ObjectLocationConfig)},
 };
-static const ::_pb::Message* const file_default_instances[] = {
+static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::objectlocation::_TaskConfig_default_instance_._instance,
     &::objectlocation::_ObjectLocationConfig_default_instance_._instance,
 };
@@ -173,8 +173,8 @@ const char descriptor_table_protodef_ObjectLocation_5fconf_2eproto[] ABSL_ATTRIB
     "\016modules_config\030\002 \001(\0132\025.common.ModulesCo"
     "nfigb\006proto3"
 };
-static const ::_pbi::DescriptorTable* const descriptor_table_ObjectLocation_5fconf_2eproto_deps[1] =
-    {
+static const ::_pbi::DescriptorTable* PROTOBUF_NONNULL const
+    descriptor_table_ObjectLocation_5fconf_2eproto_deps[1] = {
         &::descriptor_table_AlgorithmConfig_5fconf_2eproto,
 };
 static ::absl::once_flag descriptor_table_ObjectLocation_5fconf_2eproto_once;
@@ -205,7 +205,7 @@ class TaskConfig::_Internal {
       8 * PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_._has_bits_);
 };
 
-TaskConfig::TaskConfig(::google::protobuf::Arena* arena)
+TaskConfig::TaskConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, TaskConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -215,7 +215,7 @@ TaskConfig::TaskConfig(::google::protobuf::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:objectlocation.TaskConfig)
 }
 TaskConfig::TaskConfig(
-    ::google::protobuf::Arena* arena, const TaskConfig& from)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const TaskConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, TaskConfig_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -227,10 +227,10 @@ TaskConfig::TaskConfig(
 }
 PROTOBUF_NDEBUG_INLINE TaskConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0} {}
 
-inline void TaskConfig::SharedCtor(::_pb::Arena* arena) {
+inline void TaskConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, iou_thres_),
@@ -250,8 +250,9 @@ inline void TaskConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* TaskConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
+inline void* PROTOBUF_NONNULL TaskConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
   return ::new (mem) TaskConfig(arena);
 }
 constexpr auto TaskConfig::InternalNewImpl_() {
@@ -286,13 +287,14 @@ PROTOBUF_CONSTINIT
         TaskConfig_class_data_ =
             TaskConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* TaskConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL TaskConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&TaskConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(TaskConfig_class_data_.tc_table);
   return TaskConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<4, 14, 0, 0, 2> TaskConfig::_table_ = {
+const ::_pbi::TcParseTable<4, 14, 0, 0, 2>
+TaskConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(TaskConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -404,7 +406,6 @@ const ::_pbi::TcParseTable<4, 14, 0, 0, 2> TaskConfig::_table_ = {
   {{
   }},
 };
-
 PROTOBUF_NOINLINE void TaskConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:objectlocation.TaskConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -413,12 +414,12 @@ PROTOBUF_NOINLINE void TaskConfig::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x000000ffu) {
+  if ((cached_has_bits & 0x000000ffu) != 0) {
     ::memset(&_impl_.iou_thres_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.match_thresh_) -
         reinterpret_cast<char*>(&_impl_.iou_thres_)) + sizeof(_impl_.match_thresh_));
   }
-  if (cached_has_bits & 0x00003f00u) {
+  if ((cached_has_bits & 0x00003f00u) != 0) {
     ::memset(&_impl_.new_track_thresh_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.max_dets_) -
         reinterpret_cast<char*>(&_impl_.new_track_thresh_)) + sizeof(_impl_.max_dets_));
@@ -428,267 +429,267 @@ PROTOBUF_NOINLINE void TaskConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* TaskConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const TaskConfig& this_ = static_cast<const TaskConfig&>(base);
+::uint8_t* PROTOBUF_NONNULL TaskConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const TaskConfig& this_ = static_cast<const TaskConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* TaskConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const TaskConfig& this_ = *this;
+::uint8_t* PROTOBUF_NONNULL TaskConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const TaskConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:objectlocation.TaskConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
+  // @@protoc_insertion_point(serialize_to_array_start:objectlocation.TaskConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-          // float iou_thres = 1;
-          if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  1, this_._internal_iou_thres(), target);
-            }
-          }
+  // float iou_thres = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          1, this_._internal_iou_thres(), target);
+    }
+  }
 
-          // int32 num_keys = 2;
-          if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
-            if (this_._internal_num_keys() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<2>(
-                      stream, this_._internal_num_keys(), target);
-            }
-          }
+  // int32 num_keys = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_num_keys() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<2>(
+              stream, this_._internal_num_keys(), target);
+    }
+  }
 
-          // float bucket_size = 3;
-          if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_bucket_size()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  3, this_._internal_bucket_size(), target);
-            }
-          }
+  // float bucket_size = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_bucket_size()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          3, this_._internal_bucket_size(), target);
+    }
+  }
 
-          // float max_distance = 4;
-          if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_max_distance()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  4, this_._internal_max_distance(), target);
-            }
-          }
+  // float max_distance = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_max_distance()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          4, this_._internal_max_distance(), target);
+    }
+  }
 
-          // bool run_status = 5;
-          if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
-            if (this_._internal_run_status() != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteBoolToArray(
-                  5, this_._internal_run_status(), target);
-            }
-          }
+  // bool run_status = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
+    if (this_._internal_run_status() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          5, this_._internal_run_status(), target);
+    }
+  }
 
-          // float track_high_thresh = 6;
-          if ((this_._impl_._has_bits_[0] & 0x00000020u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  6, this_._internal_track_high_thresh(), target);
-            }
-          }
+  // float track_high_thresh = 6;
+  if ((this_._impl_._has_bits_[0] & 0x00000020u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          6, this_._internal_track_high_thresh(), target);
+    }
+  }
 
-          // float track_low_thresh = 7;
-          if ((this_._impl_._has_bits_[0] & 0x00000040u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  7, this_._internal_track_low_thresh(), target);
-            }
-          }
+  // float track_low_thresh = 7;
+  if ((this_._impl_._has_bits_[0] & 0x00000040u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          7, this_._internal_track_low_thresh(), target);
+    }
+  }
 
-          // float match_thresh = 8;
-          if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  8, this_._internal_match_thresh(), target);
-            }
-          }
+  // float match_thresh = 8;
+  if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          8, this_._internal_match_thresh(), target);
+    }
+  }
 
-          // float new_track_thresh = 9;
-          if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  9, this_._internal_new_track_thresh(), target);
-            }
-          }
+  // float new_track_thresh = 9;
+  if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          9, this_._internal_new_track_thresh(), target);
+    }
+  }
 
-          // int32 tracker_buffer_size = 10;
-          if ((this_._impl_._has_bits_[0] & 0x00000200u) != 0) {
-            if (this_._internal_tracker_buffer_size() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<10>(
-                      stream, this_._internal_tracker_buffer_size(), target);
-            }
-          }
+  // int32 tracker_buffer_size = 10;
+  if ((this_._impl_._has_bits_[0] & 0x00000200u) != 0) {
+    if (this_._internal_tracker_buffer_size() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<10>(
+              stream, this_._internal_tracker_buffer_size(), target);
+    }
+  }
 
-          // int32 class_history_len = 11;
-          if ((this_._impl_._has_bits_[0] & 0x00000400u) != 0) {
-            if (this_._internal_class_history_len() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<11>(
-                      stream, this_._internal_class_history_len(), target);
-            }
-          }
+  // int32 class_history_len = 11;
+  if ((this_._impl_._has_bits_[0] & 0x00000400u) != 0) {
+    if (this_._internal_class_history_len() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<11>(
+              stream, this_._internal_class_history_len(), target);
+    }
+  }
 
-          // int32 max_time_lost = 12;
-          if ((this_._impl_._has_bits_[0] & 0x00000800u) != 0) {
-            if (this_._internal_max_time_lost() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<12>(
-                      stream, this_._internal_max_time_lost(), target);
-            }
-          }
+  // int32 max_time_lost = 12;
+  if ((this_._impl_._has_bits_[0] & 0x00000800u) != 0) {
+    if (this_._internal_max_time_lost() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<12>(
+              stream, this_._internal_max_time_lost(), target);
+    }
+  }
 
-          // float conf_thres = 13;
-          if ((this_._impl_._has_bits_[0] & 0x00001000u) != 0) {
-            if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
-              target = stream->EnsureSpace(target);
-              target = ::_pbi::WireFormatLite::WriteFloatToArray(
-                  13, this_._internal_conf_thres(), target);
-            }
-          }
+  // float conf_thres = 13;
+  if ((this_._impl_._has_bits_[0] & 0x00001000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          13, this_._internal_conf_thres(), target);
+    }
+  }
 
-          // int32 max_dets = 14;
-          if ((this_._impl_._has_bits_[0] & 0x00002000u) != 0) {
-            if (this_._internal_max_dets() != 0) {
-              target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt32ToArrayWithField<14>(
-                      stream, this_._internal_max_dets(), target);
-            }
-          }
+  // int32 max_dets = 14;
+  if ((this_._impl_._has_bits_[0] & 0x00002000u) != 0) {
+    if (this_._internal_max_dets() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<14>(
+              stream, this_._internal_max_dets(), target);
+    }
+  }
 
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:objectlocation.TaskConfig)
-          return target;
-        }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:objectlocation.TaskConfig)
+  return target;
+}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t TaskConfig::ByteSizeLong(const MessageLite& base) {
-          const TaskConfig& this_ = static_cast<const TaskConfig&>(base);
+::size_t TaskConfig::ByteSizeLong(const MessageLite& base) {
+  const TaskConfig& this_ = static_cast<const TaskConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t TaskConfig::ByteSizeLong() const {
-          const TaskConfig& this_ = *this;
+::size_t TaskConfig::ByteSizeLong() const {
+  const TaskConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:objectlocation.TaskConfig)
-          ::size_t total_size = 0;
+  // @@protoc_insertion_point(message_byte_size_start:objectlocation.TaskConfig)
+  ::size_t total_size = 0;
 
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-          cached_has_bits = this_._impl_._has_bits_[0];
-          if (cached_has_bits & 0x000000ffu) {
-            // float iou_thres = 1;
-            if (cached_has_bits & 0x00000001u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
-                total_size += 5;
-              }
-            }
-            // int32 num_keys = 2;
-            if (cached_has_bits & 0x00000002u) {
-              if (this_._internal_num_keys() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_num_keys());
-              }
-            }
-            // float bucket_size = 3;
-            if (cached_has_bits & 0x00000004u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_bucket_size()) != 0) {
-                total_size += 5;
-              }
-            }
-            // float max_distance = 4;
-            if (cached_has_bits & 0x00000008u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_max_distance()) != 0) {
-                total_size += 5;
-              }
-            }
-            // bool run_status = 5;
-            if (cached_has_bits & 0x00000010u) {
-              if (this_._internal_run_status() != 0) {
-                total_size += 2;
-              }
-            }
-            // float track_high_thresh = 6;
-            if (cached_has_bits & 0x00000020u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
-                total_size += 5;
-              }
-            }
-            // float track_low_thresh = 7;
-            if (cached_has_bits & 0x00000040u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
-                total_size += 5;
-              }
-            }
-            // float match_thresh = 8;
-            if (cached_has_bits & 0x00000080u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
-                total_size += 5;
-              }
-            }
-          }
-          if (cached_has_bits & 0x00003f00u) {
-            // float new_track_thresh = 9;
-            if (cached_has_bits & 0x00000100u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
-                total_size += 5;
-              }
-            }
-            // int32 tracker_buffer_size = 10;
-            if (cached_has_bits & 0x00000200u) {
-              if (this_._internal_tracker_buffer_size() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_tracker_buffer_size());
-              }
-            }
-            // int32 class_history_len = 11;
-            if (cached_has_bits & 0x00000400u) {
-              if (this_._internal_class_history_len() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_class_history_len());
-              }
-            }
-            // int32 max_time_lost = 12;
-            if (cached_has_bits & 0x00000800u) {
-              if (this_._internal_max_time_lost() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_max_time_lost());
-              }
-            }
-            // float conf_thres = 13;
-            if (cached_has_bits & 0x00001000u) {
-              if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
-                total_size += 5;
-              }
-            }
-            // int32 max_dets = 14;
-            if (cached_has_bits & 0x00002000u) {
-              if (this_._internal_max_dets() != 0) {
-                total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-                    this_._internal_max_dets());
-              }
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x000000ffu) != 0) {
+    // float iou_thres = 1;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_iou_thres()) != 0) {
+        total_size += 5;
+      }
+    }
+    // int32 num_keys = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (this_._internal_num_keys() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_num_keys());
+      }
+    }
+    // float bucket_size = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_bucket_size()) != 0) {
+        total_size += 5;
+      }
+    }
+    // float max_distance = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_max_distance()) != 0) {
+        total_size += 5;
+      }
+    }
+    // bool run_status = 5;
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (this_._internal_run_status() != 0) {
+        total_size += 2;
+      }
+    }
+    // float track_high_thresh = 6;
+    if ((cached_has_bits & 0x00000020u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
+        total_size += 5;
+      }
+    }
+    // float track_low_thresh = 7;
+    if ((cached_has_bits & 0x00000040u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
+        total_size += 5;
+      }
+    }
+    // float match_thresh = 8;
+    if ((cached_has_bits & 0x00000080u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
+        total_size += 5;
+      }
+    }
+  }
+  if ((cached_has_bits & 0x00003f00u) != 0) {
+    // float new_track_thresh = 9;
+    if ((cached_has_bits & 0x00000100u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
+        total_size += 5;
+      }
+    }
+    // int32 tracker_buffer_size = 10;
+    if ((cached_has_bits & 0x00000200u) != 0) {
+      if (this_._internal_tracker_buffer_size() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_tracker_buffer_size());
+      }
+    }
+    // int32 class_history_len = 11;
+    if ((cached_has_bits & 0x00000400u) != 0) {
+      if (this_._internal_class_history_len() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_class_history_len());
+      }
+    }
+    // int32 max_time_lost = 12;
+    if ((cached_has_bits & 0x00000800u) != 0) {
+      if (this_._internal_max_time_lost() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_max_time_lost());
+      }
+    }
+    // float conf_thres = 13;
+    if ((cached_has_bits & 0x00001000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_conf_thres()) != 0) {
+        total_size += 5;
+      }
+    }
+    // int32 max_dets = 14;
+    if ((cached_has_bits & 0x00002000u) != 0) {
+      if (this_._internal_max_dets() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_max_dets());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
 
 void TaskConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<TaskConfig*>(&to_msg);
@@ -699,75 +700,75 @@ void TaskConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goog
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x000000ffu) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x000000ffu) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_iou_thres()) != 0) {
         _this->_impl_.iou_thres_ = from._impl_.iou_thres_;
       }
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_num_keys() != 0) {
         _this->_impl_.num_keys_ = from._impl_.num_keys_;
       }
     }
-    if (cached_has_bits & 0x00000004u) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_bucket_size()) != 0) {
         _this->_impl_.bucket_size_ = from._impl_.bucket_size_;
       }
     }
-    if (cached_has_bits & 0x00000008u) {
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_max_distance()) != 0) {
         _this->_impl_.max_distance_ = from._impl_.max_distance_;
       }
     }
-    if (cached_has_bits & 0x00000010u) {
+    if ((cached_has_bits & 0x00000010u) != 0) {
       if (from._internal_run_status() != 0) {
         _this->_impl_.run_status_ = from._impl_.run_status_;
       }
     }
-    if (cached_has_bits & 0x00000020u) {
+    if ((cached_has_bits & 0x00000020u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_track_high_thresh()) != 0) {
         _this->_impl_.track_high_thresh_ = from._impl_.track_high_thresh_;
       }
     }
-    if (cached_has_bits & 0x00000040u) {
+    if ((cached_has_bits & 0x00000040u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_track_low_thresh()) != 0) {
         _this->_impl_.track_low_thresh_ = from._impl_.track_low_thresh_;
       }
     }
-    if (cached_has_bits & 0x00000080u) {
+    if ((cached_has_bits & 0x00000080u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_match_thresh()) != 0) {
         _this->_impl_.match_thresh_ = from._impl_.match_thresh_;
       }
     }
   }
-  if (cached_has_bits & 0x00003f00u) {
-    if (cached_has_bits & 0x00000100u) {
+  if ((cached_has_bits & 0x00003f00u) != 0) {
+    if ((cached_has_bits & 0x00000100u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_new_track_thresh()) != 0) {
         _this->_impl_.new_track_thresh_ = from._impl_.new_track_thresh_;
       }
     }
-    if (cached_has_bits & 0x00000200u) {
+    if ((cached_has_bits & 0x00000200u) != 0) {
       if (from._internal_tracker_buffer_size() != 0) {
         _this->_impl_.tracker_buffer_size_ = from._impl_.tracker_buffer_size_;
       }
     }
-    if (cached_has_bits & 0x00000400u) {
+    if ((cached_has_bits & 0x00000400u) != 0) {
       if (from._internal_class_history_len() != 0) {
         _this->_impl_.class_history_len_ = from._impl_.class_history_len_;
       }
     }
-    if (cached_has_bits & 0x00000800u) {
+    if ((cached_has_bits & 0x00000800u) != 0) {
       if (from._internal_max_time_lost() != 0) {
         _this->_impl_.max_time_lost_ = from._impl_.max_time_lost_;
       }
     }
-    if (cached_has_bits & 0x00001000u) {
+    if ((cached_has_bits & 0x00001000u) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_conf_thres()) != 0) {
         _this->_impl_.conf_thres_ = from._impl_.conf_thres_;
       }
     }
-    if (cached_has_bits & 0x00002000u) {
+    if ((cached_has_bits & 0x00002000u) != 0) {
       if (from._internal_max_dets() != 0) {
         _this->_impl_.max_dets_ = from._impl_.max_dets_;
       }
@@ -785,7 +786,7 @@ void TaskConfig::CopyFrom(const TaskConfig& from) {
 }
 
 
-void TaskConfig::InternalSwap(TaskConfig* PROTOBUF_RESTRICT other) {
+void TaskConfig::InternalSwap(TaskConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
@@ -815,7 +816,7 @@ void ObjectLocationConfig::clear_modules_config() {
   if (_impl_.modules_config_ != nullptr) _impl_.modules_config_->Clear();
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
-ObjectLocationConfig::ObjectLocationConfig(::google::protobuf::Arena* arena)
+ObjectLocationConfig::ObjectLocationConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ObjectLocationConfig_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -825,13 +826,14 @@ ObjectLocationConfig::ObjectLocationConfig(::google::protobuf::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:objectlocation.ObjectLocationConfig)
 }
 PROTOBUF_NDEBUG_INLINE ObjectLocationConfig::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::objectlocation::ObjectLocationConfig& from_msg)
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::objectlocation::ObjectLocationConfig& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0} {}
 
 ObjectLocationConfig::ObjectLocationConfig(
-    ::google::protobuf::Arena* arena,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const ObjectLocationConfig& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, ObjectLocationConfig_class_data_.base()) {
@@ -844,21 +846,21 @@ ObjectLocationConfig::ObjectLocationConfig(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.task_config_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::objectlocation::TaskConfig>(
-                              arena, *from._impl_.task_config_)
-                        : nullptr;
-  _impl_.modules_config_ = (cached_has_bits & 0x00000002u) ? ::google::protobuf::Message::CopyConstruct<::common::ModulesConfig>(
-                              arena, *from._impl_.modules_config_)
-                        : nullptr;
+  _impl_.task_config_ = ((cached_has_bits & 0x00000001u) != 0)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.task_config_)
+                : nullptr;
+  _impl_.modules_config_ = ((cached_has_bits & 0x00000002u) != 0)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.modules_config_)
+                : nullptr;
 
   // @@protoc_insertion_point(copy_constructor:objectlocation.ObjectLocationConfig)
 }
 PROTOBUF_NDEBUG_INLINE ObjectLocationConfig::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0} {}
 
-inline void ObjectLocationConfig::SharedCtor(::_pb::Arena* arena) {
+inline void ObjectLocationConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, task_config_),
@@ -880,8 +882,9 @@ inline void ObjectLocationConfig::SharedDtor(MessageLite& self) {
   this_._impl_.~Impl_();
 }
 
-inline void* ObjectLocationConfig::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
+inline void* PROTOBUF_NONNULL ObjectLocationConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
   return ::new (mem) ObjectLocationConfig(arena);
 }
 constexpr auto ObjectLocationConfig::InternalNewImpl_() {
@@ -916,13 +919,14 @@ PROTOBUF_CONSTINIT
         ObjectLocationConfig_class_data_ =
             ObjectLocationConfig::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* ObjectLocationConfig::GetClassData() const {
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL ObjectLocationConfig::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&ObjectLocationConfig_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(ObjectLocationConfig_class_data_.tc_table);
   return ObjectLocationConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 2, 0, 2> ObjectLocationConfig::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 2, 0, 2>
+ObjectLocationConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(ObjectLocationConfig, _impl_._has_bits_),
     0, // no _extensions_
@@ -955,13 +959,14 @@ const ::_pbi::TcParseTable<1, 2, 2, 0, 2> ObjectLocationConfig::_table_ = {
     // .common.ModulesConfig modules_config = 2;
     {PROTOBUF_FIELD_OFFSET(ObjectLocationConfig, _impl_.modules_config_), _Internal::kHasBitsOffset + 1, 1,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
-  }}, {{
-    {::_pbi::TcParser::GetTable<::objectlocation::TaskConfig>()},
-    {::_pbi::TcParser::GetTable<::common::ModulesConfig>()},
-  }}, {{
+  }},
+  {{
+      {::_pbi::TcParser::GetTable<::objectlocation::TaskConfig>()},
+      {::_pbi::TcParser::GetTable<::common::ModulesConfig>()},
+  }},
+  {{
   }},
 };
-
 PROTOBUF_NOINLINE void ObjectLocationConfig::Clear() {
 // @@protoc_insertion_point(message_clear_start:objectlocation.ObjectLocationConfig)
   ::google::protobuf::internal::TSanWrite(&_impl_);
@@ -970,12 +975,12 @@ PROTOBUF_NOINLINE void ObjectLocationConfig::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       ABSL_DCHECK(_impl_.task_config_ != nullptr);
       _impl_.task_config_->Clear();
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       ABSL_DCHECK(_impl_.modules_config_ != nullptr);
       _impl_.modules_config_->Clear();
     }
@@ -985,75 +990,75 @@ PROTOBUF_NOINLINE void ObjectLocationConfig::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ObjectLocationConfig::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ObjectLocationConfig& this_ = static_cast<const ObjectLocationConfig&>(base);
+::uint8_t* PROTOBUF_NONNULL ObjectLocationConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const ObjectLocationConfig& this_ = static_cast<const ObjectLocationConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ObjectLocationConfig::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ObjectLocationConfig& this_ = *this;
+::uint8_t* PROTOBUF_NONNULL ObjectLocationConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const ObjectLocationConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:objectlocation.ObjectLocationConfig)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
+  // @@protoc_insertion_point(serialize_to_array_start:objectlocation.ObjectLocationConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-          cached_has_bits = this_._impl_._has_bits_[0];
-          // .objectlocation.TaskConfig task_config = 1;
-          if (cached_has_bits & 0x00000001u) {
-            target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                1, *this_._impl_.task_config_, this_._impl_.task_config_->GetCachedSize(), target,
-                stream);
-          }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  // .objectlocation.TaskConfig task_config = 1;
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        1, *this_._impl_.task_config_, this_._impl_.task_config_->GetCachedSize(), target,
+        stream);
+  }
 
-          // .common.ModulesConfig modules_config = 2;
-          if (cached_has_bits & 0x00000002u) {
-            target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                2, *this_._impl_.modules_config_, this_._impl_.modules_config_->GetCachedSize(), target,
-                stream);
-          }
+  // .common.ModulesConfig modules_config = 2;
+  if ((cached_has_bits & 0x00000002u) != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        2, *this_._impl_.modules_config_, this_._impl_.modules_config_->GetCachedSize(), target,
+        stream);
+  }
 
-          if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:objectlocation.ObjectLocationConfig)
-          return target;
-        }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:objectlocation.ObjectLocationConfig)
+  return target;
+}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ObjectLocationConfig::ByteSizeLong(const MessageLite& base) {
-          const ObjectLocationConfig& this_ = static_cast<const ObjectLocationConfig&>(base);
+::size_t ObjectLocationConfig::ByteSizeLong(const MessageLite& base) {
+  const ObjectLocationConfig& this_ = static_cast<const ObjectLocationConfig&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ObjectLocationConfig::ByteSizeLong() const {
-          const ObjectLocationConfig& this_ = *this;
+::size_t ObjectLocationConfig::ByteSizeLong() const {
+  const ObjectLocationConfig& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:objectlocation.ObjectLocationConfig)
-          ::size_t total_size = 0;
+  // @@protoc_insertion_point(message_byte_size_start:objectlocation.ObjectLocationConfig)
+  ::size_t total_size = 0;
 
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-          cached_has_bits = this_._impl_._has_bits_[0];
-          if (cached_has_bits & 0x00000003u) {
-            // .objectlocation.TaskConfig task_config = 1;
-            if (cached_has_bits & 0x00000001u) {
-              total_size += 1 +
-                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.task_config_);
-            }
-            // .common.ModulesConfig modules_config = 2;
-            if (cached_has_bits & 0x00000002u) {
-              total_size += 1 +
-                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.modules_config_);
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // .objectlocation.TaskConfig task_config = 1;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.task_config_);
+    }
+    // .common.ModulesConfig modules_config = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.modules_config_);
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
 
 void ObjectLocationConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<ObjectLocationConfig*>(&to_msg);
@@ -1065,21 +1070,19 @@ void ObjectLocationConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, co
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
       ABSL_DCHECK(from._impl_.task_config_ != nullptr);
       if (_this->_impl_.task_config_ == nullptr) {
-        _this->_impl_.task_config_ =
-            ::google::protobuf::Message::CopyConstruct<::objectlocation::TaskConfig>(arena, *from._impl_.task_config_);
+        _this->_impl_.task_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.task_config_);
       } else {
         _this->_impl_.task_config_->MergeFrom(*from._impl_.task_config_);
       }
     }
-    if (cached_has_bits & 0x00000002u) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       ABSL_DCHECK(from._impl_.modules_config_ != nullptr);
       if (_this->_impl_.modules_config_ == nullptr) {
-        _this->_impl_.modules_config_ =
-            ::google::protobuf::Message::CopyConstruct<::common::ModulesConfig>(arena, *from._impl_.modules_config_);
+        _this->_impl_.modules_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.modules_config_);
       } else {
         _this->_impl_.modules_config_->MergeFrom(*from._impl_.modules_config_);
       }
@@ -1097,7 +1100,7 @@ void ObjectLocationConfig::CopyFrom(const ObjectLocationConfig& from) {
 }
 
 
-void ObjectLocationConfig::InternalSwap(ObjectLocationConfig* PROTOBUF_RESTRICT other) {
+void ObjectLocationConfig::InternalSwap(ObjectLocationConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);

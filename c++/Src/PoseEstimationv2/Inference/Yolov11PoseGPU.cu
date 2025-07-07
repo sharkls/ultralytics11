@@ -14,12 +14,14 @@
 #include <cub/cub.cuh>
 #include <cmath>
 
-// 检测结果结构体 - 确保内存对齐
-struct __align__(16) DetectionResult {
+// 检测结果结构体 - 针对A6000优化内存对齐
+struct __align__(32) DetectionResult {
     float x1, y1, x2, y2;  // 边界框坐标
     float confidence;      // 置信度
     int class_id;          // 类别ID
     float keypoints[51];   // 17个关键点 * 3 (x, y, conf)
+    // 添加填充以确保32字节对齐
+    float padding[3];
 };
 
 // 简单的比较函数，用于Thrust排序
@@ -29,7 +31,7 @@ struct DetectionResultCompare {
     }
 };
 
-// GPU端置信度过滤和坐标转换内核
+// GPU端置信度过滤和坐标转换内核 - 针对A6000优化
 __global__ void filterDetectionsKernel(
     const float* output,           // TensorRT输出数据
     DetectionResult* detections,   // 过滤后的检测结果
@@ -43,58 +45,72 @@ __global__ void filterDetectionsKernel(
     float* preprocess_params,      // 预处理参数 [ratio, padTop, padLeft, originalWidth, originalHeight] * batch_size
     int max_detections             // 最大检测数量
 ) {
+    // 计算线程索引
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int total_threads = batch_size * num_anchors;
     
+    // 严格的边界检查
     if (idx >= total_threads) return;
     
+    // 计算batch和anchor索引
     int batch_idx = idx / num_anchors;
     int anchor_idx = idx % num_anchors;
     
-    // 边界检查
+    // 额外的边界检查
     if (batch_idx >= batch_size || anchor_idx >= num_anchors) return;
     
-    // 获取预处理参数 - 当batch_size=1时，直接使用索引0
-    int param_offset = (batch_size == 1) ? 0 : (batch_idx * 5);
-    if (param_offset + 4 >= batch_size * 5) return;  // 边界检查
+    // 检查输入指针有效性
+    if (output == nullptr || detections == nullptr || valid_count == nullptr || preprocess_params == nullptr) {
+        return;
+    }
     
-    float ratio = preprocess_params[param_offset + 0];
-    float padTop = preprocess_params[param_offset + 1];
-    float padLeft = preprocess_params[param_offset + 2];
-    float originalWidth = preprocess_params[param_offset + 3];
-    float originalHeight = preprocess_params[param_offset + 4];
+    // 获取预处理参数 - 针对A6000优化内存访问
+    int param_offset = batch_idx * 5;
+    if (param_offset + 4 >= batch_size * 5) return;
+    
+    // 使用共享内存缓存预处理参数（如果可能）
+    float ratio, padTop, padLeft, originalWidth, originalHeight;
+    
+    // 安全的参数读取
+    ratio = preprocess_params[param_offset + 0];
+    padTop = preprocess_params[param_offset + 1];
+    padLeft = preprocess_params[param_offset + 2];
+    originalWidth = preprocess_params[param_offset + 3];
+    originalHeight = preprocess_params[param_offset + 4];
     
     // 检查参数有效性
-    if (ratio <= 0 || originalWidth <= 0 || originalHeight <= 0) return;
+    if (ratio <= 0.0f || originalWidth <= 0.0f || originalHeight <= 0.0f) return;
     
-    // 计算数据起始位置 - 当batch_size=1时，从0开始
-    int batch_start = (batch_size == 1) ? 0 : (batch_idx * feature_dim * num_anchors);
+    // 计算数据起始位置
+    int batch_start = batch_idx * feature_dim * num_anchors;
     
-    // 边界检查
+    // 严格的边界检查
     int total_elements = batch_size * feature_dim * num_anchors;
     if (batch_start + 4 * num_anchors + anchor_idx >= total_elements) return;
     
-    // 获取边界框坐标
-    float x = output[batch_start + 0 * num_anchors + anchor_idx];
-    float y = output[batch_start + 1 * num_anchors + anchor_idx];
-    float w = output[batch_start + 2 * num_anchors + anchor_idx];
-    float h = output[batch_start + 3 * num_anchors + anchor_idx];
+    // 安全的边界框坐标读取
+    float x, y, w, h;
+    x = output[batch_start + 0 * num_anchors + anchor_idx];
+    y = output[batch_start + 1 * num_anchors + anchor_idx];
+    w = output[batch_start + 2 * num_anchors + anchor_idx];
+    h = output[batch_start + 3 * num_anchors + anchor_idx];
     
-    // 检查坐标有效性
-    if (std::isnan(x) || std::isnan(y) || std::isnan(w) || std::isnan(h) ||
-        std::isinf(x) || std::isinf(y) || std::isinf(w) || std::isinf(h)) {
+    // 严格的数值检查
+    if (isnan(x) || isnan(y) || isnan(w) || isnan(h) ||
+        isinf(x) || isinf(y) || isinf(w) || isinf(h)) {
         return;
     }
     
     // 获取类别置信度
     float max_conf = 0.0f;
     int max_class = 0;
+    
     for (int c = 0; c < num_classes; ++c) {
         int conf_idx = batch_start + (4 + c) * num_anchors + anchor_idx;
-        if (conf_idx >= total_elements) break;  // 边界检查
+        if (conf_idx >= total_elements) break;
         
         float conf = output[conf_idx];
-        if (std::isnan(conf) || std::isinf(conf)) continue;
+        if (isnan(conf) || isinf(conf)) continue;
         
         if (conf > max_conf) {
             max_conf = conf;
@@ -106,32 +122,33 @@ __global__ void filterDetectionsKernel(
     if (max_conf < conf_threshold) return;
     
     // 检查边界框坐标的有效性
-    if (w <= 0 || h <= 0) return;
+    if (w <= 0.0f || h <= 0.0f) return;
     
-    // 坐标转换 (xywh -> xyxy)
-    float x1 = ((x - w / 2) - padLeft) / ratio;
-    float y1 = ((y - h / 2) - padTop) / ratio;
-    float x2 = ((x + w / 2) - padLeft) / ratio;
-    float y2 = ((y + h / 2) - padTop) / ratio;
+    // 坐标转换 (xywh -> xyxy) - 针对A6000优化计算
+    float x1 = ((x - w * 0.5f) - padLeft) / ratio;
+    float y1 = ((y - h * 0.5f) - padTop) / ratio;
+    float x2 = ((x + w * 0.5f) - padLeft) / ratio;
+    float y2 = ((y + h * 0.5f) - padTop) / ratio;
     
     // 坐标裁剪
-    x1 = max(0.0f, min(x1, originalWidth));
-    y1 = max(0.0f, min(y1, originalHeight));
-    x2 = max(0.0f, min(x2, originalWidth));
-    y2 = max(0.0f, min(y2, originalHeight));
+    x1 = fmaxf(0.0f, fminf(x1, originalWidth));
+    y1 = fmaxf(0.0f, fminf(y1, originalHeight));
+    x2 = fmaxf(0.0f, fminf(x2, originalWidth));
+    y2 = fmaxf(0.0f, fminf(y2, originalHeight));
     
     // 检查边界框有效性
     float box_width = x2 - x1;
     float box_height = y2 - y1;
-    if (box_width < 1 || box_height < 1 || box_width > originalWidth || box_height > originalHeight) {
+    if (box_width < 1.0f || box_height < 1.0f || 
+        box_width > originalWidth || box_height > originalHeight) {
         return;
     }
     
-    // 原子操作获取有效检测索引 - 使用更安全的原子操作
+    // 原子操作获取有效检测索引 - 针对A6000优化
     int detection_idx = atomicAdd(valid_count, 1);
     if (detection_idx >= max_detections) return;
     
-    // 保存检测结果
+    // 安全的检测结果保存
     DetectionResult& detection = detections[detection_idx];
     detection.x1 = x1;
     detection.y1 = y1;
@@ -140,8 +157,13 @@ __global__ void filterDetectionsKernel(
     detection.confidence = max_conf;
     detection.class_id = max_class;
     
-    // 处理关键点
-    for (int k = 0; k < num_keys; ++k) {
+    // 初始化关键点为0
+    for (int k = 0; k < 51; ++k) {
+        detection.keypoints[k] = 0.0f;
+    }
+    
+    // 处理关键点 - 针对A6000优化
+    for (int k = 0; k < num_keys && k < 17; ++k) {  // 限制最大关键点数量
         int kpt_x_idx = batch_start + (4 + num_classes + k * 3) * num_anchors + anchor_idx;
         int kpt_y_idx = batch_start + (4 + num_classes + k * 3 + 1) * num_anchors + anchor_idx;
         int kpt_conf_idx = batch_start + (4 + num_classes + k * 3 + 2) * num_anchors + anchor_idx;
@@ -154,8 +176,8 @@ __global__ void filterDetectionsKernel(
         float kpt_conf = output[kpt_conf_idx];
         
         // 检查关键点坐标有效性
-        if (std::isnan(kpt_x) || std::isnan(kpt_y) || std::isnan(kpt_conf) ||
-            std::isinf(kpt_x) || std::isinf(kpt_y) || std::isinf(kpt_conf)) {
+        if (isnan(kpt_x) || isnan(kpt_y) || isnan(kpt_conf) ||
+            isinf(kpt_x) || isinf(kpt_y) || isinf(kpt_conf)) {
             detection.keypoints[k * 3 + 0] = 0.0f;
             detection.keypoints[k * 3 + 1] = 0.0f;
             detection.keypoints[k * 3 + 2] = 0.0f;
@@ -167,7 +189,7 @@ __global__ void filterDetectionsKernel(
         kpt_y = (kpt_y - padTop) / ratio;
         
         // 关键点置信度过滤
-        if (kpt_conf < 0.1f) {  // 使用更低的阈值过滤关键点
+        if (kpt_conf < 0.1f) {
             detection.keypoints[k * 3 + 0] = 0.0f;
             detection.keypoints[k * 3 + 1] = 0.0f;
             detection.keypoints[k * 3 + 2] = 0.0f;
@@ -177,6 +199,11 @@ __global__ void filterDetectionsKernel(
             detection.keypoints[k * 3 + 2] = kpt_conf;
         }
     }
+    
+    // 初始化填充字段
+    detection.padding[0] = 0.0f;
+    detection.padding[1] = 0.0f;
+    detection.padding[2] = 0.0f;
 }
 
 // GPU端NMS内核
@@ -288,21 +315,32 @@ extern "C" int processOutputGPU(
         return 0;
     }
     
-    // 计算线程块配置
+    // 计算线程块配置 - 针对A6000优化
     int total_threads = batch_size * num_anchors;
-    int block_size = 256;
+    
+    // A6000优化：使用更小的block_size以提高稳定性
+    int block_size = 128;  // 从256减少到128
     int grid_size = (total_threads + block_size - 1) / block_size;
     
     // 限制grid大小，避免过度并行
     if (grid_size > 65535) {
         grid_size = 65535;
         block_size = (total_threads + grid_size - 1) / grid_size;
+        // 确保block_size不超过A6000的限制
+        if (block_size > 1024) {
+            block_size = 1024;
+            grid_size = (total_threads + block_size - 1) / block_size;
+        }
     }
+    
+    // 针对A6000的额外限制
+    if (block_size > 1024) block_size = 1024;
+    if (grid_size > 65535) grid_size = 65535;
     
     printf("GPU processing: batch_size=%d, feature_dim=%d, num_anchors=%d, grid_size=%d, block_size=%d\n",
            batch_size, feature_dim, num_anchors, grid_size, block_size);
     
-    // 执行置信度过滤和坐标转换
+    // 执行置信度过滤和坐标转换 - 针对A6000优化
     filterDetectionsKernel<<<grid_size, block_size, 0, stream>>>(
         gpu_output,
         gpu_detections,
@@ -317,17 +355,21 @@ extern "C" int processOutputGPU(
         max_detections
     );
     
-    // 检查CUDA错误
+    // 检查CUDA错误 - 针对A6000增强错误处理
     status = cudaGetLastError();
     if (status != cudaSuccess) {
         printf("CUDA error in filterDetectionsKernel: %s\n", cudaGetErrorString(status));
+        // 尝试重置GPU状态
+        cudaDeviceReset();
         return 0;
     }
     
-    // 同步流，确保内核执行完成
+    // 同步流，确保内核执行完成 - 针对A6000优化
     status = cudaStreamSynchronize(stream);
     if (status != cudaSuccess) {
         printf("Failed to synchronize stream: %s\n", cudaGetErrorString(status));
+        // 尝试重置GPU状态
+        cudaDeviceReset();
         return 0;
     }
     

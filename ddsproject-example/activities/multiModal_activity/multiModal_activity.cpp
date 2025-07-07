@@ -6,7 +6,7 @@
 #include "activities/idl/CMultiModalSrcData/CMultiModalSrcData.h"
 #include "activities/idl/CMultiModalSrcData/CMultiModalSrcDataPubSubTypes.h"
 
-#include <opencv2/opencv.hpp>
+// #include <opencv2/opencv.hpp>
 
 #include "include/queue/data_queue.hpp"
 
@@ -407,7 +407,7 @@ void ActivityMultiModal::Start()
 {
     TINFO << "ActivityMultiModal running";
 
-    bool bInitM3J = pullM3J.init("rtsp://192.168.3.56:8554/camera/M3J");
+    bool bInitM3J = pullM3J.init("rtsp://192.168.3.56:8554/camera/M3J", true);
     if (!bInitM3J)
     {
         TINFO << "can not open stream M3J";
@@ -415,7 +415,7 @@ void ActivityMultiModal::Start()
         return;
     }
 
-    bool bInitXYZ_Color = pullXYZ_Color.init("rtsp://192.168.3.56:8554/camera/XYZ_Color"); // 6
+    bool bInitXYZ_Color = pullXYZ_Color.init("rtsp://192.168.3.56:8554/camera/XYZ_Color", true);
     if (!bInitXYZ_Color)
     {
         TINFO << "can not open stream XYZ_Color";
@@ -474,7 +474,7 @@ void ActivityMultiModal::PullStreamThreadFunc_M3J()
             count_M3J++;
             if (getTimestamp() - tmpTimeStamp_M3J > 1000)
             {
-                TINFO << "==========fps_M3J: " << count_M3J;
+                TINFO << "fps_M3J: " << count_M3J;
 
                 tmpTimeStamp_M3J = getTimestamp();
                 count_M3J = 0;

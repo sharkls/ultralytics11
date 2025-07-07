@@ -70,6 +70,7 @@ public:
     std::vector<std::vector<float>> process_keypoints(const std::vector<float>& output, const std::vector<std::vector<float>>& boxes);
     std::vector<int> nms(const std::vector<std::vector<float>>& boxes, const std::vector<float>& scores);
     CAlgResult formatConverted(std::vector<std::vector<float>> results);
+    std::vector<std::vector<CObjectResult>> formatConvertedByImage(std::vector<std::vector<float>> results, size_t batch_size);
     std::string classify_pose(const std::vector<float>& keypoints) const;
 
 private:

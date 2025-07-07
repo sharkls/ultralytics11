@@ -31,7 +31,7 @@ inline constexpr TopicConfig::Impl_::Impl_(
         camera_merged_topic_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
-        pose_estimation_result_topic_(
+        pose_estimation_v2_result_topic_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
         multi_modal_fusion_result_topic_(
@@ -101,7 +101,7 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::TopicConfig, _impl_.camera_merged_topic_),
-        PROTOBUF_FIELD_OFFSET(::TopicConfig, _impl_.pose_estimation_result_topic_),
+        PROTOBUF_FIELD_OFFSET(::TopicConfig, _impl_.pose_estimation_v2_result_topic_),
         PROTOBUF_FIELD_OFFSET(::TopicConfig, _impl_.multi_modal_fusion_result_topic_),
         PROTOBUF_FIELD_OFFSET(::TopicConfig, _impl_.object_location_result_topic_),
         0,
@@ -131,18 +131,18 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
 };
 const char descriptor_table_protodef_VisualizationActivity_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\033VisualizationActivity.proto\"\237\001\n\013TopicC"
-    "onfig\022\033\n\023camera_merged_topic\030\003 \001(\t\022$\n\034po"
-    "se_estimation_result_topic\030\004 \001(\t\022\'\n\037mult"
-    "i_modal_fusion_result_topic\030\005 \001(\t\022$\n\034obj"
-    "ect_location_result_topic\030\006 \001(\t\",\n\006Confi"
-    "g\022\"\n\014topic_config\030\001 \001(\0132\014.TopicConfig"
+    "\n\033VisualizationActivity.proto\"\242\001\n\013TopicC"
+    "onfig\022\033\n\023camera_merged_topic\030\003 \001(\t\022\'\n\037po"
+    "se_estimation_v2_result_topic\030\004 \001(\t\022\'\n\037m"
+    "ulti_modal_fusion_result_topic\030\005 \001(\t\022$\n\034"
+    "object_location_result_topic\030\006 \001(\t\",\n\006Co"
+    "nfig\022\"\n\014topic_config\030\001 \001(\0132\014.TopicConfig"
 };
 static ::absl::once_flag descriptor_table_VisualizationActivity_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_VisualizationActivity_2eproto = {
     false,
     false,
-    237,
+    240,
     descriptor_table_protodef_VisualizationActivity_2eproto,
     "VisualizationActivity.proto",
     &descriptor_table_VisualizationActivity_2eproto_once,
@@ -181,7 +181,7 @@ PROTOBUF_NDEBUG_INLINE TopicConfig::Impl_::Impl_(
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         camera_merged_topic_(arena, from.camera_merged_topic_),
-        pose_estimation_result_topic_(arena, from.pose_estimation_result_topic_),
+        pose_estimation_v2_result_topic_(arena, from.pose_estimation_v2_result_topic_),
         multi_modal_fusion_result_topic_(arena, from.multi_modal_fusion_result_topic_),
         object_location_result_topic_(arena, from.object_location_result_topic_) {}
 
@@ -206,7 +206,7 @@ PROTOBUF_NDEBUG_INLINE TopicConfig::Impl_::Impl_(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0},
         camera_merged_topic_(arena),
-        pose_estimation_result_topic_(arena),
+        pose_estimation_v2_result_topic_(arena),
         multi_modal_fusion_result_topic_(arena),
         object_location_result_topic_(arena) {}
 
@@ -222,7 +222,7 @@ inline void TopicConfig::SharedDtor(MessageLite& self) {
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   this_._impl_.camera_merged_topic_.Destroy();
-  this_._impl_.pose_estimation_result_topic_.Destroy();
+  this_._impl_.pose_estimation_v2_result_topic_.Destroy();
   this_._impl_.multi_modal_fusion_result_topic_.Destroy();
   this_._impl_.object_location_result_topic_.Destroy();
   this_._impl_.~Impl_();
@@ -271,7 +271,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL TopicConfig::Get
   return TopicConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 126, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 129, 2>
 TopicConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(TopicConfig, _impl_._has_bits_),
@@ -290,9 +290,9 @@ TopicConfig::_table_ = {
     ::_pbi::TcParser::GetTable<::TopicConfig>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // optional string pose_estimation_result_topic = 4;
+    // optional string pose_estimation_v2_result_topic = 4;
     {::_pbi::TcParser::FastSS1,
-     {34, 1, 0, PROTOBUF_FIELD_OFFSET(TopicConfig, _impl_.pose_estimation_result_topic_)}},
+     {34, 1, 0, PROTOBUF_FIELD_OFFSET(TopicConfig, _impl_.pose_estimation_v2_result_topic_)}},
     // optional string multi_modal_fusion_result_topic = 5;
     {::_pbi::TcParser::FastSS1,
      {42, 2, 0, PROTOBUF_FIELD_OFFSET(TopicConfig, _impl_.multi_modal_fusion_result_topic_)}},
@@ -308,8 +308,8 @@ TopicConfig::_table_ = {
     // optional string camera_merged_topic = 3;
     {PROTOBUF_FIELD_OFFSET(TopicConfig, _impl_.camera_merged_topic_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kRawString | ::_fl::kRepAString)},
-    // optional string pose_estimation_result_topic = 4;
-    {PROTOBUF_FIELD_OFFSET(TopicConfig, _impl_.pose_estimation_result_topic_), _Internal::kHasBitsOffset + 1, 0,
+    // optional string pose_estimation_v2_result_topic = 4;
+    {PROTOBUF_FIELD_OFFSET(TopicConfig, _impl_.pose_estimation_v2_result_topic_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kRawString | ::_fl::kRepAString)},
     // optional string multi_modal_fusion_result_topic = 5;
     {PROTOBUF_FIELD_OFFSET(TopicConfig, _impl_.multi_modal_fusion_result_topic_), _Internal::kHasBitsOffset + 2, 0,
@@ -320,10 +320,10 @@ TopicConfig::_table_ = {
   }},
   // no aux_entries
   {{
-    "\13\23\34\37\34\0\0\0"
+    "\13\23\37\37\34\0\0\0"
     "TopicConfig"
     "camera_merged_topic"
-    "pose_estimation_result_topic"
+    "pose_estimation_v2_result_topic"
     "multi_modal_fusion_result_topic"
     "object_location_result_topic"
   }},
@@ -341,7 +341,7 @@ PROTOBUF_NOINLINE void TopicConfig::Clear() {
       _impl_.camera_merged_topic_.ClearNonDefaultToEmpty();
     }
     if ((cached_has_bits & 0x00000002u) != 0) {
-      _impl_.pose_estimation_result_topic_.ClearNonDefaultToEmpty();
+      _impl_.pose_estimation_v2_result_topic_.ClearNonDefaultToEmpty();
     }
     if ((cached_has_bits & 0x00000004u) != 0) {
       _impl_.multi_modal_fusion_result_topic_.ClearNonDefaultToEmpty();
@@ -378,11 +378,11 @@ PROTOBUF_NOINLINE void TopicConfig::Clear() {
     target = stream->WriteStringMaybeAliased(3, _s, target);
   }
 
-  // optional string pose_estimation_result_topic = 4;
+  // optional string pose_estimation_v2_result_topic = 4;
   if ((cached_has_bits & 0x00000002u) != 0) {
-    const std::string& _s = this_._internal_pose_estimation_result_topic();
+    const std::string& _s = this_._internal_pose_estimation_v2_result_topic();
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(_s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormat::SERIALIZE,
-                                "TopicConfig.pose_estimation_result_topic");
+                                "TopicConfig.pose_estimation_v2_result_topic");
     target = stream->WriteStringMaybeAliased(4, _s, target);
   }
 
@@ -433,10 +433,10 @@ PROTOBUF_NOINLINE void TopicConfig::Clear() {
       total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                       this_._internal_camera_merged_topic());
     }
-    // optional string pose_estimation_result_topic = 4;
+    // optional string pose_estimation_v2_result_topic = 4;
     if ((cached_has_bits & 0x00000002u) != 0) {
       total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                      this_._internal_pose_estimation_result_topic());
+                                      this_._internal_pose_estimation_v2_result_topic());
     }
     // optional string multi_modal_fusion_result_topic = 5;
     if ((cached_has_bits & 0x00000004u) != 0) {
@@ -467,7 +467,7 @@ void TopicConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goo
       _this->_internal_set_camera_merged_topic(from._internal_camera_merged_topic());
     }
     if ((cached_has_bits & 0x00000002u) != 0) {
-      _this->_internal_set_pose_estimation_result_topic(from._internal_pose_estimation_result_topic());
+      _this->_internal_set_pose_estimation_v2_result_topic(from._internal_pose_estimation_v2_result_topic());
     }
     if ((cached_has_bits & 0x00000004u) != 0) {
       _this->_internal_set_multi_modal_fusion_result_topic(from._internal_multi_modal_fusion_result_topic());
@@ -495,7 +495,7 @@ void TopicConfig::InternalSwap(TopicConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL o
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.camera_merged_topic_, &other->_impl_.camera_merged_topic_, arena);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.pose_estimation_result_topic_, &other->_impl_.pose_estimation_result_topic_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.pose_estimation_v2_result_topic_, &other->_impl_.pose_estimation_v2_result_topic_, arena);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.multi_modal_fusion_result_topic_, &other->_impl_.multi_modal_fusion_result_topic_, arena);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.object_location_result_topic_, &other->_impl_.object_location_result_topic_, arena);
 }

@@ -25,11 +25,11 @@ __global__ void depth_kernel(
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     if (x >= width || y >= height) return;
 
-    int arr[25];
+    int arr[49];
     int count = 0;
-    for (int dx = -2; dx <= 2; ++dx) {
+    for (int dx = -3; dx <= 3; ++dx) {
         int xx = min(max(x + dx, 0), width - 1);
-        for (int dy = -2; dy <= 2; ++dy) {
+        for (int dy = -3; dy <= 3; ++dy) {
             int yy = min(max(y + dy, 0), height - 1);
             int idx = 2 * (yy * width + xx);
             ushort val = *(ushort*)(input + idx);
@@ -37,12 +37,12 @@ __global__ void depth_kernel(
         }
     }
     // 简单冒泡排序
-    for (int i = 0; i < 24; ++i)
-        for (int j = i + 1; j < 25; ++j)
+    for (int i = 0; i < 48; ++i)
+        for (int j = i + 1; j < 49; ++j)
             if (arr[i] > arr[j]) { int t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
     int avg = 0;
-    for (int i = 10; i < 15; ++i) avg += arr[i];
-    avg /= 5;
+    for (int i = 21; i < 28; ++i) avg += arr[i];
+    avg /= 7;
 
     int depth = process_depth(avg, Focus_Pixel, BaseLine);
     output[y * width + x] = depth;

@@ -22,7 +22,7 @@ public:
     PullFromStream();
     ~PullFromStream();
     
-    bool init(const std::string& url);
+    bool init(const std::string& url, const bool GPUAccel = false);
     void final();
     void pull(std::function<void(char* data, const int width, const int height)> callback);
 
@@ -36,7 +36,7 @@ private:
     AVPacket *pkt {nullptr};
 
     int idx{0};
-
+    bool m_GPUAccel {false};
 };
 
 

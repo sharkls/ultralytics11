@@ -50,8 +50,9 @@ template <typename T>
 struct TableStruct_BinocularPositioning_5fconf_2eproto {
   static const ::uint32_t offsets[];
 };
-extern const ::google::protobuf::internal::DescriptorTable
-    descriptor_table_BinocularPositioning_5fconf_2eproto;
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_BinocularPositioning_5fconf_2eproto;
+}  // extern "C"
 namespace binocularpositioning {
 class BinocularPositioningConfig;
 struct BinocularPositioningConfigDefaultTypeInternal;
@@ -82,23 +83,21 @@ namespace binocularpositioning {
 
 // -------------------------------------------------------------------
 
-class SGBMConfig final
-    : public ::google::protobuf::Message
+class SGBMConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:binocularpositioning.SGBMConfig) */ {
  public:
   inline SGBMConfig() : SGBMConfig(nullptr) {}
   ~SGBMConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(SGBMConfig* msg, std::destroying_delete_t) {
+  void operator delete(SGBMConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(SGBMConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR SGBMConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR SGBMConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline SGBMConfig(const SGBMConfig& from) : SGBMConfig(nullptr, from) {}
   inline SGBMConfig(SGBMConfig&& from) noexcept
@@ -121,30 +120,27 @@ class SGBMConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const SGBMConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const SGBMConfig* internal_default_instance() {
-    return reinterpret_cast<const SGBMConfig*>(
+    return *reinterpret_cast<const SGBMConfig*>(
         &_SGBMConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 0;
   friend void swap(SGBMConfig& a, SGBMConfig& b) { a.Swap(&b); }
-  inline void Swap(SGBMConfig* other) {
+  inline void Swap(SGBMConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -152,7 +148,7 @@ class SGBMConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(SGBMConfig* other) {
+  void UnsafeArenaSwap(SGBMConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -160,7 +156,7 @@ class SGBMConfig final
 
   // implements Message ----------------------------------------------
 
-  SGBMConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  SGBMConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<SGBMConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -169,9 +165,8 @@ class SGBMConfig final
   void MergeFrom(const SGBMConfig& from) { SGBMConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -181,45 +176,46 @@ class SGBMConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(SGBMConfig* other);
+  void InternalSwap(SGBMConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "binocularpositioning.SGBMConfig"; }
 
  protected:
-  explicit SGBMConfig(::google::protobuf::Arena* arena);
-  SGBMConfig(::google::protobuf::Arena* arena, const SGBMConfig& from);
-  SGBMConfig(::google::protobuf::Arena* arena, SGBMConfig&& from) noexcept
+  explicit SGBMConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  SGBMConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const SGBMConfig& from);
+  SGBMConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, SGBMConfig&& from) noexcept
       : SGBMConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -356,9 +352,9 @@ class SGBMConfig final
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      4, 11, 0,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<4, 11,
+                                   0, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -368,13 +364,14 @@ class SGBMConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const SGBMConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const SGBMConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::int32_t min_disparity_;
@@ -397,23 +394,21 @@ class SGBMConfig final
 extern const ::google::protobuf::internal::ClassDataFull SGBMConfig_class_data_;
 // -------------------------------------------------------------------
 
-class CRLConfig final
-    : public ::google::protobuf::Message
+class CRLConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:binocularpositioning.CRLConfig) */ {
  public:
   inline CRLConfig() : CRLConfig(nullptr) {}
   ~CRLConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(CRLConfig* msg, std::destroying_delete_t) {
+  void operator delete(CRLConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(CRLConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR CRLConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR CRLConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline CRLConfig(const CRLConfig& from) : CRLConfig(nullptr, from) {}
   inline CRLConfig(CRLConfig&& from) noexcept
@@ -436,30 +431,27 @@ class CRLConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const CRLConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const CRLConfig* internal_default_instance() {
-    return reinterpret_cast<const CRLConfig*>(
+    return *reinterpret_cast<const CRLConfig*>(
         &_CRLConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 1;
   friend void swap(CRLConfig& a, CRLConfig& b) { a.Swap(&b); }
-  inline void Swap(CRLConfig* other) {
+  inline void Swap(CRLConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -467,7 +459,7 @@ class CRLConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(CRLConfig* other) {
+  void UnsafeArenaSwap(CRLConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -475,7 +467,7 @@ class CRLConfig final
 
   // implements Message ----------------------------------------------
 
-  CRLConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  CRLConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<CRLConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -484,9 +476,8 @@ class CRLConfig final
   void MergeFrom(const CRLConfig& from) { CRLConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -496,45 +487,46 @@ class CRLConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(CRLConfig* other);
+  void InternalSwap(CRLConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "binocularpositioning.CRLConfig"; }
 
  protected:
-  explicit CRLConfig(::google::protobuf::Arena* arena);
-  CRLConfig(::google::protobuf::Arena* arena, const CRLConfig& from);
-  CRLConfig(::google::protobuf::Arena* arena, CRLConfig&& from) noexcept
+  explicit CRLConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  CRLConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const CRLConfig& from);
+  CRLConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, CRLConfig&& from) noexcept
       : CRLConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -552,23 +544,23 @@ class CRLConfig final
   const std::string& engine_path() const;
   template <typename Arg_ = const std::string&, typename... Args_>
   void set_engine_path(Arg_&& arg, Args_... args);
-  std::string* mutable_engine_path();
-  [[nodiscard]] std::string* release_engine_path();
-  void set_allocated_engine_path(std::string* value);
+  std::string* PROTOBUF_NONNULL mutable_engine_path();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_engine_path();
+  void set_allocated_engine_path(std::string* PROTOBUF_NULLABLE value);
 
   private:
   const std::string& _internal_engine_path() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_engine_path(const std::string& value);
-  std::string* _internal_mutable_engine_path();
+  std::string* PROTOBUF_NONNULL _internal_mutable_engine_path();
 
   public:
   // @@protoc_insertion_point(class_scope:binocularpositioning.CRLConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
-      50, 2>
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
+                                   0, 50,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -578,13 +570,14 @@ class CRLConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const CRLConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const CRLConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr engine_path_;
@@ -597,23 +590,21 @@ class CRLConfig final
 extern const ::google::protobuf::internal::ClassDataFull CRLConfig_class_data_;
 // -------------------------------------------------------------------
 
-class ModelConfig final
-    : public ::google::protobuf::Message
+class ModelConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:binocularpositioning.ModelConfig) */ {
  public:
   inline ModelConfig() : ModelConfig(nullptr) {}
   ~ModelConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ModelConfig* msg, std::destroying_delete_t) {
+  void operator delete(ModelConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(ModelConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ModelConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR ModelConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline ModelConfig(const ModelConfig& from) : ModelConfig(nullptr, from) {}
   inline ModelConfig(ModelConfig&& from) noexcept
@@ -636,30 +627,27 @@ class ModelConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const ModelConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ModelConfig* internal_default_instance() {
-    return reinterpret_cast<const ModelConfig*>(
+    return *reinterpret_cast<const ModelConfig*>(
         &_ModelConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 2;
   friend void swap(ModelConfig& a, ModelConfig& b) { a.Swap(&b); }
-  inline void Swap(ModelConfig* other) {
+  inline void Swap(ModelConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -667,7 +655,7 @@ class ModelConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ModelConfig* other) {
+  void UnsafeArenaSwap(ModelConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -675,7 +663,7 @@ class ModelConfig final
 
   // implements Message ----------------------------------------------
 
-  ModelConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  ModelConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<ModelConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -684,9 +672,8 @@ class ModelConfig final
   void MergeFrom(const ModelConfig& from) { ModelConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -696,45 +683,46 @@ class ModelConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(ModelConfig* other);
+  void InternalSwap(ModelConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "binocularpositioning.ModelConfig"; }
 
  protected:
-  explicit ModelConfig(::google::protobuf::Arena* arena);
-  ModelConfig(::google::protobuf::Arena* arena, const ModelConfig& from);
-  ModelConfig(::google::protobuf::Arena* arena, ModelConfig&& from) noexcept
+  explicit ModelConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  ModelConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ModelConfig& from);
+  ModelConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ModelConfig&& from) noexcept
       : ModelConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -756,30 +744,30 @@ class ModelConfig final
   bool has_sgbm_config() const;
   void clear_sgbm_config() ;
   const ::binocularpositioning::SGBMConfig& sgbm_config() const;
-  [[nodiscard]] ::binocularpositioning::SGBMConfig* release_sgbm_config();
-  ::binocularpositioning::SGBMConfig* mutable_sgbm_config();
-  void set_allocated_sgbm_config(::binocularpositioning::SGBMConfig* value);
-  void unsafe_arena_set_allocated_sgbm_config(::binocularpositioning::SGBMConfig* value);
-  ::binocularpositioning::SGBMConfig* unsafe_arena_release_sgbm_config();
+  [[nodiscard]] ::binocularpositioning::SGBMConfig* PROTOBUF_NULLABLE release_sgbm_config();
+  ::binocularpositioning::SGBMConfig* PROTOBUF_NONNULL mutable_sgbm_config();
+  void set_allocated_sgbm_config(::binocularpositioning::SGBMConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_sgbm_config(::binocularpositioning::SGBMConfig* PROTOBUF_NULLABLE value);
+  ::binocularpositioning::SGBMConfig* PROTOBUF_NULLABLE unsafe_arena_release_sgbm_config();
 
   private:
   const ::binocularpositioning::SGBMConfig& _internal_sgbm_config() const;
-  ::binocularpositioning::SGBMConfig* _internal_mutable_sgbm_config();
+  ::binocularpositioning::SGBMConfig* PROTOBUF_NONNULL _internal_mutable_sgbm_config();
 
   public:
   // .binocularpositioning.CRLConfig crl_config = 2;
   bool has_crl_config() const;
   void clear_crl_config() ;
   const ::binocularpositioning::CRLConfig& crl_config() const;
-  [[nodiscard]] ::binocularpositioning::CRLConfig* release_crl_config();
-  ::binocularpositioning::CRLConfig* mutable_crl_config();
-  void set_allocated_crl_config(::binocularpositioning::CRLConfig* value);
-  void unsafe_arena_set_allocated_crl_config(::binocularpositioning::CRLConfig* value);
-  ::binocularpositioning::CRLConfig* unsafe_arena_release_crl_config();
+  [[nodiscard]] ::binocularpositioning::CRLConfig* PROTOBUF_NULLABLE release_crl_config();
+  ::binocularpositioning::CRLConfig* PROTOBUF_NONNULL mutable_crl_config();
+  void set_allocated_crl_config(::binocularpositioning::CRLConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_crl_config(::binocularpositioning::CRLConfig* PROTOBUF_NULLABLE value);
+  ::binocularpositioning::CRLConfig* PROTOBUF_NULLABLE unsafe_arena_release_crl_config();
 
   private:
   const ::binocularpositioning::CRLConfig& _internal_crl_config() const;
-  ::binocularpositioning::CRLConfig* _internal_mutable_crl_config();
+  ::binocularpositioning::CRLConfig* PROTOBUF_NONNULL _internal_mutable_crl_config();
 
   public:
   // bool run_status = 3;
@@ -826,9 +814,9 @@ class ModelConfig final
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      3, 6, 2,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<3, 6,
+                                   2, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -838,17 +826,18 @@ class ModelConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ModelConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const ModelConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::binocularpositioning::SGBMConfig* sgbm_config_;
-    ::binocularpositioning::CRLConfig* crl_config_;
+    ::binocularpositioning::SGBMConfig* PROTOBUF_NULLABLE sgbm_config_;
+    ::binocularpositioning::CRLConfig* PROTOBUF_NULLABLE crl_config_;
     bool run_status_;
     float baseline_;
     ::int32_t focus_pixel_;
@@ -862,23 +851,21 @@ class ModelConfig final
 extern const ::google::protobuf::internal::ClassDataFull ModelConfig_class_data_;
 // -------------------------------------------------------------------
 
-class BinocularPositioningConfig final
-    : public ::google::protobuf::Message
+class BinocularPositioningConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:binocularpositioning.BinocularPositioningConfig) */ {
  public:
   inline BinocularPositioningConfig() : BinocularPositioningConfig(nullptr) {}
   ~BinocularPositioningConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(BinocularPositioningConfig* msg, std::destroying_delete_t) {
+  void operator delete(BinocularPositioningConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(BinocularPositioningConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR BinocularPositioningConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR BinocularPositioningConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline BinocularPositioningConfig(const BinocularPositioningConfig& from) : BinocularPositioningConfig(nullptr, from) {}
   inline BinocularPositioningConfig(BinocularPositioningConfig&& from) noexcept
@@ -901,30 +888,27 @@ class BinocularPositioningConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const BinocularPositioningConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const BinocularPositioningConfig* internal_default_instance() {
-    return reinterpret_cast<const BinocularPositioningConfig*>(
+    return *reinterpret_cast<const BinocularPositioningConfig*>(
         &_BinocularPositioningConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 3;
   friend void swap(BinocularPositioningConfig& a, BinocularPositioningConfig& b) { a.Swap(&b); }
-  inline void Swap(BinocularPositioningConfig* other) {
+  inline void Swap(BinocularPositioningConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -932,7 +916,7 @@ class BinocularPositioningConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(BinocularPositioningConfig* other) {
+  void UnsafeArenaSwap(BinocularPositioningConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -940,7 +924,7 @@ class BinocularPositioningConfig final
 
   // implements Message ----------------------------------------------
 
-  BinocularPositioningConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  BinocularPositioningConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<BinocularPositioningConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -949,9 +933,8 @@ class BinocularPositioningConfig final
   void MergeFrom(const BinocularPositioningConfig& from) { BinocularPositioningConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -961,45 +944,46 @@ class BinocularPositioningConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(BinocularPositioningConfig* other);
+  void InternalSwap(BinocularPositioningConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "binocularpositioning.BinocularPositioningConfig"; }
 
  protected:
-  explicit BinocularPositioningConfig(::google::protobuf::Arena* arena);
-  BinocularPositioningConfig(::google::protobuf::Arena* arena, const BinocularPositioningConfig& from);
-  BinocularPositioningConfig(::google::protobuf::Arena* arena, BinocularPositioningConfig&& from) noexcept
+  explicit BinocularPositioningConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  BinocularPositioningConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const BinocularPositioningConfig& from);
+  BinocularPositioningConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, BinocularPositioningConfig&& from) noexcept
       : BinocularPositioningConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -1017,39 +1001,39 @@ class BinocularPositioningConfig final
   bool has_model_config() const;
   void clear_model_config() ;
   const ::binocularpositioning::ModelConfig& model_config() const;
-  [[nodiscard]] ::binocularpositioning::ModelConfig* release_model_config();
-  ::binocularpositioning::ModelConfig* mutable_model_config();
-  void set_allocated_model_config(::binocularpositioning::ModelConfig* value);
-  void unsafe_arena_set_allocated_model_config(::binocularpositioning::ModelConfig* value);
-  ::binocularpositioning::ModelConfig* unsafe_arena_release_model_config();
+  [[nodiscard]] ::binocularpositioning::ModelConfig* PROTOBUF_NULLABLE release_model_config();
+  ::binocularpositioning::ModelConfig* PROTOBUF_NONNULL mutable_model_config();
+  void set_allocated_model_config(::binocularpositioning::ModelConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_model_config(::binocularpositioning::ModelConfig* PROTOBUF_NULLABLE value);
+  ::binocularpositioning::ModelConfig* PROTOBUF_NULLABLE unsafe_arena_release_model_config();
 
   private:
   const ::binocularpositioning::ModelConfig& _internal_model_config() const;
-  ::binocularpositioning::ModelConfig* _internal_mutable_model_config();
+  ::binocularpositioning::ModelConfig* PROTOBUF_NONNULL _internal_mutable_model_config();
 
   public:
   // .common.ModulesConfig modules_config = 2;
   bool has_modules_config() const;
   void clear_modules_config() ;
   const ::common::ModulesConfig& modules_config() const;
-  [[nodiscard]] ::common::ModulesConfig* release_modules_config();
-  ::common::ModulesConfig* mutable_modules_config();
-  void set_allocated_modules_config(::common::ModulesConfig* value);
-  void unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value);
-  ::common::ModulesConfig* unsafe_arena_release_modules_config();
+  [[nodiscard]] ::common::ModulesConfig* PROTOBUF_NULLABLE release_modules_config();
+  ::common::ModulesConfig* PROTOBUF_NONNULL mutable_modules_config();
+  void set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value);
+  ::common::ModulesConfig* PROTOBUF_NULLABLE unsafe_arena_release_modules_config();
 
   private:
   const ::common::ModulesConfig& _internal_modules_config() const;
-  ::common::ModulesConfig* _internal_mutable_modules_config();
+  ::common::ModulesConfig* PROTOBUF_NONNULL _internal_mutable_modules_config();
 
   public:
   // @@protoc_insertion_point(class_scope:binocularpositioning.BinocularPositioningConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 2,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   2, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -1059,17 +1043,18 @@ class BinocularPositioningConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const BinocularPositioningConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const BinocularPositioningConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::binocularpositioning::ModelConfig* model_config_;
-    ::common::ModulesConfig* modules_config_;
+    ::binocularpositioning::ModelConfig* PROTOBUF_NULLABLE model_config_;
+    ::common::ModulesConfig* PROTOBUF_NULLABLE modules_config_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1374,14 +1359,14 @@ inline const std::string& CRLConfig::engine_path() const
   return _internal_engine_path();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void CRLConfig::set_engine_path(Arg_&& arg,
-                                              Args_... args) {
+PROTOBUF_ALWAYS_INLINE void CRLConfig::set_engine_path(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.engine_path_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:binocularpositioning.CRLConfig.engine_path)
 }
-inline std::string* CRLConfig::mutable_engine_path() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* PROTOBUF_NONNULL CRLConfig::mutable_engine_path()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_engine_path();
   // @@protoc_insertion_point(field_mutable:binocularpositioning.CRLConfig.engine_path)
   return _s;
@@ -1395,12 +1380,12 @@ inline void CRLConfig::_internal_set_engine_path(const std::string& value) {
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.engine_path_.Set(value, GetArena());
 }
-inline std::string* CRLConfig::_internal_mutable_engine_path() {
+inline std::string* PROTOBUF_NONNULL CRLConfig::_internal_mutable_engine_path() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.engine_path_.Mutable( GetArena());
 }
-inline std::string* CRLConfig::release_engine_path() {
+inline std::string* PROTOBUF_NULLABLE CRLConfig::release_engine_path() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:binocularpositioning.CRLConfig.engine_path)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
@@ -1413,7 +1398,7 @@ inline std::string* CRLConfig::release_engine_path() {
   }
   return released;
 }
-inline void CRLConfig::set_allocated_engine_path(std::string* value) {
+inline void CRLConfig::set_allocated_engine_path(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
@@ -1451,7 +1436,8 @@ inline const ::binocularpositioning::SGBMConfig& ModelConfig::sgbm_config() cons
   // @@protoc_insertion_point(field_get:binocularpositioning.ModelConfig.sgbm_config)
   return _internal_sgbm_config();
 }
-inline void ModelConfig::unsafe_arena_set_allocated_sgbm_config(::binocularpositioning::SGBMConfig* value) {
+inline void ModelConfig::unsafe_arena_set_allocated_sgbm_config(
+    ::binocularpositioning::SGBMConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.sgbm_config_);
@@ -1464,7 +1450,7 @@ inline void ModelConfig::unsafe_arena_set_allocated_sgbm_config(::binocularposit
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:binocularpositioning.ModelConfig.sgbm_config)
 }
-inline ::binocularpositioning::SGBMConfig* ModelConfig::release_sgbm_config() {
+inline ::binocularpositioning::SGBMConfig* PROTOBUF_NULLABLE ModelConfig::release_sgbm_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
@@ -1483,7 +1469,7 @@ inline ::binocularpositioning::SGBMConfig* ModelConfig::release_sgbm_config() {
   }
   return released;
 }
-inline ::binocularpositioning::SGBMConfig* ModelConfig::unsafe_arena_release_sgbm_config() {
+inline ::binocularpositioning::SGBMConfig* PROTOBUF_NULLABLE ModelConfig::unsafe_arena_release_sgbm_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:binocularpositioning.ModelConfig.sgbm_config)
 
@@ -1492,7 +1478,7 @@ inline ::binocularpositioning::SGBMConfig* ModelConfig::unsafe_arena_release_sgb
   _impl_.sgbm_config_ = nullptr;
   return temp;
 }
-inline ::binocularpositioning::SGBMConfig* ModelConfig::_internal_mutable_sgbm_config() {
+inline ::binocularpositioning::SGBMConfig* PROTOBUF_NONNULL ModelConfig::_internal_mutable_sgbm_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.sgbm_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::binocularpositioning::SGBMConfig>(GetArena());
@@ -1500,21 +1486,22 @@ inline ::binocularpositioning::SGBMConfig* ModelConfig::_internal_mutable_sgbm_c
   }
   return _impl_.sgbm_config_;
 }
-inline ::binocularpositioning::SGBMConfig* ModelConfig::mutable_sgbm_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::binocularpositioning::SGBMConfig* PROTOBUF_NONNULL ModelConfig::mutable_sgbm_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
   ::binocularpositioning::SGBMConfig* _msg = _internal_mutable_sgbm_config();
   // @@protoc_insertion_point(field_mutable:binocularpositioning.ModelConfig.sgbm_config)
   return _msg;
 }
-inline void ModelConfig::set_allocated_sgbm_config(::binocularpositioning::SGBMConfig* value) {
+inline void ModelConfig::set_allocated_sgbm_config(::binocularpositioning::SGBMConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.sgbm_config_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.sgbm_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
@@ -1547,7 +1534,8 @@ inline const ::binocularpositioning::CRLConfig& ModelConfig::crl_config() const 
   // @@protoc_insertion_point(field_get:binocularpositioning.ModelConfig.crl_config)
   return _internal_crl_config();
 }
-inline void ModelConfig::unsafe_arena_set_allocated_crl_config(::binocularpositioning::CRLConfig* value) {
+inline void ModelConfig::unsafe_arena_set_allocated_crl_config(
+    ::binocularpositioning::CRLConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.crl_config_);
@@ -1560,7 +1548,7 @@ inline void ModelConfig::unsafe_arena_set_allocated_crl_config(::binocularpositi
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:binocularpositioning.ModelConfig.crl_config)
 }
-inline ::binocularpositioning::CRLConfig* ModelConfig::release_crl_config() {
+inline ::binocularpositioning::CRLConfig* PROTOBUF_NULLABLE ModelConfig::release_crl_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000002u;
@@ -1579,7 +1567,7 @@ inline ::binocularpositioning::CRLConfig* ModelConfig::release_crl_config() {
   }
   return released;
 }
-inline ::binocularpositioning::CRLConfig* ModelConfig::unsafe_arena_release_crl_config() {
+inline ::binocularpositioning::CRLConfig* PROTOBUF_NULLABLE ModelConfig::unsafe_arena_release_crl_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:binocularpositioning.ModelConfig.crl_config)
 
@@ -1588,7 +1576,7 @@ inline ::binocularpositioning::CRLConfig* ModelConfig::unsafe_arena_release_crl_
   _impl_.crl_config_ = nullptr;
   return temp;
 }
-inline ::binocularpositioning::CRLConfig* ModelConfig::_internal_mutable_crl_config() {
+inline ::binocularpositioning::CRLConfig* PROTOBUF_NONNULL ModelConfig::_internal_mutable_crl_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.crl_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::binocularpositioning::CRLConfig>(GetArena());
@@ -1596,21 +1584,22 @@ inline ::binocularpositioning::CRLConfig* ModelConfig::_internal_mutable_crl_con
   }
   return _impl_.crl_config_;
 }
-inline ::binocularpositioning::CRLConfig* ModelConfig::mutable_crl_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::binocularpositioning::CRLConfig* PROTOBUF_NONNULL ModelConfig::mutable_crl_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000002u;
   ::binocularpositioning::CRLConfig* _msg = _internal_mutable_crl_config();
   // @@protoc_insertion_point(field_mutable:binocularpositioning.ModelConfig.crl_config)
   return _msg;
 }
-inline void ModelConfig::set_allocated_crl_config(::binocularpositioning::CRLConfig* value) {
+inline void ModelConfig::set_allocated_crl_config(::binocularpositioning::CRLConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.crl_config_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.crl_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
@@ -1743,7 +1732,8 @@ inline const ::binocularpositioning::ModelConfig& BinocularPositioningConfig::mo
   // @@protoc_insertion_point(field_get:binocularpositioning.BinocularPositioningConfig.model_config)
   return _internal_model_config();
 }
-inline void BinocularPositioningConfig::unsafe_arena_set_allocated_model_config(::binocularpositioning::ModelConfig* value) {
+inline void BinocularPositioningConfig::unsafe_arena_set_allocated_model_config(
+    ::binocularpositioning::ModelConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.model_config_);
@@ -1756,7 +1746,7 @@ inline void BinocularPositioningConfig::unsafe_arena_set_allocated_model_config(
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:binocularpositioning.BinocularPositioningConfig.model_config)
 }
-inline ::binocularpositioning::ModelConfig* BinocularPositioningConfig::release_model_config() {
+inline ::binocularpositioning::ModelConfig* PROTOBUF_NULLABLE BinocularPositioningConfig::release_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
@@ -1775,7 +1765,7 @@ inline ::binocularpositioning::ModelConfig* BinocularPositioningConfig::release_
   }
   return released;
 }
-inline ::binocularpositioning::ModelConfig* BinocularPositioningConfig::unsafe_arena_release_model_config() {
+inline ::binocularpositioning::ModelConfig* PROTOBUF_NULLABLE BinocularPositioningConfig::unsafe_arena_release_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:binocularpositioning.BinocularPositioningConfig.model_config)
 
@@ -1784,7 +1774,7 @@ inline ::binocularpositioning::ModelConfig* BinocularPositioningConfig::unsafe_a
   _impl_.model_config_ = nullptr;
   return temp;
 }
-inline ::binocularpositioning::ModelConfig* BinocularPositioningConfig::_internal_mutable_model_config() {
+inline ::binocularpositioning::ModelConfig* PROTOBUF_NONNULL BinocularPositioningConfig::_internal_mutable_model_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.model_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::binocularpositioning::ModelConfig>(GetArena());
@@ -1792,21 +1782,22 @@ inline ::binocularpositioning::ModelConfig* BinocularPositioningConfig::_interna
   }
   return _impl_.model_config_;
 }
-inline ::binocularpositioning::ModelConfig* BinocularPositioningConfig::mutable_model_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::binocularpositioning::ModelConfig* PROTOBUF_NONNULL BinocularPositioningConfig::mutable_model_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
   ::binocularpositioning::ModelConfig* _msg = _internal_mutable_model_config();
   // @@protoc_insertion_point(field_mutable:binocularpositioning.BinocularPositioningConfig.model_config)
   return _msg;
 }
-inline void BinocularPositioningConfig::set_allocated_model_config(::binocularpositioning::ModelConfig* value) {
+inline void BinocularPositioningConfig::set_allocated_model_config(::binocularpositioning::ModelConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.model_config_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.model_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
@@ -1834,7 +1825,8 @@ inline const ::common::ModulesConfig& BinocularPositioningConfig::modules_config
   // @@protoc_insertion_point(field_get:binocularpositioning.BinocularPositioningConfig.modules_config)
   return _internal_modules_config();
 }
-inline void BinocularPositioningConfig::unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value) {
+inline void BinocularPositioningConfig::unsafe_arena_set_allocated_modules_config(
+    ::common::ModulesConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.modules_config_);
@@ -1847,7 +1839,7 @@ inline void BinocularPositioningConfig::unsafe_arena_set_allocated_modules_confi
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:binocularpositioning.BinocularPositioningConfig.modules_config)
 }
-inline ::common::ModulesConfig* BinocularPositioningConfig::release_modules_config() {
+inline ::common::ModulesConfig* PROTOBUF_NULLABLE BinocularPositioningConfig::release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000002u;
@@ -1866,7 +1858,7 @@ inline ::common::ModulesConfig* BinocularPositioningConfig::release_modules_conf
   }
   return released;
 }
-inline ::common::ModulesConfig* BinocularPositioningConfig::unsafe_arena_release_modules_config() {
+inline ::common::ModulesConfig* PROTOBUF_NULLABLE BinocularPositioningConfig::unsafe_arena_release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:binocularpositioning.BinocularPositioningConfig.modules_config)
 
@@ -1875,7 +1867,7 @@ inline ::common::ModulesConfig* BinocularPositioningConfig::unsafe_arena_release
   _impl_.modules_config_ = nullptr;
   return temp;
 }
-inline ::common::ModulesConfig* BinocularPositioningConfig::_internal_mutable_modules_config() {
+inline ::common::ModulesConfig* PROTOBUF_NONNULL BinocularPositioningConfig::_internal_mutable_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.modules_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::common::ModulesConfig>(GetArena());
@@ -1883,13 +1875,14 @@ inline ::common::ModulesConfig* BinocularPositioningConfig::_internal_mutable_mo
   }
   return _impl_.modules_config_;
 }
-inline ::common::ModulesConfig* BinocularPositioningConfig::mutable_modules_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::common::ModulesConfig* PROTOBUF_NONNULL BinocularPositioningConfig::mutable_modules_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000002u;
   ::common::ModulesConfig* _msg = _internal_mutable_modules_config();
   // @@protoc_insertion_point(field_mutable:binocularpositioning.BinocularPositioningConfig.modules_config)
   return _msg;
 }
-inline void BinocularPositioningConfig::set_allocated_modules_config(::common::ModulesConfig* value) {
+inline void BinocularPositioningConfig::set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
@@ -1897,7 +1890,7 @@ inline void BinocularPositioningConfig::set_allocated_modules_config(::common::M
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::Message*>(value)->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }

@@ -50,8 +50,9 @@ template <typename T>
 struct TableStruct_ObjectLocation_5fconf_2eproto {
   static const ::uint32_t offsets[];
 };
-extern const ::google::protobuf::internal::DescriptorTable
-    descriptor_table_ObjectLocation_5fconf_2eproto;
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_ObjectLocation_5fconf_2eproto;
+}  // extern "C"
 namespace objectlocation {
 class ObjectLocationConfig;
 struct ObjectLocationConfigDefaultTypeInternal;
@@ -74,23 +75,21 @@ namespace objectlocation {
 
 // -------------------------------------------------------------------
 
-class TaskConfig final
-    : public ::google::protobuf::Message
+class TaskConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:objectlocation.TaskConfig) */ {
  public:
   inline TaskConfig() : TaskConfig(nullptr) {}
   ~TaskConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(TaskConfig* msg, std::destroying_delete_t) {
+  void operator delete(TaskConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(TaskConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR TaskConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR TaskConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline TaskConfig(const TaskConfig& from) : TaskConfig(nullptr, from) {}
   inline TaskConfig(TaskConfig&& from) noexcept
@@ -113,30 +112,27 @@ class TaskConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const TaskConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const TaskConfig* internal_default_instance() {
-    return reinterpret_cast<const TaskConfig*>(
+    return *reinterpret_cast<const TaskConfig*>(
         &_TaskConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 0;
   friend void swap(TaskConfig& a, TaskConfig& b) { a.Swap(&b); }
-  inline void Swap(TaskConfig* other) {
+  inline void Swap(TaskConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -144,7 +140,7 @@ class TaskConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(TaskConfig* other) {
+  void UnsafeArenaSwap(TaskConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -152,7 +148,7 @@ class TaskConfig final
 
   // implements Message ----------------------------------------------
 
-  TaskConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  TaskConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<TaskConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -161,9 +157,8 @@ class TaskConfig final
   void MergeFrom(const TaskConfig& from) { TaskConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -173,45 +168,46 @@ class TaskConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(TaskConfig* other);
+  void InternalSwap(TaskConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "objectlocation.TaskConfig"; }
 
  protected:
-  explicit TaskConfig(::google::protobuf::Arena* arena);
-  TaskConfig(::google::protobuf::Arena* arena, const TaskConfig& from);
-  TaskConfig(::google::protobuf::Arena* arena, TaskConfig&& from) noexcept
+  explicit TaskConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  TaskConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const TaskConfig& from);
+  TaskConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, TaskConfig&& from) noexcept
       : TaskConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -381,9 +377,9 @@ class TaskConfig final
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      4, 14, 0,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<4, 14,
+                                   0, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -393,13 +389,14 @@ class TaskConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const TaskConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const TaskConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     float iou_thres_;
@@ -425,23 +422,21 @@ class TaskConfig final
 extern const ::google::protobuf::internal::ClassDataFull TaskConfig_class_data_;
 // -------------------------------------------------------------------
 
-class ObjectLocationConfig final
-    : public ::google::protobuf::Message
+class ObjectLocationConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:objectlocation.ObjectLocationConfig) */ {
  public:
   inline ObjectLocationConfig() : ObjectLocationConfig(nullptr) {}
   ~ObjectLocationConfig() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ObjectLocationConfig* msg, std::destroying_delete_t) {
+  void operator delete(ObjectLocationConfig* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
     ::google::protobuf::internal::SizedDelete(msg, sizeof(ObjectLocationConfig));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ObjectLocationConfig(
-      ::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR ObjectLocationConfig(::google::protobuf::internal::ConstantInitialized);
 
   inline ObjectLocationConfig(const ObjectLocationConfig& from) : ObjectLocationConfig(nullptr, from) {}
   inline ObjectLocationConfig(ObjectLocationConfig&& from) noexcept
@@ -464,30 +459,27 @@ class ObjectLocationConfig final
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
     return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
-  static const ::google::protobuf::Descriptor* descriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
     return GetDescriptor();
   }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
     return default_instance().GetMetadata().descriptor;
   }
-  static const ::google::protobuf::Reflection* GetReflection() {
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
   static const ObjectLocationConfig& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ObjectLocationConfig* internal_default_instance() {
-    return reinterpret_cast<const ObjectLocationConfig*>(
+    return *reinterpret_cast<const ObjectLocationConfig*>(
         &_ObjectLocationConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 1;
   friend void swap(ObjectLocationConfig& a, ObjectLocationConfig& b) { a.Swap(&b); }
-  inline void Swap(ObjectLocationConfig* other) {
+  inline void Swap(ObjectLocationConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -495,7 +487,7 @@ class ObjectLocationConfig final
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ObjectLocationConfig* other) {
+  void UnsafeArenaSwap(ObjectLocationConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -503,7 +495,7 @@ class ObjectLocationConfig final
 
   // implements Message ----------------------------------------------
 
-  ObjectLocationConfig* New(::google::protobuf::Arena* arena = nullptr) const {
+  ObjectLocationConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
     return ::google::protobuf::Message::DefaultConstruct<ObjectLocationConfig>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
@@ -512,9 +504,8 @@ class ObjectLocationConfig final
   void MergeFrom(const ObjectLocationConfig& from) { ObjectLocationConfig::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
@@ -524,45 +515,46 @@ class ObjectLocationConfig final
   #if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
   static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
   ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
     return _InternalSerialize(*this, target, stream);
   }
   #else   // PROTOBUF_CUSTOM_VTABLE
   ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
   #endif  // PROTOBUF_CUSTOM_VTABLE
   int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(ObjectLocationConfig* other);
+  void InternalSwap(ObjectLocationConfig* PROTOBUF_NONNULL other);
  private:
   template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
   static ::absl::string_view FullMessageName() { return "objectlocation.ObjectLocationConfig"; }
 
  protected:
-  explicit ObjectLocationConfig(::google::protobuf::Arena* arena);
-  ObjectLocationConfig(::google::protobuf::Arena* arena, const ObjectLocationConfig& from);
-  ObjectLocationConfig(::google::protobuf::Arena* arena, ObjectLocationConfig&& from) noexcept
+  explicit ObjectLocationConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  ObjectLocationConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ObjectLocationConfig& from);
+  ObjectLocationConfig(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ObjectLocationConfig&& from) noexcept
       : ObjectLocationConfig(arena) {
     *this = ::std::move(from);
   }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static constexpr auto InternalNewImpl_();
 
  public:
@@ -580,39 +572,39 @@ class ObjectLocationConfig final
   bool has_task_config() const;
   void clear_task_config() ;
   const ::objectlocation::TaskConfig& task_config() const;
-  [[nodiscard]] ::objectlocation::TaskConfig* release_task_config();
-  ::objectlocation::TaskConfig* mutable_task_config();
-  void set_allocated_task_config(::objectlocation::TaskConfig* value);
-  void unsafe_arena_set_allocated_task_config(::objectlocation::TaskConfig* value);
-  ::objectlocation::TaskConfig* unsafe_arena_release_task_config();
+  [[nodiscard]] ::objectlocation::TaskConfig* PROTOBUF_NULLABLE release_task_config();
+  ::objectlocation::TaskConfig* PROTOBUF_NONNULL mutable_task_config();
+  void set_allocated_task_config(::objectlocation::TaskConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_task_config(::objectlocation::TaskConfig* PROTOBUF_NULLABLE value);
+  ::objectlocation::TaskConfig* PROTOBUF_NULLABLE unsafe_arena_release_task_config();
 
   private:
   const ::objectlocation::TaskConfig& _internal_task_config() const;
-  ::objectlocation::TaskConfig* _internal_mutable_task_config();
+  ::objectlocation::TaskConfig* PROTOBUF_NONNULL _internal_mutable_task_config();
 
   public:
   // .common.ModulesConfig modules_config = 2;
   bool has_modules_config() const;
   void clear_modules_config() ;
   const ::common::ModulesConfig& modules_config() const;
-  [[nodiscard]] ::common::ModulesConfig* release_modules_config();
-  ::common::ModulesConfig* mutable_modules_config();
-  void set_allocated_modules_config(::common::ModulesConfig* value);
-  void unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value);
-  ::common::ModulesConfig* unsafe_arena_release_modules_config();
+  [[nodiscard]] ::common::ModulesConfig* PROTOBUF_NULLABLE release_modules_config();
+  ::common::ModulesConfig* PROTOBUF_NONNULL mutable_modules_config();
+  void set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value);
+  ::common::ModulesConfig* PROTOBUF_NULLABLE unsafe_arena_release_modules_config();
 
   private:
   const ::common::ModulesConfig& _internal_modules_config() const;
-  ::common::ModulesConfig* _internal_mutable_modules_config();
+  ::common::ModulesConfig* PROTOBUF_NONNULL _internal_mutable_modules_config();
 
   public:
   // @@protoc_insertion_point(class_scope:objectlocation.ObjectLocationConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 2,
-      0, 2>
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   2, 0,
+                                   2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -622,17 +614,18 @@ class ObjectLocationConfig final
   using InternalArenaConstructable_ = void;
   using DestructorSkippable_ = void;
   struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ObjectLocationConfig& from_msg);
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const ObjectLocationConfig& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::objectlocation::TaskConfig* task_config_;
-    ::common::ModulesConfig* modules_config_;
+    ::objectlocation::TaskConfig* PROTOBUF_NULLABLE task_config_;
+    ::common::ModulesConfig* PROTOBUF_NULLABLE modules_config_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1017,7 +1010,8 @@ inline const ::objectlocation::TaskConfig& ObjectLocationConfig::task_config() c
   // @@protoc_insertion_point(field_get:objectlocation.ObjectLocationConfig.task_config)
   return _internal_task_config();
 }
-inline void ObjectLocationConfig::unsafe_arena_set_allocated_task_config(::objectlocation::TaskConfig* value) {
+inline void ObjectLocationConfig::unsafe_arena_set_allocated_task_config(
+    ::objectlocation::TaskConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.task_config_);
@@ -1030,7 +1024,7 @@ inline void ObjectLocationConfig::unsafe_arena_set_allocated_task_config(::objec
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:objectlocation.ObjectLocationConfig.task_config)
 }
-inline ::objectlocation::TaskConfig* ObjectLocationConfig::release_task_config() {
+inline ::objectlocation::TaskConfig* PROTOBUF_NULLABLE ObjectLocationConfig::release_task_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
@@ -1049,7 +1043,7 @@ inline ::objectlocation::TaskConfig* ObjectLocationConfig::release_task_config()
   }
   return released;
 }
-inline ::objectlocation::TaskConfig* ObjectLocationConfig::unsafe_arena_release_task_config() {
+inline ::objectlocation::TaskConfig* PROTOBUF_NULLABLE ObjectLocationConfig::unsafe_arena_release_task_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:objectlocation.ObjectLocationConfig.task_config)
 
@@ -1058,7 +1052,7 @@ inline ::objectlocation::TaskConfig* ObjectLocationConfig::unsafe_arena_release_
   _impl_.task_config_ = nullptr;
   return temp;
 }
-inline ::objectlocation::TaskConfig* ObjectLocationConfig::_internal_mutable_task_config() {
+inline ::objectlocation::TaskConfig* PROTOBUF_NONNULL ObjectLocationConfig::_internal_mutable_task_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.task_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::objectlocation::TaskConfig>(GetArena());
@@ -1066,21 +1060,22 @@ inline ::objectlocation::TaskConfig* ObjectLocationConfig::_internal_mutable_tas
   }
   return _impl_.task_config_;
 }
-inline ::objectlocation::TaskConfig* ObjectLocationConfig::mutable_task_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::objectlocation::TaskConfig* PROTOBUF_NONNULL ObjectLocationConfig::mutable_task_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
   ::objectlocation::TaskConfig* _msg = _internal_mutable_task_config();
   // @@protoc_insertion_point(field_mutable:objectlocation.ObjectLocationConfig.task_config)
   return _msg;
 }
-inline void ObjectLocationConfig::set_allocated_task_config(::objectlocation::TaskConfig* value) {
+inline void ObjectLocationConfig::set_allocated_task_config(::objectlocation::TaskConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.task_config_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.task_config_);
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
@@ -1108,7 +1103,8 @@ inline const ::common::ModulesConfig& ObjectLocationConfig::modules_config() con
   // @@protoc_insertion_point(field_get:objectlocation.ObjectLocationConfig.modules_config)
   return _internal_modules_config();
 }
-inline void ObjectLocationConfig::unsafe_arena_set_allocated_modules_config(::common::ModulesConfig* value) {
+inline void ObjectLocationConfig::unsafe_arena_set_allocated_modules_config(
+    ::common::ModulesConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
     delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.modules_config_);
@@ -1121,7 +1117,7 @@ inline void ObjectLocationConfig::unsafe_arena_set_allocated_modules_config(::co
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:objectlocation.ObjectLocationConfig.modules_config)
 }
-inline ::common::ModulesConfig* ObjectLocationConfig::release_modules_config() {
+inline ::common::ModulesConfig* PROTOBUF_NULLABLE ObjectLocationConfig::release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000002u;
@@ -1140,7 +1136,7 @@ inline ::common::ModulesConfig* ObjectLocationConfig::release_modules_config() {
   }
   return released;
 }
-inline ::common::ModulesConfig* ObjectLocationConfig::unsafe_arena_release_modules_config() {
+inline ::common::ModulesConfig* PROTOBUF_NULLABLE ObjectLocationConfig::unsafe_arena_release_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:objectlocation.ObjectLocationConfig.modules_config)
 
@@ -1149,7 +1145,7 @@ inline ::common::ModulesConfig* ObjectLocationConfig::unsafe_arena_release_modul
   _impl_.modules_config_ = nullptr;
   return temp;
 }
-inline ::common::ModulesConfig* ObjectLocationConfig::_internal_mutable_modules_config() {
+inline ::common::ModulesConfig* PROTOBUF_NONNULL ObjectLocationConfig::_internal_mutable_modules_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.modules_config_ == nullptr) {
     auto* p = ::google::protobuf::Message::DefaultConstruct<::common::ModulesConfig>(GetArena());
@@ -1157,13 +1153,14 @@ inline ::common::ModulesConfig* ObjectLocationConfig::_internal_mutable_modules_
   }
   return _impl_.modules_config_;
 }
-inline ::common::ModulesConfig* ObjectLocationConfig::mutable_modules_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::common::ModulesConfig* PROTOBUF_NONNULL ObjectLocationConfig::mutable_modules_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000002u;
   ::common::ModulesConfig* _msg = _internal_mutable_modules_config();
   // @@protoc_insertion_point(field_mutable:objectlocation.ObjectLocationConfig.modules_config)
   return _msg;
 }
-inline void ObjectLocationConfig::set_allocated_modules_config(::common::ModulesConfig* value) {
+inline void ObjectLocationConfig::set_allocated_modules_config(::common::ModulesConfig* PROTOBUF_NULLABLE value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
@@ -1171,7 +1168,7 @@ inline void ObjectLocationConfig::set_allocated_modules_config(::common::Modules
   }
 
   if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(value)->GetArena();
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::Message*>(value)->GetArena();
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }

@@ -7,8 +7,8 @@
 
 // #include "activities/alg_activity/proto/alg_activity.pb.h"
 #include "activities/PoseEstimationActivity/proto/PoseEstimationActivity.pb.h"
-#include "activities/idl/CMultiModalSrcData/CMultiModalSrcData.h"
-#include "activities/idl/CMultiModalSrcData/CMultiModalSrcDataPubSubTypes.h"
+#include "activities/idl/CAlgResult/CAlgResult.h"
+#include "activities/idl/CAlgResult/CAlgResultPubSubTypes.h"
 #include "activities/idl/CAlgResult/CAlgResult.h"
 #include "activities/idl/CAlgResult/CAlgResultPubSubTypes.h"
 #include "include/queue/CSafeDataDeque.h"
@@ -47,17 +47,17 @@ private:
     // 处理camera_merged_topic中的数据
     void MessageConsumerThreadFunc();
     
-    void ReadCallbackFunc(const CMultiModalSrcData &message,
+    void ReadCallbackFunc(const CAlgResult &message,
         void *data_handle, std::string node_name, std::string topic_name);
 
 
 private:
     // DDS 读取和写出节点
-    std::shared_ptr<Reader<CMultiModalSrcData>> reader_;
+    std::shared_ptr<Reader<CAlgResult>> reader_;
     std::shared_ptr<Writer> writer_;
 
     // 消息队列
-    CSafeDataDeque<std::shared_ptr<CMultiModalSrcData>> camera_merged_data_deque_;   // 时间同步后的数据
+    CSafeDataDeque<std::shared_ptr<CAlgResult>> camera_merged_data_deque_;   // 时间同步后的数据
     CSafeDataDeque<std::shared_ptr<CAlgResult>> pose_estimation_result_deque_;  // 多模态融合结果
 
     // 消息发送和消费线程

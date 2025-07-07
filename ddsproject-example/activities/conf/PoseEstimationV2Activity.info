@@ -1,0 +1,11 @@
+class_name: "PoseEstimationV2Activity"
+activiry_conf {
+    conf_file_path: "/ultralytics/ddsproject-example/activities/PoseEstimationV2Activity/conf/PoseEstimationV2Activity.conf"
+    node_conf {
+        name: "PoseEstimationV2Activity"
+        domain_Id: 80
+        comm_type: SHM
+        segment_size: 1000000
+        white_list: ""
+    }
+}

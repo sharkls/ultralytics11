@@ -1020,6 +1020,8 @@ private:
 };
 
 
+
+
 /*!
  * @brief This class represents the structure CFrameResult defined by the user in the IDL file.
  * @ingroup CAlgResult
@@ -1133,10 +1135,38 @@ public:
      */
     eProsima_user_DllExport CDisparityResult& tCameraSupplement();
 
+
+    /*!
+     * @brief This function copies the value in member vecVideoSrcData
+     * @param _vecVideoSrcData New value to be copied in member vecVideoSrcData
+     */
+    eProsima_user_DllExport void vecVideoSrcData(
+            const std::vector<CVideoSrcData>& _vecVideoSrcData);
+
+    /*!
+     * @brief This function moves the value in member vecVideoSrcData
+     * @param _vecVideoSrcData New value to be moved in member vecVideoSrcData
+     */
+    eProsima_user_DllExport void vecVideoSrcData(
+            std::vector<CVideoSrcData>&& _vecVideoSrcData);
+
+    /*!
+     * @brief This function returns a constant reference to member vecVideoSrcData
+     * @return Constant reference to member vecVideoSrcData
+     */
+    eProsima_user_DllExport const std::vector<CVideoSrcData>& vecVideoSrcData() const;
+
+    /*!
+     * @brief This function returns a reference to member vecVideoSrcData
+     * @return Reference to member vecVideoSrcData
+     */
+    eProsima_user_DllExport std::vector<CVideoSrcData>& vecVideoSrcData();
+
 private:
 
     std::vector<CObjectResult> m_vecObjectResult;
     CDisparityResult m_tCameraSupplement;
+    std::vector<CVideoSrcData> m_vecVideoSrcData;
 
 };
 

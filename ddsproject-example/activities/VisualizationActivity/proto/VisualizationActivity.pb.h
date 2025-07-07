@@ -215,7 +215,7 @@ class TopicConfig final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kCameraMergedTopicFieldNumber = 3,
-    kPoseEstimationResultTopicFieldNumber = 4,
+    kPoseEstimationV2ResultTopicFieldNumber = 4,
     kMultiModalFusionResultTopicFieldNumber = 5,
     kObjectLocationResultTopicFieldNumber = 6,
   };
@@ -235,20 +235,20 @@ class TopicConfig final : public ::google::protobuf::Message
   std::string* PROTOBUF_NONNULL _internal_mutable_camera_merged_topic();
 
   public:
-  // optional string pose_estimation_result_topic = 4;
-  bool has_pose_estimation_result_topic() const;
-  void clear_pose_estimation_result_topic() ;
-  const std::string& pose_estimation_result_topic() const;
+  // optional string pose_estimation_v2_result_topic = 4;
+  bool has_pose_estimation_v2_result_topic() const;
+  void clear_pose_estimation_v2_result_topic() ;
+  const std::string& pose_estimation_v2_result_topic() const;
   template <typename Arg_ = const std::string&, typename... Args_>
-  void set_pose_estimation_result_topic(Arg_&& arg, Args_... args);
-  std::string* PROTOBUF_NONNULL mutable_pose_estimation_result_topic();
-  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_pose_estimation_result_topic();
-  void set_allocated_pose_estimation_result_topic(std::string* PROTOBUF_NULLABLE value);
+  void set_pose_estimation_v2_result_topic(Arg_&& arg, Args_... args);
+  std::string* PROTOBUF_NONNULL mutable_pose_estimation_v2_result_topic();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_pose_estimation_v2_result_topic();
+  void set_allocated_pose_estimation_v2_result_topic(std::string* PROTOBUF_NULLABLE value);
 
   private:
-  const std::string& _internal_pose_estimation_result_topic() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_pose_estimation_result_topic(const std::string& value);
-  std::string* PROTOBUF_NONNULL _internal_mutable_pose_estimation_result_topic();
+  const std::string& _internal_pose_estimation_v2_result_topic() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_pose_estimation_v2_result_topic(const std::string& value);
+  std::string* PROTOBUF_NONNULL _internal_mutable_pose_estimation_v2_result_topic();
 
   public:
   // optional string multi_modal_fusion_result_topic = 5;
@@ -288,7 +288,7 @@ class TopicConfig final : public ::google::protobuf::Message
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 126,
+                                   0, 129,
                                    2>
       _table_;
 
@@ -310,7 +310,7 @@ class TopicConfig final : public ::google::protobuf::Message
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr camera_merged_topic_;
-    ::google::protobuf::internal::ArenaStringPtr pose_estimation_result_topic_;
+    ::google::protobuf::internal::ArenaStringPtr pose_estimation_v2_result_topic_;
     ::google::protobuf::internal::ArenaStringPtr multi_modal_fusion_result_topic_;
     ::google::protobuf::internal::ArenaStringPtr object_location_result_topic_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -602,73 +602,73 @@ inline void TopicConfig::set_allocated_camera_merged_topic(std::string* PROTOBUF
   // @@protoc_insertion_point(field_set_allocated:TopicConfig.camera_merged_topic)
 }
 
-// optional string pose_estimation_result_topic = 4;
-inline bool TopicConfig::has_pose_estimation_result_topic() const {
+// optional string pose_estimation_v2_result_topic = 4;
+inline bool TopicConfig::has_pose_estimation_v2_result_topic() const {
   bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   return value;
 }
-inline void TopicConfig::clear_pose_estimation_result_topic() {
+inline void TopicConfig::clear_pose_estimation_v2_result_topic() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.pose_estimation_result_topic_.ClearToEmpty();
+  _impl_.pose_estimation_v2_result_topic_.ClearToEmpty();
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
-inline const std::string& TopicConfig::pose_estimation_result_topic() const
+inline const std::string& TopicConfig::pose_estimation_v2_result_topic() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:TopicConfig.pose_estimation_result_topic)
-  return _internal_pose_estimation_result_topic();
+  // @@protoc_insertion_point(field_get:TopicConfig.pose_estimation_v2_result_topic)
+  return _internal_pose_estimation_v2_result_topic();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void TopicConfig::set_pose_estimation_result_topic(Arg_&& arg, Args_... args) {
+PROTOBUF_ALWAYS_INLINE void TopicConfig::set_pose_estimation_v2_result_topic(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.pose_estimation_result_topic_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:TopicConfig.pose_estimation_result_topic)
+  _impl_.pose_estimation_v2_result_topic_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:TopicConfig.pose_estimation_v2_result_topic)
 }
-inline std::string* PROTOBUF_NONNULL TopicConfig::mutable_pose_estimation_result_topic()
+inline std::string* PROTOBUF_NONNULL TopicConfig::mutable_pose_estimation_v2_result_topic()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_pose_estimation_result_topic();
-  // @@protoc_insertion_point(field_mutable:TopicConfig.pose_estimation_result_topic)
+  std::string* _s = _internal_mutable_pose_estimation_v2_result_topic();
+  // @@protoc_insertion_point(field_mutable:TopicConfig.pose_estimation_v2_result_topic)
   return _s;
 }
-inline const std::string& TopicConfig::_internal_pose_estimation_result_topic() const {
+inline const std::string& TopicConfig::_internal_pose_estimation_v2_result_topic() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.pose_estimation_result_topic_.Get();
+  return _impl_.pose_estimation_v2_result_topic_.Get();
 }
-inline void TopicConfig::_internal_set_pose_estimation_result_topic(const std::string& value) {
+inline void TopicConfig::_internal_set_pose_estimation_v2_result_topic(const std::string& value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.pose_estimation_result_topic_.Set(value, GetArena());
+  _impl_.pose_estimation_v2_result_topic_.Set(value, GetArena());
 }
-inline std::string* PROTOBUF_NONNULL TopicConfig::_internal_mutable_pose_estimation_result_topic() {
+inline std::string* PROTOBUF_NONNULL TopicConfig::_internal_mutable_pose_estimation_v2_result_topic() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
-  return _impl_.pose_estimation_result_topic_.Mutable( GetArena());
+  return _impl_.pose_estimation_v2_result_topic_.Mutable( GetArena());
 }
-inline std::string* PROTOBUF_NULLABLE TopicConfig::release_pose_estimation_result_topic() {
+inline std::string* PROTOBUF_NULLABLE TopicConfig::release_pose_estimation_v2_result_topic() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:TopicConfig.pose_estimation_result_topic)
+  // @@protoc_insertion_point(field_release:TopicConfig.pose_estimation_v2_result_topic)
   if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
     return nullptr;
   }
   _impl_._has_bits_[0] &= ~0x00000002u;
-  auto* released = _impl_.pose_estimation_result_topic_.Release();
+  auto* released = _impl_.pose_estimation_v2_result_topic_.Release();
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.pose_estimation_result_topic_.Set("", GetArena());
+    _impl_.pose_estimation_v2_result_topic_.Set("", GetArena());
   }
   return released;
 }
-inline void TopicConfig::set_allocated_pose_estimation_result_topic(std::string* PROTOBUF_NULLABLE value) {
+inline void TopicConfig::set_allocated_pose_estimation_v2_result_topic(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000002u;
   } else {
     _impl_._has_bits_[0] &= ~0x00000002u;
   }
-  _impl_.pose_estimation_result_topic_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.pose_estimation_result_topic_.IsDefault()) {
-    _impl_.pose_estimation_result_topic_.Set("", GetArena());
+  _impl_.pose_estimation_v2_result_topic_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.pose_estimation_v2_result_topic_.IsDefault()) {
+    _impl_.pose_estimation_v2_result_topic_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:TopicConfig.pose_estimation_result_topic)
+  // @@protoc_insertion_point(field_set_allocated:TopicConfig.pose_estimation_v2_result_topic)
 }
 
 // optional string multi_modal_fusion_result_topic = 5;

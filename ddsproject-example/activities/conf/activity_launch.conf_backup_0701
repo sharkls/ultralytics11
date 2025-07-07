@@ -1,0 +1,56 @@
+activity_launch_config {
+    activity_name:      "ActivityTest0"
+    pause:              false
+    shutdown:           false
+}
+
+activity_launch_config {
+    activity_name:      "ActivityTest1"
+    pause:              false
+    shutdown:           false
+}
+
+activity_launch_config {
+    activity_name:      "ActivityTest2"
+    pause:              false
+    shutdown:           false
+}
+
+activity_launch_config {
+    activity_name:      "ActivityMultiModal"
+    pause:              false
+    shutdown:           false
+}
+
+activity_launch_config {
+    activity_name:      "MultiModalFusionActivity"
+    pause:              false
+    shutdown:           false
+}
+
+activity_launch_config {
+    activity_name:      "PoseEstimationActivity"
+    pause:              false
+    shutdown:           false
+}
+
+activity_launch_config {
+    activity_name:      "ObjectLocationActivity"
+    pause:              false
+    shutdown:           false
+}
+
+activity_launch_config {
+    activity_name:      "VisualizationActivity"
+    pause:              false
+    shutdown:           false
+}
+
+activity_launch_config {
+    activity_name:      "ObjectDetectionActivity"
+    pause:              false
+    shutdown:           false
+}
+
+
+

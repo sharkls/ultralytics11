@@ -24,7 +24,7 @@ def parse_args():
                       help='TensorRT engine保存路径')
     
     # 推理相关参数
-    parser.add_argument('--image_path', type=str, default='/ultralytics/data/Data/saved_files/saved_files/XYZ_color/1750381950076.jpg',
+    parser.add_argument('--image_path', type=str, default='/ultralytics/c++/Data/SrcData/1/1.jpg',
                       help='输入图像路径')
     parser.add_argument('--max_size', type=int, default=640,
                       help='最大输入尺寸')

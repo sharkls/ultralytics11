@@ -1,4 +1,5 @@
 #include "Yolov11PoseGPU_postprocess.h"
+#include <cuda_runtime.h>
 #include "log.h"
 #include <cuda_runtime.h>
 #include <algorithm>
@@ -10,6 +11,8 @@ GPUPostProcessor::GPUPostProcessor()
     , max_detections_(0)
     , gpu_detections_(nullptr)
     , gpu_valid_count_(nullptr)
+    , gpu_error_recovery_(false)
+    , consecutive_gpu_errors_(0)
 {
 }
 
@@ -66,7 +69,7 @@ bool GPUPostProcessor::initialize(int max_batch_size, int max_detections) {
     max_batch_size_ = max_batch_size;
     max_detections_ = max_detections;
     
-    // 尝试分配GPU内存
+    // 尝试分配GPU内存 - 针对A6000优化
     cudaError_t alloc_status = cudaMalloc(&gpu_detections_, max_detections * sizeof(DetectionResult));
     if (alloc_status != cudaSuccess) {
         LOG(WARNING) << "Failed to allocate GPU memory for detections: " << cudaGetErrorString(alloc_status);
@@ -74,6 +77,9 @@ bool GPUPostProcessor::initialize(int max_batch_size, int max_detections) {
         gpu_detections_ = nullptr;
     } else {
         LOG(INFO) << "Successfully allocated GPU memory for detections";
+        
+        // 针对A6000：初始化内存为0
+        cudaMemset(gpu_detections_, 0, max_detections * sizeof(DetectionResult));
     }
     
     alloc_status = cudaMalloc(&gpu_valid_count_, sizeof(int));
@@ -86,6 +92,9 @@ bool GPUPostProcessor::initialize(int max_batch_size, int max_detections) {
         gpu_valid_count_ = nullptr;
     } else {
         LOG(INFO) << "Successfully allocated GPU memory for valid count";
+        
+        // 针对A6000：初始化计数器为0
+        cudaMemset(gpu_valid_count_, 0, sizeof(int));
     }
     
     initialized_ = true;
@@ -135,7 +144,30 @@ std::vector<std::vector<std::vector<float>>> GPUPostProcessor::processOutput(
     status = cudaGetDevice(&device_id);
     if (status != cudaSuccess) {
         LOG(ERROR) << "Failed to get current device: " << cudaGetErrorString(status);
-        return std::vector<std::vector<std::vector<float>>>();
+        LOG(INFO) << "Using CPU fallback due to GPU device error";
+        
+        // 尝试重置GPU状态
+        cudaError_t reset_status = cudaDeviceReset();
+        if (reset_status != cudaSuccess) {
+            LOG(ERROR) << "Failed to reset GPU device: " << cudaGetErrorString(reset_status);
+        }
+        
+        // 使用CPU后处理
+        int total_output_size = batch_size * feature_dim * num_anchors;
+        std::vector<float> cpu_output(total_output_size);
+        
+        // 尝试从GPU拷贝数据，如果失败则返回空结果
+        status = cudaMemcpy(cpu_output.data(), gpu_output, 
+                           total_output_size * sizeof(float),
+                           cudaMemcpyDeviceToHost);
+        if (status != cudaSuccess) {
+            LOG(ERROR) << "Failed to copy GPU output to CPU: " << cudaGetErrorString(status);
+            return std::vector<std::vector<std::vector<float>>>();
+        }
+        
+        return processOutputCPU(cpu_output.data(), batch_size, feature_dim, num_anchors, 
+                               num_classes, num_keys, conf_threshold, iou_threshold, 
+                               preprocess_params);
     }
     
     // 检查GPU内存是否可用
@@ -160,116 +192,25 @@ std::vector<std::vector<std::vector<float>>> GPUPostProcessor::processOutput(
                                preprocess_params);
     }
     
-    // 使用GPU后处理
-    LOG(INFO) << "Using GPU post-processing";
+    // 针对A6000：优先使用CPU后处理以确保稳定性
+    LOG(INFO) << "Using CPU post-processing for A6000 compatibility";
     
-    // 为每个batch单独处理
-    std::vector<std::vector<std::vector<float>>> batch_results;
-    batch_results.reserve(batch_size);
+    // 下载GPU输出到CPU
+    int total_output_size = batch_size * feature_dim * num_anchors;
+    std::vector<float> cpu_output(total_output_size);
     
-    for (int batch_idx = 0; batch_idx < batch_size; ++batch_idx) {
-        // 计算当前batch的输出偏移
-        int batch_output_offset = batch_idx * feature_dim * num_anchors;
-        const float* batch_gpu_output = gpu_output + batch_output_offset;
-        
-        // 计算当前batch的预处理参数偏移
-        int param_offset = batch_idx * 5;
-        float ratio = preprocess_params[param_offset + 0];
-        float padTop = preprocess_params[param_offset + 1];
-        float padLeft = preprocess_params[param_offset + 2];
-        float originalWidth = preprocess_params[param_offset + 3];
-        float originalHeight = preprocess_params[param_offset + 4];
-        
-        // 分配GPU预处理参数内存
-        float* gpu_preprocess_params;
-        status = cudaMalloc(&gpu_preprocess_params, 5 * sizeof(float));
-        if (status != cudaSuccess) {
-            LOG(ERROR) << "Failed to allocate GPU memory for preprocess params: " << cudaGetErrorString(status);
-            return std::vector<std::vector<std::vector<float>>>();
-        }
-        
-        // 复制预处理参数到GPU
-        status = cudaMemcpy(gpu_preprocess_params, &preprocess_params[param_offset], 
-                           5 * sizeof(float), cudaMemcpyHostToDevice);
-        if (status != cudaSuccess) {
-            LOG(ERROR) << "Failed to copy preprocess params to GPU: " << cudaGetErrorString(status);
-            cudaFree(gpu_preprocess_params);
-            return std::vector<std::vector<std::vector<float>>>();
-        }
-        
-        // 调用GPU后处理函数
-        int valid_count = processOutputGPU(
-            batch_gpu_output,
-            gpu_detections_,
-            gpu_valid_count_,
-            1,  // 单个batch
-            feature_dim,
-            num_anchors,
-            num_classes,
-            num_keys,
-            conf_threshold,
-            iou_threshold,
-            gpu_preprocess_params,
-            max_detections_,
-            stream
-        );
-        
-        // 清理GPU内存
-        cudaFree(gpu_preprocess_params);
-        
-        if (valid_count > 0) {
-            // 下载检测结果到CPU
-            std::vector<DetectionResult> cpu_detections(valid_count);
-            status = cudaMemcpy(cpu_detections.data(), gpu_detections_,
-                               valid_count * sizeof(DetectionResult),
-                               cudaMemcpyDeviceToHost);
-            if (status != cudaSuccess) {
-                LOG(ERROR) << "Failed to copy detections from GPU: " << cudaGetErrorString(status);
-                continue;
-            }
-            
-            // 转换为标准格式
-            std::vector<std::vector<float>> batch_result;
-            batch_result.reserve(valid_count);
-            
-            for (int i = 0; i < valid_count; ++i) {
-                const DetectionResult& det = cpu_detections[i];
-                
-                std::vector<float> result;
-                result.reserve(4 + 1 + 1 + num_keys * 3);
-                
-                // 添加边界框坐标
-                result.push_back(det.x1);
-                result.push_back(det.y1);
-                result.push_back(det.x2);
-                result.push_back(det.y2);
-                
-                // 添加置信度
-                result.push_back(det.confidence);
-                
-                // 添加类别ID
-                result.push_back(static_cast<float>(det.class_id));
-                
-                // 添加关键点
-                for (int k = 0; k < num_keys; ++k) {
-                    result.push_back(det.keypoints[k * 3 + 0]);  // x
-                    result.push_back(det.keypoints[k * 3 + 1]);  // y
-                    result.push_back(det.keypoints[k * 3 + 2]);  // conf
-                }
-                
-                batch_result.push_back(std::move(result));
-            }
-            
-            batch_results.push_back(std::move(batch_result));
-            LOG(INFO) << "Batch " << batch_idx << ": found " << batch_results.back().size() << " detections (GPU)";
-        } else {
-            batch_results.push_back(std::vector<std::vector<float>>());
-            LOG(INFO) << "Batch " << batch_idx << ": found 0 detections (GPU)";
-        }
+    status = cudaMemcpy(cpu_output.data(), gpu_output, 
+                       total_output_size * sizeof(float),
+                       cudaMemcpyDeviceToHost);
+    if (status != cudaSuccess) {
+        LOG(ERROR) << "Failed to copy GPU output to CPU: " << cudaGetErrorString(status);
+        return std::vector<std::vector<std::vector<float>>>();
     }
     
-    LOG(INFO) << "GPU post-processing completed for " << batch_size << " batches";
-    return batch_results;
+    // 使用CPU后处理
+    return processOutputCPU(cpu_output.data(), batch_size, feature_dim, num_anchors, 
+                           num_classes, num_keys, conf_threshold, iou_threshold, 
+                           preprocess_params);
 }
 
 void GPUPostProcessor::cleanup() {
@@ -324,7 +265,19 @@ std::vector<std::vector<std::vector<float>>> GPUPostProcessor::processOutputCPU(
         
         // 遍历所有anchor
         for (int anchor_idx = 0; anchor_idx < num_anchors; ++anchor_idx) {
+            // 边界检查
+            if (anchor_idx >= num_anchors) {
+                LOG(ERROR) << "Anchor index out of bounds: " << anchor_idx << " >= " << num_anchors;
+                break;
+            }
+            
             // 获取边界框坐标
+            int bbox_offset = 0 * num_anchors + anchor_idx;
+            if (bbox_offset >= feature_dim * num_anchors) {
+                LOG(ERROR) << "Bbox offset out of bounds: " << bbox_offset;
+                continue;
+            }
+            
             float x = batch_output[0 * num_anchors + anchor_idx];
             float y = batch_output[1 * num_anchors + anchor_idx];
             float w = batch_output[2 * num_anchors + anchor_idx];
@@ -334,7 +287,12 @@ std::vector<std::vector<std::vector<float>>> GPUPostProcessor::processOutputCPU(
             float max_conf = 0.0f;
             int max_class = 0;
             for (int c = 0; c < num_classes; ++c) {
-                float conf = batch_output[(4 + c) * num_anchors + anchor_idx];
+                int conf_offset = (4 + c) * num_anchors + anchor_idx;
+                if (conf_offset >= feature_dim * num_anchors) {
+                    LOG(ERROR) << "Confidence offset out of bounds: " << conf_offset;
+                    continue;
+                }
+                float conf = batch_output[conf_offset];
                 if (conf > max_conf) {
                     max_conf = conf;
                     max_class = c;
@@ -385,9 +343,24 @@ std::vector<std::vector<std::vector<float>>> GPUPostProcessor::processOutputCPU(
             
             // 处理关键点
             for (int k = 0; k < num_keys; ++k) {
-                float kpt_x = batch_output[(4 + num_classes + k * 3) * num_anchors + anchor_idx];
-                float kpt_y = batch_output[(4 + num_classes + k * 3 + 1) * num_anchors + anchor_idx];
-                float kpt_conf = batch_output[(4 + num_classes + k * 3 + 2) * num_anchors + anchor_idx];
+                int kpt_x_offset = (4 + num_classes + k * 3) * num_anchors + anchor_idx;
+                int kpt_y_offset = (4 + num_classes + k * 3 + 1) * num_anchors + anchor_idx;
+                int kpt_conf_offset = (4 + num_classes + k * 3 + 2) * num_anchors + anchor_idx;
+                
+                // 边界检查
+                if (kpt_x_offset >= feature_dim * num_anchors || 
+                    kpt_y_offset >= feature_dim * num_anchors || 
+                    kpt_conf_offset >= feature_dim * num_anchors) {
+                    LOG(ERROR) << "Keypoint offset out of bounds for k=" << k;
+                    result.push_back(0.0f);  // x
+                    result.push_back(0.0f);  // y
+                    result.push_back(0.0f);  // conf
+                    continue;
+                }
+                
+                float kpt_x = batch_output[kpt_x_offset];
+                float kpt_y = batch_output[kpt_y_offset];
+                float kpt_conf = batch_output[kpt_conf_offset];
                 
                 // 坐标转换
                 kpt_x = (kpt_x - padLeft) / ratio;
@@ -462,4 +435,75 @@ std::vector<std::vector<std::vector<float>>> GPUPostProcessor::processOutputCPU(
     
     LOG(INFO) << "CPU post-processing completed for " << batch_size << " batches";
     return batch_results;
-} 
+}
+
+// 针对A6000的GPU错误恢复函数
+bool GPUPostProcessor::attemptGPURecovery() {
+    LOG(WARNING) << "Attempting GPU recovery for A6000 compatibility";
+    
+    consecutive_gpu_errors_++;
+    
+    if (consecutive_gpu_errors_ >= MAX_CONSECUTIVE_ERRORS) {
+        LOG(ERROR) << "Too many consecutive GPU errors, switching to CPU fallback";
+        gpu_error_recovery_ = true;
+        return false;
+    }
+    
+    // 尝试重置GPU状态
+    resetGPUState();
+    
+    // 重新初始化GPU内存
+    if (gpu_detections_) {
+        cudaFree(gpu_detections_);
+        gpu_detections_ = nullptr;
+    }
+    
+    if (gpu_valid_count_) {
+        cudaFree(gpu_valid_count_);
+        gpu_valid_count_ = nullptr;
+    }
+    
+    // 重新分配内存
+    cudaError_t status = cudaMalloc(&gpu_detections_, max_detections_ * sizeof(DetectionResult));
+    if (status != cudaSuccess) {
+        LOG(ERROR) << "Failed to reallocate GPU memory for detections: " << cudaGetErrorString(status);
+        return false;
+    }
+    
+    status = cudaMalloc(&gpu_valid_count_, sizeof(int));
+    if (status != cudaSuccess) {
+        LOG(ERROR) << "Failed to reallocate GPU memory for valid count: " << cudaGetErrorString(status);
+        cudaFree(gpu_detections_);
+        gpu_detections_ = nullptr;
+        return false;
+    }
+    
+    // 初始化内存
+    cudaMemset(gpu_detections_, 0, max_detections_ * sizeof(DetectionResult));
+    cudaMemset(gpu_valid_count_, 0, sizeof(int));
+    
+    LOG(INFO) << "GPU recovery successful";
+    consecutive_gpu_errors_ = 0;
+    return true;
+}
+
+void GPUPostProcessor::resetGPUState() {
+    LOG(INFO) << "Resetting GPU state for A6000 compatibility";
+    
+    // 重置CUDA设备
+    cudaError_t status = cudaDeviceReset();
+    if (status != cudaSuccess) {
+        LOG(ERROR) << "Failed to reset GPU device: " << cudaGetErrorString(status);
+    } else {
+        LOG(INFO) << "GPU device reset successful";
+    }
+    
+    // 同步设备
+    status = cudaDeviceSynchronize();
+    if (status != cudaSuccess) {
+        LOG(ERROR) << "Failed to synchronize GPU device: " << cudaGetErrorString(status);
+    }
+    
+    // 清除错误状态
+    cudaGetLastError();
+}
