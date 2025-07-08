@@ -108,20 +108,36 @@ void ByteTrack::convertDetections(const std::vector<CObjectResult>& detections,
                                 std::vector<int>& clss,
                                 std::vector<float>& distances)
 {
-    if (detections.empty()) {
-        LOG(WARNING) << "Empty detections input";
-        return;
-    }
-
+    // 清空输出容器
     dets.clear();
     scores.clear();
     clss.clear();
     distances.clear();
     
+    if (detections.empty()) {
+        LOG(INFO) << "Empty detections input, returning empty vectors";
+        return;
+    }
+
     for (const auto& det : detections) {
         // 检查检测框的有效性
         if (det.fBottomRightX() <= det.fTopLeftX() || det.fBottomRightY() <= det.fTopLeftY()) {
             LOG(WARNING) << "Invalid detection box coordinates";
+            continue;
+        }
+
+        // 检查类别字符串的有效性
+        if (det.strClass().empty()) {
+            LOG(WARNING) << "Empty class string detected";
+            continue;
+        }
+
+        // 尝试转换类别字符串
+        int class_id;
+        try {
+            class_id = std::stoi(det.strClass());
+        } catch (const std::exception& e) {
+            LOG(ERROR) << "Failed to convert class string '" << det.strClass() << "' to integer: " << e.what();
             continue;
         }
 
@@ -134,15 +150,15 @@ void ByteTrack::convertDetections(const std::vector<CObjectResult>& detections,
         
         dets.push_back(det_vec);
         scores.push_back(det.fVideoConfidence());
-        clss.push_back(std::stoi(det.strClass()));
+        clss.push_back(class_id);
         distances.push_back(det.fDistance());
         
-        // 创建STrack对象时传入距离值
-        auto track = std::make_shared<STrack>(det_vec, det.fVideoConfidence(), std::stoi(det.strClass()), class_history_len_);
-        track->distance = det.fDistance();  // 设置距离值
-
-        // std::cout << "convertDetections:   track->distance: -------------" << track->distance << std::endl;
+        LOG(INFO) << "Converted detection - Class: " << class_id 
+                  << ", Score: " << det.fVideoConfidence() 
+                  << ", Distance: " << det.fDistance();
     }
+    
+    LOG(INFO) << "convertDetections completed - Total valid detections: " << dets.size();
 }
 
 void ByteTrack::convertTracks(const std::vector<std::vector<float>>& tracks,
@@ -191,7 +207,8 @@ void ByteTrack::convertTracks(const std::vector<std::vector<float>>& tracks,
 }
 
 void ByteTrack::processFrame(const CFrameResult& frame)
-{
+{   
+    LOG(INFO) << "ByteTrack::processFrame status: start frame.vecObjectResult().size(): " << frame.vecObjectResult().size();
     if (!m_tracker_) {
         LOG(ERROR) << "Tracker not initialized";
         return;
@@ -204,44 +221,59 @@ void ByteTrack::processFrame(const CFrameResult& frame)
     std::vector<float> distances;
     convertDetections(frame.vecObjectResult(), dets, scores, clss, distances);
     
+    // 2. 处理空帧情况 - 即使没有检测结果也要更新frame_id
     if (dets.empty()) {
-        LOG(WARNING) << "No valid detections after conversion";
+        LOG(WARNING) << "No valid detections after conversion, updating frame_id with empty detections";
+        // 调用tracker的update方法，传入空的检测结果来更新frame_id
+        auto tracks = m_tracker_->update(dets, scores, clss, distances);
+        
+        // 输出空帧结果以保持数据流连续性
+        CFrameResult output_frame;
+        output_frame.vecObjectResult(std::vector<CObjectResult>());
+        m_outputData_.vecFrameResult().push_back(output_frame);
+        
+        LOG(INFO) << "ByteTrack::processFrame: processed empty frame, frame_id updated";
         return;
     }
     
-    // 2. 执行跟踪
+    // 3. 执行跟踪（有检测结果的情况）
     auto tracks = m_tracker_->update(dets, scores, clss, distances);
     
-    // 3. 转换跟踪结果
+    // 4. 转换跟踪结果
     std::vector<CObjectResult> tracked_objects;
     convertTracks(tracks, tracked_objects);
     
-    // 4. 更新输出
+    // 5. 更新输出
     CFrameResult output_frame;
     output_frame.vecObjectResult(tracked_objects);
     m_outputData_.vecFrameResult().push_back(output_frame);
 
-    // std::cout << "ByteTrack::processFrame status: success!  :   tracked_objects:" << tracked_objects.size() << std::endl;
+    LOG(INFO) << "ByteTrack::processFrame status: success! tracked_objects:" << tracked_objects.size();
 }
 
 void ByteTrack::execute()
 {
-    // LOG(INFO) << "ByteTrack::execute status: start ";
-    if (m_inputData_.vecFrameResult().empty()) {
-        LOG(ERROR) << "Input data is empty";
-        return;
-    }
+    LOG(INFO) << "ByteTrack::execute status: start ";
     
     try {
         // 清空输出数据
-        m_outputData_ = CAlgResult();
+        m_outputData_.vecFrameResult().clear();
+        
+        // 处理空输入情况 - 输出空帧以保持frame_id连续性
+        if (m_inputData_.vecFrameResult().empty()) {
+            LOG(WARNING) << "Input data is empty, outputting empty frame to maintain frame_id continuity";
+            CFrameResult empty_frame;
+            processFrame(empty_frame);
+            LOG(INFO) << "ByteTrack::execute: processed empty input frame";
+            return;
+        }
         
         // 处理每一帧
         for (const auto& frame : m_inputData_.vecFrameResult()) {
             processFrame(frame);
         }
         
-        // LOG(INFO) << "ByteTrack::execute status: success!";
+        LOG(INFO) << "ByteTrack::execute status: success! processed frames: " << m_outputData_.vecFrameResult().size();
 
         // 离线调试代码
         // if (save_result_) {
@@ -250,9 +282,11 @@ void ByteTrack::execute()
     }
     catch (const std::exception& e) {
         LOG(ERROR) << "Tracking failed: " << e.what();
+        // 即使发生异常，也输出空帧以保持frame_id连续性
+        CFrameResult empty_frame;
+        processFrame(empty_frame);
         return;
     }
-    // LOG(INFO) << "ByteTrack::execute status: end! ";
 }
 
 // 保存二进制数据的函数实现

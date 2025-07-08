@@ -90,7 +90,17 @@ void CObjectLocationAlg::runAlgorithm(void* p_pSrcData)
 
     // 2. 输入数据赋值
     m_currentInput = static_cast<CAlgResult *>(p_pSrcData);   
-    
+
+    // if(m_currentInput->vecFrameResult().size() == 0)
+    // {   
+    //     m_currentOutput.lTimeStamp() = m_currentInput->lTimeStamp();
+    //     LOG(ERROR) << "Input data has no frame results";
+    //     if (m_algCallback) {
+    //         m_algCallback(m_currentOutput, m_callbackHandle);
+    //     }
+    //     return;
+    // }
+
     // 3. 执行模块链
     if (!executeModuleChain()) {
         LOG(ERROR) << "Failed to execute module chain";

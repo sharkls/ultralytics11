@@ -2,7 +2,7 @@
  文件名：ImagePreProcessGPU_kernels.cu
  作者：sharkls
  描述：GPU加速的图像预处理CUDA核函数
- 版本：v1.1 - 修复内存访问和边界检查
+ 版本：v1.0
  日期：2025-01-20
  *******************************************************/
 
@@ -17,11 +17,6 @@ __global__ void resizeKernel(uchar3* src, uchar3* dst, int src_width, int src_he
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (x < dst_width && y < dst_height) {
-        // 边界检查 - 只在开始时检查一次
-        if (src_width <= 0 || src_height <= 0 || dst_width <= 0 || dst_height <= 0) {
-            return;
-        }
-        
         float src_x = (float)x * src_width / dst_width;
         float src_y = (float)y * src_height / dst_height;
         
@@ -30,29 +25,13 @@ __global__ void resizeKernel(uchar3* src, uchar3* dst, int src_width, int src_he
         int src_x1 = min(src_x0 + 1, src_width - 1);
         int src_y1 = min(src_y0 + 1, src_height - 1);
         
-        // 确保索引在有效范围内
-        src_x0 = max(0, min(src_x0, src_width - 1));
-        src_y0 = max(0, min(src_y0, src_height - 1));
-        src_x1 = max(0, min(src_x1, src_width - 1));
-        src_y1 = max(0, min(src_y1, src_height - 1));
-        
         float fx = src_x - src_x0;
         float fy = src_y - src_y0;
         
-        // 计算索引并检查边界
-        size_t idx00 = src_y0 * src_width + src_x0;
-        size_t idx01 = src_y0 * src_width + src_x1;
-        size_t idx10 = src_y1 * src_width + src_x0;
-        size_t idx11 = src_y1 * src_width + src_x1;
-        
-        // 由于我们已经确保了索引在有效范围内，这里只需要检查目标索引
-        size_t dst_idx = y * dst_width + x;
-        
-        // 安全访问源数据
-        uchar3 p00 = src[idx00];
-        uchar3 p01 = src[idx01];
-        uchar3 p10 = src[idx10];
-        uchar3 p11 = src[idx11];
+        uchar3 p00 = src[src_y0 * src_width + src_x0];
+        uchar3 p01 = src[src_y0 * src_width + src_x1];
+        uchar3 p10 = src[src_y1 * src_width + src_x0];
+        uchar3 p11 = src[src_y1 * src_width + src_x1];
         
         uchar3 result;
         result.x = (unsigned char)((1 - fx) * (1 - fy) * p00.x + fx * (1 - fy) * p01.x + 
@@ -62,7 +41,7 @@ __global__ void resizeKernel(uchar3* src, uchar3* dst, int src_width, int src_he
         result.z = (unsigned char)((1 - fx) * (1 - fy) * p00.z + fx * (1 - fy) * p01.z + 
                           (1 - fx) * fy * p10.z + fx * fy * p11.z);
         
-        dst[dst_idx] = result;
+        dst[y * dst_width + x] = result;
     }
 }
 
@@ -71,19 +50,13 @@ __global__ void normalizeKernel(uchar3* src, float* dst, int width, int height, 
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (x < width && y < height) {
-        // 边界检查 - 只在开始时检查一次
-        if (width <= 0 || height <= 0) {
-            return;
-        }
-        
         int idx = y * width + x;
         uchar3 pixel = src[idx];
         
         // 注意：输入已经是RGB格式（经过BGR到RGB转换）
-        size_t dst_idx = idx * 3;
-        dst[dst_idx + 0] = pixel.x * scale;  // R
-        dst[dst_idx + 1] = pixel.y * scale;  // G
-        dst[dst_idx + 2] = pixel.z * scale;  // B
+        dst[idx * 3 + 0] = pixel.x * scale;  // R
+        dst[idx * 3 + 1] = pixel.y * scale;  // G
+        dst[idx * 3 + 2] = pixel.z * scale;  // B
     }
 }
 
@@ -92,11 +65,6 @@ __global__ void hwcToChwKernel(float* src, float* dst, int width, int height) {
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (x < width && y < height) {
-        // 边界检查 - 只在开始时检查一次
-        if (width <= 0 || height <= 0) {
-            return;
-        }
-        
         int hwc_idx = (y * width + x) * 3;
         int chw_idx = y * width + x;
         
@@ -113,11 +81,6 @@ __global__ void padImageKernel(float* src, float* dst, int src_width, int src_he
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (x < dst_width && y < dst_height) {
-        // 边界检查 - 只在开始时检查一次
-        if (dst_width <= 0 || dst_height <= 0) {
-            return;
-        }
-        
         // 检查是否在填充区域
         if (x < pad_left || x >= pad_left + src_width || 
             y < pad_top || y >= pad_top + src_height) {
@@ -130,16 +93,11 @@ __global__ void padImageKernel(float* src, float* dst, int src_width, int src_he
             // 图像区域，复制源数据（3通道）
             int src_x = x - pad_left;
             int src_y = y - pad_top;
-            
-            // 边界检查
-            if (src_x >= 0 && src_x < src_width && src_y >= 0 && src_y < src_height) {
-                int src_idx = (src_y * src_width + src_x) * 3;
-                int dst_idx = (y * dst_width + x) * 3;
-                
-                dst[dst_idx + 0] = src[src_idx + 0];  // R
-                dst[dst_idx + 1] = src[src_idx + 1];  // G
-                dst[dst_idx + 2] = src[src_idx + 2];  // B
-            }
+            int src_idx = (src_y * src_width + src_x) * 3;
+            int dst_idx = (y * dst_width + x) * 3;
+            dst[dst_idx + 0] = src[src_idx + 0];  // R
+            dst[dst_idx + 1] = src[src_idx + 1];  // G
+            dst[dst_idx + 2] = src[src_idx + 2];  // B
         }
     }
 }
@@ -149,11 +107,6 @@ __global__ void bgrToRgbKernel(uchar3* bgr, uchar3* rgb, int width, int height) 
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (x < width && y < height) {
-        // 边界检查 - 只在开始时检查一次
-        if (width <= 0 || height <= 0) {
-            return;
-        }
-        
         int idx = y * width + x;
         uchar3 pixel = bgr[idx];
         
@@ -187,12 +140,6 @@ __global__ void batchPreprocessKernel(uchar3* src_images, float* dst_images,
     int pad_top = pad_tops[batch_idx];
     int pad_left = pad_lefts[batch_idx];
     
-    // 验证参数有效性
-    if (src_width <= 0 || src_height <= 0 || dst_width <= 0 || dst_height <= 0 ||
-        target_width <= 0 || target_height <= 0) {
-        return;
-    }
-    
     // 计算源图像偏移
     size_t src_offset = batch_idx * max_src_width * max_src_height;
     uchar3* src = src_images + src_offset;
@@ -211,26 +158,13 @@ __global__ void batchPreprocessKernel(uchar3* src_images, float* dst_images,
         int src_x1 = min(src_x0 + 1, src_width - 1);
         int src_y1 = min(src_y0 + 1, src_height - 1);
         
-        // 确保索引在有效范围内
-        src_x0 = max(0, min(src_x0, src_width - 1));
-        src_y0 = max(0, min(src_y0, src_height - 1));
-        src_x1 = max(0, min(src_x1, src_width - 1));
-        src_y1 = max(0, min(src_y1, src_height - 1));
-        
         float fx = src_x - src_x0;
         float fy = src_y - src_y0;
         
-        // 计算索引
-        size_t idx00 = src_y0 * max_src_width + src_x0;
-        size_t idx01 = src_y0 * max_src_width + src_x1;
-        size_t idx10 = src_y1 * max_src_width + src_x0;
-        size_t idx11 = src_y1 * max_src_width + src_x1;
-        
-        // 安全访问源数据
-        uchar3 p00 = src[idx00];
-        uchar3 p01 = src[idx01];
-        uchar3 p10 = src[idx10];
-        uchar3 p11 = src[idx11];
+        uchar3 p00 = src[src_y0 * max_src_width + src_x0];
+        uchar3 p01 = src[src_y0 * max_src_width + src_x1];
+        uchar3 p10 = src[src_y1 * max_src_width + src_x0];
+        uchar3 p11 = src[src_y1 * max_src_width + src_x1];
         
         // BGR to RGB conversion and normalization
         float r = ((1 - fx) * (1 - fy) * p00.z + fx * (1 - fy) * p01.z + 
@@ -258,15 +192,6 @@ __global__ void batchPreprocessKernel(uchar3* src_images, float* dst_images,
 extern "C" {
     void launchResizeKernel(uchar3* src, uchar3* dst, int src_width, int src_height, 
                            int dst_width, int dst_height, cudaStream_t stream) {
-        // 参数验证
-        if (!src || !dst) {
-            return;
-        }
-        
-        if (src_width <= 0 || src_height <= 0 || dst_width <= 0 || dst_height <= 0) {
-            return;
-        }
-        
         dim3 block_size(16, 16);
         dim3 grid_size((dst_width + block_size.x - 1) / block_size.x, 
                       (dst_height + block_size.y - 1) / block_size.y);
@@ -277,15 +202,6 @@ extern "C" {
     
     void launchNormalizeKernel(uchar3* src, float* dst, int width, int height, 
                               float scale, cudaStream_t stream) {
-        // 参数验证
-        if (!src || !dst) {
-            return;
-        }
-        
-        if (width <= 0 || height <= 0) {
-            return;
-        }
-        
         dim3 block_size(16, 16);
         dim3 grid_size((width + block_size.x - 1) / block_size.x, 
                       (height + block_size.y - 1) / block_size.y);
@@ -296,15 +212,6 @@ extern "C" {
     
     void launchHWCtoCHWKernel(float* src, float* dst, int width, int height, 
                              cudaStream_t stream) {
-        // 参数验证
-        if (!src || !dst) {
-            return;
-        }
-        
-        if (width <= 0 || height <= 0) {
-            return;
-        }
-        
         dim3 block_size(16, 16);
         dim3 grid_size((width + block_size.x - 1) / block_size.x, 
                       (height + block_size.y - 1) / block_size.y);
@@ -316,19 +223,6 @@ extern "C" {
     void launchPadImageKernel(float* src, float* dst, int src_width, int src_height, 
                              int dst_width, int dst_height, int pad_top, int pad_left, 
                              float pad_value, cudaStream_t stream) {
-        // 参数验证
-        if (!src || !dst) {
-            return;
-        }
-        
-        if (src_width <= 0 || src_height <= 0 || dst_width <= 0 || dst_height <= 0) {
-            return;
-        }
-        
-        if (pad_top < 0 || pad_left < 0) {
-            return;
-        }
-        
         dim3 block_size(16, 16);
         dim3 grid_size((dst_width + block_size.x - 1) / block_size.x, 
                       (dst_height + block_size.y - 1) / block_size.y);
@@ -340,15 +234,6 @@ extern "C" {
     
     void launchBgrToRgbKernel(uchar3* bgr, uchar3* rgb, int width, int height, 
                              cudaStream_t stream) {
-        // 参数验证
-        if (!bgr || !rgb) {
-            return;
-        }
-        
-        if (width <= 0 || height <= 0) {
-            return;
-        }
-        
         dim3 block_size(16, 16);
         dim3 grid_size((width + block_size.x - 1) / block_size.x, 
                       (height + block_size.y - 1) / block_size.y);
@@ -365,18 +250,6 @@ extern "C" {
                                     int batch_size, int max_src_width, int max_src_height,
                                     int max_target_width, int max_target_height,
                                     cudaStream_t stream) {
-        // 参数验证
-        if (!src_images || !dst_images || !src_widths || !src_heights ||
-            !dst_widths || !dst_heights || !target_widths || !target_heights ||
-            !pad_tops || !pad_lefts) {
-            return;
-        }
-        
-        if (batch_size <= 0 || max_src_width <= 0 || max_src_height <= 0 ||
-            max_target_width <= 0 || max_target_height <= 0) {
-            return;
-        }
-        
         dim3 block_size(16, 16);
         dim3 grid_size((max_target_width + block_size.x - 1) / block_size.x, 
                       (max_target_height + block_size.y - 1) / block_size.y,

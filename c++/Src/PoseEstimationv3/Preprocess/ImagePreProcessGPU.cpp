@@ -672,8 +672,9 @@ bool ImagePreProcessGPU::downloadImageFromGPU(void* gpu_buffer, std::vector<floa
         return false;
     }
     
-    size_t size = width * height * 3 * sizeof(float);
-    output.resize(width * height * 3);
+    size_t size_float = width * height * 3;
+    size_t size_bytes = size_float * sizeof(float);
+    output.resize(size_float);
     
     // 检查CUDA错误
     cudaError_t error = cudaGetLastError();
@@ -682,7 +683,7 @@ bool ImagePreProcessGPU::downloadImageFromGPU(void* gpu_buffer, std::vector<floa
         return false;
     }
     
-    cudaError_t status = cudaMemcpyAsync(output.data(), gpu_buffer, size,
+    cudaError_t status = cudaMemcpyAsync(output.data(), gpu_buffer, size_bytes,
                                         cudaMemcpyDeviceToHost, m_cudaStream);
     if (status != cudaSuccess) {
         LOG(ERROR) << "Failed to download image from GPU: " << cudaGetErrorString(status);
@@ -795,9 +796,10 @@ bool ImagePreProcessGPU::processBatchImagesGPUInPlace(const std::vector<cv::Mat>
     // 清空之前的结果
     gpuResult.clear();
     
-    // 计算总GPU内存需求
-    size_t total_gpu_size = 0;
-    std::vector<size_t> image_sizes;
+    // 计算总GPU内存需求 - 修复：以字节为单位计算
+    size_t total_gpu_size_bytes = 0;
+    std::vector<size_t> image_sizes_float;  // 以float为单位的大小
+    std::vector<size_t> image_sizes_bytes;  // 以字节为单位的大小
     
     for (const auto& srcImage : srcImages) {
         if (srcImage.empty()) {
@@ -805,9 +807,12 @@ bool ImagePreProcessGPU::processBatchImagesGPUInPlace(const std::vector<cv::Mat>
             return false;
         }
         
-        size_t image_size = channels_ * targetHeight * targetWidth;
-        image_sizes.push_back(image_size);
-        total_gpu_size += image_size;
+        size_t image_size_float = channels_ * targetHeight * targetWidth;
+        size_t image_size_bytes = image_size_float * sizeof(float);
+        
+        image_sizes_float.push_back(image_size_float);
+        image_sizes_bytes.push_back(image_size_bytes);
+        total_gpu_size_bytes += image_size_bytes;
     }
     
     // 检查GPU内存是否足够
@@ -837,9 +842,8 @@ bool ImagePreProcessGPU::processBatchImagesGPUInPlace(const std::vector<cv::Mat>
         }
     }
     
-    size_t required_memory = total_gpu_size * sizeof(float);
-    if (required_memory > free_memory) {
-        LOG(ERROR) << "Insufficient GPU memory: required " << required_memory 
+    if (total_gpu_size_bytes > free_memory) {
+        LOG(ERROR) << "Insufficient GPU memory: required " << total_gpu_size_bytes 
                    << " bytes, available " << free_memory << " bytes";
         
         // 尝试清理GPU内存并重试
@@ -862,18 +866,18 @@ bool ImagePreProcessGPU::processBatchImagesGPUInPlace(const std::vector<cv::Mat>
             return false;
         }
         
-        if (required_memory > free_memory) {
-            LOG(ERROR) << "Still insufficient GPU memory after reset: required " << required_memory 
+        if (total_gpu_size_bytes > free_memory) {
+            LOG(ERROR) << "Still insufficient GPU memory after reset: required " << total_gpu_size_bytes 
                        << " bytes, available " << free_memory << " bytes";
             return false;
         }
     }
     
-    LOG(INFO) << "GPU memory check: required " << required_memory 
+    LOG(INFO) << "GPU memory check: required " << total_gpu_size_bytes 
               << " bytes, available " << free_memory << " bytes";
     
-    // 分配GPU内存
-    cuda_status = cudaMalloc(&gpuResult.gpu_buffer, required_memory);
+    // 分配GPU内存 - 修复：使用字节为单位
+    cuda_status = cudaMalloc(&gpuResult.gpu_buffer, total_gpu_size_bytes);
     if (cuda_status != cudaSuccess) {
         LOG(ERROR) << "Failed to allocate GPU buffer: " << cudaGetErrorString(cuda_status);
         
@@ -891,7 +895,7 @@ bool ImagePreProcessGPU::processBatchImagesGPUInPlace(const std::vector<cv::Mat>
         }
         
         // 再次尝试分配
-        cuda_status = cudaMalloc(&gpuResult.gpu_buffer, required_memory);
+        cuda_status = cudaMalloc(&gpuResult.gpu_buffer, total_gpu_size_bytes);
         if (cuda_status != cudaSuccess) {
             LOG(ERROR) << "Failed to allocate GPU buffer after reset: " << cudaGetErrorString(cuda_status);
             return false;
@@ -904,17 +908,17 @@ bool ImagePreProcessGPU::processBatchImagesGPUInPlace(const std::vector<cv::Mat>
         return false;
     }
     
-    gpuResult.total_size = total_gpu_size;
+    gpuResult.total_size = total_gpu_size_bytes;  // 修复：存储字节大小
     gpuResult.max_width = targetWidth;
     gpuResult.max_height = targetHeight;
     gpuResult.channels = channels_;
     gpuResult.batch_size = static_cast<int>(srcImages.size());
     
-    // 计算每个图像的偏移
-    size_t current_offset = 0;
-    for (size_t image_size : image_sizes) {
-        gpuResult.image_offsets.push_back(current_offset);
-        current_offset += image_size;
+    // 计算每个图像的偏移 - 修复：以字节为单位计算偏移
+    size_t current_offset_bytes = 0;
+    for (size_t image_size_bytes : image_sizes_bytes) {
+        gpuResult.image_offsets.push_back(current_offset_bytes);
+        current_offset_bytes += image_size_bytes;
     }
     
     // 处理每个图像
@@ -1084,9 +1088,10 @@ bool ImagePreProcessGPU::processSingleImageGPUInPlace(const cv::Mat& srcImage, i
     }
     
     // 将结果复制到目标GPU内存位置
-    size_t result_size = channels_ * targetHeight * targetWidth * sizeof(float);
+    size_t result_size_float = channels_ * targetHeight * targetWidth;
+    size_t result_size_bytes = result_size_float * sizeof(float);
     cudaError_t cuda_status = cudaMemcpyAsync(gpu_dst + dst_offset, m_gpuTempBuffer, 
-                                             result_size, cudaMemcpyDeviceToDevice, m_cudaStream);
+                                             result_size_bytes, cudaMemcpyDeviceToDevice, m_cudaStream);
     if (cuda_status != cudaSuccess) {
         LOG(ERROR) << "Failed to copy result to target GPU memory: " << cudaGetErrorString(cuda_status);
         return false;

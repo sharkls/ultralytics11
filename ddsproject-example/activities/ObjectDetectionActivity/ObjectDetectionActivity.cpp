@@ -125,6 +125,10 @@ void ObjectDetectionActivity::MessageProducerThreadFunc()
         LOG(INFO) << "Get CAlgResult!!" << message->lTimeStamp(); 
         endTimeStamp_ = GetTimeStamp();
         LOG(INFO) << "ObjectDetectionActivity MessageProducerThreadFunc time:----------------------------------- " << endTimeStamp_ - startTimeStamp_;
+        if(message->vecFrameResult().size() > 0)
+        {
+            LOG(INFO) << "vecFrameResult().size(): " << message->vecFrameResult().size() << " vecVideoSrcData().size(): " << message->vecFrameResult()[0].vecVideoSrcData().size();
+        }
         writer_->SendMessage((void*)message.get());
         // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }

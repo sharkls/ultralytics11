@@ -1,0 +1,1196 @@
+/*******************************************************
+ 文件名：CPoseEstimationAlg.cpp
+ 作者：
+ 描述：姿态估计算法主类实现
+ 版本：v1.0
+ 日期：2024-03-21
+ *******************************************************/
+
+#include "CPoseEstimationAlg.h"
+#include <cuda_runtime.h>
+#include <algorithm>
+#include <thread>
+
+// 加载指定路径的conf配置文件并将其反序列化（解析prototext文件）
+bool PoseEstimationConfig::loadFromFile(const std::string& path) 
+{
+    std::ifstream input(path);
+    if (!input) {
+        LOG(ERROR) << "Failed to open config file: " << path;
+        return false;
+    }
+    std::stringstream buffer;
+    buffer << input.rdbuf();
+    std::string content = buffer.str();
+    if (!google::protobuf::TextFormat::ParseFromString(content, &m_config)) {
+        LOG(ERROR) << "Failed to parse protobuf config file: " << path;
+        return false;
+    }
+    return true;
+}
+
+CPoseEstimationAlg::CPoseEstimationAlg(const std::string& exePath)
+    : m_exePath(exePath)
+    , m_pConfig(std::make_shared<PoseEstimationConfig>())
+    , m_currentInput(nullptr)
+    , m_callbackHandle(nullptr)
+{
+}
+
+CPoseEstimationAlg::~CPoseEstimationAlg()
+{
+    m_moduleChain.clear();
+}
+
+bool CPoseEstimationAlg::initAlgorithm(CSelfAlgParam* p_pAlgParam, const AlgCallback& alg_cb, void* hd)
+{   
+    // 1. 检查参数
+    if (!p_pAlgParam) {
+        LOG(ERROR) << "Algorithm parameters is null";
+        return false;
+    }
+
+    // 2. 保存回调函数和句柄
+    m_algCallback = alg_cb;
+    m_callbackHandle = hd;
+
+    // 3. 构建配置文件路径
+    std::filesystem::path exePath(m_exePath);
+    LOG(INFO) << "m_exePath : " << exePath.parent_path().string();
+    std::string configPath = (exePath.parent_path() / "Configs"/ "Alg" / "PoseEstimationConfigv2.conf").string();
+
+    // 4. 加载配置文件
+    if (!loadConfig(configPath)) {
+        LOG(ERROR) << "Failed to load config file: " << configPath;
+        return false;
+    }
+
+    m_run_status = m_pConfig->getPoseConfig().yolo_model_config().run_status();
+
+    // 5. 初始化模块
+    if (!initModules()) {
+        LOG(ERROR) << "Failed to initialize modules";
+        return false;
+    }
+    LOG(INFO) << "CPoseEstimationAlg::initAlgorithm status: successs ";
+    return true;
+}
+
+void CPoseEstimationAlg::runAlgorithm(void* p_pSrcData)
+{
+    LOG(INFO) << "CPoseEstimationAlg::runAlgorithm status: start ";
+    
+    try {
+        // 0. 每次运行前重置结构体内容 - 手动初始化避免构造函数问题
+        LOG(INFO) << "开始初始化m_currentOutput...";
+        
+        // 手动清空成员变量
+        m_currentOutput.vecFrameResult().clear();
+        m_currentOutput.mapTimeStamp().clear();
+        m_currentOutput.mapDelay().clear();
+        m_currentOutput.mapFps().clear();
+        
+        // 设置基本成员变量
+        m_currentOutput.eDataType() = 0;
+        m_currentOutput.eDataSourceType() = 0;
+        m_currentOutput.unFrameId() = 0;
+        m_currentOutput.lTimeStamp() = 0;
+        
+        LOG(INFO) << "m_currentOutput初始化完成";
+
+        // 1. 核验输入数据是否为空
+        if (!p_pSrcData) {
+            LOG(ERROR) << "Input data is null";
+            if (m_algCallback) {
+                m_algCallback(m_currentOutput, m_callbackHandle);
+            }
+            return;
+        }
+        LOG(INFO) << "输入数据验证完成";
+
+        // 2. 输入数据赋值
+        m_currentInput = static_cast<CAlgResult *>(p_pSrcData);   
+        LOG(INFO) << "输入数据赋值完成";
+        
+        m_currentOutput.lTimeStamp() = m_currentInput->lTimeStamp();
+        // 验证转换后的指针是否有效
+        if (!m_currentInput) {
+            LOG(ERROR) << "Failed to cast input data to CAlgResult";
+            if (m_algCallback) {
+                m_algCallback(m_currentOutput, m_callbackHandle);
+            }
+            return;
+        }
+        
+        // 验证输入数据结构
+        if (m_currentInput->vecFrameResult().empty()) {
+            LOG(ERROR) << "Input data has no frame results";
+            if (m_algCallback) {
+                m_algCallback(m_currentOutput, m_callbackHandle);
+            }
+            return;
+        }
+        
+        if (m_currentInput->vecFrameResult()[0].vecVideoSrcData().empty()) {
+            LOG(ERROR) << "Input data has no video source data";
+            if (m_algCallback) {
+                m_algCallback(m_currentOutput, m_callbackHandle);
+            }
+            return;
+        }
+        
+        LOG(INFO) << "输入数据结构验证完成，帧数: " << m_currentInput->vecFrameResult().size() 
+                 << ", 视频源数据数: " << m_currentInput->vecFrameResult()[0].vecVideoSrcData().size();
+        
+        // 3. 执行模块链
+        if (!executeModuleChain()) {
+            LOG(ERROR) << "Failed to execute module chain";
+            if (m_algCallback) {
+                m_algCallback(m_currentOutput, m_callbackHandle);
+            }
+            return;
+        }
+
+        // 4. 通过回调函数返回结果
+        if (m_algCallback) {
+            m_algCallback(m_currentOutput, m_callbackHandle);
+        }
+        LOG(INFO) << "CPoseEstimationAlg::runAlgorithm status: success ";
+        
+    } catch (const std::exception& e) {
+        LOG(ERROR) << "CPoseEstimationAlg::runAlgorithm exception: " << e.what();
+        // 确保输出结果有基本结构，避免访问空向量
+        if (m_currentOutput.vecFrameResult().empty()) {
+            CFrameResult frameResult;
+            m_currentOutput.vecFrameResult().push_back(frameResult);
+        }
+        
+        // 确保FrameResult有基本结构
+        if (m_currentOutput.vecFrameResult().size() > 0) {
+            CFrameResult& frameResult = m_currentOutput.vecFrameResult()[0];
+            if (frameResult.vecObjectResult().empty()) {
+                // 添加一个空的对象结果，避免后续访问时越界
+                CObjectResult emptyObj;
+                frameResult.vecObjectResult().push_back(emptyObj);
+            }
+        }
+        
+        if (m_algCallback) {
+            m_algCallback(m_currentOutput, m_callbackHandle);
+        }
+    } catch (...) {
+        LOG(ERROR) << "CPoseEstimationAlg::runAlgorithm unknown exception";
+        // 确保输出结果有基本结构，避免访问空向量
+        if (m_currentOutput.vecFrameResult().empty()) {
+            CFrameResult frameResult;
+            m_currentOutput.vecFrameResult().push_back(frameResult);
+        }
+        
+        // 确保FrameResult有基本结构
+        if (m_currentOutput.vecFrameResult().size() > 0) {
+            CFrameResult& frameResult = m_currentOutput.vecFrameResult()[0];
+            if (frameResult.vecObjectResult().empty()) {
+                // 添加一个空的对象结果，避免后续访问时越界
+                CObjectResult emptyObj;
+                frameResult.vecObjectResult().push_back(emptyObj);
+            }
+        }
+        
+        if (m_algCallback) {
+            m_algCallback(m_currentOutput, m_callbackHandle);
+        }
+    }
+
+    return;
+}
+
+// 加载配置文件
+bool CPoseEstimationAlg::loadConfig(const std::string& configPath)
+{
+    return m_pConfig->loadFromFile(configPath);
+}
+
+// 初始化子模块
+bool CPoseEstimationAlg::initModules()
+{   
+    LOG(INFO) << "CPoseEstimationAlg::initModules status: start ";
+    auto& poseConfig = m_pConfig->getPoseConfig();
+    const common::ModulesConfig& modules = poseConfig.modules_config();
+    m_moduleChain.clear();
+
+    // 遍历所有模块，按顺序实例化
+    for (const common::ModuleConfig& mod : modules.modules()) {
+        auto module = ModuleFactory::getInstance().createModule("PoseEstimation", mod.name(), m_exePath);
+        if (!module) {
+            LOG(ERROR) << "Failed to create module: " << mod.name();
+            return false;
+        }
+        // 传递可写指针
+        if (!module->init((void*)poseConfig.mutable_yolo_model_config())) {
+            LOG(ERROR) << "Failed to initialize module: " << mod.name();
+            return false;
+        }
+        m_moduleChain.push_back(module);
+    }
+    LOG(INFO) << "CPoseEstimationAlg::initModules status: success ";
+    return true;
+}
+
+// 执行模块链
+bool CPoseEstimationAlg::executeModuleChain()
+{   
+    // 添加输入数据验证
+    if (!m_currentInput) {
+        LOG(ERROR) << "m_currentInput is null in executeModuleChain";
+        return false;
+    }
+    
+    if (m_currentInput->vecFrameResult().empty()) {
+        LOG(ERROR) << "m_currentInput has no frame results in executeModuleChain";
+        return false;
+    }
+    
+    if (m_currentInput->vecFrameResult()[0].vecVideoSrcData().empty()) {
+        LOG(ERROR) << "m_currentInput has no video source data in executeModuleChain";
+        return false;
+    }
+    
+    int64_t beginTimeStamp = GetTimeStamp();
+    int64_t preprocessEndTimeStamp = 0;
+    void* currentData = static_cast<void *>(m_currentInput);
+    
+    // 添加GPU错误恢复计数器
+    static int gpu_error_count = 0;
+    static const int max_gpu_errors = 3;
+    static bool gpu_failed_permanently = false;
+
+    for (auto& module : m_moduleChain) {
+        // 设置输入数据
+        module->setInput(currentData);
+
+        // 执行模块
+        bool module_success = false;
+        try {
+            module->execute();
+            currentData = module->getOutput();
+            module_success = (currentData != nullptr);
+        } catch (const std::exception& e) {
+            LOG(ERROR) << "Module execution exception: " << e.what();
+            module_success = false;
+        } catch (...) {
+            LOG(ERROR) << "Module execution unknown exception";
+            module_success = false;
+        }
+        
+        if (!module_success) {
+            LOG(ERROR) << "Module execution failed: " << module->getModuleName();
+            
+            // 针对A6000：如果是GPU模块失败，尝试重置GPU状态
+            if ((module->getModuleName() == "ImagePreProcessGPU" || module->getModuleName() == "Yolov11PoseGPU") && !gpu_failed_permanently) {
+                gpu_error_count++;
+                LOG(WARNING) << "GPU module failed, error count: " << gpu_error_count << "/" << max_gpu_errors;
+                
+                if (gpu_error_count <= max_gpu_errors) {
+                    LOG(WARNING) << "GPU module failed, attempting GPU reset for A6000 compatibility";
+                    
+                    // 强制重置GPU状态
+                    cudaError_t cuda_status = cudaDeviceReset();
+                    if (cuda_status != cudaSuccess) {
+                        LOG(ERROR) << "Failed to reset GPU device: " << cudaGetErrorString(cuda_status);
+                    } else {
+                        LOG(INFO) << "GPU device reset successful";
+                    }
+                    
+                    // 等待一段时间让GPU稳定
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    
+                    // 尝试重新初始化GPU模块
+                    if (module->getModuleName() == "ImagePreProcessGPU") {
+                        LOG(INFO) << "Attempting to reinitialize ImagePreProcessGPU";
+                        try {
+                            // 重新初始化模块
+                            if (module->init((void*)m_pConfig->getPoseConfig().mutable_yolo_model_config())) {
+                                LOG(INFO) << "ImagePreProcessGPU reinitialization successful";
+                                // 重新设置输入并执行
+                                module->setInput(currentData);
+                                module->execute();
+                                currentData = module->getOutput();
+                                if (currentData != nullptr) {
+                                    module_success = true;
+                                    LOG(INFO) << "ImagePreProcessGPU recovery successful";
+                                }
+                            }
+                        } catch (const std::exception& e) {
+                            LOG(ERROR) << "ImagePreProcessGPU reinitialization failed: " << e.what();
+                        }
+                    } else if (module->getModuleName() == "Yolov11PoseGPU") {
+                        LOG(INFO) << "Attempting to reinitialize Yolov11PoseGPU";
+                        try {
+                            // 重新初始化模块
+                            if (module->init((void*)m_pConfig->getPoseConfig().mutable_yolo_model_config())) {
+                                LOG(INFO) << "Yolov11PoseGPU reinitialization successful";
+                                // 重新设置输入并执行
+                                module->setInput(currentData);
+                                module->execute();
+                                currentData = module->getOutput();
+                                if (currentData != nullptr) {
+                                    module_success = true;
+                                    LOG(INFO) << "Yolov11PoseGPU recovery successful";
+                                }
+                            }
+                        } catch (const std::exception& e) {
+                            LOG(ERROR) << "Yolov11PoseGPU reinitialization failed: " << e.what();
+                        }
+                    }
+                } else {
+                    LOG(ERROR) << "GPU error count exceeded maximum, switching to CPU fallback permanently";
+                    gpu_failed_permanently = true;
+                    
+                    // 尝试切换到CPU模块
+                    if (module->getModuleName() == "ImagePreProcessGPU") {
+                        LOG(INFO) << "Attempting to switch to ImagePreProcess (CPU)";
+                        // 这里可以添加切换到CPU模块的逻辑
+                        // 例如：重新创建CPU版本的模块
+                    } else if (module->getModuleName() == "Yolov11PoseGPU") {
+                        LOG(INFO) << "Attempting to switch to Yolov11Pose (CPU)";
+                        // 这里可以添加切换到CPU模块的逻辑
+                        // 例如：重新创建CPU版本的模块
+                    }
+                }
+            }
+            
+            if (!module_success) {
+                // 确保输出结果有基本结构，避免访问空向量
+                if (m_currentOutput.vecFrameResult().empty()) {
+                    CFrameResult frameResult;
+                    m_currentOutput.vecFrameResult().push_back(frameResult);
+                }
+                
+                // 确保FrameResult有基本结构
+                if (m_currentOutput.vecFrameResult().size() > 0) {
+                    CFrameResult& frameResult = m_currentOutput.vecFrameResult()[0];
+                    if (frameResult.vecObjectResult().empty()) {
+                        // 添加一个空的对象结果，避免后续访问时越界
+                        CObjectResult emptyObj;
+                        frameResult.vecObjectResult().push_back(emptyObj);
+                    }
+                }
+                
+                return false;
+            }
+        }
+        
+        // 根据模块类型处理输出数据
+        if (module->getModuleName() == "ImagePreProcess" || module->getModuleName() == "ImagePreProcessGPU") {
+            preprocessEndTimeStamp = GetTimeStamp();
+            LOG(INFO) << "ImagePreProcess completed, output type: MultiImagePreprocessResult. [DELAY_TYPE_POSEALG_PREPROCESS] : " << preprocessEndTimeStamp - beginTimeStamp;
+        } else if (module->getModuleName() == "Yolov11Pose" || module->getModuleName() == "Yolov11PoseGPU") {
+            LOG(INFO) << "Yolov11Pose completed, output type: CAlgResult. [DELAY_TYPE_POSEALG_INFERENCE] : " << GetTimeStamp() - preprocessEndTimeStamp;
+        }
+    }
+
+    // 最后一个模块应该是 Yolov11Pose，输出 CAlgResult
+    int64_t endTimeStamp = GetTimeStamp();    
+    if (currentData) {
+        try {
+            CAlgResult* resultPtr = static_cast<CAlgResult *>(currentData);
+            m_currentOutput = *resultPtr;
+        } catch (const std::exception& e) {
+            LOG(ERROR) << "Failed to copy output data: " << e.what();
+            return false;
+        }
+    } else {
+        LOG(ERROR) << "No valid output from module chain";
+        return false;
+    }
+
+    if(m_currentOutput.vecFrameResult().size() > 0)
+    {   
+        std::cout << "m_currentOutput.vecFrameResult().size() : " << m_currentOutput.vecFrameResult().size() << std::endl;
+        std::cout << "m_currentOutput.vecFrameResult()[0].vecObjectResult().size() : " << m_currentOutput.vecFrameResult()[0].vecObjectResult().size() << std::endl;
+    }
+    else{
+        std::cout << "姿态估计输出结果 size为0" << std::endl;
+    }
+
+    // 结果穿透 - 修正数据访问逻辑，添加安全检查
+    try {
+        if (m_currentInput && !m_currentInput->vecFrameResult()[0].vecVideoSrcData().empty()) {
+            m_currentOutput.lTimeStamp() = m_currentInput->lTimeStamp();
+            
+            if(m_currentOutput.vecFrameResult().size() > 0) 
+            {   
+                // 只处理第一个FrameResult（最终合并后的结果）
+                auto& frameResult = m_currentOutput.vecFrameResult()[0];
+                
+                // 输入数据常规信息穿透
+                frameResult.unFrameId() = m_currentInput->vecFrameResult()[0].vecVideoSrcData()[0].unFrameId();
+                frameResult.mapTimeStamp() = m_currentInput->vecFrameResult()[0].vecVideoSrcData()[0].mapTimeStamp();
+                frameResult.mapDelay() = m_currentInput->vecFrameResult()[0].vecVideoSrcData()[0].mapDelay();
+                frameResult.mapFps() = m_currentInput->vecFrameResult()[0].vecVideoSrcData()[0].mapFps();
+
+                // 独有数据填充
+                frameResult.mapTimeStamp()[TIMESTAMP_POSEALG_BEGIN] = beginTimeStamp;            // 姿态估计算法开始时间戳
+                frameResult.eDataType(DATA_TYPE_POSEALG_RESULT);                                 // 数据类型赋值
+                frameResult.mapTimeStamp()[TIMESTAMP_POSEALG_END] = endTimeStamp;                // 姿态估计算法结束时间戳
+                frameResult.mapDelay()[DELAY_TYPE_POSEALG] = endTimeStamp - beginTimeStamp;    // 姿态估计算法耗时计算
+                
+                // 修正视差数据访问
+                if (!m_currentInput->vecFrameResult()[0].tCameraSupplement().vecDistanceInfo().empty()) {
+                    frameResult.tCameraSupplement() = m_currentInput->vecFrameResult()[0].tCameraSupplement();
+                }
+                
+                LOG(INFO) << "最终FrameResult信息穿透完毕： FrameId : " << frameResult.unFrameId() 
+                          << ", lTimeStamp : " << m_currentOutput.lTimeStamp()
+                          << ", [DELAY_TYPE_POSEALG] : " << frameResult.mapDelay()[DELAY_TYPE_POSEALG];
+            }
+        }
+    } catch (const std::exception& e) {
+        LOG(ERROR) << "Error during result penetration: " << e.what();
+        // 确保基本结构存在
+        if (m_currentOutput.vecFrameResult().empty()) {
+            CFrameResult frameResult;
+            m_currentOutput.vecFrameResult().push_back(frameResult);
+        }
+    }
+
+    // 结果可视化 - 在坐标转换之前进行，使用子图坐标系
+    if(m_run_status)
+    {
+        try {
+            visualizationResult();
+        } catch (const std::exception& e) {
+            LOG(ERROR) << "Error during visualization: " << e.what();
+        }
+    }
+
+    // 坐标转换和结果合并
+    try {
+        convertCoordinatesAndMergeResults();
+    } catch (const std::exception& e) {
+        LOG(ERROR) << "Error during coordinate conversion: " << e.what();
+    }
+
+    // 添加目标深度值获取逻辑
+    if (m_currentOutput.vecFrameResult().size() > 0) {
+        LOG(INFO) << "开始计算关键点深度值...";
+        try {
+            // 只处理最终的FrameResult（合并后的结果）
+            auto& frameResult = m_currentOutput.vecFrameResult()[0];
+            auto& objResults = frameResult.vecObjectResult();
+            
+            LOG(INFO) << "最终FrameResult包含 " << objResults.size() << " 个ObjectResult";
+            
+            // 检查是否有视差数据
+            if (!frameResult.tCameraSupplement().vecDistanceInfo().empty()) {
+                const auto& disparity = frameResult.tCameraSupplement();
+                int width = disparity.usWidth();
+                int height = disparity.usHeight();
+                const auto& depthMap = disparity.vecDistanceInfo();
+                LOG(INFO) << "depthMap.size() : " << depthMap.size();
+                
+                for (auto& obj : objResults) {
+                    // 获取所有关键点的深度值
+                    std::vector<float> allKeypointDepths;
+                    const auto& keypoints = obj.vecKeypoints();
+                    
+                    for (const auto& kp : keypoints) {
+                        // 获取关键点坐标（已经是整图坐标）
+                        float kx = kp.x();
+                        float ky = kp.y();
+                        
+                        // 像素坐标转整数下标
+                        int kix = static_cast<int>(kx + 0.5f);
+                        int kiy = static_cast<int>(ky + 0.5f);
+                        
+                        // 检查边界
+                        if (kix >= 0 && kix < width && kiy >= 0 && kiy < height) {
+                            // 可配置的深度查找模式
+                            bool use_region_search = true;  // 默认使用区域搜索模式
+                            int region_size = 2;  // 默认5×5区域 (region_size=2表示±2范围)
+                            
+                            // 这里可以通过配置文件或参数来控制查找模式
+                            // use_region_search = true: 查找关键点周围region_size×region_size区域
+                            // use_region_search = false: 只查找关键点位置
+                            if (use_region_search) {
+                                // 区域搜索模式：查找关键点周围region_size×region_size区域
+                                for (int dy = -region_size; dy <= region_size; ++dy) {
+                                    for (int dx = -region_size; dx <= region_size; ++dx) {
+                                        int currentIx = kix + dx;
+                                        int currentIy = kiy + dy;
+                                        
+                                        // 检查当前坐标是否在深度图范围内
+                                        if (currentIx >= 0 && currentIx < width && currentIy >= 0 && currentIy < height) {
+                                            int idx = currentIy * width + currentIx;
+                                            if (idx >= 0 && idx < depthMap.size()) {
+                                                float depth = depthMap[idx];
+                                                if (depth > 0.0f) {  // 只收集有效的深度值
+                                                    allKeypointDepths.push_back(depth);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                LOG(INFO) << "关键点 (" << kx << ", " << ky << ") 使用区域搜索模式，"
+                                         << (2 * region_size + 1) << "×" << (2 * region_size + 1) << " 区域";
+                            } else {
+                                // 单点模式：只查找关键点位置的深度值
+                                int idx = kiy * width + kix;
+                                if (idx >= 0 && idx < depthMap.size()) {
+                                    float depth = depthMap[idx];
+                                    if (depth > 0.0f) {  // 只收集有效的深度值
+                                        allKeypointDepths.push_back(depth);
+                                    }
+                                }
+                                LOG(INFO) << "关键点 (" << kx << ", " << ky << ") 使用单点搜索模式";
+                            }
+                        }
+                    }
+                    
+                    // 如果收集到足够的深度值
+                    if (!allKeypointDepths.empty()) {
+                        // 对深度值进行排序
+                        std::sort(allKeypointDepths.begin(), allKeypointDepths.end());
+                        
+                        // 计算四分位数 - 添加边界检查
+                        size_t n = allKeypointDepths.size();
+                        if (n >= 4) {  // 确保有足够的数据点
+                            size_t q1_idx = static_cast<size_t>(n * 0.25);
+                            size_t q3_idx = static_cast<size_t>(n * 0.75);
+                            
+                            // 确保索引在有效范围内
+                            q1_idx = std::min(q1_idx, n - 1);
+                            q3_idx = std::min(q3_idx, n - 1);
+                            
+                            float q1 = allKeypointDepths[q1_idx];
+                            float q3 = allKeypointDepths[q3_idx];
+                            float iqr = q3 - q1;
+                            
+                            // 定义异常值的界限
+                            float lower_bound = q1 - 1.5 * iqr;
+                            float upper_bound = q3 + 1.5 * iqr;
+                            
+                            // 过滤掉异常值
+                            std::vector<float> filtered_depths;
+                            for (float depth : allKeypointDepths) {
+                                if (depth >= lower_bound && depth <= upper_bound) {
+                                    filtered_depths.push_back(depth);
+                                }
+                            }
+                            
+                            if (!filtered_depths.empty()) {
+                                // 计算中位数作为最终深度值
+                                size_t mid = filtered_depths.size() / 2;
+                                float median_depth;
+                                if (filtered_depths.size() % 2 == 0) {
+                                    median_depth = (filtered_depths[mid - 1] + filtered_depths[mid]) / 2.0f;
+                                } else {
+                                    median_depth = filtered_depths[mid];
+                                }
+                                
+                                obj.fDistance() = median_depth;  // 赋值距离
+                                LOG(INFO) << "目标距离（基于关键点）： " << obj.fDistance() << " mm";
+                            }
+                        } else {
+                            // 数据点不足时，使用平均值
+                            float avg_depth = 0.0f;
+                            for (float depth : allKeypointDepths) {
+                                avg_depth += depth;
+                            }
+                            avg_depth /= allKeypointDepths.size();
+                            obj.fDistance() = avg_depth;
+                            LOG(INFO) << "目标距离（基于关键点平均值）： " << obj.fDistance() << " mm";
+                        }
+                    }
+                }
+            } else {
+                LOG(INFO) << "没有可用的视差数据，跳过深度值计算";
+            }
+        } catch (const std::exception& e) {
+            LOG(ERROR) << "Error during depth calculation: " << e.what();
+        }
+    }
+
+    return true;
+}
+
+void CPoseEstimationAlg::visualizationResult()
+{
+    // 检查输入数据有效性
+    if (!m_currentInput || m_currentInput->vecFrameResult().empty() || 
+        m_currentInput->vecFrameResult()[0].vecVideoSrcData().empty()) {
+        LOG(ERROR) << "No valid input data for visualization";
+        return;
+    }
+    
+    if (m_currentOutput.vecFrameResult().empty()) {
+        LOG(ERROR) << "No output data for visualization";
+        return;
+    }
+    
+    // 获取所有子图数据
+    const auto& allVideoSrcData = m_currentInput->vecFrameResult()[0].vecVideoSrcData();
+    
+    LOG(INFO) << "开始可视化，子图数量: " << allVideoSrcData.size() << ", 姿态估计FrameResult数量: " << m_currentOutput.vecFrameResult().size();
+    
+    // 计算合并图像的尺寸
+    int totalWidth = 0;
+    int maxHeight = 0;
+    std::vector<cv::Mat> subImages;
+    
+    // 收集所有子图并绘制检测结果
+    for (size_t subImgIdx = 0; subImgIdx < allVideoSrcData.size(); ++subImgIdx) {
+        const auto& videoSrc = allVideoSrcData[subImgIdx];
+        
+        // 验证图像数据
+        if (videoSrc.vecImageBuf().empty()) {
+            LOG(ERROR) << "Sub-image " << subImgIdx << " has empty image buffer";
+            continue;
+        }
+        
+        int width = videoSrc.usBmpWidth();
+        int height = videoSrc.usBmpLength();
+        int totalBytes = videoSrc.unBmpBytes();
+        
+        // 验证图像尺寸
+        if (width <= 0 || height <= 0) {
+            LOG(ERROR) << "Sub-image " << subImgIdx << " has invalid dimensions: " << width << "x" << height;
+            continue;
+        }
+        
+        // 验证图像缓冲区大小
+        if (videoSrc.vecImageBuf().size() < static_cast<size_t>(totalBytes)) {
+            LOG(ERROR) << "Sub-image " << subImgIdx << " buffer size mismatch: expected " << totalBytes 
+                      << ", actual " << videoSrc.vecImageBuf().size();
+            continue;
+        }
+        
+        int channels = 0;
+        if (width > 0 && height > 0) {
+            channels = totalBytes / (width * height);
+        }
+        
+        cv::Mat srcImage;
+        
+        // 根据通道数创建图像
+        if (channels == 3) {
+            srcImage = cv::Mat(height, width, CV_8UC3);
+            memcpy(srcImage.data, videoSrc.vecImageBuf().data(), totalBytes);
+        } else if (channels == 1) {
+            srcImage = cv::Mat(height, width, CV_8UC1);
+            memcpy(srcImage.data, videoSrc.vecImageBuf().data(), totalBytes);
+            cv::cvtColor(srcImage, srcImage, cv::COLOR_GRAY2BGR);
+        } else {
+            LOG(ERROR) << "Sub-image " << subImgIdx << " has unsupported channels: " << channels;
+            continue;
+        }
+        
+        // 查找属于当前子图的检测结果
+        // 由于姿态估计结果是按batch顺序返回的，我们需要找到对应的结果
+        const CObjectResult* targetObj = nullptr;
+        
+        // 修复：使用正确的索引映射
+        // 姿态估计的FrameResult索引与子图索引是一一对应的
+        if (subImgIdx < m_currentOutput.vecFrameResult().size()) {
+            const auto& poseFrameResult = m_currentOutput.vecFrameResult()[subImgIdx];
+            const auto& poseResults = poseFrameResult.vecObjectResult();
+            
+            if (!poseResults.empty()) {
+                // 取第一个姿态估计结果（应该是最高的）
+                targetObj = &poseResults[0];
+                LOG(INFO) << "子图 " << subImgIdx << " 使用姿态估计结果索引 " << subImgIdx 
+                         << ", 置信度: " << targetObj->fVideoConfidence();
+            } else {
+                LOG(WARNING) << "子图 " << subImgIdx << " 的姿态估计FrameResult为空";
+            }
+        } else {
+            LOG(WARNING) << "子图 " << subImgIdx << " 没有对应的姿态估计FrameResult";
+        }
+        
+        // 绘制对应的检测结果
+        if (targetObj) {
+            // 直接使用姿态估计结果中的边界框坐标（已经是子图坐标系）
+            float bbox_x1 = targetObj->fTopLeftX();
+            float bbox_y1 = targetObj->fTopLeftY();
+            float bbox_x2 = targetObj->fBottomRightX();
+            float bbox_y2 = targetObj->fBottomRightY();
+            
+            // 添加调试信息
+            LOG(INFO) << "子图 " << subImgIdx << " 边界框坐标: (" << bbox_x1 << ", " << bbox_y1 << ") - (" << bbox_x2 << ", " << bbox_y2 << ")";
+            LOG(INFO) << "子图 " << subImgIdx << " 图像尺寸: " << width << "x" << height;
+            
+            // 改进的边界检查：允许部分超出边界的边界框，只要中心点在图像内即可
+            float bbox_center_x = (bbox_x1 + bbox_x2) / 2.0f;
+            float bbox_center_y = (bbox_y1 + bbox_y2) / 2.0f;
+            
+            // 检查边界框中心是否在图像内，或者边界框是否与图像有重叠
+            bool bbox_valid = (bbox_center_x >= 0 && bbox_center_x < width && 
+                              bbox_center_y >= 0 && bbox_center_y < height) ||
+                             (bbox_x1 < width && bbox_x2 > 0 && 
+                              bbox_y1 < height && bbox_y2 > 0);
+            
+            if (bbox_valid) {
+                // 裁剪边界框到图像范围内
+                float clamped_x1 = std::max(0.0f, bbox_x1);
+                float clamped_y1 = std::max(0.0f, bbox_y1);
+                float clamped_x2 = std::min(static_cast<float>(width), bbox_x2);
+                float clamped_y2 = std::min(static_cast<float>(height), bbox_y2);
+                
+                // 绘制目标框
+                cv::Rect rect(
+                    cv::Point(static_cast<int>(clamped_x1), static_cast<int>(clamped_y1)),
+                    cv::Point(static_cast<int>(clamped_x2), static_cast<int>(clamped_y2))
+                );
+                cv::rectangle(srcImage, rect, cv::Scalar(0, 255, 0), 2);
+
+                // 绘制类别、置信度和深度值
+                std::string label = targetObj->strClass() + " " + std::to_string(targetObj->fVideoConfidence());
+                if (targetObj->fDistance() > 0.0f) {
+                    label += " " + std::to_string(static_cast<int>(targetObj->fDistance())) + "mm";
+                }
+                cv::putText(srcImage, label, rect.tl() + cv::Point(0, -10), 
+                           cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,0), 1);
+
+                // 绘制人体关键点（子图坐标系）
+                const auto& keypoints = targetObj->vecKeypoints();
+                for(const auto& kp : keypoints) {
+                    // 边界检查（相对于子图）- 允许关键点稍微超出边界
+                    if (kp.x() < -10 || kp.y() < -10 || kp.x() >= width + 10 || kp.y() >= height + 10) {
+                        continue;
+                    }
+                    
+                    // 根据置信度决定是否绘制关键点
+                    if (kp.confidence() > 0.1f) {  // 只绘制置信度大于0.1的关键点
+                        cv::Point2f pt(static_cast<int>(kp.x()), static_cast<int>(kp.y()));
+                        
+                        // 根据置信度调整颜色和大小
+                        int radius = static_cast<int>(3 + kp.confidence() * 5);  // 半径根据置信度调整
+                        cv::Scalar color;
+                        if (kp.confidence() > 0.7f) {
+                            color = cv::Scalar(0, 0, 255);  // 红色 - 高置信度
+                        } else if (kp.confidence() > 0.4f) {
+                            color = cv::Scalar(0, 255, 255);  // 黄色 - 中等置信度
+                        } else {
+                            color = cv::Scalar(128, 128, 128);  // 灰色 - 低置信度
+                        }
+                        
+                        cv::circle(srcImage, pt, radius, color, -1);
+                    }
+                }
+                
+                // 绘制关键点连线（人体骨架）
+                if (keypoints.size() >= 17) {  // COCO格式有17个关键点
+                    // 定义关键点连接关系（COCO格式，0~16）
+                    std::vector<std::pair<int, int>> connections = {
+                        {15, 13}, {13, 11}, {16, 14}, {14, 12}, {11, 12}, // 腿
+                        {5, 11}, {6, 12}, {5, 6},                         // 躯干
+                        {5, 7}, {7, 9}, {6, 8}, {8, 10},                  // 手臂
+                        {1, 2}, {0, 1}, {0, 2}, {1, 3}, {2, 4}            // 头部
+                    };
+                    
+                    for (const auto& connection : connections) {
+                        int idx1 = connection.first;
+                        int idx2 = connection.second;
+                        if (idx1 < keypoints.size() && idx2 < keypoints.size()) {
+                            const auto& kp1 = keypoints[idx1];
+                            const auto& kp2 = keypoints[idx2];
+                            // 只连接置信度足够高的关键点
+                            if (kp1.confidence() > 0.3f && kp2.confidence() > 0.3f) {
+                                cv::Point2f pt1(kp1.x(), kp1.y());
+                                cv::Point2f pt2(kp2.x(), kp2.y());
+                                // 边界检查（相对于子图）- 允许连线稍微超出边界
+                                if (pt1.x >= -10 && pt1.y >= -10 && pt1.x < width + 10 && pt1.y < height + 10 &&
+                                    pt2.x >= -10 && pt2.y >= -10 && pt2.x < width + 10 && pt2.y < height + 10) {
+                                    cv::line(srcImage, pt1, pt2, cv::Scalar(255, 0, 0), 2);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                LOG(INFO) << "子图 " << subImgIdx << " 绘制完成，关键点数: " << keypoints.size();
+            } else {
+                LOG(WARNING) << "子图 " << subImgIdx << " 目标框完全超出图像边界，跳过绘制";
+                LOG(WARNING) << "边界框中心: (" << bbox_center_x << ", " << bbox_center_y << ")";
+            }
+        }
+        
+        subImages.push_back(srcImage);
+        totalWidth += width;
+        maxHeight = std::max(maxHeight, height);
+    }
+    
+    // 创建合并图像
+    cv::Mat combinedImage(maxHeight, totalWidth, CV_8UC3, cv::Scalar(0, 0, 0));
+    
+    int currentX = 0;
+    for (size_t i = 0; i < subImages.size(); ++i) {
+        cv::Mat roi = combinedImage(cv::Rect(currentX, 0, subImages[i].cols, subImages[i].rows));
+        subImages[i].copyTo(roi);
+        currentX += subImages[i].cols;
+    }
+    
+    // 保存合并图像
+    std::string visDir = (std::filesystem::path(m_exePath) / "Vis_PoseEstimation_Result").string();
+    if (!std::filesystem::exists(visDir)) {
+        std::filesystem::create_directories(visDir);
+    }
+    
+    // 获取frameId
+    uint32_t frameId = 0;
+    if (!allVideoSrcData.empty()) {
+        frameId = allVideoSrcData[0].unFrameId();
+    }
+    
+    std::string savePath = visDir + "/" + std::to_string(frameId) + ".jpg";
+    cv::imwrite(savePath, combinedImage);
+    LOG(INFO) << "合并可视化结果已保存到: " << savePath;
+}
+
+void CPoseEstimationAlg::createCombinedVisualization(const std::vector<CVideoSrcData>& allVideoSrcData, 
+                                                    const std::vector<CObjectResult>& objResults, 
+                                                    uint32_t frameId)
+{
+    // 添加参数验证
+    if (allVideoSrcData.empty()) {
+        LOG(ERROR) << "createCombinedVisualization: allVideoSrcData is empty";
+        return;
+    }
+    
+    if (objResults.empty()) {
+        LOG(WARNING) << "createCombinedVisualization: objResults is empty, will create visualization without detection results";
+    }
+    
+    // 计算合并图像的尺寸
+    int totalWidth = 0;
+    int maxHeight = 0;
+    std::vector<cv::Mat> subImages;
+    
+    // 收集所有子图并绘制检测结果
+    for (size_t subImgIdx = 0; subImgIdx < allVideoSrcData.size(); ++subImgIdx) {
+        const auto& videoSrc = allVideoSrcData[subImgIdx];
+        
+        // 验证图像数据
+        if (videoSrc.vecImageBuf().empty()) {
+            LOG(ERROR) << "Sub-image " << subImgIdx << " has empty image buffer";
+            continue;
+        }
+        
+        int width = videoSrc.usBmpWidth();
+        int height = videoSrc.usBmpLength();
+        int totalBytes = videoSrc.unBmpBytes();
+        
+        // 验证图像尺寸
+        if (width <= 0 || height <= 0) {
+            LOG(ERROR) << "Sub-image " << subImgIdx << " has invalid dimensions: " << width << "x" << height;
+            continue;
+        }
+        
+        // 验证图像缓冲区大小
+        if (videoSrc.vecImageBuf().size() < static_cast<size_t>(totalBytes)) {
+            LOG(ERROR) << "Sub-image " << subImgIdx << " buffer size mismatch: expected " << totalBytes 
+                      << ", actual " << videoSrc.vecImageBuf().size();
+            continue;
+        }
+        
+        int channels = 0;
+        if (width > 0 && height > 0) {
+            channels = totalBytes / (width * height);
+        }
+        
+        cv::Mat srcImage;
+        try {
+        if (channels == 3) {
+            srcImage = cv::Mat(height, width, CV_8UC3, (void*)videoSrc.vecImageBuf().data()).clone();
+        } else if (channels == 1) {
+            srcImage = cv::Mat(height, width, CV_8UC1, (void*)videoSrc.vecImageBuf().data()).clone();
+            cv::cvtColor(srcImage, srcImage, cv::COLOR_GRAY2BGR);
+        } else {
+            LOG(ERROR) << "Unsupported image channel: " << channels << " for sub-image " << subImgIdx;
+                continue;
+            }
+        } catch (const cv::Exception& e) {
+            LOG(ERROR) << "OpenCV exception when creating image for sub-image " << subImgIdx << ": " << e.what();
+            continue;
+        } catch (const std::exception& e) {
+            LOG(ERROR) << "Exception when creating image for sub-image " << subImgIdx << ": " << e.what();
+            continue;
+        }
+        
+        // 查找属于当前子图的检测结果
+        // 由于姿态估计结果是按batch顺序返回的，我们需要找到对应的结果
+        const CObjectResult* targetObj = nullptr;
+        
+        if (subImgIdx < objResults.size()) {
+            // 简单按索引分配（临时方案）
+            targetObj = &objResults[subImgIdx];
+            LOG(INFO) << "子图 " << subImgIdx << " 使用检测结果索引 " << subImgIdx;
+        } else {
+            LOG(WARNING) << "子图 " << subImgIdx << " 没有对应的检测结果";
+        }
+        
+        // 绘制对应的检测结果
+        if (targetObj) {
+            // 直接使用姿态估计结果中的边界框坐标（已经是子图坐标系）
+            float bbox_x1 = targetObj->fTopLeftX();
+            float bbox_y1 = targetObj->fTopLeftY();
+            float bbox_x2 = targetObj->fBottomRightX();
+            float bbox_y2 = targetObj->fBottomRightY();
+            
+            // 添加调试信息
+            LOG(INFO) << "子图 " << subImgIdx << " 边界框坐标: (" << bbox_x1 << ", " << bbox_y1 << ") - (" << bbox_x2 << ", " << bbox_y2 << ")";
+            LOG(INFO) << "子图 " << subImgIdx << " 图像尺寸: " << width << "x" << height;
+            
+            // 改进的边界检查：允许部分超出边界的边界框，只要中心点在图像内即可
+            float bbox_center_x = (bbox_x1 + bbox_x2) / 2.0f;
+            float bbox_center_y = (bbox_y1 + bbox_y2) / 2.0f;
+            
+            // 检查边界框中心是否在图像内，或者边界框是否与图像有重叠
+            bool bbox_valid = (bbox_center_x >= 0 && bbox_center_x < width && 
+                              bbox_center_y >= 0 && bbox_center_y < height) ||
+                             (bbox_x1 < width && bbox_x2 > 0 && 
+                              bbox_y1 < height && bbox_y2 > 0);
+            
+            if (bbox_valid) {
+                // 裁剪边界框到图像范围内
+                float clamped_x1 = std::max(0.0f, bbox_x1);
+                float clamped_y1 = std::max(0.0f, bbox_y1);
+                float clamped_x2 = std::min(static_cast<float>(width), bbox_x2);
+                float clamped_y2 = std::min(static_cast<float>(height), bbox_y2);
+                
+                // 绘制目标框
+                cv::Rect rect(
+                    cv::Point(static_cast<int>(clamped_x1), static_cast<int>(clamped_y1)),
+                    cv::Point(static_cast<int>(clamped_x2), static_cast<int>(clamped_y2))
+                );
+                cv::rectangle(srcImage, rect, cv::Scalar(0, 255, 0), 2);
+
+                // 绘制类别、置信度和深度值
+                std::string label = targetObj->strClass() + " " + std::to_string(targetObj->fVideoConfidence());
+                if (targetObj->fDistance() > 0.0f) {
+                    label += " " + std::to_string(static_cast<int>(targetObj->fDistance())) + "mm";
+                }
+                cv::putText(srcImage, label, rect.tl() + cv::Point(0, -10), 
+                           cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,0), 1);
+
+                // 绘制人体关键点（子图坐标系）
+                const auto& keypoints = targetObj->vecKeypoints();
+                for(const auto& kp : keypoints) {
+                    // 边界检查（相对于子图）- 允许关键点稍微超出边界
+                    if (kp.x() < -10 || kp.y() < -10 || kp.x() >= width + 10 || kp.y() >= height + 10) {
+                        continue;
+                    }
+                    
+                    // 根据置信度决定是否绘制关键点
+                    if (kp.confidence() > 0.1f) {  // 只绘制置信度大于0.1的关键点
+                        cv::Point2f pt(static_cast<int>(kp.x()), static_cast<int>(kp.y()));
+                        
+                        // 根据置信度调整颜色和大小
+                        int radius = static_cast<int>(3 + kp.confidence() * 5);  // 半径根据置信度调整
+                        cv::Scalar color;
+                        if (kp.confidence() > 0.7f) {
+                            color = cv::Scalar(0, 0, 255);  // 红色 - 高置信度
+                        } else if (kp.confidence() > 0.4f) {
+                            color = cv::Scalar(0, 255, 255);  // 黄色 - 中等置信度
+                        } else {
+                            color = cv::Scalar(128, 128, 128);  // 灰色 - 低置信度
+                        }
+                        
+                        cv::circle(srcImage, pt, radius, color, -1);
+                    }
+                }
+                
+                // 绘制关键点连线（人体骨架）
+                if (keypoints.size() >= 17) {  // COCO格式有17个关键点
+                    // 定义关键点连接关系（COCO格式）- 正确的骨架连线
+                    std::vector<std::pair<int, int>> connections = {
+                        {16, 14}, {14, 12}, {17, 15}, {15, 13}, {12, 13},  // 躯干和腿部
+                        {6, 12}, {7, 13}, {6, 7},                          // 肩部和躯干
+                        {6, 8}, {7, 9}, {8, 10}, {9, 11},                  // 手臂
+                        {2, 3}, {1, 2}, {1, 3}, {2, 4}, {3, 5}, {4, 6}, {5, 7}  // 头部和颈部
+                    };
+                    
+                    for (const auto& connection : connections) {
+                        int idx1 = connection.first;
+                        int idx2 = connection.second;
+                        
+                        if (idx1 < keypoints.size() && idx2 < keypoints.size()) {
+                            const auto& kp1 = keypoints[idx1];
+                            const auto& kp2 = keypoints[idx2];
+                            
+                            // 只连接置信度足够高的关键点
+                            if (kp1.confidence() > 0.3f && kp2.confidence() > 0.3f) {
+                                cv::Point2f pt1(static_cast<int>(kp1.x()), static_cast<int>(kp1.y()));
+                                cv::Point2f pt2(static_cast<int>(kp2.x()), static_cast<int>(kp2.y()));
+                                
+                                // 边界检查（相对于子图）- 允许连线稍微超出边界
+                                if (pt1.x >= -10 && pt1.y >= -10 && pt1.x < width + 10 && pt1.y < height + 10 &&
+                                    pt2.x >= -10 && pt2.y >= -10 && pt2.x < width + 10 && pt2.y < height + 10) {
+                                    cv::line(srcImage, pt1, pt2, cv::Scalar(255, 0, 0), 2);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                LOG(INFO) << "子图 " << subImgIdx << " 绘制完成，关键点数: " << keypoints.size();
+            } else {
+                LOG(WARNING) << "子图 " << subImgIdx << " 目标框完全超出图像边界，跳过绘制";
+                LOG(WARNING) << "边界框中心: (" << bbox_center_x << ", " << bbox_center_y << ")";
+            }
+        }
+        
+        subImages.push_back(srcImage);
+        totalWidth += width;
+        maxHeight = std::max(maxHeight, height);
+    }
+    
+    // 创建合并图像
+    cv::Mat combinedImage(maxHeight, totalWidth, CV_8UC3, cv::Scalar(0, 0, 0));
+    
+    int currentX = 0;
+    for (size_t i = 0; i < subImages.size(); ++i) {
+        cv::Mat roi = combinedImage(cv::Rect(currentX, 0, subImages[i].cols, subImages[i].rows));
+        subImages[i].copyTo(roi);
+        currentX += subImages[i].cols;
+    }
+    
+    // 保存合并图像
+    std::string visDir = (std::filesystem::path(m_exePath) / "Vis_PoseEstimation_Result").string();
+    if (!std::filesystem::exists(visDir)) {
+        std::filesystem::create_directories(visDir);
+    }
+    
+    std::string savePath = visDir + "/" + std::to_string(frameId) + ".jpg";
+    cv::imwrite(savePath, combinedImage);
+    LOG(INFO) << "合并可视化结果已保存到: " << savePath;
+}
+
+void CPoseEstimationAlg::convertCoordinatesAndMergeResults()
+{
+    LOG(INFO) << "开始坐标转换和结果合并...";
+    
+    // 添加安全检查，防止空指针访问
+    if (!m_currentInput) {
+        LOG(ERROR) << "m_currentInput is null, skipping coordinate conversion";
+        return;
+    }
+    
+    if (m_currentInput->vecFrameResult().empty()) {
+        LOG(ERROR) << "m_currentInput has no frame results, skipping coordinate conversion";
+        return;
+    }
+    
+    if (m_currentOutput.vecFrameResult().empty()) {
+        LOG(ERROR) << "m_currentOutput has no frame results, skipping coordinate conversion";
+        return;
+    }
+    
+    LOG(INFO) << "输入目标检测结果数量: " << m_currentInput->vecFrameResult()[0].vecObjectResult().size();
+    LOG(INFO) << "姿态估计FrameResult数量: " << m_currentOutput.vecFrameResult().size();
+    
+    // 获取目标检测结果（整图上的目标框）
+    const auto& detectionResults = m_currentInput->vecFrameResult()[0].vecObjectResult();
+    
+    // 创建最终的合并结果，只有一个FrameResult
+    CFrameResult finalFrameResult;
+    finalFrameResult.eDataType(DATA_TYPE_POSEALG_RESULT);
+    
+    // 遍历每个目标检测结果，找到对应的姿态估计结果
+    for (size_t detIdx = 0; detIdx < detectionResults.size(); ++detIdx) {
+        const auto& detectionObj = detectionResults[detIdx];
+        
+        // 创建新的结果对象，基于目标检测结果
+        CObjectResult mergedObj = detectionObj;
+        mergedObj.fDistance(detectionObj.fDistance());
+
+        // 查找对应的姿态估计结果
+        // 假设姿态估计的FrameResult索引与目标检测的索引是一一对应的
+        if (detIdx < m_currentOutput.vecFrameResult().size()) {
+            const auto& poseFrameResult = m_currentOutput.vecFrameResult()[detIdx];
+            const auto& poseResults = poseFrameResult.vecObjectResult();
+            
+            if (!poseResults.empty()) {
+                // 取第一个姿态估计结果（应该是最高的）
+                const auto& poseObj = poseResults[0];
+            
+            // 获取目标框信息（用于坐标转换）
+            float bbox_x1 = detectionObj.fTopLeftX();
+            float bbox_y1 = detectionObj.fTopLeftY();
+            float bbox_x2 = detectionObj.fBottomRightX();
+            float bbox_y2 = detectionObj.fBottomRightY();
+            
+            // 转换关键点坐标从子图到整图
+            std::vector<Keypoint> convertedKeypoints;
+            const auto& originalKeypoints = poseObj.vecKeypoints();
+            
+            for (const auto& kp : originalKeypoints) {
+                Keypoint convertedKp;
+                
+                // 姿态估计输出的坐标是相对于子图的绝对像素坐标
+                float sub_x = kp.x();
+                float sub_y = kp.y();
+                
+                // 将子图坐标转换为整图坐标
+                float full_x = bbox_x1 + sub_x;
+                float full_y = bbox_y1 + sub_y;
+                
+                convertedKp.x(full_x);
+                convertedKp.y(full_y);
+                convertedKp.confidence(kp.confidence());
+                convertedKeypoints.push_back(convertedKp);
+            }
+            
+            // 设置转换后的关键点
+            mergedObj.vecKeypoints(convertedKeypoints);
+            
+            // 类别更新逻辑
+            std::string detectionClass = detectionObj.strClass();
+            std::string poseClass = poseObj.strClass();
+            mergedObj.strClass(poseClass);
+            
+            // // 如果姿态识别输出结果目标类别是pose_0且检测结果的目标类别不是1，则将目标类别更改为2
+            // if (poseClass == "pose_0" && detectionClass != "1") {
+            //     mergedObj.strClass("2");
+            //     LOG(INFO) << "目标 " << detIdx << " 类别更新: 检测类别=" << detectionClass 
+            //              << ", 姿态类别=" << poseClass << " -> 更新为类别2";
+            // }
+            // // 反之姿态识别目标不是pose_0,且目标检测类别是2，则将目标类别更改为0
+            // else if (poseClass != "pose_0" && detectionClass == "2") {
+            //     mergedObj.strClass("0");
+            //     LOG(INFO) << "目标 " << detIdx << " 类别更新: 检测类别=" << detectionClass 
+            //              << ", 姿态类别=" << poseClass << " -> 更新为类别0";
+            // }
+            // // 其他情况保持检测结果的类别不变
+            // else {
+            //     mergedObj.strClass(detectionClass);
+            //     LOG(INFO) << "目标 " << detIdx << " 类别保持: 检测类别=" << detectionClass 
+            //              << ", 姿态类别=" << poseClass << " -> 保持类别" << detectionClass;
+            // }
+            
+            // // 计算平均置信度
+            // float avg_confidence = (detectionObj.fVideoConfidence() + poseObj.fVideoConfidence()) / 2.0f;
+            // mergedObj.fVideoConfidence(avg_confidence);
+                
+                LOG(INFO) << "目标 " << detIdx << " 成功合并检测和姿态结果";
+        } else {
+            // 如果没有对应的姿态估计结果，保留目标检测结果，关键点为空
+            LOG(WARNING) << "目标 " << detIdx << " 没有对应的姿态估计结果";
+            }
+        } else {
+            // 如果当前目标没有对应的姿态估计FrameResult，保留目标检测结果，关键点为空
+            LOG(WARNING) << "目标 " << detIdx << " 没有对应的姿态估计FrameResult";
+        }
+        
+        // 添加到最终结果中
+        finalFrameResult.vecObjectResult().push_back(mergedObj);
+    }
+    
+    // 清空输出并设置最终结果
+    m_currentOutput.vecFrameResult().clear();
+    m_currentOutput.vecFrameResult().push_back(finalFrameResult);
+    
+    LOG(INFO) << "坐标转换和结果合并完成，最终输出FrameResult数量: " 
+              << m_currentOutput.vecFrameResult().size()
+              << ", ObjectResult数量: " << finalFrameResult.vecObjectResult().size();
+}

@@ -192,25 +192,28 @@ int main(int argc, char** argv) {
         // 初始化算法接口对象
         l_pObj->initAlgorithm(l_stTestAlgParam, testPoseEstimationAlg, nullptr);
 
-        // 测试1-4号图像
-        for (int frameId = 1; frameId <= 4; frameId++)
+        for(int i = 0; i < 100; i++)
         {
-            LOG(INFO) << "开始处理帧 " << frameId;
-            
-            // 加载目标检测输出数据
-            CAlgResult detectionResult = loadDetectionOutput(detection_output_path, frameId);
-            
-            // 检查数据是否有效
-            if (detectionResult.vecFrameResult().empty() || 
-                detectionResult.vecFrameResult()[0].vecObjectResult().empty()) {
-                LOG(ERROR) << "帧 " << frameId << " 数据加载失败，跳过";
-                continue;
+            // 测试1-4号图像
+            for (int frameId = 1; frameId <= 4; frameId++)
+            {
+                LOG(INFO) << "开始处理帧 " << frameId;
+                
+                // 加载目标检测输出数据
+                CAlgResult detectionResult = loadDetectionOutput(detection_output_path, frameId);
+                
+                // 检查数据是否有效
+                if (detectionResult.vecFrameResult().empty() || 
+                    detectionResult.vecFrameResult()[0].vecObjectResult().empty()) {
+                    LOG(ERROR) << "帧 " << frameId << " 数据加载失败，跳过";
+                    continue;
+                }
+                
+                // 调用姿态估计算法
+                l_pObj->runAlgorithm(&detectionResult);
+                
+                LOG(INFO) << "帧 " << frameId << " 处理完成";
             }
-            
-            // 调用姿态估计算法
-            l_pObj->runAlgorithm(&detectionResult);
-            
-            LOG(INFO) << "帧 " << frameId << " 处理完成";
         }
         
         LOG(INFO) << "所有帧处理完成";

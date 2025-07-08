@@ -5,7 +5,7 @@ activiry_conf {
         name: "ObjectDetectionActivity"
         domain_Id: 80
         comm_type: SHM
-        segment_size: 1000000
+        segment_size: 100000000
         white_list: ""
     }
 }

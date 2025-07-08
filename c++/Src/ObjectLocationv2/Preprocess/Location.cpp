@@ -50,15 +50,21 @@ void* Location::getOutput()
 
 void Location::execute()
 {   
-
-    // LOG(INFO) << "Location::execute status: start ";
+    LOG(INFO) << "Location::execute status: start ";
+    
+    // 处理空输入的情况 - 输出空的帧结果以保持frame_id更新
     if (m_inputdata.vecFrameResult().empty()) {
-        LOG(ERROR) << "Input data is empty";
+        LOG(WARNING) << "Input data is empty, outputting empty frame to maintain frame_id continuity";
+        CFrameResult emptyResult;
+        m_outputdata.vecFrameResult().clear();
+        m_outputdata.vecFrameResult().push_back(emptyResult);
+        LOG(INFO) << "Location::execute: empty input, outputting empty frame for frame_id continuity";
         return;
     }
 
     try {
         CFrameResult outputResult;
+        LOG(INFO) << "Location::execute status: start m_inputdata.vecFrameResult().size(): " << m_inputdata.vecFrameResult().size();
 
         if (m_inputdata.vecFrameResult().size() == 1) {
             const auto& result = m_inputdata.vecFrameResult()[0];
@@ -70,6 +76,10 @@ void Location::execute()
                 return;
             } else {
                 LOG(ERROR) << "Unknown data type in vecFrameResult[0]";
+                // 即使类型未知，也输出空帧以保持frame_id连续性
+                CFrameResult emptyResult;
+                m_outputdata.vecFrameResult().clear();
+                m_outputdata.vecFrameResult().push_back(emptyResult);
                 return;
             }
         } else if (m_inputdata.vecFrameResult().size() >= 2) {
@@ -81,9 +91,13 @@ void Location::execute()
             const auto& pose_objs = poseResult.vecObjectResult();
 
 
-            if(classify_objs.size() != pose_objs.size())
-            {
+            if(classify_objs.size() != pose_objs.size() || classify_objs.size() == 0)
+            {   
                 LOG(ERROR) << "classify_objs.size() != pose_objs.size() .... cls.size() vs pos.size(): " << classify_objs.size() << " " << pose_objs.size();
+                // 即使数据不匹配，也输出空帧以保持frame_id连续性
+                CFrameResult emptyResult;
+                m_outputdata.vecFrameResult().clear();
+                m_outputdata.vecFrameResult().push_back(emptyResult);
                 return;
             }
             else
@@ -104,7 +118,19 @@ void Location::execute()
                         merged_obj.fDistance(pose_obj.fDistance());
                         LOG(INFO) << "pose_obj.strClass() : " << pose_obj.strClass() << " cls_obj.strClass() : " << cls_obj.strClass()  << " merged_obj.strClass() : " << merged_obj.strClass();
                     }
-                        
+
+                    if(merged_obj.strClass() == "class_0")
+                    {
+                        merged_obj.strClass("0");
+                    }
+                    else if (merged_obj.strClass() == "class_1")
+                    {
+                        merged_obj.strClass("1");
+                    }
+                    else{
+                        merged_obj.strClass("2");
+                    }
+                    LOG(INFO) << "merged_obj.strClass() : " << merged_obj.strClass();
                     outputResult.vecObjectResult().push_back(merged_obj);
                 }
             }
@@ -118,6 +144,7 @@ void Location::execute()
             //     save_bin(m_outputdata, "./Save_Data/objectlocation/result/processed_objectlocation_preprocess.bin"); // ObjectLocation/Preprocess
             // }
         }
+        LOG(INFO) << "Location::execute status: success! m_outputdata.vecFrameResult().size(): " << m_outputdata.vecFrameResult().size();
     }
     catch (const std::exception& e) {
         LOG(ERROR) << "Preprocessing failed: " << e.what();
