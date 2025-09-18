@@ -210,7 +210,7 @@ bool CObjectDetectionAlg::executeModuleChain()
         int width = disparity.usWidth();
         int height = disparity.usHeight();
         const auto& depthMap = disparity.vecDistanceInfo();
-        LOG(INFO) << "depthMap.size() : " << depthMap.size();
+        // LOG(INFO) << "depthMap.size() : " << depthMap.size();
         for (auto& obj : objResults) {
             // 1. 计算中心点
             float cx = (obj.fTopLeftX() + obj.fBottomRightX()) / 2.0f;

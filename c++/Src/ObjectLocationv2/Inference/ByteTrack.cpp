@@ -118,7 +118,7 @@ void ByteTrack::convertDetections(const std::vector<CObjectResult>& detections,
         LOG(INFO) << "Empty detections input, returning empty vectors";
         return;
     }
-
+    
     for (const auto& det : detections) {
         // 检查检测框的有效性
         if (det.fBottomRightX() <= det.fTopLeftX() || det.fBottomRightY() <= det.fTopLeftY()) {

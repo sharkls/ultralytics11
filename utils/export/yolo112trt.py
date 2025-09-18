@@ -16,15 +16,15 @@ def parse_args():
     parser = argparse.ArgumentParser(description='YOLO目标检测模型转换和推理')
     
     # 模型相关参数
-    parser.add_argument('--model_path', type=str, default='ckpt/best626.pt',
+    parser.add_argument('--model_path', type=str, default='ckpt/best0829-det.pt',
                       help='PyTorch模型路径')
-    parser.add_argument('--onnx_path', type=str, default='ckpt/best626.onnx',
+    parser.add_argument('--onnx_path', type=str, default='ckpt/best0829-det.onnx',
                       help='ONNX模型保存路径')
-    parser.add_argument('--engine_path', type=str, default='ckpt/best626.engine',
+    parser.add_argument('--engine_path', type=str, default='ckpt/best0829-det.engine',
                       help='TensorRT engine保存路径')
     
     # 推理相关参数
-    parser.add_argument('--image_path', type=str, default='/ultralytics/c++/Data/SrcData/1/1.jpg',
+    parser.add_argument('--image_path', type=str, default='/ultralytics/ddsproject-example/Output/Vis_Detection_Result/2071/2071.jpg',
                       help='输入图像路径')
     parser.add_argument('--max_size', type=int, default=640,
                       help='最大输入尺寸')
@@ -32,9 +32,9 @@ def parse_args():
                       help='模型步长')
     
     # 后处理参数
-    parser.add_argument('--conf_thres', type=float, default=0.6,
+    parser.add_argument('--conf_thres', type=float, default=0.5,
                       help='置信度阈值')
-    parser.add_argument('--iou_thres', type=float, default=0.7,
+    parser.add_argument('--iou_thres', type=float, default=0.5,
                       help='IOU阈值')
     parser.add_argument('--nc', type=int, default=3,
                       help='检测类别数量')

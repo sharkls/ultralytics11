@@ -191,22 +191,35 @@ void ByteTrack::processFrame(const CFrameResult& frame)
     std::vector<int> clss;
     convertDetections(frame.vecObjectResult(), dets, scores, clss);
     
+    // 2. 即使没有检测结果，也要调用跟踪器进行预测
+    std::vector<std::vector<float>> tracks;
+    
     if (dets.empty()) {
-        LOG(WARNING) << "No valid detections after conversion";
-        return;
+        LOG(INFO) << "No detections in current frame, but continuing tracking for existing trajectories";
+        
+        // 调用跟踪器更新，传入空的检测结果
+        // ByteTrack会根据现有轨迹进行预测和状态更新
+        tracks = m_tracker_->update(dets, scores, clss);
+        
+        LOG(INFO) << "Tracker updated with empty detections, predicted tracks: " << tracks.size();
+    } else {
+        // 有检测结果时的正常跟踪流程
+        tracks = m_tracker_->update(dets, scores, clss);
+        LOG(INFO) << "Tracker updated with " << dets.size() << " detections, resulting in " << tracks.size() << " tracks";
     }
     
-    // 2. 执行跟踪
-    auto tracks = m_tracker_->update(dets, scores, clss);
-    
-    // 3. 转换跟踪结果
+    // 3. 转换跟踪结果（可能为空）
     std::vector<CObjectResult> tracked_objects;
-    convertTracks(tracks, tracked_objects);
+    if (!tracks.empty()) {
+        convertTracks(tracks, tracked_objects);
+    }
     
-    // 4. 更新输出
+    // 4. 更新输出（即使没有跟踪结果也要输出帧）
     CFrameResult output_frame;
     output_frame.vecObjectResult(tracked_objects);
     m_outputData_.vecFrameResult().push_back(output_frame);
+    
+    LOG(INFO) << "Frame processed, output contains " << tracked_objects.size() << " tracked objects";
 }
 
 void ByteTrack::execute()
@@ -214,6 +227,7 @@ void ByteTrack::execute()
     // LOG(INFO) << "ByteTrack::execute status: start ";
     if (m_inputData_.vecFrameResult().empty()) {
         LOG(ERROR) << "Input data is empty";
+        m_outputData_ = CAlgResult();
         return;
     }
     
@@ -235,6 +249,10 @@ void ByteTrack::execute()
     }
     catch (const std::exception& e) {
         LOG(ERROR) << "Tracking failed: " << e.what();
+        // 确保即使出错也有有效的输出结构
+        if (m_outputData_.vecFrameResult().empty()) {
+            m_outputData_ = CAlgResult();
+        }
         return;
     }
     // LOG(INFO) << "ByteTrack::execute status: end! ";

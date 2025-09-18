@@ -51,6 +51,15 @@ private:
 
    // 运行状态
    bool status_ = false;
+   
+   // 图像矫正和融合相关参数
+   cv::Mat homography_matrix_;  // 单应性矩阵
+   cv::Mat ir_camera_matrix_;   // 红外相机内参矩阵
+   cv::Mat ir_dist_coeffs_;     // 红外相机畸变系数
+   std::string save_path_;      // 保存路径
+   
+   // 图像矫正和融合函数
+   void processImageWithHomography(const cv::Mat& original_img);
 };
 
 #endif // IMAGE_PRE_PROCESS_H 

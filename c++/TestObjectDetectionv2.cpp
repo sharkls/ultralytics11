@@ -19,7 +19,7 @@ std::string g_save_dir;
 CMultiModalSrcData loadOfflineData(std::string data_path, int index) 
 {   
     CMultiModalSrcData data;
-    std::string rgb_path = data_path + "/" + std::to_string(index) + "/" + std::to_string(index) + ".jpg";
+    std::string rgb_path = data_path + std::to_string(index) + ".jpg";
     
     // 加载可见光图像
     cv::Mat rgb_img = cv::imread(rgb_path);
@@ -58,7 +58,7 @@ void testObjectDetectionAlg(const CAlgResult& alg_result, void* p_handle)
     // 加载原始图像用于可视化
     cv::Mat rgb_img = cv::imread(g_rgb_path);
     if (rgb_img.empty()) {
-        LOG(ERROR) << "无法加载原始图像用于可视化" << std::endl;
+        LOG(ERROR) << "无法加载原始图像用于可视化" << g_rgb_path << std::endl;
         return;
     }
 
@@ -101,7 +101,8 @@ void testObjectDetectionAlg(const CAlgResult& alg_result, void* p_handle)
     }
 
     // 保存结果
-    std::string save_path = g_save_dir + 
+    // std::string save_path = g_save_dir + 
+    std::string save_path = "/share/Temp/vis/" + 
         std::filesystem::path(g_rgb_path).stem().string() + "_det.jpg";
         
     // 检查保存目录是否存在
@@ -126,7 +127,7 @@ int main(int argc, char** argv) {
         // 设置默认路径
         std::string deploy_path = "/ultralytics/c++/Output/";
         g_save_dir = deploy_path + "vis/";
-        std::string data_path = "/ultralytics/c++/Data/SrcData/";
+        std::string data_path = "/ultralytics/c++/Data/Test/";
         
 
         // 算法接口调用流程基本如下：
@@ -140,7 +141,7 @@ int main(int argc, char** argv) {
         l_pObj->initAlgorithm(l_stTestAlgParam, testObjectDetectionAlg, nullptr);
 
         // 测试1-4号图像
-        for (int i = 1; i <= 4; i++)
+        for (int i = 1; i <= 1000; i++)
         {
             LOG(INFO) << "开始处理图像 " << i;
             CMultiModalSrcData multi_modal_data = loadOfflineData(data_path, i);
@@ -152,7 +153,8 @@ int main(int argc, char** argv) {
             }
             
             // 更新全局变量
-            g_rgb_path = data_path + std::to_string(i) + "/" + std::to_string(i) + ".jpg";
+            g_rgb_path = data_path + std::to_string(i) + ".jpg";
+            // g_rgb_path = data_path + std::to_string(i) + "/" + std::to_string(i) + ".jpg";
             l_pObj->runAlgorithm(&multi_modal_data);
             
             LOG(INFO) << "图像 " << i << " 处理完成";

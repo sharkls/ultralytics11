@@ -177,12 +177,18 @@ data/
 
 # c++
 c++/build/
+c++/Data/Test/
 c++/Submodules/TPL/
 c++/Output/vis/
 c++/Output/Lib/
 c++/Output/Save_Data/
 c++/Output/vis/
+c++/Output/Output/
+c++/Output/vis-old/
 c++/Output/Vis_Detection_Result/
+c++/Output/Vis_Object_Regions/
+c++/Output/Vis_ObjectClassify_Result/
+c++/Output/Vis_PoseEstimation_Result/
 deploy/build/
 deploy/Output/
 # *.jpg
@@ -190,8 +196,13 @@ deploy/Output/
 
 # ddsproject-example
 ddsproject-example/submodules/ddsproject-thirdparty/
-ddsproject-example/output/
-ddsproject-example/Output/
+ddsproject-example/output/gen-backup/
+ddsproject-example/output/bin/Output/
+ddsproject-example/Output/Vis_Detection_Result/
+ddsproject-example/Output/Vis_Object_Regions
+ddsproject-example/Output/Lib0602/
+ddsproject-example/Output/Lib-0626/
+ddsproject-example/Output/Lib-0606backup/
 ddsproject-example/build/
 ddsproject-example/lib-backup/
 ddsproject-example/lib_backup
@@ -203,7 +214,10 @@ ddsproject-example/activities-backorin/
 
 # Other
 ddsproject-backup/
-ddsproject/
+ddsproject/build/
+ddsproject/submodules/ddsproject-thirdparty-backup/
+ddsproject/submodules/fusionalglib-base/
+ddsproject/submodules/ddsproject-thirdparty/
 
 runs/
 

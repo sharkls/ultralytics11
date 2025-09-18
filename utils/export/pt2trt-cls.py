@@ -8,10 +8,10 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description='ONNX分类模型转TensorRT和推理')
-    parser.add_argument('--onnx_path', type=str, default='/ultralytics/ckpt/best0703cls.onnx', help='ONNX模型路径')
-    parser.add_argument('--engine_path', type=str, default='/ultralytics/ckpt/best0703cls.engine', help='TensorRT engine保存路径')
-    parser.add_argument('--image_paths', nargs='+', default=['/ultralytics/c++/Output/Vis_Object_Regions/1/0_0.jpg','/ultralytics/c++/Output/Vis_Object_Regions/1/1_0.jpg'], help='输入图像路径列表')
-    parser.add_argument('--max_size', type=int, default=224, help='输入尺寸')
+    parser.add_argument('--onnx_path', type=str, default='/ultralytics/ckpt/best0828-cls.onnx', help='ONNX模型路径')
+    parser.add_argument('--engine_path', type=str, default='/ultralytics/ckpt/best0828-cls.engine', help='TensorRT engine保存路径')
+    parser.add_argument('--image_paths', nargs='+', default=['/ultralytics/c++/Output/Vis_Object_Regions/1/0_0.jpg','/ultralytics/c++/Output/Vis_Object_Regions/2/1_0.jpg'], help='输入图像路径列表')
+    parser.add_argument('--max_size', type=int, default=640, help='输入尺寸')
     parser.add_argument('--save_dir', type=str, default='runs/classify/', help='结果保存目录')
     parser.add_argument('--save_onnx', type=str, default='result_onnx.jpg', help='ONNX结果保存文件名')
     parser.add_argument('--save_engine', type=str, default='result_engine.jpg', help='TensorRT结果保存文件名')

@@ -66,9 +66,9 @@ import argparse
 # model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal") # build a new model from YAML
 # results = model.train(data="multimodal-Myself-v2.yaml", batch=32, epochs=300, imgsz=640, device=0)
 
-# # 使用自定义数据集Myself-v3训练多模态（EFDEAYOLO）-2025.5.26
+# # 使用自定义数据集Myself-v3训练多模态（EFDEAYOLO）-2025.0805
 model = YOLOMultimodal("yolo11s-EFDEA.yaml", task="multimodal") # build a new model from YAML
-results = model.train(data="multimodal-Myself-clean-0529.yaml", batch=32, epochs=300, imgsz=640, device=0)
+results = model.train(data="multimodal-Myself-0804.yaml", batch=8, epochs=100, imgsz=640, device=0)
 
 # # # 使用自定义数据训练单模态（YOLO）-2025.5.27
 # model = YOLO("yolo11s.yaml", task="detect") # build a new model from YAML

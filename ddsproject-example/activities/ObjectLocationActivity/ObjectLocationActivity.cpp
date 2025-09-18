@@ -242,6 +242,21 @@ void ObjectLocationActivity::MessageConsumerThreadFunc()
         if (!foundMatch)
         {
             LOG(WARNING) << "No matching pose estimation result found for timestamp: " << multiModalTime;
+            
+            // 创建一个空的带时间戳的结果，保证输出帧率正常
+            std::shared_ptr<CAlgResult> empty_result = std::make_shared<CAlgResult>();
+            empty_result->lTimeStamp(multiModalTime);
+            
+            // 添加一个空的FrameResult以保持数据结构完整性
+            CFrameResult empty_frame_result;
+            empty_frame_result.mapTimeStamp()[TIMESTAMP_TIME_MATCH] = multiModalTime;
+            empty_result->vecFrameResult().push_back(empty_frame_result);
+            
+            // 将空结果添加到DDS发送队列
+            object_location_result_deque_.PushBack(empty_result);
+            
+            LOG(INFO) << "Added empty result with timestamp: " << multiModalTime << " to maintain output frame rate";
+        
             continue;
         }
 

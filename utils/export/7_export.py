@@ -12,7 +12,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='YOLO Multimodal Model Export and Validation')
     
     # 模型相关参数
-    parser.add_argument('--weights', type=str, default='/ultralytics/runs/multimodal/train76/weights/best.pt',
+    parser.add_argument('--weights', type=str, default='/ultralytics/runs/multimodal/train79/weights/best.pt',      # 77
                       help='训练好的模型权重路径')
     parser.add_argument('--imgsz', nargs='+', type=int, default=[640, 640],
                       help='输入图像尺寸 [height, width]')
@@ -28,11 +28,11 @@ def parse_args():
                       help='是否简化ONNX模型')
     
     # 验证相关参数
-    parser.add_argument('--extrinsics', type=str, default='/ultralytics/data/Myself-v3-clean/extrinsics/test/001624.txt',
+    parser.add_argument('--extrinsics', type=str, default='/ultralytics/data/Data/0804multimodal/extrinsics/val/0531tmp4_0531tmp3_1997.txt',
                       help='RGB图像路径')
-    parser.add_argument('--rgb-path', type=str, default='/ultralytics/data/Myself-v3-clean/images/visible/test/001624.jpg',
+    parser.add_argument('--rgb-path', type=str, default='/ultralytics/data/Data/0804multimodal/images/visible/val/0531tmp4_0531tmp3_1997.jpg',
                       help='RGB图像路径')
-    parser.add_argument('--ir-path', type=str, default='/ultralytics/data/Myself-v3-clean/images/infrared/test/001624.jpg',
+    parser.add_argument('--ir-path', type=str, default='/ultralytics/data/Data/0804multimodal/images/infrared/val/0531tmp4_0531tmp3_1997.jpg',
                       help='红外图像路径')
     parser.add_argument('--pos-error-threshold', type=float, default=10.0,
                       help='位置误差阈值（像素）')
@@ -42,9 +42,9 @@ def parse_args():
                       help='运行设备 cuda/cpu')
     
     # 检测相关参数
-    parser.add_argument('--conf-thres', type=float, default=0.5,
+    parser.add_argument('--conf-thres', type=float, default=0.6,
                       help='检测置信度阈值')
-    parser.add_argument('--iou-thres', type=float, default=0.45,
+    parser.add_argument('--iou-thres', type=float, default=0.3,
                       help='NMS IOU阈值')
     
     # 其他参数
@@ -465,6 +465,58 @@ def visualize_detections(rgb_img, ir_img, torch_output, onnx_output, save_path, 
             onnx_keep = nms(onnx_boxes, onnx_conf, iou_thres)
             onnx_boxes = onnx_boxes[onnx_keep]
             onnx_conf = onnx_conf[onnx_keep]
+        
+        # 打印检测结果
+        print("\n" + "="*50)
+        print("检测结果统计")
+        print("="*50)
+        
+        print(f"\nPyTorch模型检测结果:")
+        print(f"检测到 {len(torch_boxes)} 个目标")
+        if len(torch_boxes) > 0:
+            for i, (box, conf) in enumerate(zip(torch_boxes, torch_conf)):
+                x1, y1, x2, y2 = box
+                center_x, center_y = (x1 + x2) / 2, (y1 + y2) / 2
+                width, height = x2 - x1, y2 - y1
+                print(f"  目标 {i+1}:")
+                print(f"    位置: 中心点({center_x:.1f}, {center_y:.1f}), 左上角({x1:.1f}, {y1:.1f}), 右下角({x2:.1f}, {y2:.1f})")
+                print(f"    尺寸: 宽度={width:.1f}, 高度={height:.1f}")
+                print(f"    置信度: {conf:.4f}")
+        else:
+            print("  未检测到任何目标")
+            
+        print(f"\nONNX模型检测结果:")
+        print(f"检测到 {len(onnx_boxes)} 个目标")
+        if len(onnx_boxes) > 0:
+            for i, (box, conf) in enumerate(zip(onnx_boxes, onnx_conf)):
+                x1, y1, x2, y2 = box
+                center_x, center_y = (x1 + x2) / 2, (y1 + y2) / 2
+                width, height = x2 - x1, y2 - y1
+                print(f"  目标 {i+1}:")
+                print(f"    位置: 中心点({center_x:.1f}, {center_y:.1f}), 左上角({x1:.1f}, {y1:.1f}), 右下角({x2:.1f}, {y2:.1f})")
+                print(f"    尺寸: 宽度={width:.1f}, 高度={height:.1f}")
+                print(f"    置信度: {conf:.4f}")
+        else:
+            print("  未检测到任何目标")
+        
+        # 比较两个模型的检测结果
+        print(f"\n模型对比:")
+        print(f"  PyTorch检测数量: {len(torch_boxes)}")
+        print(f"  ONNX检测数量: {len(onnx_boxes)}")
+        
+        if len(torch_boxes) > 0 and len(onnx_boxes) > 0:
+            # 计算检测框的差异
+            min_boxes = min(len(torch_boxes), len(onnx_boxes))
+            box_diffs = []
+            for i in range(min_boxes):
+                diff = np.abs(torch_boxes[i] - onnx_boxes[i])
+                box_diffs.append(diff)
+            
+            if box_diffs:
+                avg_diff = np.mean(box_diffs, axis=0)
+                print(f"  平均位置差异: x1={avg_diff[0]:.3f}, y1={avg_diff[1]:.3f}, x2={avg_diff[2]:.3f}, y2={avg_diff[3]:.3f}")
+        
+        print("="*50)
         
         # 创建可视化图像
         h, w = rgb_img.shape[:2]

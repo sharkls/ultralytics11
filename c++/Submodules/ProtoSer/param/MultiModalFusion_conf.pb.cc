@@ -57,7 +57,14 @@ inline constexpr MultiModalFusionModelConfig::Impl_::Impl_(
         dw_ir_{0},
         dh_ir_{0},
         new_unpad_w_ir_{0},
-        new_unpad_h_ir_{0} {}
+        new_unpad_h_ir_{0},
+        track_high_thresh_{0},
+        track_low_thresh_{0},
+        match_thresh_{0},
+        new_track_thresh_{0},
+        tracker_buffer_size_{0},
+        class_history_len_{0},
+        max_time_lost_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR MultiModalFusionModelConfig::MultiModalFusionModelConfig(::_pbi::ConstantInitialized)
@@ -146,6 +153,13 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.dh_ir_),
         PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.new_unpad_w_ir_),
         PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.new_unpad_h_ir_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.track_high_thresh_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.track_low_thresh_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.match_thresh_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.new_track_thresh_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.tracker_buffer_size_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.class_history_len_),
+        PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionModelConfig, _impl_.max_time_lost_),
         0,
         1,
         2,
@@ -172,6 +186,13 @@ const ::uint32_t
         22,
         23,
         24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
         PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionConfig, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::multimodalfusion::MultiModalFusionConfig, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -188,8 +209,8 @@ const ::uint32_t
 
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-        {0, 34, -1, sizeof(::multimodalfusion::MultiModalFusionModelConfig)},
-        {60, 70, -1, sizeof(::multimodalfusion::MultiModalFusionConfig)},
+        {0, 41, -1, sizeof(::multimodalfusion::MultiModalFusionModelConfig)},
+        {74, 84, -1, sizeof(::multimodalfusion::MultiModalFusionConfig)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::multimodalfusion::_MultiModalFusionModelConfig_default_instance_._instance,
@@ -198,7 +219,7 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
 const char descriptor_table_protodef_MultiModalFusion_5fconf_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
     "\n\033MultiModalFusion_conf.proto\022\020multimoda"
-    "lfusion\032\032AlgorithmConfig_conf.proto\"\250\004\n\033"
+    "lfusion\032\032AlgorithmConfig_conf.proto\"\334\005\n\033"
     "MultiModalFusionModelConfig\022\023\n\013engine_pa"
     "th\030\001 \001(\t\022\021\n\tnum_class\030\002 \001(\005\022\022\n\nbatch_siz"
     "e\030\003 \001(\005\022\r\n\005width\030\004 \001(\005\022\016\n\006height\030\005 \001(\005\022\022"
@@ -212,11 +233,16 @@ const char descriptor_table_protodef_MultiModalFusion_5fconf_2eproto[] ABSL_ATTR
     "(\010\022\024\n\014src_width_ir\030\024 \001(\005\022\025\n\rsrc_height_i"
     "r\030\025 \001(\005\022\027\n\017resize_ratio_ir\030\026 \001(\002\022\r\n\005dw_i"
     "r\030\027 \001(\005\022\r\n\005dh_ir\030\030 \001(\005\022\026\n\016new_unpad_w_ir"
-    "\030\031 \001(\005\022\026\n\016new_unpad_h_ir\030\032 \001(\005\"\214\001\n\026Multi"
-    "ModalFusionConfig\022C\n\014model_config\030\001 \001(\0132"
-    "-.multimodalfusion.MultiModalFusionModel"
-    "Config\022-\n\016modules_config\030\002 \001(\0132\025.common."
-    "ModulesConfigb\006proto3"
+    "\030\031 \001(\005\022\026\n\016new_unpad_h_ir\030\032 \001(\005\022\031\n\021track_"
+    "high_thresh\030\033 \001(\002\022\030\n\020track_low_thresh\030\034 "
+    "\001(\002\022\024\n\014match_thresh\030\035 \001(\002\022\030\n\020new_track_t"
+    "hresh\030\036 \001(\002\022\033\n\023tracker_buffer_size\030\037 \001(\005"
+    "\022\031\n\021class_history_len\030  \001(\005\022\025\n\rmax_time_"
+    "lost\030! \001(\005\"\214\001\n\026MultiModalFusionConfig\022C\n"
+    "\014model_config\030\001 \001(\0132-.multimodalfusion.M"
+    "ultiModalFusionModelConfig\022-\n\016modules_co"
+    "nfig\030\002 \001(\0132\025.common.ModulesConfigb\006proto"
+    "3"
 };
 static const ::_pbi::DescriptorTable* PROTOBUF_NONNULL const
     descriptor_table_MultiModalFusion_5fconf_2eproto_deps[1] = {
@@ -226,7 +252,7 @@ static ::absl::once_flag descriptor_table_MultiModalFusion_5fconf_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_MultiModalFusion_5fconf_2eproto = {
     false,
     false,
-    781,
+    961,
     descriptor_table_protodef_MultiModalFusion_5fconf_2eproto,
     "MultiModalFusion_conf.proto",
     &descriptor_table_MultiModalFusion_5fconf_2eproto_once,
@@ -286,9 +312,9 @@ MultiModalFusionModelConfig::MultiModalFusionModelConfig(
                offsetof(Impl_, num_class_),
            reinterpret_cast<const char *>(&from._impl_) +
                offsetof(Impl_, num_class_),
-           offsetof(Impl_, new_unpad_h_ir_) -
+           offsetof(Impl_, max_time_lost_) -
                offsetof(Impl_, num_class_) +
-               sizeof(Impl_::new_unpad_h_ir_));
+               sizeof(Impl_::max_time_lost_));
 
   // @@protoc_insertion_point(copy_constructor:multimodalfusion.MultiModalFusionModelConfig)
 }
@@ -305,9 +331,9 @@ inline void MultiModalFusionModelConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLA
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, num_class_),
            0,
-           offsetof(Impl_, new_unpad_h_ir_) -
+           offsetof(Impl_, max_time_lost_) -
                offsetof(Impl_, num_class_) +
-               sizeof(Impl_::new_unpad_h_ir_));
+               sizeof(Impl_::max_time_lost_));
 }
 MultiModalFusionModelConfig::~MultiModalFusionModelConfig() {
   // @@protoc_insertion_point(destructor:multimodalfusion.MultiModalFusionModelConfig)
@@ -376,16 +402,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL MultiModalFusion
   return MultiModalFusionModelConfig_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<5, 26, 0, 88, 2>
+const ::_pbi::TcParseTable<5, 33, 0, 96, 7>
 MultiModalFusionModelConfig::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_._has_bits_),
     0, // no _extensions_
-    26, 248,  // max_field_number, fast_idx_mask
+    33, 248,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4227858432,  // skipmap
+    0,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    26,  // num_field_entries
+    33,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     MultiModalFusionModelConfig_class_data_.base(),
@@ -474,12 +500,24 @@ MultiModalFusionModelConfig::_table_ = {
     // int32 new_unpad_h_ir = 26;
     {::_pbi::TcParser::FastV32S2,
      {464, 24, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_h_ir_)}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
+    // float track_high_thresh = 27;
+    {::_pbi::TcParser::FastF32S2,
+     {477, 25, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.track_high_thresh_)}},
+    // float track_low_thresh = 28;
+    {::_pbi::TcParser::FastF32S2,
+     {485, 26, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.track_low_thresh_)}},
+    // float match_thresh = 29;
+    {::_pbi::TcParser::FastF32S2,
+     {493, 27, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.match_thresh_)}},
+    // float new_track_thresh = 30;
+    {::_pbi::TcParser::FastF32S2,
+     {501, 28, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_track_thresh_)}},
+    // int32 tracker_buffer_size = 31;
+    {::_pbi::TcParser::FastV32S2,
+     {504, 29, 0, PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.tracker_buffer_size_)}},
   }}, {{
+    33, 0, 1,
+    65534, 32,
     65535, 65535
   }}, {{
     // string engine_path = 1;
@@ -560,10 +598,31 @@ MultiModalFusionModelConfig::_table_ = {
     // int32 new_unpad_h_ir = 26;
     {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_h_ir_), _Internal::kHasBitsOffset + 24, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // float track_high_thresh = 27;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.track_high_thresh_), _Internal::kHasBitsOffset + 25, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float track_low_thresh = 28;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.track_low_thresh_), _Internal::kHasBitsOffset + 26, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float match_thresh = 29;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.match_thresh_), _Internal::kHasBitsOffset + 27, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float new_track_thresh = 30;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_track_thresh_), _Internal::kHasBitsOffset + 28, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // int32 tracker_buffer_size = 31;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.tracker_buffer_size_), _Internal::kHasBitsOffset + 29, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 class_history_len = 32;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.class_history_len_), _Internal::kHasBitsOffset + 30, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // int32 max_time_lost = 33;
+    {PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.max_time_lost_), _Internal::kHasBitsOffset + 31, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }},
   // no aux_entries
   {{
-    "\54\13\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+    "\54\13\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
     "multimodalfusion.MultiModalFusionModelConfig"
     "engine_path"
   }},
@@ -595,7 +654,11 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
         reinterpret_cast<char*>(&_impl_.new_unpad_w_ir_) -
         reinterpret_cast<char*>(&_impl_.channels_)) + sizeof(_impl_.new_unpad_w_ir_));
   }
-  _impl_.new_unpad_h_ir_ = 0;
+  if ((cached_has_bits & 0xff000000u) != 0) {
+    ::memset(&_impl_.new_unpad_h_ir_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.max_time_lost_) -
+        reinterpret_cast<char*>(&_impl_.new_unpad_h_ir_)) + sizeof(_impl_.max_time_lost_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -850,6 +913,69 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
     }
   }
 
+  // float track_high_thresh = 27;
+  if ((this_._impl_._has_bits_[0] & 0x02000000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          27, this_._internal_track_high_thresh(), target);
+    }
+  }
+
+  // float track_low_thresh = 28;
+  if ((this_._impl_._has_bits_[0] & 0x04000000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          28, this_._internal_track_low_thresh(), target);
+    }
+  }
+
+  // float match_thresh = 29;
+  if ((this_._impl_._has_bits_[0] & 0x08000000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          29, this_._internal_match_thresh(), target);
+    }
+  }
+
+  // float new_track_thresh = 30;
+  if ((this_._impl_._has_bits_[0] & 0x10000000u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          30, this_._internal_new_track_thresh(), target);
+    }
+  }
+
+  // int32 tracker_buffer_size = 31;
+  if ((this_._impl_._has_bits_[0] & 0x20000000u) != 0) {
+    if (this_._internal_tracker_buffer_size() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          31, this_._internal_tracker_buffer_size(), target);
+    }
+  }
+
+  // int32 class_history_len = 32;
+  if ((this_._impl_._has_bits_[0] & 0x40000000u) != 0) {
+    if (this_._internal_class_history_len() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          32, this_._internal_class_history_len(), target);
+    }
+  }
+
+  // int32 max_time_lost = 33;
+  if ((this_._impl_._has_bits_[0] & 0x80000000u) != 0) {
+    if (this_._internal_max_time_lost() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+          33, this_._internal_max_time_lost(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -1053,12 +1179,57 @@ PROTOBUF_NOINLINE void MultiModalFusionModelConfig::Clear() {
       }
     }
   }
-   {
+  if ((cached_has_bits & 0xff000000u) != 0) {
     // int32 new_unpad_h_ir = 26;
     if ((cached_has_bits & 0x01000000u) != 0) {
       if (this_._internal_new_unpad_h_ir() != 0) {
         total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
                                         this_._internal_new_unpad_h_ir());
+      }
+    }
+    // float track_high_thresh = 27;
+    if ((cached_has_bits & 0x02000000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_track_high_thresh()) != 0) {
+        total_size += 6;
+      }
+    }
+    // float track_low_thresh = 28;
+    if ((cached_has_bits & 0x04000000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_track_low_thresh()) != 0) {
+        total_size += 6;
+      }
+    }
+    // float match_thresh = 29;
+    if ((cached_has_bits & 0x08000000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_match_thresh()) != 0) {
+        total_size += 6;
+      }
+    }
+    // float new_track_thresh = 30;
+    if ((cached_has_bits & 0x10000000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_new_track_thresh()) != 0) {
+        total_size += 6;
+      }
+    }
+    // int32 tracker_buffer_size = 31;
+    if ((cached_has_bits & 0x20000000u) != 0) {
+      if (this_._internal_tracker_buffer_size() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_tracker_buffer_size());
+      }
+    }
+    // int32 class_history_len = 32;
+    if ((cached_has_bits & 0x40000000u) != 0) {
+      if (this_._internal_class_history_len() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_class_history_len());
+      }
+    }
+    // int32 max_time_lost = 33;
+    if ((cached_has_bits & 0x80000000u) != 0) {
+      if (this_._internal_max_time_lost() != 0) {
+        total_size += 2 + ::_pbi::WireFormatLite::Int32Size(
+                                        this_._internal_max_time_lost());
       }
     }
   }
@@ -1206,9 +1377,46 @@ void MultiModalFusionModelConfig::MergeImpl(::google::protobuf::MessageLite& to_
       }
     }
   }
-  if ((cached_has_bits & 0x01000000u) != 0) {
-    if (from._internal_new_unpad_h_ir() != 0) {
-      _this->_impl_.new_unpad_h_ir_ = from._impl_.new_unpad_h_ir_;
+  if ((cached_has_bits & 0xff000000u) != 0) {
+    if ((cached_has_bits & 0x01000000u) != 0) {
+      if (from._internal_new_unpad_h_ir() != 0) {
+        _this->_impl_.new_unpad_h_ir_ = from._impl_.new_unpad_h_ir_;
+      }
+    }
+    if ((cached_has_bits & 0x02000000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_track_high_thresh()) != 0) {
+        _this->_impl_.track_high_thresh_ = from._impl_.track_high_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x04000000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_track_low_thresh()) != 0) {
+        _this->_impl_.track_low_thresh_ = from._impl_.track_low_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x08000000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_match_thresh()) != 0) {
+        _this->_impl_.match_thresh_ = from._impl_.match_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x10000000u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_new_track_thresh()) != 0) {
+        _this->_impl_.new_track_thresh_ = from._impl_.new_track_thresh_;
+      }
+    }
+    if ((cached_has_bits & 0x20000000u) != 0) {
+      if (from._internal_tracker_buffer_size() != 0) {
+        _this->_impl_.tracker_buffer_size_ = from._impl_.tracker_buffer_size_;
+      }
+    }
+    if ((cached_has_bits & 0x40000000u) != 0) {
+      if (from._internal_class_history_len() != 0) {
+        _this->_impl_.class_history_len_ = from._impl_.class_history_len_;
+      }
+    }
+    if ((cached_has_bits & 0x80000000u) != 0) {
+      if (from._internal_max_time_lost() != 0) {
+        _this->_impl_.max_time_lost_ = from._impl_.max_time_lost_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -1232,8 +1440,8 @@ void MultiModalFusionModelConfig::InternalSwap(MultiModalFusionModelConfig* PROT
   _impl_.stride_.InternalSwap(&other->_impl_.stride_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.engine_path_, &other->_impl_.engine_path_, arena);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.new_unpad_h_ir_)
-      + sizeof(MultiModalFusionModelConfig::_impl_.new_unpad_h_ir_)
+      PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.max_time_lost_)
+      + sizeof(MultiModalFusionModelConfig::_impl_.max_time_lost_)
       - PROTOBUF_FIELD_OFFSET(MultiModalFusionModelConfig, _impl_.num_class_)>(
           reinterpret_cast<char*>(&_impl_.num_class_),
           reinterpret_cast<char*>(&other->_impl_.num_class_));

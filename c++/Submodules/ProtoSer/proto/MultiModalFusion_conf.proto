@@ -32,6 +32,14 @@ message MultiModalFusionModelConfig
     int32 dh_ir = 24;               // 红外高度填充值
     int32 new_unpad_w_ir = 25;      // 红外未填充前的图像宽度
     int32 new_unpad_h_ir = 26;      // 红外未填充前的图像高度
+
+    float track_high_thresh = 27;   // 高置信度阈值
+    float track_low_thresh = 28;    // 低置信度阈值
+    float match_thresh = 29;        // 关联距离阈值
+    float new_track_thresh = 30;    // 新track激活阈值
+    int32 tracker_buffer_size = 31; // 跟踪缓冲区大小
+    int32 class_history_len = 32;   // 类别平滑窗口长度
+    int32 max_time_lost = 33;       // 最大丢失帧数
 }
 
 // 姿态估计任务配置参数

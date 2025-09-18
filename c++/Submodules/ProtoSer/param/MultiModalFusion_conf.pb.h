@@ -244,6 +244,13 @@ class MultiModalFusionModelConfig final : public ::google::protobuf::Message
     kDhIrFieldNumber = 24,
     kNewUnpadWIrFieldNumber = 25,
     kNewUnpadHIrFieldNumber = 26,
+    kTrackHighThreshFieldNumber = 27,
+    kTrackLowThreshFieldNumber = 28,
+    kMatchThreshFieldNumber = 29,
+    kNewTrackThreshFieldNumber = 30,
+    kTrackerBufferSizeFieldNumber = 31,
+    kClassHistoryLenFieldNumber = 32,
+    kMaxTimeLostFieldNumber = 33,
   };
   // repeated int32 stride = 8;
   int stride_size() const;
@@ -518,13 +525,83 @@ class MultiModalFusionModelConfig final : public ::google::protobuf::Message
   void _internal_set_new_unpad_h_ir(::int32_t value);
 
   public:
+  // float track_high_thresh = 27;
+  void clear_track_high_thresh() ;
+  float track_high_thresh() const;
+  void set_track_high_thresh(float value);
+
+  private:
+  float _internal_track_high_thresh() const;
+  void _internal_set_track_high_thresh(float value);
+
+  public:
+  // float track_low_thresh = 28;
+  void clear_track_low_thresh() ;
+  float track_low_thresh() const;
+  void set_track_low_thresh(float value);
+
+  private:
+  float _internal_track_low_thresh() const;
+  void _internal_set_track_low_thresh(float value);
+
+  public:
+  // float match_thresh = 29;
+  void clear_match_thresh() ;
+  float match_thresh() const;
+  void set_match_thresh(float value);
+
+  private:
+  float _internal_match_thresh() const;
+  void _internal_set_match_thresh(float value);
+
+  public:
+  // float new_track_thresh = 30;
+  void clear_new_track_thresh() ;
+  float new_track_thresh() const;
+  void set_new_track_thresh(float value);
+
+  private:
+  float _internal_new_track_thresh() const;
+  void _internal_set_new_track_thresh(float value);
+
+  public:
+  // int32 tracker_buffer_size = 31;
+  void clear_tracker_buffer_size() ;
+  ::int32_t tracker_buffer_size() const;
+  void set_tracker_buffer_size(::int32_t value);
+
+  private:
+  ::int32_t _internal_tracker_buffer_size() const;
+  void _internal_set_tracker_buffer_size(::int32_t value);
+
+  public:
+  // int32 class_history_len = 32;
+  void clear_class_history_len() ;
+  ::int32_t class_history_len() const;
+  void set_class_history_len(::int32_t value);
+
+  private:
+  ::int32_t _internal_class_history_len() const;
+  void _internal_set_class_history_len(::int32_t value);
+
+  public:
+  // int32 max_time_lost = 33;
+  void clear_max_time_lost() ;
+  ::int32_t max_time_lost() const;
+  void set_max_time_lost(::int32_t value);
+
+  private:
+  ::int32_t _internal_max_time_lost() const;
+  void _internal_set_max_time_lost(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:multimodalfusion.MultiModalFusionModelConfig)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<5, 26,
-                                   0, 88,
-                                   2>
+  static const ::google::protobuf::internal::TcParseTable<5, 33,
+                                   0, 96,
+                                   7>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -571,6 +648,13 @@ class MultiModalFusionModelConfig final : public ::google::protobuf::Message
     ::int32_t dh_ir_;
     ::int32_t new_unpad_w_ir_;
     ::int32_t new_unpad_h_ir_;
+    float track_high_thresh_;
+    float track_low_thresh_;
+    float match_thresh_;
+    float new_track_thresh_;
+    ::int32_t tracker_buffer_size_;
+    ::int32_t class_history_len_;
+    ::int32_t max_time_lost_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1493,6 +1577,174 @@ inline ::int32_t MultiModalFusionModelConfig::_internal_new_unpad_h_ir() const {
 inline void MultiModalFusionModelConfig::_internal_set_new_unpad_h_ir(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.new_unpad_h_ir_ = value;
+}
+
+// float track_high_thresh = 27;
+inline void MultiModalFusionModelConfig::clear_track_high_thresh() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.track_high_thresh_ = 0;
+  _impl_._has_bits_[0] &= ~0x02000000u;
+}
+inline float MultiModalFusionModelConfig::track_high_thresh() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.track_high_thresh)
+  return _internal_track_high_thresh();
+}
+inline void MultiModalFusionModelConfig::set_track_high_thresh(float value) {
+  _internal_set_track_high_thresh(value);
+  _impl_._has_bits_[0] |= 0x02000000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.track_high_thresh)
+}
+inline float MultiModalFusionModelConfig::_internal_track_high_thresh() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.track_high_thresh_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_track_high_thresh(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.track_high_thresh_ = value;
+}
+
+// float track_low_thresh = 28;
+inline void MultiModalFusionModelConfig::clear_track_low_thresh() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.track_low_thresh_ = 0;
+  _impl_._has_bits_[0] &= ~0x04000000u;
+}
+inline float MultiModalFusionModelConfig::track_low_thresh() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.track_low_thresh)
+  return _internal_track_low_thresh();
+}
+inline void MultiModalFusionModelConfig::set_track_low_thresh(float value) {
+  _internal_set_track_low_thresh(value);
+  _impl_._has_bits_[0] |= 0x04000000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.track_low_thresh)
+}
+inline float MultiModalFusionModelConfig::_internal_track_low_thresh() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.track_low_thresh_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_track_low_thresh(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.track_low_thresh_ = value;
+}
+
+// float match_thresh = 29;
+inline void MultiModalFusionModelConfig::clear_match_thresh() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.match_thresh_ = 0;
+  _impl_._has_bits_[0] &= ~0x08000000u;
+}
+inline float MultiModalFusionModelConfig::match_thresh() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.match_thresh)
+  return _internal_match_thresh();
+}
+inline void MultiModalFusionModelConfig::set_match_thresh(float value) {
+  _internal_set_match_thresh(value);
+  _impl_._has_bits_[0] |= 0x08000000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.match_thresh)
+}
+inline float MultiModalFusionModelConfig::_internal_match_thresh() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.match_thresh_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_match_thresh(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.match_thresh_ = value;
+}
+
+// float new_track_thresh = 30;
+inline void MultiModalFusionModelConfig::clear_new_track_thresh() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.new_track_thresh_ = 0;
+  _impl_._has_bits_[0] &= ~0x10000000u;
+}
+inline float MultiModalFusionModelConfig::new_track_thresh() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.new_track_thresh)
+  return _internal_new_track_thresh();
+}
+inline void MultiModalFusionModelConfig::set_new_track_thresh(float value) {
+  _internal_set_new_track_thresh(value);
+  _impl_._has_bits_[0] |= 0x10000000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.new_track_thresh)
+}
+inline float MultiModalFusionModelConfig::_internal_new_track_thresh() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.new_track_thresh_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_new_track_thresh(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.new_track_thresh_ = value;
+}
+
+// int32 tracker_buffer_size = 31;
+inline void MultiModalFusionModelConfig::clear_tracker_buffer_size() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.tracker_buffer_size_ = 0;
+  _impl_._has_bits_[0] &= ~0x20000000u;
+}
+inline ::int32_t MultiModalFusionModelConfig::tracker_buffer_size() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.tracker_buffer_size)
+  return _internal_tracker_buffer_size();
+}
+inline void MultiModalFusionModelConfig::set_tracker_buffer_size(::int32_t value) {
+  _internal_set_tracker_buffer_size(value);
+  _impl_._has_bits_[0] |= 0x20000000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.tracker_buffer_size)
+}
+inline ::int32_t MultiModalFusionModelConfig::_internal_tracker_buffer_size() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.tracker_buffer_size_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_tracker_buffer_size(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.tracker_buffer_size_ = value;
+}
+
+// int32 class_history_len = 32;
+inline void MultiModalFusionModelConfig::clear_class_history_len() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.class_history_len_ = 0;
+  _impl_._has_bits_[0] &= ~0x40000000u;
+}
+inline ::int32_t MultiModalFusionModelConfig::class_history_len() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.class_history_len)
+  return _internal_class_history_len();
+}
+inline void MultiModalFusionModelConfig::set_class_history_len(::int32_t value) {
+  _internal_set_class_history_len(value);
+  _impl_._has_bits_[0] |= 0x40000000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.class_history_len)
+}
+inline ::int32_t MultiModalFusionModelConfig::_internal_class_history_len() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.class_history_len_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_class_history_len(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.class_history_len_ = value;
+}
+
+// int32 max_time_lost = 33;
+inline void MultiModalFusionModelConfig::clear_max_time_lost() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.max_time_lost_ = 0;
+  _impl_._has_bits_[0] &= ~0x80000000u;
+}
+inline ::int32_t MultiModalFusionModelConfig::max_time_lost() const {
+  // @@protoc_insertion_point(field_get:multimodalfusion.MultiModalFusionModelConfig.max_time_lost)
+  return _internal_max_time_lost();
+}
+inline void MultiModalFusionModelConfig::set_max_time_lost(::int32_t value) {
+  _internal_set_max_time_lost(value);
+  _impl_._has_bits_[0] |= 0x80000000u;
+  // @@protoc_insertion_point(field_set:multimodalfusion.MultiModalFusionModelConfig.max_time_lost)
+}
+inline ::int32_t MultiModalFusionModelConfig::_internal_max_time_lost() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.max_time_lost_;
+}
+inline void MultiModalFusionModelConfig::_internal_set_max_time_lost(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.max_time_lost_ = value;
 }
 
 // -------------------------------------------------------------------

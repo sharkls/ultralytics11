@@ -93,8 +93,11 @@ if(CMAKE_PLATFORM MATCHES "86")
     # add_executable(${PROJECT_NAME} TestObjectDetection.cpp)
     # add_executable(${PROJECT_NAME} TestBinocularPositioning.cpp)
     # add_executable(${PROJECT_NAME} TestObjectDetectionv2.cpp)
-    add_executable(${PROJECT_NAME} TestPoseEstimationv2.cpp)
+    # add_executable(${PROJECT_NAME} TestPoseEstimationv2.cpp)
     # add_executable(${PROJECT_NAME} TestObjectClassify.cpp)
+    # add_executable(${PROJECT_NAME} TestObjectDetectionv2.cpp)
+    add_executable(${PROJECT_NAME} TestMultiModalDetectionv2.cpp)
+
 
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_core)
     target_link_libraries(${PROJECT_NAME} PRIVATE opencv_imgproc)
